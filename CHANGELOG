@@ -1,5 +1,19 @@
 CHANGELOG:
 
+v0.43 - Minor Changes, Updates, and New Features
+   Changes:
+      Contact URL has been updated
+   Updates:
+      In keeping with the new rigorousness regarding data.frame structures in
+        1.8.0, many data.frames have been changed to lists.  This should be
+        transparent to the end user, but will avoid the generation of errors
+        under the new system.
+      Removed references to (deprecated) plot.hclust
+   New Features:
+      gplot now supports spring embedding.  Providing unsupported layout modes
+        now produces an error, rather than undefined behavior (as before).  
+        Options have also been added for suppressing the printing of axes,
+        and for placing opaque boxes behind vertex labels.
 v0.42 - Minor Changes
    Changes:
       Author contact information has been updated

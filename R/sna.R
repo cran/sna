@@ -3,9 +3,9 @@
 #
 # By Carter Butts, buttsc@uci.edu
 #
-# Current Version: 0.41
+# Current Version: 0.43
 #
-# Last updated 3/24/02
+# Last updated 10/8/03
 #
 #Contents:
 #
@@ -158,6 +158,26 @@
 #
 #CHANGELOG:
 #
+#v0.43 - Minor Changes, Updates, and New Features
+#   Changes:
+#      Contact URL has been updated
+#   Updates:
+#      In keeping with the new rigorousness regarding data.frame structures in
+#        1.8.0, many data.frames have been changed to lists.  This should be
+#        transparent to the end user, but will avoid the generation of errors
+#        under the new system.
+#      Removed references to (deprecated) plot.hclust
+#   New Features:
+#      gplot now supports spring embedding.  Providing unsupported layout modes
+#        now produces an error, rather than undefined behavior (as before).  
+#        Options have also been added for suppressing the printing of axes,
+#        and for placing opaque boxes behind vertex labels.
+#v0.42 - Minor Changes
+#   Changes:
+#      Author contact information has been updated
+#      plot.matrix is now plot.sociomatrix, in order to ensure compatibility
+#         with the new method standards; all code should be updated to reflect
+#	 this fact
 #v0.41 - Updates, New Features, and Bug Fixes
 #   Updates:
 #      Deprecated function .Alias removed (was used in netlm, netlogit)
@@ -869,7 +889,7 @@ rmperm<-function(m){
 #qaptest - Generate, print, and plot QAP test objects.
 
 qaptest<-function(dat,FUN,reps=1000,...){
-   out<-data.frame()
+   out<-list()
    #First, find the test value for fun on dat
    fun<-match.fun(FUN)
    out$testval<-fun(dat,...)
@@ -1804,7 +1824,7 @@ gliop<-function(dat,GFUN,OP="-",g1=1,g2=2,...){
 #cugtest - Generate, print, and plot CUG (conditional uniform graph) test objects.
 
 cugtest<-function(dat,FUN,reps=1000,gmode="digraph",cmode="density",diag=FALSE,g1=1,g2=2,...){
-   out<-data.frame()
+   out<-list()
    #First, find the test value for fun on dat
    fun<-match.fun(FUN)
    out$testval<-fun(dat,g1=g1,g2=g2,...)
@@ -1907,7 +1927,7 @@ geodist<-function(dat,inf.replace=dim(dat)[2]){
       }   #Keep going until there's no one left at all
    }
    #Return the results
-   o<-data.frame()
+   o<-list()
    o$counts<-sigma
    o$gdist<-gd
    o
@@ -1970,7 +1990,7 @@ component.dist<-function(dat,connected=c("strong","weak","unilateral","recursive
          }  #Keep going until there's no one left at all   
       }   
    #Return the results
-   o<-data.frame()
+   o<-list()
    o$membership<-membership          #Copy memberships
    o$csize<-vector()
    for(i in 1:max(membership))           #Extract component sizes
@@ -2499,7 +2519,7 @@ lubness<-function(dat,g=1:stackcount(dat)){
 
 #gplot - Graph visualization
 
-gplot<-function(dat, g=1,gmode="digraph",diag=FALSE,label=c(1:dim(dat)[2]),coord=NULL,jitter=TRUE,thresh=0,usearrows=TRUE,mode="mds",displayisolates=TRUE,pad=0,vertex.pch=19,label.cex=1,vertex.cex=1,label.col=1,edge.col=1,vertex.col=1,arrowhead.length=0.2,edge.type=1,edge.lwd=0,...){
+gplot<-function(dat,g=1,gmode="digraph",diag=FALSE,label=c(1:dim(dat)[2]),coord=NULL,jitter=TRUE,thresh=0,usearrows=TRUE,mode="springrepulse",displayisolates=TRUE,boxed.labels=TRUE,xlab=NULL,ylab=NULL,pad=0.1,vertex.pch=19,label.cex=1,vertex.cex=1,label.col=1,edge.col=1,vertex.col=1,arrowhead.length=0.2,edge.type=1,edge.lwd=0,suppress.axes=TRUE,embedder.params=c(0.001,1,0.01,0.2,0.001),...){
    #Extract the graph to be displayed
    if(length(dim(dat))>2)
       d<-dat[g,,]
@@ -2588,6 +2608,65 @@ gplot<-function(dat, g=1,gmode="digraph",diag=FALSE,label=c(1:dim(dat)[2]),coord
       tempmds<-cmdscale(as.dist(temp))
       x<-tempmds[,1]
       y<-tempmds[,2]
+   }else if(mode%in%c("spring","springrepulse")){  #Spring embedder
+      f.x<-rep(0,n)       #Set initial x/y forces to zero
+      f.y<-rep(0,n)
+      v.x<-rep(0,n)       #Set initial x/y velocities to zero
+      v.y<-rep(0,n)
+      tempa<-sample((0:(n-1))/n) #Set initial positions randomly on the circle
+      x<-n/(2*pi)*sin(2*pi*tempa)
+      y<-n/(2*pi)*cos(2*pi*tempa)
+      ds<-symmetrize(d,"weak")>thresh     #Symmetrize/dichotomize the graph
+      kfr<-0                              #Set initial friction level
+      niter<-0                            #Set the iteration counter
+      ep<-embedder.params                 #Give this a shorter name!
+      repeat{   #Simulate, with increasing friction, until motion stops
+        niter<-niter+1                    #Update the iteration counter
+        dis<-as.matrix(dist(cbind(x,y)))  #Get inter-point distances
+	#Get angles relative to the positive x direction
+	theta<-acos(t(outer(x,x,"-"))/dis)*sign(t(outer(y,y,"-"))) 
+        #Compute spring forces; note that we assume a base spring coefficient
+	#of ep[3] units ("pseudo-Newtons/quasi-meter"?), with an equilibrium
+	#extension of ep[2] units for all springs
+	f.x<-apply(ds*cos(theta)*ep[3]*(dis-ep[2]),1,sum,na.rm=TRUE)
+	f.y<-apply(ds*sin(theta)*ep[3]*(dis-ep[2]),1,sum,na.rm=TRUE)
+	#If node repulsion is active, add a force component for this
+	#as well.  We employ an inverse cube law which is equal in power
+	#to the attractive spring force at distance ep[4]
+	if(mode=="springrepulse"){
+	  f.x<-f.x-apply(cos(theta)*ep[3]/(dis/ep[4])^3,1,sum,na.rm=TRUE)
+	  f.y<-f.y-apply(sin(theta)*ep[3]/(dis/ep[4])^3,1,sum,na.rm=TRUE)
+	}
+	#Adjust the velocities (assume a mass of ep[1] units); note that the
+	#motion is roughly modeled on the sliding of flat objects across
+	#a uniform surface (e.g., spring-connected cylinders across a table).
+	#We assume that the coefficients of static and kinetic friction are
+	#the same, which should only trouble you if you are under the 
+	#delusion that this is a simulation rather than a graph drawing
+	#exercise (in which case you should be upset that I'm not using
+	#Runge-Kutta or the like!).
+	v.x<-v.x+f.x/ep[4]         #Add accumulated spring/repulsion forces
+	v.y<-v.y+f.y/ep[4]
+        spd<-sqrt(v.x^2+v.y^2)     #Determine frictional forces
+	fmag<-pmin(spd*ep[4],kfr)  #We can't let friction _create_ motion!
+	theta<-acos(v.x/spd)*sign(v.y)  #Calculate direction of motion
+	f.x<-fmag*cos(theta)        #Decompose frictional forces
+	f.y<-fmag*sin(theta)
+	f.x[is.nan(f.x)]<-0         #Correct for any 0/0 problems
+	f.y[is.nan(f.y)]<-0
+	v.x<-v.x-f.x/ep[4]          #Apply frictional forces (opposing motion)
+	v.y<-v.y-f.y/ep[4]
+        #Adjust the positions (yep, it's primitive linear updating time!)
+	x<-x+v.x
+	y<-y+v.y
+        #Check for cessation of motion, and increase friction
+	if(all(v.x<1e-10)&&all(v.y<1e-10))
+	  break
+	else
+	  kfr<-ep[5]*niter
+      }
+   }else{
+      stop("Unsupported layout mode",mode,"in gplot.  Exiting.\n")
    }
    #Jitter the coordinates if need be
    if(jitter){
@@ -2596,11 +2675,16 @@ gplot<-function(dat, g=1,gmode="digraph",diag=FALSE,label=c(1:dim(dat)[2]),coord
    }
    #Which nodes should we use?
    use<-displayisolates|(!is.isolate(d,ego=1:dim(d)[1]))   
+   #Deal with axis labels
+   if(is.null(xlab))
+     xlab=""
+   if(is.null(ylab))
+     ylab=""
    #Plot the results
    if((length(x)>0)&(!all(use==FALSE)))
-      plot(x[use],y[use],xlim=c(min(x[use])-pad,max(x[use])+pad),ylim=c(min(y[use])-pad,max(y[use])+pad),type="p",pch=vertex.pch,xlab=expression(lambda[1]),ylab=expression(lambda[2]),col=vertex.col,cex=vertex.cex,...)
+      plot(x[use],y[use],xlim=c(min(x[use])-pad,max(x[use])+pad),ylim=c(min(y[use])-pad,max(y[use])+pad),type="p",pch=vertex.pch,xlab=xlab,ylab=ylab,col=vertex.col,cex=vertex.cex,axes=!suppress.axes,...)
    else
-      plot(0,0,type="n",pch=vertex.pch,xlab=expression(lambda[1]),ylab=expression(lambda[2]),col=vertex.col,cex=vertex.cex,...)
+      plot(0,0,type="n",pch=vertex.pch,xlab=expression(lambda[1]),ylab=expression(lambda[2]),col=vertex.col,cex=vertex.cex,axes=!suppress.axes,...)
    px0<-vector()
    py0<-vector()
    px1<-vector()
@@ -2622,8 +2706,15 @@ gplot<-function(dat, g=1,gmode="digraph",diag=FALSE,label=c(1:dim(dat)[2]),coord
       arrows(as.vector(px0),as.vector(py0),as.vector(px1),as.vector(py1),length=arrowhead.length,angle=15,col=edge.col,lty=edge.type,lwd=e.lwd)
    else if(length(px0)>0)
       segments(as.vector(px0),as.vector(py0),as.vector(px1),as.vector(py1),col=edge.col,lty=edge.type,lwd=e.lwd)
-   if((length(label)>0)&(!all(use==FALSE)))
-      text(x[use],y[use],label[use],pos=1,cex=label.cex,col=label.col)
+   if((length(label)>0)&(!all(use==FALSE))){
+      if(boxed.labels){
+        lw<-strwidth(label[use],cex=label.cex)/2
+        lh<-strheight(label[use],cex=label.cex)/2
+	os<-c(0.2,0.4)*par()$cxy*label.cex
+        rect(x[use]-lw-os[1],y[use]-3.5*lh-os[2],x[use]+lw+os[1],y[use]-2.5*lh+os[2],col="white")
+      }	
+      text(x[use],y[use]-3*lh,label[use],cex=label.cex,col=label.col)
+   }
 }
 
 
@@ -2632,7 +2723,7 @@ gplot<-function(dat, g=1,gmode="digraph",diag=FALSE,label=c(1:dim(dat)[2]),coord
 #network hypothesis testing stuff thrown in for good measure.
 
 netlogit<-function(y,x,mode="digraph",diag=FALSE,nullhyp="cugtie",reps=1000){
-   out<-data.frame()
+   out<-list()
    out$dist<-matrix(nrow=reps,ncol=dim(x)[1]+1)
    iy<-vector()
    if(length(dim(x))>2){
@@ -2795,9 +2886,8 @@ print.netlogit<-function(x,...){
 #netlm - OLS network regression routine using a QAP/CUG null hypotheses.  This routine is
 #frighteningly slow, since it's essentially a front end to the builtin lm routine with a bunch of
 #network hypothesis testing stuff thrown in for good measure.
-
 netlm<-function(y,x,mode="digraph",diag=FALSE,nullhyp="cugtie",reps=1000){
-   out<-data.frame()
+   out<-list()
    out$r.squared.dist<-vector(length=reps)
    out$adj.r.squared.dist<-vector(length=reps)
    out$sigma.dist<-vector(length=reps)
@@ -3032,7 +3122,7 @@ netcancor<-function(y,x,mode="digraph",diag=FALSE,nullhyp="cugtie",reps=1000){
    my<-dim(y)[1]
    mx<-dim(x)[1]
    n<-dim(y)[2]
-   out<-data.frame()
+   out<-list()
    out$xdist<-array(dim=c(reps,mx,mx))
    out$ydist<-array(dim=c(reps,my,my))
    #Convert the response first.
@@ -3376,7 +3466,7 @@ bbnam.bf<-function(dat,nprior=matrix(rep(0.5,dim(dat)[1]^2),nrow=dim(dat)[1],nco
    int.lik<-c(mean(pfpv),mean(ppov),mean(pacv))
    int.lik.std<-sqrt(c(var(pfpv),var(ppov),var(pacv)))
    #Find the Bayes Factors
-   o<-data.frame()
+   o<-list()
    o$int.lik<-matrix(nrow=3,ncol=3)
    for(i in 1:3)
       for(j in 1:3){
@@ -3520,7 +3610,7 @@ bbnam.fixed<-function(dat,nprior=matrix(rep(0.5,dim(dat)[2]^2),nrow=dim(dat)[2],
    if(outmode=="posterior")
       npost
    else{
-      o<-data.frame()
+      o<-list()
       o$net<-rgraph(n,draws,tprob=npost,diag=diag,mode=mode)
       o$anames<-anames
       o$onames<-onames
@@ -3540,7 +3630,7 @@ bbnam.pooled<-function(dat,nprior=matrix(rep(0.5,dim(dat)[2]*dim(dat)[3]),nrow=d
    n<-dim(dat)[2]
    d<-dat
    slen<-burntime+floor(draws/reps)
-   out<-data.frame()
+   out<-list()
    #Remove any data which doesn't count...
    if(mode=="graph")
       d<-upper.tri.remove(d)
@@ -3645,7 +3735,7 @@ bbnam.actor<-function(dat,nprior=matrix(rep(0.5,dim(dat)[2]*dim(dat)[3]),nrow=di
    n<-dim(dat)[2]
    d<-dat
    slen<-burntime+floor(draws/reps)
-   out<-data.frame()
+   out<-list()
    #Remove any data which doesn't count...
    if(mode=="graph")
       d<-upper.tri.remove(d)
@@ -4366,7 +4456,7 @@ equiv.clust<-function(dat,g=c(1:dim(dat)[1]),equiv.fun="sedist",method="hamming"
    #Load the mva package, if it's not already loaded
    require(mva)
    #Generate the output object
-   o<-data.frame
+   o<-list()
    #Produce the hierarchical clustering
    o$cluster<-hclust(as.dist(equiv.dist),method=cluster.method)
    #Set the output class and take care of other details
@@ -4387,10 +4477,12 @@ equiv.clust<-function(dat,g=c(1:dim(dat)[1]),equiv.fun="sedist",method="hamming"
 #plot.equiv.clust - Plotting for equivalence clustering objects
 
 plot.equiv.clust<-function(x,labels=x$plabels,...){
+   require(mva)
+   class(x)<-"hclust"
    if(is.null(labels))
-      plot.hclust(x$cluster,...)
+      plot(x$cluster,...)
    else
-      plot.hclust(x$cluster,labels=labels,...)
+      plot(x$cluster,labels=labels,...)
 }
 
 
@@ -4452,7 +4544,7 @@ blockmodel<-function(dat,ec,k=NULL,h=NULL,block.content="density",plabels=ec$pla
             }
          }
    #Prepare the output object
-   o<-data.frame()
+   o<-list()
    o$block.membership<-b[ec$cluster$order]
    o$order.vector<-ec$cluster$order
    o$block.content<-block.content
@@ -4659,7 +4751,7 @@ interval.graph<-function(slist,type="simple",diag=FALSE){
    #col 2 containing the spell onset, and col 3 containing the spell termination.  If there are multiple
    #slices present, they must be indexed by the first dimension of the array.
    #First, the preliminaries
-   o<-data.frame
+   o<-list()
    m<-stackcount(slist)          #Get the number of stacks
    if(m==1){
       d<-array(dim=c(m,dim(slist)[1],dim(slist)[2]))
@@ -4739,7 +4831,7 @@ pstar<-function(dat,effects=c("choice","mutuality","density","reciprocity","stra
    #First, take care of various details
    n<-dim(dat)[1]
    m<-dim(dat)[2]
-   o<-data.frame()
+   o<-list()
    #Next, add NAs as needed
    d<-dat
    if(!diag)
