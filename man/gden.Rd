@@ -21,7 +21,7 @@ gden(dat, g=NULL, diag=FALSE, mode="digraph")
 \value{
   The graph density
 }
-\references{ Wasserman, S., and Faust, K.  (1994).  ``Social Network Analysis: Methods and Applications.''  Cambridge: Cambridge University Press. }
+\references{ Wasserman, S., and Faust, K.  (1994).  \emph{Social Network Analysis: Methods and Applications.}  Cambridge: Cambridge University Press. }
 \author{ Carter T. Butts \email{buttsc@uci.edu} }
 %\note{  }
 
@@ -37,3 +37,4 @@ gden(dat)
 }
 \keyword{ univar }%-- one or more ...
 \keyword{ math }
+\keyword{graphs}

@@ -15,7 +15,7 @@ interval.graph(slist, type="simple", diag=FALSE)
   \item{diag}{ Include the dyadic entries? }
 }
 \details{
-  Given some ordering dimension T (usually time), a ``spell'' is defined as the interval between a specified onset and a specified termination (with onset preceding the termination).  An interval graph, then, on spell set V, is \eqn{G=\{V,E\}}, where \eqn{\{i,j\} \in E}{\{i,j\} in E} iff there exists some point \eqn{t \in T}{e \in T} such that \eqn{t \in i}{t \in i} and \eqn{t \in j}{t \in j}.  In more prosaic terms, an interval graph on a given spell set has each spell as a vertex, with vertices adjacent iff they overlap.  Such structures are useful for quantifying life history data (where spells might represent marriages, periods of child custody/co-residence, periods of employment, etc.), organizational history data (where spells might reflect periods of strategic alliances, participation in a particular product market, etc.), task scheduling (with spells representing the dedication of a particular resource to a given task), etc.  By giving complex historical data a graphic representation, it is possible to easily perform a range of analyses which would otherwise be difficult and/or impossible (see Butts and Pixley (2001) for examples).
+  Given some ordering dimension T (usually time), a ``spell'' is defined as the interval between a specified onset and a specified termination (with onset preceding the termination).  An interval graph, then, on spell set V, is \eqn{G=\{V,E\}}, where \eqn{\{i,j\} \in E}{\{i,j\} in E} iff there exists some point \eqn{t \in T}{e \in T} such that \eqn{t \in i}{t \in i} and \eqn{t \in j}{t \in j}.  In more prosaic terms, an interval graph on a given spell set has each spell as a vertex, with vertices adjacent iff they overlap.  Such structures are useful for quantifying life history data (where spells might represent marriages, periods of child custody/co-residence, periods of employment, etc.), organizational history data (where spells might reflect periods of strategic alliances, participation in a particular product market, etc.), task scheduling (with spells representing the dedication of a particular resource to a given task), etc.  By giving complex historical data a graphic representation, it is possible to easily perform a range of analyses which would otherwise be difficult and/or impossible (see Butts and Pixley (2004) for examples).
 
 In addition to the simple interval graph (described above), \code{interval.graph} can also generate valued interval graphs using a number of different edge definitions.  This is controlled by the \code{type} argument, with edge values as follows:
 \enumerate{
@@ -38,7 +38,7 @@ Note that ``simple,'' ``overlap,'' and ``jntfrac'' are symmetric relations, whil
   \item{exchange.list }{Matrix containing the vector of spell types associated with each interval graph}
 }
 \references{ 
-Butts, C.T., and Pixley, J.E.  ``A Structural Approach to the Representation of Life History Data.'' CASOS working paper, Carnegie Mellon University.
+Butts, C.T. and Pixley, J.E.  (2004).  ``A Structural Approach to the Representation of Life History Data.''  \emph{Journal of Mathematical Sociology}, 28(2), 81-124.
 
 West, D.B.  (1996).  \emph{Introduction to Graph Theory}.  Upper Saddle River, NJ: Prentice Hall. }
 \author{ Carter T. Butts \email{buttsc@uci.edu}}

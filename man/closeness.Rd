@@ -28,14 +28,14 @@ closeness(dat, g=1, nodes=c(1:dim(dat)[2]), gmode="digraph",
 \deqn{C_C(v) = \frac{\left|V\left(G\right)\right|-1}{\sum_{i : i \neq v} d(v,i)}}{%
 C_C(v) = (|V(G)|-1)/sum( d(v,i), i in V(G), i!=v )}
 
-where \eqn{d(i,j)}{d(i,j)} is the geodesic distance between i and j (where defined).  Closeness is ill-defined on disconnected graphs; in such cases, this routine substitutes a number one greater than the maximum path length (i.e., |V(G)|) for the geodesic distance).  It should be understood that this modification is not canonical, but can be avoided by not attempting to measure closeness on disconnected graphs in the first place!  Intuitively, closeness provides an index of the extent to which a given vertex has short paths to all other vertices in the graph; this is one reasonable measure of the extent to which a vertex is in the ``middle'' of a given structure.
+where \eqn{d(i,j)}{d(i,j)} is the geodesic distance between i and j (where defined).  Closeness is ill-defined on disconnected graphs; in such cases, this routine substitutes \code{Inf}.  It should be understood that this modification is not canonical (though it is common), but can be avoided by not attempting to measure closeness on disconnected graphs in the first place!  Intuitively, closeness provides an index of the extent to which a given vertex has short paths to all other vertices in the graph; this is one reasonable measure of the extent to which a vertex is in the ``middle'' of a given structure.
 }
 \value{
 A vector containing the closeness scores.
 }
 \references{Freeman, L.C.  (1979).  ``Centrality in Social Networks I: Conceptual Clarification.'' \emph{Social Networks}, 1, 215-239. }
 \author{ Carter T. Butts, \email{buttsc@uci.edu} }
-\note{ Judicious use of \code{geodist.precomp} can save a great deal of time when computing multiple path-based indices on the same network. }
+\note{ Judicious use of \code{geodist.precomp} can save a great deal of time when computing multiple path-based indices on the same network.  Before \code{sna} version 0.50, \code{closeness} substituted one plus the maximum possible path length for disconnected vertex pairs.}
 
 
 
@@ -48,3 +48,4 @@ closeness(g)      #Compute closeness scores
 }
 \keyword{univar }%-- one or more ...
 \keyword{ math }
+\keyword{graphs}

@@ -1,5 +1,46 @@
 CHANGELOG:
 
+v0.5 - New Functions, Changes, and Bug Fixes
+   New Functions:
+      gplot.arrow - Custom arrow-drawing for gplot
+      gplot.layout.fruchtermanreingold - New layout method
+      gplot.layout.hall - New layout method
+      gplot.layout.kamadakawai - New layout method
+      gplot.layout.target - New layout method
+      gplot.loop - Custom loop-drawing for gplot
+      gplot.target - Draw "target diagrams" using gplot
+      gplot3d - Three-dimensional graph visualization
+      gplot3d.arrow - Draw three-dimensional "arrows"
+      gplot3d.layout.* - Layout functions for gplot3d
+      gplot3d.loop - Draw three-dimensional "loops"
+      is.connected - Determine whether or not one or more graphs is connected
+      rgmn - Draw from the G(N,M) graph distribution
+      rguman - Draw from the U|MAN graph distribution
+   Changes:
+      addisolates has been changed to add.isolates; addisolates is deprecated
+      geodist now uses Inf as the default inf.replace value (was N); note that
+        this may affect the default behavior of routines which use geodesic
+        distance matrices on disconnected graphs
+      gplot overhaul continues:
+        gplot aspect ratio now fixed at 1:1
+        gplot now uses Fruchterman-Reingold as its default layout method
+        gplot now supports manual setting of plot limits
+        gplot now uses red as the default vertex color
+        All plotting elements are now polygons; scaling is now performed
+          relative to fractions of the plotting region, and all elements
+          can be scaled.
+        Labels are no longer plotted by default (and can be switched off with
+          displaylabels)
+        Various other minor changes have been made; see ?gplot
+      Many routines (e.g., triad.classify, triad.census, geodist, etc.) now
+        have C backends.  This results in a tremendous performance boost (e.g.,
+        1-2 orders of magnitude) on large graphs.
+      Package code has been substantially reorganized
+      A cumulative list of contributors has been added to the package -- see the
+        CONTRIBUTORS file
+   Bug Fixes
+      betweenness no longer produces NaNs on disconnected vertex sets
+      lubness was producing incorrect values for some graphs
 v0.44 - New Functions, New Features, Changes, and Bug Fixes
    New Functions:
       %c% - Composition of two adjacency matrices

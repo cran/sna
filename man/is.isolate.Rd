@@ -22,7 +22,7 @@ In the valued case, any non-zero edge value is taken as sufficient to establish 
 A boolean value (or vector thereof) indicating isolate status
 }
 \references{
-Wasserman, S., and Faust, K.  (1994).  ``Social Network Analysis: Methods and Applications.''  Cambridge: Cambridge University Press.
+Wasserman, S., and Faust, K.  (1994).  \emph{Social Network Analysis: Methods and Applications.}  Cambridge: Cambridge University Press.
 
 West, D.B.  (1996).  \emph{Introduction to Graph Theory}.  Upper Saddle River, NJ: Prentice Hall. }
 \author{ Carter T. Butts \email{buttsc@uci.edu} }
@@ -30,7 +30,7 @@ West, D.B.  (1996).  \emph{Introduction to Graph Theory}.  Upper Saddle River, N
 
 % ~Make other sections like WARNING with \section{WARNING }{....} ~
 
-\seealso{ \code{\link{isolates}}, \code{\link{addisolates}} }
+\seealso{ \code{\link{isolates}}, \code{\link{add.isolates}} }
 
 \examples{
 #Generate a test graph
@@ -43,3 +43,4 @@ is.isolate(g,2)  #2 is almost surely not an isolate
 is.isolate(g,4)  #4 is, by construction
 }
 \keyword{ logic }%-- one or more ...
+\keyword{ graphs }

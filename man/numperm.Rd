@@ -19,7 +19,7 @@ numperm(olength, permnum)
 \value{
 A permutation vector
 }
-\references{  }
+%\references{  }
 \author{ Carter T. Butts \email{buttsc@uci.edu} }
 \note{ Permutation search is central to the estimation of structural distances, correlations, and covariances on partially labeled graphs.  \code{numperm} is hence used by \code{\link{structdist}}, \code{\link{gscor}}, \code{\link{gscov}}, etc. }
 

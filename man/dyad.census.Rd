@@ -24,7 +24,7 @@ A matrix whose three columns contain the counts of mutual, asymmetric, and null 
 Wasserman, S., and Faust, K.  (1994).  ``Social Network Analysis: Methods and Applications.''  Cambridge: Cambridge University Press.}
 \author{ Carter T. Butts \email{buttsc@uci.edu} }
 
-\seealso{ \code{\link{mutuality}}, \code{\link{grecip}}, \code{\link{triad.census}} }
+\seealso{ \code{\link{mutuality}}, \code{\link{grecip}}, \code{\link{rguman}} \code{\link{triad.census}} }
 
 \examples{
 #Generate a dyad census of random data with varying densities

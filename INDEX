@@ -1,4 +1,6 @@
-addisolates             Add Isolates to a Graph
+add.isolates            Add Isolates to a Graph
+addisolates-deprecated
+                        Add Isolates to a Graph (Deprecated)
 bbnam                   Butts' (Hierarchical) Bayesian Network
                         Accuracy Model
 bbnam.bf                Estimate Bayes Factors for the bbnam
@@ -57,7 +59,15 @@ geodist                 Fund the Numbers and Lengths of Geodesics
 gliop                   Return a Binary Operation on GLI Values
                         Computed on Two Graphs
 gplot                   Two-Dimensional Visualization of Graphs
+gplot.arrow             Add Arrows or Segments to a Plot
 gplot.layout            Vertex Layout Functions for gplot
+gplot.loop              Add Loops to a Plot
+gplot.target            Display a Graph in Target Diagram Form
+gplot.vertex            Add Vertices to a Plot
+gplot3d                 Three-Dimensional Visualization of Graphs
+gplot3d.arrow           Add Arrows a Three-Dimensional Plot
+gplot3d.layout          Vertex Layout Functions for gplot3d
+gplot3d.loop            Add Loops to a Three-Dimensional Plot
 graphcent               Compute the (Harary) Graph Centrality Scores
                         of Network Positions
 grecip                  Compute the Reciprocity of an Input Graph or
@@ -75,6 +85,7 @@ hierarchy               Compute Graph Hierarchy Scores
 infocent                Find Information Centrality Scores of Network
                         Positions
 interval.graph          Convert Spell Data to Interval Graphs
+is.connected            Is a Given Graph Connected?
 is.isolate              Is Ego an Isolate?
 isolates                List the Isolates in a Graph or Graph Stack
 lab.optimize            Optimize a Bivariate Graph Statistic Across a
@@ -134,7 +145,10 @@ qaptest                 Perform Quadratic Assignment Procedure (QAP)
                         Hypothesis Tests for Graph-Level Statistics
 reachability            Find the Reachability Matrix of a Graph
 read.nos                Read (N)eo-(O)rg(S)tat Input Files
+rgnm                    Draw Density-Conditioned Random Graphs
 rgraph                  Generate Bernoulli Random Graphs
+rguman                  Draw Dyad Census-Conditioned Random Graphs
+rgws                    Draw From the Watts-Strogatz Rewiring Model
 rmperm                  Randomly Permute the Rows and Columns of an
                         Input Matrix
 rperm                   Draw a Random Permutation Vector with
@@ -143,6 +157,7 @@ sdmat                   Estimate the Structural Distance Matrix for a
                         Graph Set
 sedist                  Find a Matrix of Distances Between Positions
                         Based on Structural Equivalence
+sna-deprecated          Deprecated Functions in sna Package
 sna.operators           Graphical Operators
 sr2css                  Convert a Row-wise Self-Report Matrix to a CSS
                         Matrix with Missing Observations

@@ -44,7 +44,7 @@ A vector containing the centrality scores
 }
 \references{ Stephenson, K., and Zelen, M. (1989).  ``Rethinking Centrality: Methods and Applications.''  \emph{Social Networks}, 11, 1-37.
 
-Wasserman, S., and Faust, K.  (1994).  ``Social Network Analysis: Methods and Applications.''  Cambridge: Cambridge University Press.}
+Wasserman, S., and Faust, K.  (1994).  \emph{Social Network Analysis: Methods and Applications.}  Cambridge: Cambridge University Press.}
 \author{ David Barron \email{david.barron@jesus.ox.ac.uk}
 
 Carter T. Butts \email{buttsc@uci.edu} }

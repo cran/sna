@@ -36,13 +36,17 @@ Finally, note that \code{rgraph} will symmetrize all generated networks if \code
 \value{
   A graph stack
 }
-\references{ Wasserman, S., and Faust, K.  \emph{Social Network Analysis: Methods and Applications}.  Cambridge: Cambridge University Press. }
+\references{ 
+Erd\"{o}s, P. and R\'{e}nyi, A.  (1960).  ``On the Evolution of Random Graphs.''  \emph{Public Mathematical Institute of Hungary Academy of Sciences,} 5:17-61.
+
+Wasserman, S., and Faust, K.  (1994).  \emph{Social Network Analysis: Methods and Applications}.  Cambridge: Cambridge University Press. 
+}
 \author{ Carter T. Butts \email{buttsc@uci.edu} }
 %\note{  }
 
  %~Make other sections like WARNING with \section{WARNING }{....} ~
 
-\seealso{ \code{\link{rmperm}} }
+\seealso{ \code{\link{rmperm}}, \code{\link{rgnm}}, \code{\link{rguman}} }
 
 \examples{
 

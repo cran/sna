@@ -23,7 +23,7 @@ components(dat, connected="strong", comp.dist.precomp=NULL)
 \references{ West, D.B.  (1996).  \emph{Introduction to Graph Theory}.  Upper Saddle River, NJ: Prentice Hall. }
 \author{ Carter T. Butts \email{buttsc@uci.edu} }
 
-\seealso{ \code{\link{component.dist}}, \code{link{symmetrize}} }
+\seealso{ \code{\link{component.dist}}, \code{\link{symmetrize}} }
 
 \examples{
 g<-rgraph(20,tprob=0.05)   #Generate a sparse random graph

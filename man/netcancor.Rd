@@ -19,7 +19,7 @@ netcancor(y, x, mode="digraph", diag=FALSE, nullhyp="cugtie",
   \item{reps}{Integer indicating the number of draws to use for quantile estimation.  (Relevant to the null hypothesis test only - the analysis itself is unaffected by this parameter.)  Note that, as for all Monte Carlo procedures, convergence is slower for more extreme quantiles. }
 }
 \details{
-The \code{netcancor} routine is actually a front-end to the \code{mva} library's \code{\link[mva]{cancor}} routine for computing canonical correlations between sets of vectors.  \code{netcancor} itself vectorizes the network variables (as per its graph type) and manages the appropriate null hypothesis tests; the actual canonical correlation is handled by \code{\link[mva]{cancor}}.  
+The \code{netcancor} routine is actually a front-end to the \code{\link{cancor}} routine for computing canonical correlations between sets of vectors.  \code{netcancor} itself vectorizes the network variables (as per its graph type) and manages the appropriate null hypothesis tests; the actual canonical correlation is handled by \code{\link{cancor}}.  
 
 Canonical correlation itself is a multivariate generalization of the product-moment correlation.  Specifically, the analysis seeks linear combinations of the variables in \code{y} which are well-explained by linear combinations of the variables in \code{x}.  The network version of this technique is performed elementwise on the adjacency matrices of the graphs in question; as usual, the result should be interpreted with an eye to the relationship between the type of data used and the assumptions of the underlying model.
 
@@ -88,7 +88,7 @@ String indicating the null hypothesis employed.
 \note{ This will eventually be replaced with a superior cancor procedure with more interpretable output; the new version will handle arbitrary labeling as well. }
 
 % ~Make other sections like WARNING with \section{WARNING }{....} ~
-\section{Requires }{\code{mva}}
+%\section{Requires }{\code{mva}}
 
 \seealso{ \code{\link{gcor}}, \code{\link{cugtest}}, \code{\link{qaptest}}, \code{\link{cancor}} }
 

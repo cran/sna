@@ -45,7 +45,9 @@ Note that when a quantile, rank, or value is said to be ``specified,'' this refe
 \value{
 The dichotomized data matrix
 }
-\references{ ~put references to the literature/web site here ~ }
+\references{
+Wasserman, S. and Faust, K.  (1994).  \emph{Social Network Analysis: Methods and Applications.}  Cambridge: Cambridge University Press.
+}
 \author{ Carter T. Butts \email{buttsc@uci.edu} }
 %\note{ }
 

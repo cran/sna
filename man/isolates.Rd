@@ -18,7 +18,7 @@ isolates(dat, diag=FALSE)
 \value{
   A vector containing the isolates, or a list of vectors if more than one graph was specified
 }
-\references{ Wasserman, S., and Faust, K.  (1994).  ``Social Network Analysis: Methods and Applications.''  Cambridge: Cambridge University Press.
+\references{ Wasserman, S., and Faust, K.  (1994).  \emph{Social Network Analysis: Methods and Applications.}  Cambridge: Cambridge University Press.
 
 West, D.B.  (1996).  \emph{Introduction to Graph Theory}.  Upper Saddle River, NJ: Prentice Hall.}
 \author{ Carter T. Butts \email{buttsc@uci.edu} }
@@ -26,7 +26,7 @@ West, D.B.  (1996).  \emph{Introduction to Graph Theory}.  Upper Saddle River, N
 
 % ~Make other sections like WARNING with \section{WARNING }{....} ~
 
-\seealso{ \code{\link{is.isolate}}, \code{\link{addisolates}} }
+\seealso{ \code{\link{is.isolate}}, \code{\link{add.isolates}} }
 
 \examples{
 #Generate a test graph
@@ -38,3 +38,5 @@ g[4,]<-0
 isolates(g)
 }
 \keyword{ math }%-- one or more ...
+\keyword{ graphs }
+ 

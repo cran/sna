@@ -10,13 +10,13 @@ gclust.boxstats(h, k, meas, ...)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
-  \item{h}{ An \code{\link[mva]{hclust}} object, presumably formed by clustering a set of structural distances }
+  \item{h}{ An \code{\link{hclust}} object, presumably formed by clustering a set of structural distances }
   \item{k}{ The number of groups to evaluate }
   \item{meas}{ A vector of length equal to the number of graphs in \code{h}, containing a GLI to be evaluated }
   \item{\dots}{ Additional parameters to \code{\link{boxplot}} }
 }
 \details{
-  \code{gclust.boxstats} simply takes the \code{\link[mva]{hclust}} object in \code{h}, applies \code{\link[mva]{cutree}} to form \code{k} groups, and then uses \code{\link{boxplot}} on the distribution of \code{meas} by group.  This can be quite handy for assessing graph clusters.
+  \code{gclust.boxstats} simply takes the \code{\link{hclust}} object in \code{h}, applies \code{\link{cutree}} to form \code{k} groups, and then uses \code{\link{boxplot}} on the distribution of \code{meas} by group.  This can be quite handy for assessing graph clusters.
 }
 \value{
 None
@@ -27,7 +27,7 @@ None
 
  %~Make other sections like WARNING with \section{WARNING }{....} ~
 
-\section{Requires}{\code{mva}}
+%\section{Requires}{\code{mva}}
 
 \seealso{ \code{\link{gclust.centralgraph}}, \code{\link{gdist.plotdiff}}, \code{\link{gdist.plotstats}}  }
 
@@ -39,7 +39,6 @@ g<-rgraph(10,20,tprob=c(rbeta(10,15,2),rbeta(10,2,15)))
 g.h<-hdist(g)
 
 #Cluster the graphs via their Hamming distances
-library(mva)     #Load the mva library
 g.c<-hclust(as.dist(g.h))
 
 #Now display boxplots of density by cluster for a two cluster solution

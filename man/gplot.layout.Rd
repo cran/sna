@@ -1,18 +1,22 @@
 \name{gplot.layout}
 \alias{gplot.layout}
-\alias{gplot.layout.princoord}
-\alias{gplot.layout.mds}
-\alias{gplot.layout.eigen}
-\alias{gplot.layout.rmds}
-\alias{gplot.layout.geodist}
 \alias{gplot.layout.adj}
-\alias{gplot.layout.seham}
-\alias{gplot.layout.segeo}
-\alias{gplot.layout.random}
-\alias{gplot.layout.circrand}
 \alias{gplot.layout.circle}
+\alias{gplot.layout.circrand}
+\alias{gplot.layout.eigen}
+\alias{gplot.layout.fruchtermanreingold}
+\alias{gplot.layout.geodist}
+\alias{gplot.layout.hall}
+\alias{gplot.layout.kamadakawai}
+\alias{gplot.layout.mds}
+\alias{gplot.layout.princoord}
+\alias{gplot.layout.random}
+\alias{gplot.layout.rmds}
+\alias{gplot.layout.segeo}
+\alias{gplot.layout.seham}
 \alias{gplot.layout.spring}
 \alias{gplot.layout.springrepulse}
+\alias{gplot.layout.target}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{ Vertex Layout Functions for gplot }
 \description{
@@ -23,7 +27,10 @@ gplot.layout.adj(d, layout.par)
 gplot.layout.circle(d, layout.par)
 gplot.layout.circrand(d, layout.par)
 gplot.layout.eigen(d, layout.par)
+gplot.layout.fruchtermanreingold(d, layout.par)
 gplot.layout.geodist(d, layout.par)
+gplot.layout.hall(d, layout.par)
+gplot.layout.kamadakawai(d, layout.par)
 gplot.layout.mds(d, layout.par)
 gplot.layout.princoord(d, layout.par)
 gplot.layout.random(d, layout.par)
@@ -32,6 +39,7 @@ gplot.layout.segeo(d, layout.par)
 gplot.layout.seham(d, layout.par)
 gplot.layout.spring(d, layout.par)
 gplot.layout.springrepulse(d, layout.par)
+gplot.layout.target(d, layout.par)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -39,7 +47,7 @@ gplot.layout.springrepulse(d, layout.par)
   \item{layout.par}{ a list of parameters. }
 }
 \details{
-  Vertex layouts for network visualization pose a difficult problem -- there is no single, ``good'' layout algorithm, and many different approaches may be valuable under different circumstances.  With this in mind, \code{\link{gplot}} allows for the use of arbitrary vertex layout algorithms via the \code{gplot.layout.*} family of routines.  When called, \code{\link{gplot}} searches for a \code{graph.layout} function whose third name matches its \code{mode} argument (see \code{\link{gplot}} help for more information); this function is then used to generate the layout for the resulting plot.  In addition to the routines documented here, users may add their own layout functions as needed.  The requirements for a \code{graph.layout} function are as follows:
+  Vertex layouts for network visualization pose a difficult problem -- there is no single, ``good'' layout algorithm, and many different approaches may be valuable under different circumstances.  With this in mind, \code{\link{gplot}} allows for the use of arbitrary vertex layout algorithms via the \code{gplot.layout.*} family of routines.  When called, \code{\link{gplot}} searches for a \code{gplot.layout} function whose third name matches its \code{mode} argument (see \code{\link{gplot}} help for more information); this function is then used to generate the layout for the resulting plot.  In addition to the routines documented here, users may add their own layout functions as needed.  The requirements for a \code{gplot.layout} function are as follows:
   \enumerate{
   \item the first argument, \code{d}, must be the (dichotomous) graph adjacency matrix;
   \item the second argument, \code{layout.par}, must be a list of parameters (or \code{NULL}, if no parameters are specified); and
@@ -55,6 +63,26 @@ gplot.layout.springrepulse(d, layout.par)
     \item{layout.par\$var}{ This argument controls the matrix to be used for the eigenanalysis.  \code{"symupper"}, \code{"symlower"}, \code{"symstrong"}, \code{"symweak"} invoke \code{\link{symmetrize}} on \code{d} with the respective symmetrizing rule.  \code{"user"} indicates a user-supplied matrix (see below), while \code{"raw"} indicates that \code{d} should be used as-is.  (Defaults to \code{"raw"}.)}
     \item{layout.par\$evsel}{ If \code{"first"}, the first two eigenvectors are used; if \code{"size"}, the two eigenvectors whose eigenvalues have the largest magnitude are used instead. Note that only the real portion of the associated eigenvectors is used.  (Defaults to \code{"first"}.)}
     \item{layout.par\$mat}{  If \code{layout.par\$var=="user"}, this matrix is used for the eigenanalysis. (No default.)}
+    }
+  }
+  \item{fruchtermanreingold}{ This function generates a layout using a variant of Fruchterman and Reingold's force-directed placement algorithm.  It takes the following arguments:
+    \describe{
+    \item{layout.par\$niter}{ This argument controls the number of iterations to be employed.  (Defaults to 500.) }
+    \item{layout.par\$max.delta}{ Sets the maximum change in position for any given iteration.   (Defaults to \code{NROW(d)}.)}
+    \item{layout.par\$area}{  Sets the "area" parameter for the F-R algorithm. (Defaults to \code{NROW(d)^2}.)}
+    \item{layout.par\$cool.exp}{  Sets the cooling exponent for the annealer. (Defaults to 3.)}
+    \item{layout.par\$repulse.rad}{  Determines the radius at which vertex-vertex repulsion cancels out attraction of adjacent vertices.  (Defaults to \code{area*NROW(d)}.)}
+    }
+  }
+  \item{hall}{ This function places vertices based on the last two eigenvectors of the Laplacian of the input matrix (Hall's algorithm).  It takes no arguments.}
+  \item{kamadakawai}{ This function generates a vertex layout using a version of the Kamada-Kawai force-directed placement algorithm.  It takes the following arguments:
+    \describe{
+    \item{layout.par\$niter}{ This argument controls the number of iterations to be employed.  (Defaults to 1000.) }
+    \item{layout.par\$sigma}{ Sets the base standard deviation of position change proposals.   (Defaults to \code{NROW(d)/4}.)}
+    \item{layout.par\$initemp}{  Sets the initial "temperature" for the annealing algorithm. (Defaults to 10.)}
+    \item{layout.par\$cool.exp}{  Sets the cooling exponent for the annealer. (Defaults to 0.99.)}
+    \item{layout.par\$kkconst}{  Sets the Kamada-Kawai vertex attraction constant.  (Defaults to \code{NROW(d)^2}.)}
+    \item{layout.par\$elen}{  Provides the matrix of interpoint distances to be approximated.  (Defaults to the geodesic distances of \code{d} after symmetrizing, capped at \code{sqrt(NROW(d))}.)}
     }
   }
   \item{mds}{ This function places vertices based on a metric multidimensional scaling of a specified distance matrix.  It takes the following arguments:
@@ -98,19 +126,42 @@ gplot.layout.springrepulse(d, layout.par)
     }
   Note: \code{springrepulse} is a frontend to \code{spring}, with repulsion turned on.
   }
+  \item{target}{ This function produces a "target diagram" or "bullseye" layout, using a Brandes et al.'s force-directed placement algorithm.  (See also \code{\link{gplot.target}}.)  It takes the following arguments:
+    \describe{
+    \item{layout.par\$niter}{ This argument controls the number of iterations to be employed.  (Defaults to 1000.) }
+    \item{layout.par\$radii}{ This argument should be a vector of length \code{NROW(d)} containing vertex radii.  Ideally, these should lie in the [0,1] interval (and odd behavior may otherwise result).  (Defaults to the affine-transformed Freeman \code{\link{degree}} centrality scores of \code{d}.) }
+    \item{layout.par\$minlen}{ Sets the minimum edge length, below which edge lengths are to be adjusted upwards.  (Defaults to 0.05.) }
+    \item{layout.par\$area}{  Sets the initial "temperature" for the annealing algorithm. (Defaults to 10.)}
+    \item{layout.par\$cool.exp}{  Sets the cooling exponent for the annealer. (Defaults to 0.99.)}
+    \item{layout.par\$maxdelta}{  Sets the maximum angular distance for vertex moves.  (Defaults to \code{pi}.)}
+    \item{layout.par\$periph.outside}{  Boolean; should "peripheral" vertices (in the Brandes et al. sense) be placed together outside the main target area?  (Defaults to \code{FALSE}.)}
+    \item{layout.par\$periph.outside.offset}{  Radius at which to place "peripheral" vertices if \code{periph.outside==TRUE}.  (Defaults to 1.2.)}
+    \item{layout.par\$disconst}{  Multiplier for the Kamada-Kawai-style distance potential.  (Defaults to 1.)}
+    \item{layout.par\$crossconst}{  Multiplier for the edge crossing potential.  (Defaults to 1.)}
+    \item{layout.par\$repconst}{  Multiplier for the vertex-edge repulsion potential.  (Defaults to 1.)}
+    \item{layout.par\$minpdis}{  Sets the "minimum distance" parameter for vertex repulsion.   (Defaults to 0.05.)}
+    }
+  }
+
   }
 }
 \value{
 A matrix whose rows contain the x,y coordinates of the vertices of \code{d}.
 }
-%\references{ ~put references to the literature/web site here ~ }
+\references{
+Brandes, U.; Kenis, P.; and Wagner, D.  (2003).  ``Communicating Centrality in Policy Network Drawings.'' \emph{IEEE Transactions on Visualization and Computer Graphics,} 9(2):241-253.
+
+Fruchterman, T.M.J. and Reingold, E.M.  (1991).  ``Graph Drawing by Force-directed Placement.'' \emph{Software - Practice and Experience,} 21(11):1129-1164.
+
+Kamada, T. and Kawai, S.  (1989).  ``An Algorithm for Drawing General Undirected Graphs.'' \emph{Information Processing Letters,} 31(1):7-15.
+  }
 \author{ Carter T. Butts \email{buttsc@uci.edu} }
 %\note{ ~~further notes~~ }
 
 % ~Make other sections like Warning with \section{Warning }{....} ~
 
-\seealso{ \code{\link{gplot}}, \code{\link{cmdscale}}, \code{\link{eigen}} }
-\examples{
-}
+\seealso{ \code{\link{gplot}}, \code{\link{gplot.target}}, \code{\link{gplot3d.layout}}, \code{\link{cmdscale}}, \code{\link{eigen}} }
+%\examples{
+%}
 \keyword{ graphs }% at least one, from doc/KEYWORDS
 \keyword{ dplot }% __ONLY ONE__ keyword per line

@@ -13,9 +13,9 @@ sedist(dat, g=c(1:dim(dat)[1]), method="hamming",
 \arguments{
   \item{dat}{ A graph or graph stack }
   \item{g}{ A vector indicating which elements of \code{dat} should be examined }
-  \item{method}{ One of \code{?correlation?}, \code{?euclidean?}, \code{?hamming?}, and \code{?gamma?}}
+  \item{method}{ One of \code{"correlation"}, \code{"euclidean"}, \code{"hamming"}, and \code{"gamma"}}
   \item{joint.analysis}{ Should equivalence be assessed across all networks jointly (\code{TRUE}), or individually within each (\code{FALSE}) }
-  \item{mode}{ \code{?digraph?} for directed data, otherwise \code{?graph?} }
+  \item{mode}{ \code{"digraph"} for directed data, otherwise \code{"graph"} }
   \item{diag}{ Boolean indicating whether diagonal entries (loops) should be treated as meaningful data }
   \item{code.diss}{ Reverse-code the raw comparison values}
 }
@@ -30,7 +30,7 @@ sedist(dat, g=c(1:dim(dat)[1]), method="hamming",
 
 \item gamma: the gamma correlation
 }
-Once these similarities/differences are calculated, the results can be used with a clustering routine (such as \code{\link{equiv.clust}}) or an MDS (such as \code{\link[mva]{cmdscale}}).
+Once these similarities/differences are calculated, the results can be used with a clustering routine (such as \code{\link{equiv.clust}}) or an MDS (such as \code{\link{cmdscale}}).
 }
 \value{
 A matrix of similarity/difference scores
@@ -57,7 +57,6 @@ g<-rgraph(20,tprob=g.p)            #Draw from a Bernoulli graph
 g.se<-sedist(g)
 
 #Plot a metric MDS of vertex positions in two dimensions
-library(mva)
 plot(cmdscale(as.dist(g.se)))
 }
 \keyword{ classif }

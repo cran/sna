@@ -33,7 +33,7 @@ where \eqn{g_{ijk}}{g_ijk} is the number of geodesics from i to k through j.  Co
 \value{
 A vector of centrality scores
 }
-%\references{ }
+\references{ Shimbel, A.  (1953).  ``Structural Parameters of Communication Networks.''  \emph{Bulletin of Mathematical Biophysics,} 15:501-507. }
 \author{ Carter T. Butts \email{buttsc@uci.edu} }
 \note{ Judicious use of \code{geodist.precomp} can save a great deal of time when computing multiple path-based indices on the same network. }
 

@@ -1,12 +1,12 @@
-\name{addisolates}
-\alias{addisolates}
+\name{add.isolates}
+\alias{add.isolates}
 %- Also NEED an `\alias' for EACH other topic documented here.
 \title{ Add Isolates to a Graph }
 \description{
   Adds \code{n} isolates to the adjacency matrix (or matrices) in \code{dat}.
 }
 \usage{
-addisolates(dat, n)
+add.isolates(dat, n)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
@@ -31,7 +31,7 @@ g<-rgraph(10,5)		#Produce some random graphs
 
 dim(g)			#Get the dimensions of g
 
-g<-addisolates(g,2)	#Add 2 isolates to each graph in g
+g<-add.isolates(g,2)	#Add 2 isolates to each graph in g
 
 dim(g)			#Now examine g
 g

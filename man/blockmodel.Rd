@@ -14,8 +14,8 @@ blockmodel(dat, ec, k=NULL, h=NULL, block.content="density",
 \arguments{
   \item{dat}{ A graph stack }
   \item{ec}{ An object of class \code{equiv.clust} }
-  \item{k}{ The number of classes to form (using \code{\link[mva]{cutree}}) }
-  \item{h}{ The height at which to split classes (using \code{\link[mva]{cutree}}) }
+  \item{k}{ The number of classes to form (using \code{\link{cutree}}) }
+  \item{h}{ The height at which to split classes (using \code{\link{cutree}}) }
   \item{block.content}{ String indicating block content type (see below)}
   \item{plabels}{ A vector of labels to be applied to the individual nodes}
   \item{glabels}{ A vector of labels to be applied to the graphs being modeled }
@@ -24,7 +24,7 @@ blockmodel(dat, ec, k=NULL, h=NULL, block.content="density",
   \item{diag}{ A boolean indicating whether loops are permitted }
 }
 \details{
-\code{blockmodel} forms its eponymous models by using \code{\link[mva]{cutree}} to cut an equivalence clustering in the fashion specified by \code{k} and \code{h}.  After forming clusters (roles), the input graphs are reordered and blockmodel reduction is applied.  Currently supported reductions are:
+\code{blockmodel} forms its eponymous models by using \code{\link{cutree}} to cut an equivalence clustering in the fashion specified by \code{k} and \code{h}.  After forming clusters (roles), the input graphs are reordered and blockmodel reduction is applied.  Currently supported reductions are:
 
 \enumerate{
 \item \code{density}: block density, computed as the mean value of the block
@@ -53,7 +53,7 @@ An object of class \code{blockmodel}.
 
 \author{ Carter T. Butts \email{buttsc@uci.edu} }
 
-\note{ The \code{mva} library is required for \code{blockmodel} to function. }
+%\note{ The \code{mva} library is required for \code{blockmodel} to function. }
 
 
 \seealso{ \code{\link{equiv.clust}}, \code{\link{blockmodel.expand}} }

@@ -14,7 +14,7 @@ gdist.plotdiff(d, meas, method="manhattan", jitter=TRUE,
 \arguments{
   \item{d}{ A matrix containing the inter-graph distances }
   \item{meas}{ An n x m matrix containing the graph-level indices; rows of this matrix must correspond to graphs, and columns to indices }
-  \item{method}{ The distance method used by \code{\link[mva]{dist}} to establish differences/distances between graph GLI values.  By default, absolute ("manhattan") differences are used. }
+  \item{method}{ The distance method used by \code{\link{dist}} to establish differences/distances between graph GLI values.  By default, absolute ("manhattan") differences are used. }
   \item{jitter}{ Should values be jittered prior to display? }
   \item{xlab}{ A label for the X axis }
   \item{ylab}{ A label for the Y axis }
@@ -33,7 +33,7 @@ None
 
  %~Make other sections like WARNING with \section{WARNING }{....} ~
 
-\section{Requires}{\code{mva}}
+%\section{Requires}{\code{mva}}
 
 \seealso{ \code{\link{gdist.plotstats}}, \code{\link{gclust.boxstats}}, \code{\link{gclust.centralgraph}} }
 

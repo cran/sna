@@ -27,7 +27,7 @@ Bear in mind that -- as with all matters involving connectedness -- reachability
 \value{
 A reachability matrix
 }
-\references{ Wasserman, S., and Faust, K.  (1994).  ``Social Network Analysis: Methods and Applications.''  Cambridge: Cambridge University Press. }
+\references{ Wasserman, S., and Faust, K.  (1994).  \emph{Social Network Analysis: Methods and Applications.}  Cambridge: Cambridge University Press. }
 \author{ Carter T. Butts \email{buttsc@uci.edu} }
 
 \seealso{ \code{\link{geodist}} }

@@ -19,7 +19,7 @@ hierarchy(dat, g=1:stackcount(dat), measure=c("reciprocity",
 Hierarchy measures quantify the extent of asymmetry in a structure; the greater the extent of asymmetry, the more hierarchical the structure is said to be.  (This should not be confused with how \emph{centralized} the structure is, i.e., the extent to which centralities of vertex positions are highly concentrated.)  \code{hierarchy} provides two measures (selected by the \code{measure} argument) as follows:
 
 \enumerate{
-\item \code{reciprocity}: This setting returns the dyadic reciprocity for each input graph (see \code{\link{grecip}})
+\item \code{reciprocity}: This setting returns one minus the dyadic reciprocity for each input graph (see \code{\link{grecip}})
 
 \item \code{krackhardt}: This setting returns the Krackhardt hierarchy score for each input graph.  The Krackhardt hierarchy is defined as the fraction of non-null dyads in the \code{\link{reachability}} graph which are asymmetric.  Thus, when no directed paths are reciprocated (e.g., in an in/outtree), Krackhardt hierarchy is equal to 1; when all such paths are reciprocated, by contrast (e.g., in a cycle or clique), the measure falls to 0. 
 
@@ -33,7 +33,7 @@ A vector of hierarchy scores
 }
 \references{ Krackhardt, David.  (1994).  ``Graph Theoretical Dimensions of Informal Organizations.'' In K. M. Carley and M. J. Prietula (Eds.), \emph{Computational Organization Theory}, 89-111. Hillsdale, NJ: Lawrence Erlbaum and Associates. 
 
-Wasserman, S., and Faust, K.  (1994).  ``Social Network Analysis: Methods and Applications.''  Cambridge: Cambridge University Press.}
+Wasserman, S., and Faust, K.  (1994).  \emph{Social Network Analysis: Methods and Applications.}  Cambridge: Cambridge University Press.}
 \author{ Carter T. Butts \email{buttsc@uci.edu} }
 \note{ The four Krackhardt indices are, in general, nondegenerate for a relatively narrow band of size/density combinations (efficiency being the sole exception).  This is primarily due to their dependence on the reachability graph, which tends to become complete rapidly as size/density increase.  See Krackhardt (1994) for a useful simulation study. }
 

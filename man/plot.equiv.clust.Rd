@@ -12,10 +12,10 @@ plot.equiv.clust(x, labels=x$plabels, ...)
 \arguments{
   \item{x}{ An \code{\link{equiv.clust}} object }
   \item{labels}{ A vector of vertex labels }
-  \item{\dots}{ Additional arguments to \code{\link[mva]{plot.hclust}} }
+  \item{\dots}{ Additional arguments to \code{\link{plot.hclust}} }
 }
 \details{
-\code{plot.equiv.clust} is actually a front-end to \code{\link[mva]{plot.hclust}}; see the latter for more additional documentation.
+\code{plot.equiv.clust} is actually a front-end to \code{\link{plot.hclust}}; see the latter for more additional documentation.
 }
 \value{
 None.
@@ -30,7 +30,7 @@ Wasserman, S., and Faust, K.  \emph{Social Network Analysis: Methods and Applica
 
 % ~Make other sections like WARNING with \section{WARNING }{....} ~
 
-\section{Requires}{\code{mva}}
+%\section{Requires}{\code{mva}}
 
 \seealso{ \code{\link{equiv.clust}}, \code{\link{plot.hclust}} }
 

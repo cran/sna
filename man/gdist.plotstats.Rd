@@ -30,7 +30,7 @@ gdist.plotstats(d, meas, siz.lim=c(0, 0.15), rescale="quantile",
   \item{\dots}{ Additional arguments to \code{\link{plot}} }
 }
 \details{
-\code{gdist.plotstats} works by performing an MDS (using \code{\link[mva]{cmdscale}}) on \code{d}, and then using the values in \code{meas} to determine the shape of the points at each MDS coordinate.  Typically, these shapes involve rays of varying color and length indicating \code{meas} magnitude, with circles and polygons of the appropriate radius and/or error being options as well.  Various options are available (described above) to govern the details of the data display; some tinkering may be needed in order to produce an aesthetically pleasing visualization.
+\code{gdist.plotstats} works by performing an MDS (using \code{\link{cmdscale}}) on \code{d}, and then using the values in \code{meas} to determine the shape of the points at each MDS coordinate.  Typically, these shapes involve rays of varying color and length indicating \code{meas} magnitude, with circles and polygons of the appropriate radius and/or error being options as well.  Various options are available (described above) to govern the details of the data display; some tinkering may be needed in order to produce an aesthetically pleasing visualization.
 
 The primary use of \code{gdist.plotstats} is to explore broad relationships between graph properties and inter-graph distances.  This routine complements others in the \code{gdist} and \code{gclust} family of interstructural visualization tools.
 }
@@ -43,7 +43,7 @@ None
 
 % ~Make other sections like WARNING with \section{WARNING }{....} ~
 
-\section{Requires}{\code{mva}}
+%\section{Requires}{\code{mva}}
 
 \seealso{ \code{\link{gdist.plotdiff}}, \code{\link{gclust.boxstats}}, \code{\link{gclust.centralgraph}} }
 

@@ -19,7 +19,7 @@ equiv.clust(dat, g=c(1:dim(dat)[1]), equiv.fun="sedist",
   \item{method}{ \code{method} parameter to be passed to \code{equiv.fun} }
   \item{mode}{ ``graph'' or ``digraph,'' as appropriate }
   \item{diag}{ A boolean indicating whether or not matrix diagonals (loops) should be interpreted as useful data }
-  \item{cluster.method}{ The hierarchical clustering method to use (see \code{\link[mva]{hclust}} in package \code{mva}) }
+  \item{cluster.method}{ The hierarchical clustering method to use (see \code{\link{hclust}}) }
   \item{glabels}{ Labels for the various graphs in \code{dat} }
   \item{plabels}{ Labels for the vertices of \code{dat} }
   \item{\dots}{ Additional arguments to \code{equiv.dist} }
@@ -39,7 +39,7 @@ Wasserman, S., and Faust, K.  \emph{Social Network Analysis: Methods and Applica
 \author{ Carter T. Butts \email{buttsc@uci.edu} }
 \note{ See \code{\link{sedist}} for an example of a distance function compatible with \code{equiv.clust}. }
 
-\section{Requires}{\code{mva}}
+%\section{Requires}{\code{mva}}
 
 \seealso{ \code{\link{sedist}}, \code{\link{blockmodel}}}
 

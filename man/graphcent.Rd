@@ -28,7 +28,7 @@ graphcent(dat, g=1, nodes=c(1:dim(dat)[2]), gmode="digraph",
 \value{
   A vector containing the centrality scores
 }
-\references{  }
+\references{ Hage, P. and Harary, F.  (1995).  ``Eccentricity and Centrality in Networks.''  \emph{Social Networks}, 17:57-63. }
 \author{ Carter T. Butts \email{buttsc@uci.edu} }
 \note{ Judicious use of \code{geodist.precomp} can save a great deal of time when computing multiple path-based indices on the same network. }
 
