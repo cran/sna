@@ -91,7 +91,8 @@ An array containing the posterior draws for the criterion network.
 An integer indicating the number of replicate chains used by the Gibbs sampler.
 }
 }
-\references{ Butts, C.T. (1999). ``Informant (In)Accuracy and Network Estimation: A Bayesian Approach.'' CASOS Working Paper, Carnegie Mellon University.
+\references{ 
+Butts, C. T.  (2003).  ``Network Inference, Error, and Informant (In)Accuracy: A Bayesian Approach.''  \emph{Social Networks}, 25(2), 103-140.
 
 Gelman, A.; Carlin, J.B.; Stern, H.S.; and Rubin, D.B.  (1995).  \emph{Bayesian Data Analysis.}  London: Chapman and Hall.
 

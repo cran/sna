@@ -34,7 +34,7 @@ bbnam.bf(dat, nprior=matrix(rep(0.5, dim(dat)[1]^2),
    An object of class \code{bayes.factor}.
 }
 \references{
-Butts, C.T.  (1999).  ``Network Inference, Error, and Informant (In)Accuracy: A Bayesian Approach.''  CASOS Working Paper, Carnegie Mellon University.
+Butts, C. T.  (2003).  ``Network Inference, Error, and Informant (In)Accuracy: A Bayesian Approach.''  \emph{Social Networks}, 25(2), 103-140.
 
 Robert, C.  (1994).  \emph{The Bayesian Choice: A Decision-Theoretic Motivation.}  Springer. }
 \author{ Carter T. Butts \email{buttsc@uci.edu} }

@@ -1,6 +1,6 @@
 Package: sna
-Version: 0.43
-Date: 2003-10-08
+Version: 0.44-1
+Date: 2004-05-31
 Title: Tools for Social Network Analysis
 Author: Carter T. Butts <buttsc@uci.edu>
 Maintainer: Carter T. Butts <buttsc@uci.edu>
@@ -8,3 +8,4 @@ Depends: R (>= 1.2.0)
 Description: A range of tools for social network analysis, including node and graph-level indices, structural distance and covariance methods, structural equivalence detection, p* modeling, and network visualization.
 License: GPL Version 2 or newer
 URL: http://erzuli.ss.uci.edu/R.stuff
+Packaged: Mon May 31 20:59:09 2004; eagle

@@ -3,12 +3,13 @@
 #
 # By Carter Butts, buttsc@uci.edu
 #
-# Current Version: 0.43
+# Current Version: 0.44
 #
-# Last updated 10/8/03
+# Last updated 5/24/04
 #
 #Contents:
 #
+#%c% - Composition of two adjacancy matrices
 #addisolates - Add isolates to a graph set
 #bbnam - Draw from Butts' (Hierarchical) Bayesian Network Accuracy Model
 #bbnam.bf - Bayes factors for Butts' (Hierarchical) Bayesian Network Accuracy
@@ -41,6 +42,7 @@
 #   given edge
 #evcent - Find the eigenvector centralities of network positions
 #event2dichot - Convert observed event matrices to dichotomous matrices
+#gapply - Apply functions over vertex neighborhoods
 #gclust.boxstats - Plot statistics associated with clusters
 #gclust.centralgraph - Get central graphs associated with clusters
 #gcor - Computes the correlation between graphs
@@ -69,6 +71,7 @@
 #is.isolate - Determines whether a particular vertex is isolated
 #isolates - Returns a list of isolates
 #lab.optimize - Optimize a bivariate graph statistic over a set of labelings
+#lnam - Fits a linear network autocorrelation model
 #lower.tri.remove - NAs the lower triangles of graphs in graph stacks
 #lubness - Find Krackhardt's Least Upper Boundedness of a graph or graph stack
 #make.stochastic - Make a graph stack row, column, or row-column stochastic
@@ -83,6 +86,7 @@
 #plot.blockmodel - Plotting for blockmodel objects
 #plot.cugtest - Plotting for cugtest objects
 #plot.equiv.clust - Plotting for equivalence clustering objects
+#plot.lnam - Plotting for lnam objects
 #plot.sociomatrix - Plotting of arbitrary matrices
 #plot.qaptest - Plotting for qaptest objects
 #potscalered.mcmc - Computes Gelman et al.'s potential scale reduction statistic
@@ -92,6 +96,7 @@
 #print.bbnam - Printing for bbnam objects
 #print.blockmodel - Printing for blockmodel objects
 #print.cugtest - Printing for cugtest objects
+#print.lnam - Printing for lnam objects
 #print.netcancor - Printing for netcancor objects
 #print.netlm - Printing for netlm objects
 #print.netlogit - Printing for netlogit objects
@@ -100,6 +105,7 @@
 #print.summary.bbnam - Printing for bbnam summary objects
 #print.summary.blockmodel - Printing for blockmodel summary objects
 #print.summary.cugtest - Printing for cugtest summary objects
+#print.summary.lnam - Printing for lnam summary objects
 #print.summary.netcancor - Printing for netcancor summary objects
 #print.summary.netlm - Printing for netlm summary objects
 #print.summary.netlogit - Printing for netlogit summary objects
@@ -123,6 +129,7 @@
 #summary.bbnam - Detailed printing for bbnam objects
 #summary.blockmodel - Detailed printing for blockmodel objects
 #summary.cugtest - Detailed printing for qaptest objects
+#summary.lnam - Detailed printing for lnam objects
 #summary.netcancor - Detailed printing for netcancor objects
 #summary.netlm - Detailed printing for netlm objects
 #summary.netlogit - Detailed printing for netlogit objects
@@ -157,6 +164,47 @@
 #
 #
 #CHANGELOG:
+#
+#v0.44 - New Functions, New Features, Changes, and Bug Fixes
+#   New Functions:
+#      %c% - Composition of two adjacency matrices
+#      gapply - Apply functions over vertex neighborhoods.
+#      gplot.layout.* - Layout functions for gplot
+#      lnam - Fit a linear network autocorrelation model
+#      plot.lnam - Plotting for lnam objects
+#      print.lnam - Printing for lnam objects
+#      print.summary.lnam - Printing for lnam summary objects
+#      summary.lnam - Detailed printing for lnam objects
+#   New Features:
+#      consensus now supports union/intersection LAS and column/row raw report
+#        methods (useful for replicating "classic" CSS work)
+#      gplot sports a wide range of new features, including:
+#        An interactive mode, which allows for manual repositioning
+#          of vertices.  (It's not pretty, but it works.)  
+#        Silent return of the x,y coordinates for all vertices.  This is 
+#          useful for adding features to an existing plot, or for saving
+#          a given layout for later reuse.
+#        Adjacency matrices can now be used as parameters to set edge widths,
+#          line types, and colors [submitted by Alex Montgomery]
+#        Overplotting support [submitted by Alex Montgomery]
+#        Support for loops (i.e., self-ties) [submitted by Alex Montgomery]
+#        Curved edges, with adjustable curvature [submitted by Alex Montgomery]
+#        Support for user-supplied layout methods
+#        Expansion of existing layout methods, including new arguments
+#   Changes:
+#      triad.census now automatically removes the diagonal before calculating
+#        the triad census; a note on valued/unvalued data has also been added
+#        to the man page [suggested by Skye Bender-deMoll and Dan McFarland]
+#      Vertex layouts for gplot are now generated externally, via the
+#        gplot.layout.* functions.  Arbitrary parameters may be passed to
+#        the layout functions via an argument list; further, since layout
+#        functions are identified with match.fun(), user-added functions
+#        can also be employed.  The default layout method is now segeo (spring
+#        embedder results were sometimes very good, but too uneven).
+#   Bug Fixes:
+#      degree was reporting incorrect tmaxdev values in some cases
+#      triad.classify switched 111D and 111U [submitted by Dan McFarland and
+#        Skye Bender-deMoll]
 #
 #v0.43 - Minor Changes, Updates, and New Features
 #   Changes:
@@ -315,6 +363,10 @@
 #         graph and vertices
 #      
 #
+
+#%c% - The composition operator for graph adjacency matrices
+"%c%"<-function(x,y)
+  round((x%*%y)>0)
 
 
 #make.stochastic - Make a graph stack row, column, or row-column stochastic
@@ -2196,11 +2248,18 @@ graphcent<-function(dat,g=1,nodes=c(1:dim(dat)[2]),gmode="digraph",diag=FALSE,tm
 degree<-function(dat,g=1,nodes=c(1:dim(dat)[2]),gmode="digraph",diag=FALSE,tmaxdev=FALSE,cmode="freeman",rescale=FALSE){
    if(tmaxdev){
       #We got off easy: just return the theoretical maximum deviation for the centralization routine
-      deg<-switch(cmode,
-         indegree = (dim(dat)[2]-1)*(dim(dat)[2]-2+as.numeric(diag)),
-         outdegree = (dim(dat)[2]-1)*(dim(dat)[2]-2+as.numeric(diag)),
-         freeman = (dim(dat)[2]-1)*(2*(dim(dat)[2]-1)-2+2*as.numeric(diag))
-      )
+      if(gmode=="digraph")
+        deg<-switch(cmode,
+           indegree = (dim(dat)[2]-1)*(dim(dat)[2]-1+as.numeric(diag)),
+           outdegree = (dim(dat)[2]-1)*(dim(dat)[2]-1+as.numeric(diag)),
+           freeman = (dim(dat)[2]-1)*(2*(dim(dat)[2]-1)-2+as.numeric(diag))
+        )
+      else
+        deg<-switch(cmode,
+           indegree = (dim(dat)[2]-1)*(dim(dat)[2]-2+as.numeric(diag)),
+           outdegree = (dim(dat)[2]-1)*(dim(dat)[2]-2+as.numeric(diag)),
+           freeman = (dim(dat)[2]-1)*(2*(dim(dat)[2]-1)-2+as.numeric(diag))
+        )
    }else{
       #First, prepare the data
       if(length(dim(dat))>2)
@@ -2504,7 +2563,7 @@ lubness<-function(dat,g=1:stackcount(dat)){
       }
       #Return 1-violations/max(violations)
       1-nolub/maxnolub
-   }
+   }
    #Perform the actual calculation
    d<-array(dim=c(length(g),dim(dat)[2],dim(dat)[2]))
    if(length(dim(dat))>2)
@@ -2518,8 +2577,13 @@ lubness<-function(dat,g=1:stackcount(dat)){
 
 
 #gplot - Graph visualization
-
-gplot<-function(dat,g=1,gmode="digraph",diag=FALSE,label=c(1:dim(dat)[2]),coord=NULL,jitter=TRUE,thresh=0,usearrows=TRUE,mode="springrepulse",displayisolates=TRUE,boxed.labels=TRUE,xlab=NULL,ylab=NULL,pad=0.1,vertex.pch=19,label.cex=1,vertex.cex=1,label.col=1,edge.col=1,vertex.col=1,arrowhead.length=0.2,edge.type=1,edge.lwd=0,suppress.axes=TRUE,embedder.params=c(0.001,1,0.01,0.2,0.001),...){
+gplot<-function(dat,g=1,gmode="digraph",diag=FALSE,label=c(1:dim(dat)[2]),coord=NULL,jitter=TRUE,thresh=0,usearrows=TRUE,mode="segeo",displayisolates=TRUE,interactive=FALSE,boxed.labels=TRUE,xlab=NULL,ylab=NULL,pad=0.2,vertex.pch=19,label.cex=1,vertex.cex=1,label.col=1,edge.col=1,vertex.col=1,arrowhead.length=0.2,edge.lty=1,edge.lwd=0,edge.len=0.5,edge.curve=0.1,edge.steps=50,diag.size=0.025,uselen=FALSE,usecurve=FALSE,suppress.axes=TRUE,new=TRUE,layout.par=NULL,...){
+   #Turn the annoying locator bell off
+   bellstate<-options()$locatorBell
+   on.exit(options(locatorBell=bellstate))
+   options(locatorBell=FALSE)
+   #Create a useful interval inclusion operator
+   "%iin%"<-function(x,int) (x>=int[1])&(x<=int[2])
    #Extract the graph to be displayed
    if(length(dim(dat))>2)
       d<-dat[g,,]
@@ -2540,133 +2604,21 @@ gplot<-function(dat,g=1,gmode="digraph",diag=FALSE,label=c(1:dim(dat)[2]),coord=
       n<-dim(d)[1]
    #Replace NAs with 0s
    d[is.na(d)]<-0
+   #Save a copy of d, in case values are needed
+   d.raw<-d
+   #Dichotomize d
+   d<-matrix(as.numeric(d>thresh),n,n)
    #Determine coordinate placement
    if(!is.null(coord)){      #If the user has specified coords, override all other considerations
       x<-coord[,1]
       y<-coord[,2]
-   }else if(mode=="princoord"){     #Place using the eigenstructure of the correlation matrix
-      cd<-cor(rbind(d,t(d)),use="pairwise.complete.obs")
-      cd<-replace(cd,is.na(cd),0)
-      e<-eigen(cd,symmetric=TRUE)
-      x<-Re(e$vectors[,1])
-      y<-Re(e$vectors[,2])
-   }else if(mode=="eigen"){     #Place using the eigenstructure of the adjacency matrix
-      e<-eigen(d,symmetric=(gmode!="digraph"))
-      x<-Re(e$vectors[,1])
-      y<-Re(e$vectors[,2])
-   }else if(mode=="mds"){      #Place using an MDS on euclidean distances by position
-      #Build the (Euclidean) distance matrix
-      Dmat<-matrix(nrow=n,ncol=n)
-      diag(Dmat)<-0
-      for(i in 1:n)
-         for(j in 1:n)
-            if(i>j)
-               Dmat[i,j]<-sqrt(sum(abs(d[i,]-d[j,]))+sum(abs(d[,i]-d[,j])))
-      Dmat[upper.tri(Dmat)]<-t(Dmat)[upper.tri(Dmat)]
-      #Build the identity matrix
-      Imat<-matrix(nrow=n,ncol=n)
-      Imat[,]<-0
-      diag(Imat)<-1
-      #Construct the centering Matrix
-      Hmat<-Imat-(1/n)*rep(1,n)%*%t(rep(1,n))
-      #Construct the A squared distance matrix
-      Amat<--0.5*Dmat^2
-      #Now, finally, build the matrix of rescaled distances
-      Bmat<-Hmat%*%Amat%*%Hmat
-      e<-eigen(Bmat)
-      x<-Re(e$vectors[,1])
-      y<-Re(e$vectors[,2])
-   }else if(mode=="random"){   #Uniform random placement
-      x<-runif(n,-1,1)
-      y<-runif(n,-1,1)
-   }else if(mode=="circle"){
-      x<-sin(2*pi*((0:(n-1))/n))
-      y<-cos(2*pi*((0:(n-1))/n))
-   }else if(mode=="circrand"){   #Random placement around the unit circle
-      tempd<-rnorm(n,1,0.25)
-      tempa<-runif(n,0,2*pi)
-      x<-tempd*sin(tempa)
-      y<-tempd*cos(tempa)
-   }else if(mode=="rmds"){   #MDS from the MVA library
-      require(mva)
-      tempmds<-cmdscale(dist(d))
-      x<-tempmds[,1]
-      y<-tempmds[,2]
-   }else if(mode=="geodist"){   #MDS of geodesic distances
-      require(mva)
-      tempmds<-cmdscale(as.dist(geodist(d)$gdist))
-      x<-tempmds[,1]
-      y<-tempmds[,2]
-   }else if(mode=="adj"){   #MDS of adjacency structure as similarities
-      require(mva)
-      tempmds<-cmdscale(as.dist(-d+max(d)))
-      x<-tempmds[,1]
-      y<-tempmds[,2]
-   }else if(mode=="seham"){   #MDS of SE distance (Hamming)
-      require(mva)
-      temp<-sedist(d)
-      tempmds<-cmdscale(as.dist(temp))
-      x<-tempmds[,1]
-      y<-tempmds[,2]
-   }else if(mode%in%c("spring","springrepulse")){  #Spring embedder
-      f.x<-rep(0,n)       #Set initial x/y forces to zero
-      f.y<-rep(0,n)
-      v.x<-rep(0,n)       #Set initial x/y velocities to zero
-      v.y<-rep(0,n)
-      tempa<-sample((0:(n-1))/n) #Set initial positions randomly on the circle
-      x<-n/(2*pi)*sin(2*pi*tempa)
-      y<-n/(2*pi)*cos(2*pi*tempa)
-      ds<-symmetrize(d,"weak")>thresh     #Symmetrize/dichotomize the graph
-      kfr<-0                              #Set initial friction level
-      niter<-0                            #Set the iteration counter
-      ep<-embedder.params                 #Give this a shorter name!
-      repeat{   #Simulate, with increasing friction, until motion stops
-        niter<-niter+1                    #Update the iteration counter
-        dis<-as.matrix(dist(cbind(x,y)))  #Get inter-point distances
-	#Get angles relative to the positive x direction
-	theta<-acos(t(outer(x,x,"-"))/dis)*sign(t(outer(y,y,"-"))) 
-        #Compute spring forces; note that we assume a base spring coefficient
-	#of ep[3] units ("pseudo-Newtons/quasi-meter"?), with an equilibrium
-	#extension of ep[2] units for all springs
-	f.x<-apply(ds*cos(theta)*ep[3]*(dis-ep[2]),1,sum,na.rm=TRUE)
-	f.y<-apply(ds*sin(theta)*ep[3]*(dis-ep[2]),1,sum,na.rm=TRUE)
-	#If node repulsion is active, add a force component for this
-	#as well.  We employ an inverse cube law which is equal in power
-	#to the attractive spring force at distance ep[4]
-	if(mode=="springrepulse"){
-	  f.x<-f.x-apply(cos(theta)*ep[3]/(dis/ep[4])^3,1,sum,na.rm=TRUE)
-	  f.y<-f.y-apply(sin(theta)*ep[3]/(dis/ep[4])^3,1,sum,na.rm=TRUE)
-	}
-	#Adjust the velocities (assume a mass of ep[1] units); note that the
-	#motion is roughly modeled on the sliding of flat objects across
-	#a uniform surface (e.g., spring-connected cylinders across a table).
-	#We assume that the coefficients of static and kinetic friction are
-	#the same, which should only trouble you if you are under the 
-	#delusion that this is a simulation rather than a graph drawing
-	#exercise (in which case you should be upset that I'm not using
-	#Runge-Kutta or the like!).
-	v.x<-v.x+f.x/ep[4]         #Add accumulated spring/repulsion forces
-	v.y<-v.y+f.y/ep[4]
-        spd<-sqrt(v.x^2+v.y^2)     #Determine frictional forces
-	fmag<-pmin(spd*ep[4],kfr)  #We can't let friction _create_ motion!
-	theta<-acos(v.x/spd)*sign(v.y)  #Calculate direction of motion
-	f.x<-fmag*cos(theta)        #Decompose frictional forces
-	f.y<-fmag*sin(theta)
-	f.x[is.nan(f.x)]<-0         #Correct for any 0/0 problems
-	f.y[is.nan(f.y)]<-0
-	v.x<-v.x-f.x/ep[4]          #Apply frictional forces (opposing motion)
-	v.y<-v.y-f.y/ep[4]
-        #Adjust the positions (yep, it's primitive linear updating time!)
-	x<-x+v.x
-	y<-y+v.y
-        #Check for cessation of motion, and increase friction
-	if(all(v.x<1e-10)&&all(v.y<1e-10))
-	  break
-	else
-	  kfr<-ep[5]*niter
-      }
-   }else{
-      stop("Unsupported layout mode",mode,"in gplot.  Exiting.\n")
+   }else{   #Otherwise, use the specified layout function
+     layout.fun<-try(match.fun(paste("gplot.layout.",mode,sep="")),silent=TRUE)
+     if(class(layout.fun)=="try-error")
+       stop("Error in gplot: no layout function for mode",mode)
+     temp<-layout.fun(d,layout.par)
+     x<-temp[,1]
+     y<-temp[,2]
    }
    #Jitter the coordinates if need be
    if(jitter){
@@ -2680,33 +2632,128 @@ gplot<-function(dat,g=1,gmode="digraph",diag=FALSE,label=c(1:dim(dat)[2]),coord=
      xlab=""
    if(is.null(ylab))
      ylab=""
-   #Plot the results
-   if((length(x)>0)&(!all(use==FALSE)))
-      plot(x[use],y[use],xlim=c(min(x[use])-pad,max(x[use])+pad),ylim=c(min(y[use])-pad,max(y[use])+pad),type="p",pch=vertex.pch,xlab=xlab,ylab=ylab,col=vertex.col,cex=vertex.cex,axes=!suppress.axes,...)
-   else
-      plot(0,0,type="n",pch=vertex.pch,xlab=expression(lambda[1]),ylab=expression(lambda[2]),col=vertex.col,cex=vertex.cex,axes=!suppress.axes,...)
-   px0<-vector()
+   #Create the base plot, if needed
+   xlim<-c(min(x[use])-pad,max(x[use])+pad)  #Save x, y limits
+   ylim<-c(min(y[use])-pad,max(y[use])+pad)
+   if(new){  #If new==FALSE, we add to the existing plot; else create a new one
+     if((length(x)>0)&(!all(use==FALSE)))
+        plot(x[use],y[use],xlim=xlim,ylim=ylim,type="p",pch=vertex.pch,xlab=xlab,ylab=ylab,col=vertex.col,cex=vertex.cex,axes=!suppress.axes,...)
+     else
+        plot(0,0,type="n",pch=vertex.pch,xlab=expression(lambda[1]),ylab=expression(lambda[2]),col=vertex.col,cex=vertex.cex,axes=!suppress.axes,...)
+   }
+   #Generate the edges and their attributes
+   px0<-vector()   #Create position vectors (tail, head)
    py0<-vector()
    px1<-vector()
    py1<-vector()
-   e.lwd<-vector()
-   for(i in c(1:n)[use])
-      for(j in c(1:n)[use])
-         if((i!=j)&(d[i,j]>thresh)){
-               px0<-c(px0,as.real(x[i]))
-               py0<-c(py0,as.real(y[i]))
-               px1<-c(px1,as.real(x[j]))
-               py1<-c(py1,as.real(y[j]))
-               if(edge.lwd>0)
-                  e.lwd<-c(e.lwd,edge.lwd*d[i,j])
-               else
-                  e.lwd<-c(e.lwd,1)
+   e.lwd<-vector() #Create edge attribute vectors
+   e.curv<-vector()
+   e.type<-vector()
+   e.col<-vector()
+   e.diag<-vector() #Indicator for self-ties
+   if(!is.array(edge.col))   #Coerce edge.col/edge.lty to array form
+     edge.col<-array(edge.col,dim=dim(d))
+   if(!is.array(edge.lty))
+     edge.lty<-array(edge.lty,dim=dim(d))
+   dist<-as.matrix(dist(cbind(x,y)))  #Get the inter-point distances for curves
+   tl<-d.raw*dist   #Get rescaled edge lengths
+   tl.max<-max(tl)  #Get maximum edge length   
+   for(i in (1:n)[use])    #Plot edges for displayed vertices
+     for(j in (1:n)[use])
+       if(d[i,j]){       #Perform for actually existing edges
+         px0<-c(px0,as.real(x[i]))  #Store endpoint coordinates
+         py0<-c(py0,as.real(y[i]))
+         px1<-c(px1,as.real(x[j]))
+         py1<-c(py1,as.real(y[j]))
+         e.col<-c(e.col,edge.col[i,j])    #Store other edge attributes
+         e.type<-c(e.type,edge.lty[i,j])
+         if(!is.array(edge.lwd)){
+           if(edge.lwd>0)
+             e.lwd<-c(e.lwd,edge.lwd*d.raw[i,j])
+           else
+             e.lwd<-c(e.lwd,1)
+         }else
+           e.lwd<-c(e.lwd,edge.lwd[i,j])
+         e.diag<-c(e.diag,i==j)  #Is this a loop?
+         if(uselen){   #Should we base curvature on interpoint distances?
+           if(tl[i,j]>0){ 
+             e.len<-dist[i,j]*tl.max/tl[i,j]
+             e.curv<-c(e.curv,edge.len*sqrt((e.len/2)^2-(dist[i,j]/2)^2))
+           }else{      
+             e.curv<-c(e.curv,0)   
+           }
+         }else{        #Otherwise, use prespecified edge.curve
+           if(!is.array(edge.curve)){
+             if(!is.null(edge.curve))  #If it's a scalar, multiply by edge str
+               e.curv<-c(e.curv,edge.curve*d.raw[i,j])
+             else
+               e.curv<-c(e.curv,0)
+           }else{
+            e.curv<-c(e.curv,edge.curve[i,j])
+           }
          }
-   if(usearrows&(length(px0)>0))
-      arrows(as.vector(px0),as.vector(py0),as.vector(px1),as.vector(py1),length=arrowhead.length,angle=15,col=edge.col,lty=edge.type,lwd=e.lwd)
-   else if(length(px0)>0)
-      segments(as.vector(px0),as.vector(py0),as.vector(px1),as.vector(py1),col=edge.col,lty=edge.type,lwd=e.lwd)
-   if((length(label)>0)&(!all(use==FALSE))){
+       }
+   #Plot loops for the diagonals, if diag==TRUE
+   if(diag&&(length(px0)>0)&&sum(e.diag>0)){  #Are there any loops present?
+     for(i in (1:length(px0))[e.diag]){  #Only walk the loops
+       xctr<-(xlim[2]+xlim[1])/2  #Find the center of the plot
+       yctr<-(ylim[2]+ylim[1])/2
+       xoff<-(px0[i]-xctr)/(xlim[2]-xctr)  #Create offsets
+       yoff<-(py0[i]-yctr)/(ylim[2]-yctr)
+       hoff<-sqrt(xoff^2+yoff^2)
+       dx<-diag.size*(xlim[2]-xlim[1])
+       dy<-diag.size*(ylim[2]-ylim[1])
+       xoff<-dx*xoff/hoff
+       yoff<-dy*yoff/hoff
+       t2<-edge.steps
+       for(t in 0:(t2-1)){                #Walk through the curve
+         segments(xoff+px0[i]+dx*sin(2*pi*t/t2), yoff+py0[i]+dy*cos(2*pi*t/t2), xoff+px1[i]+dx*sin(2*pi*(t+1)/t2), yoff+py1[i]+dy*cos(2*pi*(t+1)/t2), col=e.col[i], lty=e.type[i], lwd=e.lwd[i])
+       }
+       if(usearrows){                     #Add arrowheads, if needed
+         arrows(xoff+px0[i]+dx*sin(2*pi*t/t2), yoff+py0[i]+dy*cos(2*pi*t/t2), xoff+px1[i]+dx*sin(2*pi*(t+1)/t2), yoff+py1[i]+dy*cos(2*pi*(t+1)/t2), col=e.col[i], lty=e.type[i], lwd=e.lwd[i], length=arrowhead.length,angle=15)
+       }
+     }
+   }
+   #Plot standard (i.e., non-loop) edges
+   if(length(px0)>0){  #If edges are present, remove loops from consideration
+     px0<-px0[!e.diag] 
+     py0<-py0[!e.diag]
+     px1<-px1[!e.diag]
+     py1<-py1[!e.diag]
+     e.curv<-e.curv[!e.diag]
+     e.lwd<-e.lwd[!e.diag]
+     e.type<-e.type[!e.diag]
+     e.col<-e.col[!e.diag]
+   }
+   if(!usecurve&!uselen){   #Straight-line edge case
+     if(usearrows&(length(px0)>0))
+        arrows(as.vector(px0),as.vector(py0),as.vector(px1),as.vector(py1),length=arrowhead.length,angle=15,col=e.col,lty=e.type,lwd=e.lwd)
+     else if(length(px0)>0)
+        segments(as.vector(px0),as.vector(py0),as.vector(px1),as.vector(py1),col=e.col,lty=e.type,lwd=e.lwd)
+   }else{   #Curved edge case
+     if(length(px0)>0){
+       for(i in 1:length(px0)){
+         h<-e.curv[i]
+         t2<-edge.steps
+         dx<-(px1[i]-px0[i])/t2                 #Compute incremental changes
+         dy<-(py1[i]-py0[i])/t2
+         dzx<--sign(dy)*abs(dy/sqrt(dx^2+dy^2)) #Compute normals
+         dzy<-dx/sqrt(dx^2+dy^2)
+         dz1<-0
+         for(t in 0:(t2-1)){                    #Walk through the curve
+           dz2<-(h-(h/(t2/2)^2)*(t+1-(t2/2))^2)
+           segments(px0[i]+dx*t+dz1*dzx, py0[i]+dy*t+dz1*dzy, px0[i]+dx*(t+1)+dz2*dzx, py0[i]+dy*(t+1)+dz2*dzy, col=e.col[i], lty=e.type[i], lwd=e.lwd[i])
+           if(t<(t2-1))
+             dz1<-dz2
+         }
+         if(usearrows)                         #Add arrowheads, if needed
+           arrows(px0[i]+dx*t+dz1*dzx, py0[i]+dy*t+dz1*dzy, px0[i]+dx*(t+1)+dz2*dzx, py0[i]+dy*(t+1)+dz2*dzy, col=e.col[i], lty=e.type[i], lwd=e.lwd[i], length=arrowhead.length, angle=15)
+       }
+       
+     }
+   }
+   #Plot vertex labels, if needed
+   if((!all(label==""))&(!all(use==FALSE))){
       if(boxed.labels){
         lw<-strwidth(label[use],cex=label.cex)/2
         lh<-strheight(label[use],cex=label.cex)/2
@@ -2715,8 +2762,324 @@ gplot<-function(dat,g=1,gmode="digraph",diag=FALSE,label=c(1:dim(dat)[2]),coord=
       }	
       text(x[use],y[use]-3*lh,label[use],cex=label.cex,col=label.col)
    }
+   #If interactive, allow the user to mess with things
+   if(interactive&&((length(x)>0)&&(!all(use==FALSE)))){
+     #Set up the text offset increment
+     os<-c(0.2,0.4)*par()$cxy
+     #Get the location for text messages, and write to the screen
+     textloc<-c(min(x[use])-pad,max(y[use])+pad)
+     tm<-"Select a vertex to move, or click \"Finished\" to end."
+     tmh<-strheight(tm)
+     tmw<-strwidth(tm)
+     text(textloc[1],textloc[2],tm,adj=c(0,0.5)) #Print the initial instruction
+     fm<-"Finished"
+     finx<-c(textloc[1],textloc[1]+strwidth(fm))
+     finy<-c(textloc[2]-3*tmh-strheight(fm)/2,textloc[2]-3*tmh+strheight(fm)/2)
+     finbx<-finx+c(-os[1],os[1])
+     finby<-finy+c(-os[2],os[2])
+     rect(finbx[1],finby[1],finbx[2],finby[2],col="white")
+     text(finx[1],mean(finy),fm,adj=c(0,0.5))
+     #Get the click location
+     clickpos<-unlist(locator(1))
+     #If the click is in the "finished" box, end our little game.  Otherwise,
+     #relocate a vertex and redraw.
+     if((clickpos[1]%iin%finbx)&&(clickpos[2]%iin%finby)){
+       cl<-match.call()                #Get the args of the current function
+       cl$interactive<-FALSE           #Turn off interactivity
+       cl$coord<-cbind(x,y)            #Set the coordinates
+       cl$dat<-dat                     #"Fix" the data array
+       return(eval(cl))     #Execute the function and return
+     }else{
+       #Figure out which vertex was selected
+       clickdis<-sqrt((clickpos[1]-x[use])^2+(clickpos[2]-y[use])^2)
+       selvert<-match(min(clickdis),clickdis)
+       #Create usable labels, if the current ones aren't
+       if(all(label==""))
+         label<-1:n
+       #Clear out the old message, and write a new one
+       rect(textloc[1],textloc[2]-tmh/2,textloc[1]+tmw,textloc[2]+tmh/2,border="white",col="white")
+       tm<-"Where should I move this vertex?"
+       tmh<-strheight(tm)
+       tmw<-strwidth(tm)
+       text(textloc[1],textloc[2],tm,adj=c(0,0.5))
+       fm<-paste("Vertex",label[use][selvert],"selected")
+       finx<-c(textloc[1],textloc[1]+strwidth(fm))
+       finy<-c(textloc[2]-3*tmh-strheight(fm)/2,textloc[2]-3*tmh+strheight(fm)/2)
+       finbx<-finx+c(-os[1],os[1])
+       finby<-finy+c(-os[2],os[2])
+       rect(finbx[1],finby[1],finbx[2],finby[2],col="white")
+       text(finx[1],mean(finy),fm,adj=c(0,0.5))
+       #Get the destination for the new vertex
+       clickpos<-unlist(locator(1))
+       #Set the coordinates accordingly
+       x[use][selvert]<-clickpos[1]
+       y[use][selvert]<-clickpos[2]
+       #Iterate (leaving interactivity on)
+       cl<-match.call()                #Get the args of the current function
+       cl$coord<-cbind(x,y)            #Set the coordinates
+       cl$dat<-dat                     #"Fix" the data array
+       return(eval(cl))     #Execute the function and return
+     }
+   }
+   #Return the vertex positions, should they be needed
+   invisible(cbind(x,y))
 }
 
+#gplot.layout.* - Layout functions for gplot
+#gplot.layout.princoord - Place using the eigenstructure of the correlation 
+#matrix among concatenated rows/columns (principal coordinates by position
+#similarity)
+gplot.layout.princoord<-function(d,layout.par){     
+  #Determine the vectors to be related
+  if(is.null(layout.par$var))
+    vm<-rbind(d,t(d))
+  else
+    vm<-switch(layout.par$var,
+      rowcol=rbind(d,t(d)),
+      col=d,
+      row=t(d),
+      rcsum=d+t(d),
+      rcdiff=d-t(d),
+      user=layout.par$vm
+    )
+  #Find the correlation/covariance matrix
+  if(is.null(layout.par$cor)||layout.par$cor)
+    cd<-cor(vm,use="pairwise.complete.obs")
+  else    
+    cd<-cov(vm,use="pairwise.complete.obs")
+  cd<-replace(cd,is.na(cd),0)
+  #Obtain the eigensolution
+  e<-eigen(cd,symmetric=TRUE)
+  x<-Re(e$vectors[,1])
+  y<-Re(e$vectors[,2])
+  cbind(x,y)
+}
+#gplot.layout.eigen - Place vertices based on the first two eigenvectors of
+#an adjacency matrix
+gplot.layout.eigen<-function(d,layout.par){     
+  #Determine the matrix to be used
+  if(is.null(layout.par$var))
+    vm<-d
+  else
+    vm<-switch(layout.par$var,
+      symupper=symmetrize(d,rule="uppper"),
+      symlower=symmetrize(d,rule="lower"),
+      symstrong=symmetrize(d,rule="strong"),
+      symweak=symmetrize(d,rule="weak"),
+      user=layout.par$mat,
+      raw=d
+    )
+  #Pull the eigenstructure
+  e<-eigen(vm)
+  if(is.null(layout.par$evsel))
+    coord<-Re(e$vectors[,1:2])
+  else
+    coord<-switch(layout.par$evsel,
+      first=Re(e$vectors[,1:2]),
+      size=Re(e$vectors[,rev(order(abs(e$values)))[1:2]])
+    )
+  #Return the result
+  coord
+}
+#gplot.layout.mds - Place vertices based on metric multidimensional scaling
+#of a distance matrix
+gplot.layout.mds<-function(d,layout.par){     
+  #Determine the raw inputs for the scaling
+  if(is.null(layout.par$var))
+    vm<-cbind(d,t(d))
+  else
+    vm<-switch(layout.par$var,
+      rowcol=cbind(d,t(d)),
+      col=t(d),
+      row=d,
+      rcsum=d+t(d),
+      rcdiff=t(d)-d,
+      invadj=max(d)-d,
+      geodist=geodist(d)$gdist,
+      user=layout.par$vm
+    )
+  #If needed, construct the distance matrix
+  if(is.null(layout.par$dist))
+    dm<-as.matrix(dist(vm))
+  else
+    dm<-switch(layout.par$dist,
+      euclidean=as.matrix(dist(vm)),
+      maximum=as.matrix(dist(vm,method="maximum")),
+      manhattan=as.matrix(dist(vm,method="manhattan")),
+      canberra=as.matrix(dist(vm,method="canberra")),
+      none=vm
+    )
+  #Transform the distance matrix, if desired
+  if(is.null(layout.par$exp))
+    dm<-dm^2
+  else
+    dm<-dm^layout.par$exp
+  #Perform the scaling and return
+  cmdscale(dm,2)
+}
+gplot.layout.rmds<-function(d,layout.par){
+  if(is.null(layout.par))
+    layout.par<-list()
+  layout.par$var="row"
+  layout.par$dist="euclidean"
+  layout.par$exp=1
+  gplot.layout.mds(d,layout.par)
+}
+gplot.layout.geodist<-function(d,layout.par){
+  if(is.null(layout.par))
+    layout.par<-list()
+  layout.par$var="geodist"
+  layout.par$dist="none"
+  layout.par$exp=1
+  gplot.layout.mds(d,layout.par)
+}
+gplot.layout.adj<-function(d,layout.par){
+  if(is.null(layout.par))
+    layout.par<-list()
+  layout.par$var="invadj"
+  layout.par$dist="none"
+  layout.par$exp=1
+  gplot.layout.mds(d,layout.par)
+}
+gplot.layout.seham<-function(d,layout.par){
+  if(is.null(layout.par))
+    layout.par<-list()
+  layout.par$var="rowcol"
+  layout.par$dist="manhattan"
+  layout.par$exp=1
+  gplot.layout.mds(d,layout.par)
+}
+gplot.layout.segeo<-function(d,layout.par){
+  if(is.null(layout.par))
+    layout.par<-list()
+  layout.par$var="geodist"
+  layout.par$dist="euclidean"
+  gplot.layout.mds(d,layout.par)
+}
+#gplot.layout.random
+gplot.layout.random<-function(d,layout.par){     
+  n<-dim(d)[1]
+  #Determine the distribution
+  if(is.null(layout.par$dist))
+    temp<-matrix(runif(2*n,-1,1),n,2)
+  else if (layout.par$dist=="unif")
+    temp<-matrix(runif(2*n,-1,1),n,2)
+  else if (layout.par$dist=="uniang"){
+    tempd<-rnorm(n,1,0.25)
+    tempa<-runif(n,0,2*pi)
+    temp<-cbind(tempd*sin(tempa),tempd*cos(tempa))
+  }else if (layout.par$dist=="normal")
+    temp<-matrix(rnorm(2*n),n,2)
+  #Return the result
+  temp
+}
+gplot.layout.circrand<-function(d,layout.par){ 
+  if(is.null(layout.par))
+    layout.par<-list()
+  layout.par$dist="uniang"
+  gplot.layout.random(d,layout.par)
+}
+#gplot.layout.circle - Place vertices in a circular layout
+gplot.layout.circle<-function(d,layout.par){ 
+  n<-dim(d)[1]
+  cbind(sin(2*pi*((0:(n-1))/n)),cos(2*pi*((0:(n-1))/n)))
+}
+#gplot.layout.spring - Place vertices using a spring embedder
+gplot.layout.spring<-function(d,layout.par){
+  #Set up the embedder params
+  ep<-vector()
+  if(is.null(layout.par$mass))  #Mass is in "quasi-kilograms"
+    ep[1]<-0.1
+  else
+    ep[1]<-layout.par$mass
+  if(is.null(layout.par$equil)) #Equilibrium extension is in "quasi-meters"
+    ep[2]<-1
+  else
+    ep[2]<-layout.par$equil
+  if(is.null(layout.par$k)) #Spring coefficient is in "quasi-Newtons/qm"
+    ep[3]<-0.001
+  else
+    ep[3]<-layout.par$k
+  if(is.null(layout.par$repeqdis)) #Repulsion equilibrium is in qm
+    ep[4]<-0.1
+  else
+    ep[4]<-layout.par$repeqdis
+  if(is.null(layout.par$kfr)) #Base coef of kinetic friction is in qn-qkg
+    ep[5]<-0.01
+  else
+    ep[5]<-layout.par$kfr
+  if(is.null(layout.par$repulse))
+    repulse<-FALSE
+  else
+    repulse<-layout.par$repulse
+  #Create initial condidions
+  n<-dim(d)[1]
+  f.x<-rep(0,n)       #Set initial x/y forces to zero
+  f.y<-rep(0,n)
+  v.x<-rep(0,n)       #Set initial x/y velocities to zero
+  v.y<-rep(0,n)
+  tempa<-sample((0:(n-1))/n) #Set initial positions randomly on the circle
+  x<-n/(2*pi)*sin(2*pi*tempa)
+  y<-n/(2*pi)*cos(2*pi*tempa)
+  ds<-symmetrize(d,"weak")            #Symmetrize/dichotomize the graph
+  kfr<-ep[5]                          #Set initial friction level
+  niter<-1                            #Set the iteration counter
+  #Simulate, with increasing friction, until motion stops    
+  repeat{
+    niter<-niter+1                    #Update the iteration counter
+    dis<-as.matrix(dist(cbind(x,y)))  #Get inter-point distances
+    #Get angles relative to the positive x direction
+    theta<-acos(t(outer(x,x,"-"))/dis)*sign(t(outer(y,y,"-"))) 
+    #Compute spring forces; note that we assume a base spring coefficient
+    #of ep[3] units ("pseudo-Newtons/quasi-meter"?), with an equilibrium
+    #extension of ep[2] units for all springs
+    f.x<-apply(ds*cos(theta)*ep[3]*(dis-ep[2]),1,sum,na.rm=TRUE)
+    f.y<-apply(ds*sin(theta)*ep[3]*(dis-ep[2]),1,sum,na.rm=TRUE)
+    #If node repulsion is active, add a force component for this
+    #as well.  We employ an inverse cube law which is equal in power
+    #to the attractive spring force at distance ep[4]
+    if(repulse){
+      f.x<-f.x-apply(cos(theta)*ep[3]/(dis/ep[4])^3,1,sum,na.rm=TRUE)
+      f.y<-f.y-apply(sin(theta)*ep[3]/(dis/ep[4])^3,1,sum,na.rm=TRUE)
+    }
+    #Adjust the velocities (assume a mass of ep[1] units); note that the
+    #motion is roughly modeled on the sliding of flat objects across
+    #a uniform surface (e.g., spring-connected cylinders across a table).
+    #We assume that the coefficients of static and kinetic friction are
+    #the same, which should only trouble you if you are under the 
+    #delusion that this is a simulation rather than a graph drawing
+    #exercise (in which case you should be upset that I'm not using
+    #Runge-Kutta or the like!).
+    v.x<-v.x+f.x/ep[1]         #Add accumulated spring/repulsion forces
+    v.y<-v.y+f.y/ep[1]
+    spd<-sqrt(v.x^2+v.y^2)     #Determine frictional forces
+    fmag<-pmin(spd,kfr)  #We can't let friction _create_ motion!
+    theta<-acos(v.x/spd)*sign(v.y)  #Calculate direction of motion
+    f.x<-fmag*cos(theta)        #Decompose frictional forces
+    f.y<-fmag*sin(theta)
+    f.x[is.nan(f.x)]<-0         #Correct for any 0/0 problems
+    f.y[is.nan(f.y)]<-0
+    v.x<-v.x-f.x                #Apply frictional forces (opposing motion -
+    v.y<-v.y-f.y                #note that mass falls out of equation)
+    #Adjust the positions (yep, it's primitive linear updating time!)
+    x<-x+v.x
+    y<-y+v.y
+    #Check for cessation of motion, and increase friction
+    mdist<-mean(dis)
+    if(all(v.x<mdist*1e-5)&&all(v.y<mdist*1e-5))
+      break
+    else
+      kfr<-ep[5]*exp(0.1*niter)
+  }
+  #Return the result
+  cbind(x,y)
+}
+gplot.layout.springrepulse<-function(d,layout.par){
+  if(is.null(layout.par))
+    layout.par<-list()
+  layout.par$repulse<-TRUE
+  gplot.layout.spring(d,layout.par)
+}
 
 #netlogit - God help me, it's a network regression routine using a binomial/logit GLM.  It's also
 #frighteningly slow, since it's essentially a front end to the builtin GLM routine with a bunch of
@@ -2886,6 +3249,66 @@ print.netlogit<-function(x,...){
 #netlm - OLS network regression routine using a QAP/CUG null hypotheses.  This routine is
 #frighteningly slow, since it's essentially a front end to the builtin lm routine with a bunch of
 #network hypothesis testing stuff thrown in for good measure.
+#netlm2<-function(y,x,intercept=TRUE,mode="digraph",diag=FALSE,nullhyp="cugtie",reps=1000){
+#  #Create the output list
+#  out<-list()
+#  out$r.squared.dist<-vector(length=reps)
+#  out$adj.r.squared.dist<-vector(length=reps)
+#  out$sigma.dist<-vector(length=reps)
+#  #Perform the initial vectorization
+#  vy<-as.vector(gvectorize(y,mode=mode,diag=diag))
+#  vx<-gvectorize(x,mode=mode,diag=diag)
+#  #Add an intercept, if needed
+#  if(intercept)
+#    vx<-cbind(rep(1,dim(vx)[1]),vx)
+#  #Get some initial stats
+#  n<-dim(y)[1]
+#  p<-dim(vx)[2]
+#  #Perform the initial model fit
+#  xnam<-paste("vx[,",1:p,"]",sep="")
+#  fmstr<-paste("vy ~ ",paste(xnam,collapse="+"))
+#  fmla<-as.formula(fmstr)
+#  nm<-lm(fmla,na.action=na.omit,singular.ok=TRUE)
+#  #Now, repeat everything to test the appropriate null hypothesis
+#  if(match.arg(nullhyp)=="qap"){ 
+#  #QAP semi-partialling "plus"
+#  #For Y ~ b0 + b1 X1 + b2 X2 + ... + bp Xp
+#  #for(i in 1:p)
+#  #  Fit Xi ~ b0* + b1* X1 + ... + bp* Xp (omit Xi)
+#  #  Let ei = resid of above lm
+#  #  for(j in 1:reps)
+#  #    eij = rmperm (ei)
+#  #    Fit Y ~ b0** + b1** X1 + ... + bi** eij + ... + bp** Xp
+#  #Use resulting permutation distributions to test coefficients
+#    #Identify rows without missing data (w/out permutations)
+#    nona<-apply(!is.na(cbind(vy,vx)),1,all)
+#    #Walk through the predictors
+#    for(i in 1:p){
+#      #Regress the appropriate X on its peers
+#      xm<-lm.fit(vx[nona,-i,drop=FALSE],vx[nona,i])
+#      #Convert the residuals of this regression back into matrix form
+#      ex<-nona
+#      ex[!nona]<-NA
+#      ex[nona]<-xm$residuals
+#      ex<-matrix(ex,n,n)
+#      if(mode=="graph")   #If the matrix is symmetric, restore it
+#        ex[upper.tri(ex)]<-t(ex)[upper.tri(ex)]
+#      #Perform the QAP replications
+#      for(j in 1:reps){
+#        #Set up the new predictors
+#	tx<-vx
+#        tx[,i]<-gvectorize(rmperm(ex),mode=mode,diag=diag)
+#        rnona<-apply(!is.na(cbind(vy,tx)),1,all)
+#	#Fit the test model
+#	tm<-lm.fit(vy[rnona],tx[rnona,])
+#	#Gather the coefficient, for later use
+#	out$dist[j,i]<-tm$coefficients[i]
+#      }
+#    }
+#  }else{
+#  }
+#}
+
 netlm<-function(y,x,mode="digraph",diag=FALSE,nullhyp="cugtie",reps=1000){
    out<-list()
    out$r.squared.dist<-vector(length=reps)
@@ -4297,6 +4720,8 @@ consensus<-function(dat,mode="digraph",diag=FALSE,method="central.graph",tol=0.0
    n<-dim(dat)[2]
    m<-dim(dat)[1]
    #First, prepare the data
+   if(m==1)
+     dat<-array(dat,dim=c(1,n,n))
    if(mode=="graph")
       d<-upper.tri.remove(dat)
    else
@@ -4336,6 +4761,25 @@ consensus<-function(dat,mode="digraph",diag=FALSE,method="central.graph",tol=0.0
       diag(gc)<-1
       rwv<-eigen(gc)$vector[,1]
       cong<-apply(d*aperm(array(sapply(rwv,rep,n^2),dim=c(n,n,m)),c(3,2,1)),c(2,3),sum)
+   #Use the Locally Aggregated Structure
+   }else if(method=="LAS.intersection"){
+      cong<-matrix(0,n,n)
+      for(i in 1:n)
+        for(j in 1:n)
+          cong[i,j]<-as.numeric(d[i,i,j]&&d[j,i,j])
+   }else if(method=="LAS.union"){
+      cong<-matrix(0,n,n)
+      for(i in 1:n)
+        for(j in 1:n)
+          cong[i,j]<-as.numeric(d[i,i,j]||d[j,i,j])
+   }else if(method=="OR.row"){
+      cong<-matrix(0,n,n)
+      for(i in 1:n)
+         cong[i,]<-d[i,i,]
+   }else if(method=="OR.col"){
+      cong<-matrix(0,n,n)
+      for(i in 1:n)
+         cong[,i]<-d[i,,i]
    }
    #Finish off and return the consensus graph
    if(mode=="graph")
@@ -5052,9 +5496,9 @@ triad.classify<-function(dat,g=1,tri=c(1,2,3)){
       }else if(all(man==c(1,1,1))){   #The one mut/one asym/one null triad
          ind<-apply(d,2,sum)  
          if(any(ind==2))
-            man<-c(man,"U")   #"Up" variant
-         else
             man<-c(man,"D")   #"Down" variant
+         else
+            man<-c(man,"U")   #"Up" variant
       }else if(all(man==c(0,3,0))){   #The three asym triad
          ind<-apply(d,2,sum)  
          if(any(ind==2))
@@ -5101,6 +5545,7 @@ triad.census<-function(dat,g=1:stackcount(dat)){
       d<-array(dim=c(1,dim(dat)[1],dim(dat)[2]))
       d[1,,]<-dat
    }
+   d<-diag.remove(d,remove.val=0)  #Remove any diagonals
    #Perform the census
    census<-t(apply(d,1,intcalc,tc))
    colnames(census)<-tc
@@ -5108,3 +5553,429 @@ triad.census<-function(dat,g=1:stackcount(dat)){
    census
 }
 
+#gapply - Apply a function to vertex neighborhoods within a graph
+gapply<-function(X,MARGIN,STATS,FUN,...,mode="digraph",diag=FALSE,distance=1,thresh=0,simplify=TRUE){
+  #Match the input function
+  fun<-match.fun(FUN)
+  #Dichotomize, if needed
+  X<-X>thresh
+  #If needed, calculate the reachability graph
+  if(distance>1)
+    X<-geodist(X,inf.replace=Inf)$gdist<=distance
+  #Remove unwanted elements
+  if(!diag)
+    diag(X)<-FALSE
+  if(mode=="graph")
+    X[lower.tri(X)]<-FALSE
+  #Extract the relevant stats
+  if(!is.matrix(STATS))
+    STATS<-matrix(STATS,nc=1)
+  if(length(MARGIN)==1){
+    if(MARGIN==1)
+      stats<-apply(X,1,function(x){STATS[x,]})
+    else if(MARGIN==2)
+      stats<-apply(X,2,function(x){STATS[x,]})
+  }else if(all(c(1,2)%in%MARGIN))
+    stats<-apply(symmetrize(X,rule="weak")>0,1,function(x){STATS[x,]})
+  else
+    stop("MARGIN must be one of 1, 2, or c(1,2) in gapply.  Exiting.\n")
+  #Apply the function and return the result
+  if(is.matrix(stats))
+    apply(stats,2,fun,...)
+  else
+    sapply(stats,fun,...,simplify=simplify)
+}
+
+#lnam - Fit a linear network autocorrelation model
+#y = r1 * W1 %*% y + X %*% b + e, e = r2 * W2 %*% e + nu
+#y =  (I-r1*W1)^-1%*%(X %*% b + e)
+#y = (I-r1 W1)^-1 (X %*% b + (I-r2 W2)^-1 nu)
+#e = (I-r2 W2)^-1 nu
+#e = (I-r1 W1) y - X b
+#nu = (I - r2 W2) [ (I-r1 W1) y - X b ]
+#nu = (I-r2 W2) e
+lnam<-function(y,x=NULL,W1=NULL,W2=NULL,theta.seed=NULL,null.model=c("meanstd","mean","std","none"),method="BFGS",control=list()){
+   #Define the log-likelihood functions for each case
+   lnLx<-function(theta,y,x,sigma.log=TRUE){ #theta=c(s,b)
+      m<-length(theta)
+      if(sigma.log)
+        sig<-exp(theta[1])
+      else
+        sig<-theta[1]
+      -2*sum(dnorm(y-x%*%(theta[2:m]),0,sig,log=TRUE))
+   }
+   lnL1<-function(theta,y,W1,sigma.log=TRUE){ #theta=c(r1,s)
+      n<-length(y)
+      if(sigma.log)
+        sig<-exp(theta[2])
+      else
+        sig<-theta[2]
+      -2*sum(dnorm((diag(n)-theta[1]*W1)%*%y,0,sig,log=TRUE))
+   }
+   lnL2<-function(theta,y,W2,sigma.log=TRUE){ #theta=c(r2,s)
+      n<-length(y)
+      if(sigma.log)
+        sig<-exp(theta[2])
+      else
+        sig<-theta[2]
+      -2*sum(dnorm((diag(n)-theta[1]*W2)%*%y,0,sig,log=TRUE))
+   }
+   lnLx1<-function(theta,y,x,W1,sigma.log=TRUE){ #theta=c(r1,s,b)
+      n<-length(y)
+      m<-length(theta)
+      if(sigma.log)
+        sig<-exp(theta[2])
+      else
+        sig<-theta[2]
+      -2*sum(dnorm((diag(n)-theta[1]*W1)%*%y-x%*%theta[3:m],0,sig,log=TRUE))
+   }
+   lnLx2<-function(theta,y,x,W2,sigma.log=TRUE){ #theta=c(r2,s,b)
+      n<-length(y)
+      m<-length(theta)
+      if(sigma.log)
+        sig<-exp(theta[2])
+      else
+        sig<-theta[2]
+      -2*sum(dnorm((diag(n)-theta[1]*W2)%*%(y-x%*%theta[3:m]),0,sig,log=TRUE))
+   }
+   lnL12<-function(theta,y,W1,W2,sigma.log=TRUE){ #theta=c(r1,r2,s)
+      n<-length(y)
+      if(sigma.log)
+        sig<-exp(theta[3])
+      else
+        sig<-theta[3]
+      -2*sum(dnorm((diag(n)-theta[2]*W2)%*%((diag(n)-theta[1]*W1)%*%y),0,sig,log=TRUE))
+   }
+   lnLx12<-function(theta,y,x,W1,W2,sigma.log=TRUE){ #theta=c(r1,r2,s,b)
+      n<-length(y)
+      m<-length(theta)
+      if(sigma.log)
+        sig<-exp(theta[3])
+      else
+        sig<-theta[3]
+      -2*sum(dnorm((diag(n)-theta[2]*W2)%*%((diag(n)-theta[1]*W1)%*%y-x%*%theta[4:m]),0,sig,log=TRUE))
+   }
+   #How many data points are there?
+   n<-length(y)
+   #Fix x, if needed
+   if(!is.null(x)&&is.vector(x))
+     x<-as.matrix(x)
+   #Determine the computation mode from the x,W1,W2 parameters
+   comp.mode<-as.character(as.numeric(1*(!is.null(x))+10*(!is.null(W1))+100*(!is.null(W2))))
+   if(comp.mode=="0")
+      stop("At least one of x, W1, W2 must be specified.\n")
+   #How many predictors?   
+   m<-switch(comp.mode,
+      "1"=dim(x)[2]+1,
+      "10"=2,
+      "100"=2,
+      "11"=dim(x)[2]+2,
+      "101"=dim(x)[2]+2,
+      "110"=3,
+      "111"=dim(x)[2]+3
+   )
+   #Initialize the parameter vector
+   if(is.null(theta.seed)){
+      theta<-rep(0,m)
+   }else{
+      theta<-theta.seed
+      if(comp.mode=="1")           #Log the standard deviation parameter
+         theta[1]<-log(theta[1])
+      else if(comp.mode%in%c("10","100","11","101"))
+         theta[2]<-log(theta[2])
+      else
+         theta[3]<-log(theta[3])
+   }
+   #Perform the MLE fit via a two-stage process
+   fitted<-switch(comp.mode,
+      "1"=optim(theta,lnLx,method=method,control=control,y=y,x=x),
+      "10"=optim(theta,lnL1,method=method,control=control,y=y,W1=W1),
+      "100"=optim(theta,lnL2,method=method,control=control,y=y,W2=W2),
+      "11"=optim(theta,lnLx1,method=method,control=control,y=y,x=x,W1=W1),
+      "101"=optim(theta,lnLx2,method=method,control=control,y=y,x=x,W2=W2),
+      "110"=optim(theta,lnL12,method=method,control=control,y=y,W1=W1,W2=W2),
+      "111"=optim(theta,lnLx12,method=method,control=control,y=y,x=x,W1=W1,W2=W2)
+   )
+   if(comp.mode=="1")           #De-log the standard deviation parameter
+      fitted$par[1]<-exp(fitted$par[1])
+   else if(comp.mode%in%c("10","100","11","101"))
+      fitted$par[2]<-exp(fitted$par[2])
+   else
+      fitted$par[3]<-exp(fitted$par[3])
+   theta<-fitted$par            #Prepare for the stage-2 fit
+   fitted<-switch(comp.mode,
+      "1"=optim(theta,lnLx,method=method,control=control,hessian=TRUE,y=y,x=x,sigma.log=FALSE),
+      "10"=optim(theta,lnL1,method=method,control=control,hessian=TRUE,y=y,W1=W1,sigma.log=FALSE),
+      "100"=optim(theta,lnL2,method=method,control=control,hessian=TRUE,y=y,W2=W2,sigma.log=FALSE),
+      "11"=optim(theta,lnLx1,method=method,control=control,hessian=TRUE,y=y,x=x,W1=W1,sigma.log=FALSE),
+      "101"=optim(theta,lnLx2,method=method,control=control,hessian=TRUE,y=y,x=x,W2=W2,sigma.log=FALSE),
+      "110"=optim(theta,lnL12,method=method,control=control,hessian=TRUE,y=y,W1=W1,W2=W2,sigma.log=FALSE),
+      "111"=optim(theta,lnLx12,method=method,control=control,hessian=TRUE,y=y,x=x,W1=W1,W2=W2,sigma.log=FALSE)
+   )
+   #Assemble and return the results
+   o<-list()
+   o$y<-y
+   o$x<-x
+   o$W1<-W1
+   o$W2<-W2
+   o$model<-comp.mode
+   o$infomat<-fitted$hessian/2  
+   o$acvm<-qr.solve(o$infomat)
+   o$null.model<-match.arg(null.model)
+   o$lnlik.null<-switch(match.arg(null.model),  #Fit a null model
+      "meanstd"=sum(dnorm(y-mean(y),0,as.numeric(sqrt(var(y))),log=TRUE)),
+      "mean"=sum(dnorm(y-mean(y),log=TRUE)),
+      "std"=sum(dnorm(y,0,as.numeric(sqrt(var(y))),log=TRUE)),
+      "none"=sum(dnorm(y,log=TRUE))
+   )
+   o$df.null.resid<-switch(match.arg(null.model),  #Find residual null df
+      "meanstd"=n-2,
+      "mean"=n-1,
+      "std"=n-1,
+      "none"=n
+   )
+   o$df.null<-switch(match.arg(null.model),  #Find null df
+      "meanstd"=2,
+      "mean"=1,
+      "std"=1,
+      "none"=0
+   )
+   o$null.param<-switch(match.arg(null.model),  #Find null params, if any
+      "meanstd"=c(mean(y),sqrt(var(y))),
+      "mean"=mean(y),
+      "std"=sqrt(var(y)),
+      "none"=NULL
+   )
+   o$lnlik.model<--fitted$value/2
+   o$df.model<-m
+   o$df.residual<-n-m
+   o$df.total<-n
+   o$rho1<-switch(comp.mode,   #Get the r1 parameter, if available
+      "1"=NULL,
+      "10"=fitted$par[1],
+      "100"=NULL,
+      "11"=fitted$par[1],
+      "101"=NULL,
+      "110"=fitted$par[1],
+      "111"=fitted$par[1]
+   )
+   o$rho1.se<-switch(comp.mode,   #Get the r1 SE, if available
+      "1"=NULL,
+      "10"=sqrt(o$acvm[1,1]),
+      "100"=NULL,
+      "11"=sqrt(o$acvm[1,1]),
+      "101"=NULL,
+      "110"=sqrt(o$acvm[1,1]),
+      "111"=sqrt(o$acvm[1,1])
+   )
+   o$rho2<-switch(comp.mode,   #Get the r2 parameter, if available
+      "1"=NULL,
+      "10"=NULL,
+      "100"=fitted$par[1],
+      "11"=NULL,
+      "101"=fitted$par[1],
+      "110"=fitted$par[2],
+      "111"=fitted$par[2]
+   )
+   o$rho2.se<-switch(comp.mode,   #Get the r2 SE, if available
+      "1"=NULL,
+      "10"=NULL,
+      "100"=sqrt(o$acvm[1,1]),
+      "11"=NULL,
+      "101"=sqrt(o$acvm[1,1]),
+      "110"=sqrt(o$acvm[2,2]),
+      "111"=sqrt(o$acvm[2,2])
+   )
+   o$sigma<-switch(comp.mode,   #Get the sigma parameter
+      "1"=(fitted$par[1]),
+      "10"=(fitted$par[2]),
+      "100"=(fitted$par[2]),
+      "11"=(fitted$par[2]),
+      "101"=(fitted$par[2]),
+      "110"=(fitted$par[3]),
+      "111"=(fitted$par[3])
+   )
+   o$sigma.se<-switch(comp.mode,   #Get the sigma SE
+      "1"=sqrt(o$acvm[1,1]),
+      "10"=sqrt(o$acvm[2,2]),
+      "100"=sqrt(o$acvm[2,2]),
+      "11"=sqrt(o$acvm[2,2]),
+      "101"=sqrt(o$acvm[2,2]),
+      "110"=sqrt(o$acvm[3,3]),
+      "111"=sqrt(o$acvm[3,3])
+   )
+   o$beta<-as.vector(switch(comp.mode,   #Get the beta parameters, if available
+      "1"=fitted$par[2:m],
+      "10"=NULL,
+      "100"=NULL,
+      "11"=fitted$par[3:m],
+      "101"=fitted$par[3:m],
+      "110"=NULL,
+      "111"=fitted$par[4:m]
+   ))
+   o$beta.se<-as.vector(switch(comp.mode,   #Get the beta SE, if available
+      "1"=sqrt(diag(o$acvm)[2:m]),
+      "10"=NULL,
+      "100"=NULL,
+      "11"=sqrt(diag(o$acvm)[3:m]),
+      "101"=sqrt(diag(o$acvm)[3:m]),
+      "110"=NULL,
+      "111"=sqrt(diag(o$acvm)[4:m])
+   ))
+   if(!is.null(colnames(x))){
+      names(o$beta)<-colnames(x)
+      names(o$beta.se)<-colnames(x)
+   }else{
+      names(o$beta)<-paste("X",1:dim(x)[2],sep="")
+      names(o$beta.se)<-paste("X",1:dim(x)[2],sep="")
+   }
+   o$disturbances<-as.vector(switch(comp.mode,  #The estimated disturbances
+      "1"=y-x%*%o$beta,
+      "10"=(diag(n)-o$rho1*W1)%*%y,
+      "100"=(diag(n)-o$rho2*W2)%*%y,
+      "11"=(diag(n)-o$rho1*W1)%*%y-x%*%o$beta,
+      "101"=(diag(n)-o$rho2*W2)%*%(y-x%*%o$beta),
+      "110"=(diag(n)-o$rho2*W2)%*%((diag(n)-o$rho1*W1)%*%y),
+      "111"=(diag(n)-o$rho2*W2)%*%((diag(n)-o$rho1*W1)%*%y-x%*%o$beta)
+   ))
+   o$fitted.values<-as.vector(switch(comp.mode,  #Compute the fitted values
+      "1"=x%*%o$beta,
+      "10"=rep(0,n),
+      "100"=rep(0,n),
+      "11"=qr.solve(diag(n)-o$rho1*W1,x%*%o$beta),
+      "101"=x%*%o$beta,
+      "110"=rep(0,n),
+      "111"=qr.solve(diag(n)-o$rho1*W1,x%*%o$beta)
+   ))
+   o$residuals<-as.vector(y-o$fitted.values)
+   o$call<-match.call()
+   class(o)<-c("lnam")
+   o
+}
+
+coef.lnam<-function(object, ...){
+   coefs<-vector()
+   cn<-vector()
+   if(!is.null(object$rho1)){
+      coefs<-c(coefs,object$rho1)
+      cn<-c(cn,"rho1")
+   }
+   if(!is.null(object$rho2)){
+      coefs<-c(coefs,object$rho2)
+      cn<-c(cn,"rho2")
+   }
+   if(!is.null(object$beta)){
+      coefs<-c(coefs,object$beta)
+      cn<-c(cn,names(object$beta))
+   }
+   names(coefs)<-cn
+   coefs
+}
+
+se.lnam<-function(object, ...){
+   se<-vector()
+   sen<-vector()
+   if(!is.null(object$rho1.se)){
+      se<-c(se,object$rho1.se)
+      sen<-c(sen,"rho1")
+   }
+   if(!is.null(object$rho2.se)){
+      se<-c(se,object$rho2.se)
+      sen<-c(sen,"rho2")
+   }
+   if(!is.null(object$beta.se)){
+      se<-c(se,object$beta.se)
+      sen<-c(sen,names(object$beta.se))
+   }
+   names(se)<-sen
+   se
+}
+
+print.lnam<-function(x, digits = max(3, getOption("digits") - 3), ...){
+   cat("\nCall:\n", deparse(x$call), "\n\n", sep = "")
+   cat("Coefficients:\n")
+   print.default(format(coef(x), digits = digits), print.gap = 2, quote = FALSE)
+   cat("\n")
+}
+
+summary.lnam<-function(object, ...){
+   ans<-object
+   class(ans)<-c("summary.lnam","lnam")
+   ans
+}
+
+print.summary.lnam<-function(x, digits = max(3, getOption("digits") - 3), signif.stars = getOption("show.signif.stars"), ...){
+   cat("\nCall:\n")
+   cat(paste(deparse(x$call), sep = "\n", collapse = "\n"), "\n\n", sep = "")
+   cat("Residuals:\n")
+   nam <- c("Min", "1Q", "Median", "3Q", "Max")
+   resid<-x$residuals 
+   rq <- if (length(dim(resid)) == 2) 
+      structure(apply(t(resid), 1, quantile), dimnames = list(nam, dimnames(resid)[[2]]))
+   else structure(quantile(resid), names = nam)
+   print(rq, digits = digits, ...)
+   cat("\nCoefficients:\n")
+   cmat<-cbind(coef(x),se.lnam(x))
+   cmat<-cbind(cmat,cmat[,1]/cmat[,2],(1-pnorm(abs(cmat[,1]),0,cmat[,2]))*2)
+   colnames(cmat)<-c("Estimate","Std. Error","Z value","Pr(>|z|)")
+   #print(format(cmat,digits=digits),quote=FALSE)
+   printCoefmat(cmat,digits=digits,signif.stars=signif.stars,...)
+   cat("\n")
+   cmat<-cbind(x$sigma,x$sigma.se)
+   colnames(cmat)<-c("Estimate","Std. Error")
+   rownames(cmat)<-"Sigma"
+   printCoefmat(cmat,digits=digits,signif.stars=signif.stars,...)
+   cat("\nGoodness-of-Fit:\n")
+   rss<-sum(x$residuals^2)
+   mss<-sum((x$fitted-mean(x$fitted))^2)
+   rdfns<-x$df.residual+1
+   cat("\tResidual standard error: ",format(sqrt(rss/rdfns),digits=digits)," on ",rdfns," degrees of freedom (w/o Sigma)\n",sep="")
+   cat("\tMultiple R-Squared: ",format(mss/(mss+rss),digits=digits),", Adjusted R-Squared: ",format(1-(1-mss/(mss+rss))*x$df.total/rdfns,digits=digits),"\n",sep="")
+   cat("\tModel log likelihood:", format(x$lnlik.model,digits=digits), "on", x$df.resid, "degrees of freedom (w/Sigma)\n\tAIC:",format(-2*x$lnlik.model+2*x$df.model,digits=digits),"BIC:",format(-2*x$lnlik.model+log(x$df.total)*x$df.model,digits=digits),"\n")
+   cat("\n\tNull model:",x$null.model,"\n")
+   cat("\tNull log likelihood:", format(x$lnlik.null,digits=digits), "on", x$df.null.resid, "degrees of freedom\n\tAIC:",format(-2*x$lnlik.null+2*x$df.null,digits=digits),"BIC:",format(-2*x$lnlik.null+log(x$df.total)*x$df.null,digits=digits),"\n")
+   cat("\tAIC difference (model versus null):",format(-2*x$lnlik.null+2*x$df.null+2*x$lnlik.model-2*x$df.model,digits=digits),"\n")
+   cat("\tHeuristic Log Bayes Factor (model versus null): ",format(-2*x$lnlik.null+log(x$df.total)*x$df.null+2*x$lnlik.model-log(x$df.total)*x$df.model,digits=digits),"\n")
+   cat("\n")
+}
+
+plot.lnam<-function(x,...){
+   require(mva)
+   r<-residuals(x)
+   f<-fitted(x)
+   d<-x$disturbances
+   sdr<-sd(r)
+   ci<-c(-1.959964,1.959964)
+   old.par <- par(no.readonly = TRUE)
+   on.exit(par(old.par))
+   par(mfrow=c(2,2))
+   #Plot residual versus actual values
+   plot(x$y,f,ylab=expression(hat(y)),xlab=expression(y),main="Fitted vs. Observed Values")
+   abline(ci[1]*sdr,1,lty=3)
+   abline(0,1,lty=2)
+   abline(ci[2]*sdr,1,lty=3)
+   #Plot disturbances versus fitted values
+   plot(f,d,ylab=expression(hat(nu)),xlab=expression(hat(y)), ylim=c(min(ci[1]*x$sigma,d),max(ci[2]*x$sigma,d)),main="Fitted Values vs. Estimated Disturbances")
+   abline(h=c(ci[1]*x$sigma,0,ci[2]*x$sigma),lty=c(3,2,3))
+   #QQ-Plot the residuals
+   qqnorm(r,main="Normal Q-Q Residual Plot")
+   qqline(r)
+   #Plot an influence diagram
+   if(!(is.null(x$W1)&&is.null(x$W2))){
+      inf<-matrix(0,nc=x$df.total,nr=x$df.total)
+      if(!is.null(x$W1))
+         inf<-inf+qr.solve(diag(x$df.total)-x$rho1*x$W1)
+      if(!is.null(x$W2))
+         inf<-inf+qr.solve(diag(x$df.total)-x$rho2*x$W2)
+      syminf<-abs(inf)+abs(t(inf))
+      diag(syminf)<-0
+      infco<-cmdscale(as.dist(max(syminf)-syminf),k=2)
+      diag(inf)<-NA
+      stdinf<-inf-mean(inf,na.rm=TRUE)
+      infsd<-sd(as.vector(stdinf),na.rm=TRUE)
+      stdinf<-stdinf/infsd
+      gplot(abs(stdinf),thresh=1.96,coord=infco,main="Net Influence Plot",edge.lty=1,edge.lwd=abs(stdinf)/2,edge.col=2+(inf>0)) 
+   }
+   #Restore plot settings
+   invisible()
+}

@@ -12,9 +12,9 @@ consensus(dat, mode="digraph", diag=FALSE, method="central.graph",
 %- maybe also `usage' for other objects documented here.
 \arguments{
   \item{dat}{ An m x n x n graph stack}
-  \item{mode}{ ``digraph'' for directed data, else ``graph'' }
+  \item{mode}{ \code{"digraph"} for directed data, else \code{"graph"} }
   \item{diag}{ A boolean indicating whether the diagonals (loops) should be treated as data }
-  \item{method}{ One of ``central.graph'', ``single.reweight'', ``PCA.reweight''  }
+  \item{method}{ One of \code{"central.graph"}, \code{"single.reweight"}, \code{"PCA.reweight"}, \code{"LAS.intersection"}, \code{"LAS.union"}, \code{"OR.row"}, or \code{"OR.col"}  }
   \item{tol}{ Tolerance for the iterative reweighting algorithm (not currently supported)}
 }
 \details{
@@ -25,6 +25,10 @@ The term ``consensus structure'' is used by a number of authors to reflect a not
 \item \code{central.graph}: Estimate the consensus structure using the central graph.  This correponds to a ``median response'' notion of consensus.
 \item \code{single.reweight}: Estimate the consensus structure using subject responses, reweighted by mean graph correlation.  This corresponds to an ``expertise-weighted vote'' notion of consensus.
 \item \code{PCA.reweight}: Estimate the consensus using the (scores on the) first component of a network PCA.  This corresponds to a ``shared theme'' or ``common element'' notion of consensus.
+\item \code{LAS.intersection}: Estimate the concensus structure using the locally aggregated structure (intersection rule).  In this model, an i->j edge exists iff i \emph{and} j agree that it exists.
+\item \code{LAS.union}: Estimate the concensus structure using the locally aggregated structure (union rule).  In this model, an i->j edge exists iff i \emph{or} j agree that it exists.
+\item \code{OR.row}: Estimate the consensus structure using own report.  Here, we take each informant's outgoing tie reports to be correct.
+\item \code{OR.col}: Estimate the consensus structure using own report.  Here, we take each informant's incoming tie reports to be correct.
 }
 
 Note that the reweighted algorithms are not dichotomized by default; since these return valued graphs, dichotomization may be desirable prior to use.
@@ -60,4 +64,4 @@ consensus(g.obs)                           #Central graph
 consensus(g.obs,method="single.reweight")  #Single reweighting
 consensus(g.obs,method="PCA.reweight")     #1st component in network PCA
 }
-\keyword{ math }%-- one or more ...
+\keyword{ graphs }%-- one or more ...

@@ -50,6 +50,8 @@ Wasserman, S., and Faust, K.  (1994).  ``Social Network Analysis: Methods and Ap
 
 \seealso{ \code{\link{triad.census}}, \code{\link{gtrans}} }
 
+\section{Warning }{Valued data and/or loops may cause strange behavior with this routine.  Dichotomize/remove loops first.}
+
 \examples{
 #Generate a random graph
 g<-rgraph(10)

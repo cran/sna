@@ -29,6 +29,8 @@ Wasserman, S., and Faust, K.  (1994).  ``Social Network Analysis: Methods and Ap
 
 \seealso{ \code{\link{triad.classify}}, \code{\link{dyad.census}}, \code{\link{gtrans}} }
 
+\section{Warning }{Valued data may cause strange behavior with this routine.  Dichotomize the data first.}
+
 \examples{
 #Generate a triad census of random data with varying densities
 triad.census(rgraph(15,5,tprob=c(0.1,0.25,0.5,0.75,0.9)))

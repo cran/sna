@@ -1,13 +1,13 @@
 \name{pstar}
 \alias{pstar}
 %- Also NEED an `\alias' for EACH other topic documented here.
-\title{ Fit a p* Model Using a Logistic Approximation }
+\title{ Fit a p*/ERG Model Using a Logistic Approximation }
 \description{
-  Fits a p* model to the adjacency matrix in \code{dat} containing the effects listed in \code{effects}.  The result is returned as a \code{\link{glm}} object.
+  Fits a p*/ERG model to the adjacency matrix in \code{dat} containing the effects listed in \code{effects}.  The result is returned as a \code{\link{glm}} object.
 }
 \usage{
 pstar(dat, effects=c("choice", "mutuality", "density", "reciprocity",
-    "stransitivity", "stransitivity", "wtranstri", "stranstri", 
+    "stransitivity", "wtransitivity", "stranstri",  "wtranstri", 
     "outdegree", "indegree", "betweenness", "closeness", 
     "degcentralization", "betcentralization", "clocentralization",
     "connectedness", "hierarchy", "lubness", "efficiency"), 
@@ -23,10 +23,10 @@ pstar(dat, effects=c("choice", "mutuality", "density", "reciprocity",
   \item{mode}{ \code{"digraph"} if \code{dat} is directed, else \code{"graph"} }
 }
 \details{
-p* is a loglinear model specification for network data.  Under p*, it is assumed that
+p* (also called the Exponential Random Graph (ERG) family) is an exponential family specification for network data.  Under p*, it is assumed that 
 \deqn{p(G=g) \propto \exp(\beta_0 \gamma_0(g) + \beta_1 \gamma_1(g) + \dots)}{%
 p(G=g) propto exp(beta_0 gamma_0(g) + beta_1 gamma_1(g) + \dots)}
-for all g, where the betas represent real coefficients and the gammas represent functions of g.  Unfortunately, the unknown constant of proportionality in the above expression makes evaluation difficult in the general case.  One solution to this problem is to operate instead on the edgewise log odds; in this case, the p* can be approximated by a logistic regression of each edge on the \emph{differences} in the gamma scores induced by the presence and absence of said edge in the graph (conditional on all other edges).  It is this approximation (known as autologistic regression) which is employed here.  
+for all g, where the betas represent real coefficients and the gammas represent functions of g.  Unfortunately, the unknown normalizing factor in the above expression makes evaluation difficult in the general case.  One solution to this problem is to operate instead on the edgewise log odds; in this case, the p* can be approximated by a logistic regression of each edge on the \emph{differences} in the gamma scores induced by the presence and absence of said edge in the graph (conditional on all other edges).  It is this approximation (known as autologistic regression, or maximum pseudo-likelihood estimation) which is employed here.  
 
 Using the \code{effects} argument, a range of different potential parameters can be estimated.  The network measure associated with each is, in turn, the edge-perturbed difference in:
 \enumerate{
@@ -84,7 +84,7 @@ Wasserman, S., and Pattison, P. (1996).  ``Logit Models and Logistic Regressions
 \author{ Carter T. Butts \email{buttsc@uci.edu} }
 \note{ In the long run, support will be included for p* models involving arbitrary functions (much like the system used with \code{\link{cugtest}} and \code{\link{qaptest}}).}
 
- %~Make other sections like WARNING with \section{WARNING }{....} ~
+\section{WARNING }{Estimation of p* models by maximum pseudo-likelihood is now known to be a dangerous practice.  Use at your own risk.} 
 
 \seealso{ \code{\link{eval.edgeperturbation}} }
 
@@ -111,4 +111,4 @@ extractAIC(p3)
 \keyword{ models }
 \keyword{ multivariate }
 \keyword{ regression }%-- one or more ...
-\keyword{ math }
+\keyword{ graphs }

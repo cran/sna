@@ -1,6 +1,49 @@
 CHANGELOG:
 
-v0.43 - Minor Changes, Updates, and New Features
+v0.44 - New Functions, New Features, Changes, and Bug Fixes
+   New Functions:
+      %c% - Composition of two adjacency matrices
+      gapply - Apply functions over vertex neighborhoods.
+      gplot.layout.* - Layout functions for gplot
+      lnam - Fit a linear network autocorrelation model
+      plot.lnam - Plotting for lnam objects
+      print.lnam - Printing for lnam objects
+      print.summary.lnam - Printing for lnam summary objects
+      summary.lnam - Detailed printing for lnam objects
+   New Features:
+      consensus now supports union/intersection LAS and column/row 
+        raw report methods (useful for replicating "classic" CSS work)
+      gplot sports a wide range of new features, including:
+        An interactive mode, which allows for manual repositioning
+          of vertices.  (It's not pretty, but it works.)  
+        Silent return of the x,y coordinates for all vertices.  
+          This is useful for adding features to an existing plot, or for 
+          saving a given layout for later reuse.
+        Adjacency matrices can now be used as parameters to set 
+          edge widths, line types, and colors [submitted by Alex Montgomery]
+        Overplotting support [submitted by Alex Montgomery]
+        Support for loops (i.e., self-ties) [submitted by Alex Montgomery]
+        Curved edges, with adjustable curvature [submitted by Alex Montgomery]
+        Support for user-supplied layout methods
+        Expansion of existing layout methods, including new arguments
+   Changes:
+      triad.census now automatically removes the diagonal before 
+        calculating the triad census; a note on valued/unvalued data has 
+        also been added to the man page [suggested by Skye Bender-deMoll 
+        and Dan McFarland]
+      Vertex layouts for gplot are now generated externally, via 
+         the gplot.layout.* functions.  Arbitrary parameters may be 
+         passed to the layout functions via an argument list; further, 
+         since layout functions are identified with match.fun(), 
+         user-added functions can also be employed.  The default layout 
+         method is now segeo (spring embedder results were sometimes 
+         very good, but too uneven).
+   Bug Fixes:
+      degree was reporting incorrect tmaxdev values in some cases
+      triad.classify switched 111D and 111U [submitted by Dan McFarland and
+        Skye Bender-deMoll]
+v0.43 - Minor Changes, Updates, and New 
+Features
    Changes:
       Contact URL has been updated
    Updates:

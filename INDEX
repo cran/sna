@@ -1,13 +1,13 @@
 addisolates             Add Isolates to a Graph
-bbnam.bf                Estimate Bayes Factors for the bbnam
 bbnam                   Butts' (Hierarchical) Bayesian Network
                         Accuracy Model
+bbnam.bf                Estimate Bayes Factors for the bbnam
 betweenness             Compute the Betweenness Centrality Scores of
+                        Network Positions
+blockmodel              Generate Blockmodels Based on Partitions of
                         Network Positions
 blockmodel.expand       Generate a Graph (or Stack) from a Given
                         Blockmodel Using Particular Expansion Rules
-blockmodel              Generate Blockmodels Based on Partitions of
-                        Network Positions
 bonpow                  Find Bonacich Power Centrality Scores of
                         Network Positions
 centralgraph            Find the Central Graph of a Labeled Graph Set
@@ -39,6 +39,7 @@ evcent                  Find Eigenvector Centrality Scores of Network
                         Positions
 event2dichot            Convert an Observed Event Matrix to a
                         Dichotomous matrix
+gapply                  Apply Functions Over Vertex Neighborhoods
 gclust.boxstats         Plot Statistics Associated with Graph Clusters
 gclust.centralgraph     Get Central Graphs Associated with Graph
                         Clusters
@@ -56,6 +57,7 @@ geodist                 Fund the Numbers and Lengths of Geodesics
 gliop                   Return a Binary Operation on GLI Values
                         Computed on Two Graphs
 gplot                   Two-Dimensional Visualization of Graphs
+gplot.layout            Vertex Layout Functions for gplot
 graphcent               Compute the (Harary) Graph Centrality Scores
                         of Network Positions
 grecip                  Compute the Reciprocity of an Input Graph or
@@ -77,6 +79,7 @@ is.isolate              Is Ego an Isolate?
 isolates                List the Isolates in a Graph or Graph Stack
 lab.optimize            Optimize a Bivariate Graph Statistic Across a
                         Set of Accessible Permutations
+lnam                    Fit a Linear Network Autocorrelation Model
 lower.tri.remove        Remove the Lower Triangles of Adjacency
                         Matrices in a Graph Stack
 lubness                 Compute Graph LUBness Scores
@@ -96,6 +99,7 @@ plot.bbnam              Plotting for bbnam Objects
 plot.blockmodel         Plotting for blockmodel Objects
 plot.cugtest            Plotting for cugtest Objects
 plot.equiv.clust        Plot an equiv.clust Object
+plot.lnam               Plotting for lnam Objects
 plot.qaptest            Plotting for qaptest Objects
 plot.sociomatrix        Plot Matrices Using a Color/Intensity Grid
 potscalered.mcmc        Compute Gelman and Rubin's Potential Scale
@@ -106,6 +110,7 @@ print.bayes.factor      Printing for Bayes Factor Objects
 print.bbnam             Printing for bbnam Objects
 print.blockmodel        Printing for blockmodel Objects
 print.cugtest           Printing for cugtest Objects
+print.lnam              Printing for lnam Objects
 print.netcancor         Printing for netcancor Objects
 print.netlm             Printing for netlm Objects
 print.netlogit          Printing for netlogit Objects
@@ -116,13 +121,15 @@ print.summary.bbnam     Printing for summary.bbnam Objects
 print.summary.blockmodel
                         Printing for summary.blockmodel Objects
 print.summary.cugtest   Printing for summary.cugtest Objects
+print.summary.lnam      Printing for summary.lnam Objects
 print.summary.netcancor
                         Printing for summary.netcancor Objects
 print.summary.netlm     Printing for summary.netlm Objects
 print.summary.netlogit
                         Printing for summary.netlogit Objects
 print.summary.qaptest   Printing for summary.qaptest Objects
-pstar                   Fit a p* Model Using a Logistic Approximation
+pstar                   Fit a p*/ERG Model Using a Logistic
+                        Approximation
 qaptest                 Perform Quadratic Assignment Procedure (QAP)
                         Hypothesis Tests for Graph-Level Statistics
 reachability            Find the Reachability Matrix of a Graph
@@ -136,6 +143,7 @@ sdmat                   Estimate the Structural Distance Matrix for a
                         Graph Set
 sedist                  Find a Matrix of Distances Between Positions
                         Based on Structural Equivalence
+sna.operators           Graphical Operators
 sr2css                  Convert a Row-wise Self-Report Matrix to a CSS
                         Matrix with Missing Observations
 stackcount              How Many Graphs are in a Graph Stack?
@@ -147,6 +155,7 @@ summary.bayes.factor    Detailed Summaries of Bayes Factor Objects
 summary.bbnam           Detailed Summaries of bbnam Objects
 summary.blockmodel      Detailed Summaries of blockmodel Objects
 summary.cugtest         Detailed Summaries of cugtest Objects
+summary.lnam            Detailed Summaries of lnam Objects
 summary.netcancor       Detailed Summaries of netcancor Objects
 summary.netlm           Detailed Summaries of netlm Objects
 summary.netlogit        Detailed Summaries of netlogit Objects
