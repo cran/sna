@@ -48,7 +48,7 @@ where <abcd> is understood to be the value of the c->d edge in the bth graph of 
   The imported graph stack
 }
 %\references{  }
-\author{ Carter T. Butts \email{ctb@andrew.cmu.edu} }
+\author{ Carter T. Butts \email{buttsc@uci.edu} }
 \note{ \code{read.nos} currently ignores the coloring information. }
 
 % ~Make other sections like WARNING with \section{WARNING }{....} ~

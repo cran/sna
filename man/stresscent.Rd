@@ -34,7 +34,7 @@ where \eqn{g_{ijk}}{g_ijk} is the number of geodesics from i to k through j.  Co
 A vector of centrality scores
 }
 %\references{ }
-\author{ Carter T. Butts \email{ctb@andrew.cmu.edu} }
+\author{ Carter T. Butts \email{buttsc@uci.edu} }
 \note{ Judicious use of \code{geodist.precomp} can save a great deal of time when computing multiple path-based indices on the same network. }
 
 % ~Make other sections like WARNING with \section{WARNING }{....} ~

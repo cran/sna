@@ -29,7 +29,7 @@ symmetrize(mats, rule="weak")
 The symmetrized graph stack
 }
 \references{ Wasserman, S., and Faust, K.  (1994).  \emph{Social Network Analysis: Methods and Applications}.  Cambridge: Cambridge University Press. }
-\author{ Carter T. Butts \email{ctb@andrew.cmu.edu} }
+\author{ Carter T. Butts \email{buttsc@uci.edu} }
 %\note{  }
 
  %~Make other sections like WARNING with \section{WARNING }{....} ~

@@ -1,11 +1,11 @@
 #
 # Various Useful Tools for Network Analysis in S
 #
-# By Carter Butts, ctb@andrew.cmu.edu
+# By Carter Butts, buttsc@uci.edu
 #
-# Current Version: 0.41
+# Current Version: 0.42
 #
-# Last updated 3/24/02
+# Last updated 7/4/03
 #
 #Contents:
 #
@@ -83,7 +83,7 @@
 #plot.blockmodel - Plotting for blockmodel objects
 #plot.cugtest - Plotting for cugtest objects
 #plot.equiv.clust - Plotting for equivalence clustering objects
-#plot.matrix - Plotting of arbitrary matrices
+#plot.sociomatrix - Plotting of arbitrary matrices
 #plot.qaptest - Plotting for qaptest objects
 #potscalered.mcmc - Computes Gelman et al.'s potential scale reduction statistic
 #   for scalar estimands
@@ -158,6 +158,12 @@
 #
 #CHANGELOG:
 #
+#v0.42 - Minor Changes
+#   Changes:
+#      Author contact information has been updated
+#      plot.matrix is now plot.sociomatrix, in order to ensure 
+#         compatibility with the new method standards; all code should be 
+#         updated to reflec this fact
 #v0.41 - Updates, New Features, and Bug Fixes
 #   Updates:
 #      Deprecated function .Alias removed (was used in netlm, netlogit)

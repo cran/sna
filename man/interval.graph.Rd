@@ -41,7 +41,7 @@ Note that ``simple,'' ``overlap,'' and ``jntfrac'' are symmetric relations, whil
 Butts, C.T., and Pixley, J.E.  ``A Structural Approach to the Representation of Life History Data.'' CASOS working paper, Carnegie Mellon University.
 
 West, D.B.  (1996).  \emph{Introduction to Graph Theory}.  Upper Saddle River, NJ: Prentice Hall. }
-\author{ Carter T. Butts \email{ctb@andrew.cmu.edu}}
+\author{ Carter T. Butts \email{buttsc@uci.edu}}
 %\note{ }
 
 % ~Make other sections like WARNING with \section{WARNING }{....} ~

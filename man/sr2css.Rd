@@ -19,7 +19,7 @@ sr2css(net)
 An array (graph stack) containing the CSS
 }
 \references{ Krackhardt, D.  (1987).  \emph{Cognitive Social Structures}, 9, 109-134.  }
-\author{ Carter T. Butts \email{ctb@andrew.cmu.edu} }
+\author{ Carter T. Butts \email{buttsc@uci.edu} }
 \note{ A row-wise self-report matrix doesn't contain a great deal of data, and the data in question is certainly not an ignorable sample of the individual's CSS for most purposes.  The provision of this routine should not be perceived as license to substitute SR for CSS data at will. }
 
 % ~Make other sections like WARNING with \section{WARNING }{....} ~

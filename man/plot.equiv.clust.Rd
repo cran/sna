@@ -25,7 +25,7 @@ None.
 Burt, R.S.  (1976).  ``Positions in Networks.''  \emph{Social Forces}, 55, 93-122.
 
 Wasserman, S., and Faust, K.  \emph{Social Network Analysis: Methods and Applications.}  Cambridge: Cambridge University Press.}
-\author{ Carter T. Butts \email{ctb@andrew.cmu.edu} }
+\author{ Carter T. Butts \email{buttsc@uci.edu} }
 %\note{  }
 
 % ~Make other sections like WARNING with \section{WARNING }{....} ~

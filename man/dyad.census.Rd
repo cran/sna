@@ -22,7 +22,7 @@ A matrix whose three columns contain the counts of mutual, asymmetric, and null 
 \references{ Holland, P.W. and Leinhardt, S.  (1970).  ``A Method for Detecting Structure in Sociometric Data.''  \emph{American Journal of Sociology}, 70, 492-513. 
 
 Wasserman, S., and Faust, K.  (1994).  ``Social Network Analysis: Methods and Applications.''  Cambridge: Cambridge University Press.}
-\author{ Carter T. Butts \email{ctb@andrew.cmu.edu} }
+\author{ Carter T. Butts \email{buttsc@uci.edu} }
 
 \seealso{ \code{\link{mutuality}}, \code{\link{grecip}}, \code{\link{triad.census}} }
 

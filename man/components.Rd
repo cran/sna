@@ -21,7 +21,7 @@ components(dat, connected="strong", comp.dist.precomp=NULL)
   The number of components of \code{dat}
 }
 \references{ West, D.B.  (1996).  \emph{Introduction to Graph Theory}.  Upper Saddle River, NJ: Prentice Hall. }
-\author{ Carter T. Butts \email{ctb@andrew.cmu.edu} }
+\author{ Carter T. Butts \email{buttsc@uci.edu} }
 
 \seealso{ \code{\link{component.dist}}, \code{link{symmetrize}} }
 

@@ -25,7 +25,7 @@ plot.bbnam(x, mode="density", intlines=TRUE, ...)
 None
 }
 \references{Butts, C.T. (1999). ``Informant (In)Accuracy and Network Estimation: A Bayesian Approach.'' CASOS Working Paper, Carnegie Mellon University. }
-\author{ Carter T. Butts \email{ctb@andrew.cmu.edu} }
+\author{ Carter T. Butts \email{buttsc@uci.edu} }
 %\note{  }
 
  %~Make other sections like WARNING with \section{WARNING }{....} ~

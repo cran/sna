@@ -40,7 +40,7 @@ A matrix of similarity/difference scores
 Burt, R.S.  (1976).  ``Positions in Networks.''  \emph{Social Forces}, 55, 93-122.
 
 Wasserman, S., and Faust, K.  \emph{Social Network Analysis: Methods and Applications.}  Cambridge: Cambridge University Press.   }
-\author{ Carter T. Butts \email{ctb@andrew.cmu.edu} }
+\author{ Carter T. Butts \email{buttsc@uci.edu} }
 \note{ Be careful to verify that you have computed what you meant to compute, with respect to similarities/differences. Also, note that (despite its popularity) the product-moment correlation can give rather strange results in some cases.
 }
 

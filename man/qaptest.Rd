@@ -47,7 +47,7 @@ Krackhardt, D.  (1987).  ``QAP Partialling as a Test of Spuriousness.'' \emph{So
 
 Krackhardt, D.  (1988).  ``Predicting With Networks: Nonparametric Multiple Regression Analyses of Dyadic Data.''  \emph{Social Networks}, 10, 359-382. 
 }
-\author{ Carter T. Butts \email{ctb@andrew.cmu.edu} }
+\author{ Carter T. Butts \email{buttsc@uci.edu} }
 %\note{  }
 
 % ~Make other sections like WARNING with \section{WARNING }{....} ~

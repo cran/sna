@@ -47,7 +47,7 @@ A vector containing the centrality scores
 Wasserman, S., and Faust, K.  (1994).  ``Social Network Analysis: Methods and Applications.''  Cambridge: Cambridge University Press.}
 \author{ David Barron \email{david.barron@jesus.ox.ac.uk}
 
-Carter T. Butts \email{ctb@andrew.cmu.edu} }
+Carter T. Butts \email{buttsc@uci.edu} }
 \note{ The theoretical maximum deviation used here is not obtained with the star network; rather, the maximum occurs for an empty graph with one complete dyad, which is the model used here. }
 
 \seealso{ \code{\link{evcent}}, \code{\link{bonpow}}, \code{\link{closeness}}, \code{\link{graphcent}}, \code{\link{centralization}} }

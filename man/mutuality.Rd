@@ -20,7 +20,7 @@ mutuality(dat, g=NULL)
 One or more mutuality scores
 }
 \references{ Moreno, J.L., and Jennings, H.H.  (1938).  ``Statistics of Social Configurations.''  \emph{Sociometry}, 1, 342-374. }
-\author{ Carter T. Butts \email{ctb@andrew.cmu.edu} }
+\author{ Carter T. Butts \email{buttsc@uci.edu} }
 %\note{  }
 
 % ~Make other sections like WARNING with \section{WARNING }{....} ~

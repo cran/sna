@@ -35,7 +35,7 @@ Butts, C.T., and Carley, K.M.  (2001).  ``Multivariate Methods for Interstructur
 Hamming, R.W. (1950). ``Error Detecting and Error Correcting Codes.'' \emph{Bell System Technical Journal,} 29, 147-160.
 }
 
-\author{ Carter T. Butts \email{ctb@andrew.cmu.edu} }
+\author{ Carter T. Butts \email{buttsc@uci.edu} }
 \note{ For non-dichotomous data, the distance which is returned is simply the sum of the absolute edge-wise differences. }
 
 

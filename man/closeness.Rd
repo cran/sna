@@ -34,7 +34,7 @@ where \eqn{d(i,j)}{d(i,j)} is the geodesic distance between i and j (where defin
 A vector containing the closeness scores.
 }
 \references{Freeman, L.C.  (1979).  ``Centrality in Social Networks I: Conceptual Clarification.'' \emph{Social Networks}, 1, 215-239. }
-\author{ Carter T. Butts, \email{ctb@andrew.cmu.edu} }
+\author{ Carter T. Butts, \email{buttsc@uci.edu} }
 \note{ Judicious use of \code{geodist.precomp} can save a great deal of time when computing multiple path-based indices on the same network. }
 
 

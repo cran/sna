@@ -22,7 +22,7 @@ gclust.boxstats(h, k, meas, ...)
 None
 }
 \references{ Butts, C.T., and Carley, K.M.  (2001).  ``Multivariate Methods for Interstructural Analysis.''  CASOS working paper, Carnegie Mellon University. }
-\author{ Carter T. Butts \email{ctb@andrew.cmu.edu} }
+\author{ Carter T. Butts \email{buttsc@uci.edu} }
 \note{ Actually, this function will work with any \code{\link{hclust}} object and measure matrix; the data need not originate with social networks.  For this reason, the clever may also employ this function in conjunction with \code{\link{sedist}} or \code{\link{equiv.clust}} to plot NLIs against clusters of positions within a graph.}
 
  %~Make other sections like WARNING with \section{WARNING }{....} ~

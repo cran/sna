@@ -48,7 +48,7 @@ The proportion of draws which were less than or equal to the observed GLI value.
 \references{ 
 Anderson, B.S.; Butts, C.T.; and Carley, K.M. (1999). ``The Interaction of Size and Density with Graph-Level Indices.'' \emph{Social Networks}, 21(3), 239-267.
  }
-\author{ Carter T. Butts \email{ctb@andrew.cmu.edu} }
+\author{ Carter T. Butts \email{buttsc@uci.edu} }
 
 \seealso{ \code{\link{qaptest}}, \code{\link{gliop}} }
 

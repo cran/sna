@@ -22,12 +22,12 @@ Plots of the blocked data matrix (i.e., the data matrix with rows and columns pe
 \references{ White, H.C.; Boorman, S.A.; and Breiger, R.L.  (1976).  ``Social Structure from Multiple Networks I: Blockmodels of Roles and Positions.''  \emph{American Journal of Sociology}, 81, 730-779.
 
 Wasserman, S., and Faust, K.  (1994).  \emph{Social Network Analysis: Methods and Applications.}  Cambridge: Cambridge University Press.}
-\author{ Carter T. Butts \email{ctb@andrew.cmu.edu} }
+\author{ Carter T. Butts \email{buttsc@uci.edu} }
 %\note{  }
 
  %~Make other sections like WARNING with \section{WARNING }{....} ~
 
-\seealso{ \code{\link{blockmodel}}, \code{\link{plot.matrix}} }
+\seealso{ \code{\link{blockmodel}}, \code{\link{plot.sociomatrix}} }
 
 \examples{
 #Create a random graph with _some_ edge structure

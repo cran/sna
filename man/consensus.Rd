@@ -41,7 +41,7 @@ Butts, C.T., and Carley, K.M.  (2001).  ``Multivariate Methods for Inter-Structu
 
 Krackhardt, D.  (1987).  ``Cognitive Social Structures.'' \emph{Social Networks,} 9, 109-134. 
 }
-\author{ Carter T. Butts \email{ctb@andrew.cmu.edu} }
+\author{ Carter T. Butts \email{buttsc@uci.edu} }
 
 \note{ Eventually, this routine will also support the (excellent) consensus methods of Romney and Batchelder; since these are similar in many respects to the \code{\link{bbnam}} model, users may wish to try this alternative for now. 
 }

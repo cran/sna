@@ -24,7 +24,7 @@ A matrix whose 16 columns contain the counts of triads by class for each graph
 \references{ Davis, J.A. and Leinhardt, S.  (1972).  ``The Structure of Positive Interpersonal Relations in Small Groups.''  In J. Berger (Ed.), \emph{Sociological Theories in Progress, Volume 2}, 218-251.  Boston: Houghton Mifflin.
 
 Wasserman, S., and Faust, K.  (1994).  ``Social Network Analysis: Methods and Applications.''  Cambridge: Cambridge University Press. }
-\author{ Carter T. Butts \email{ctb@andrew.cmu.edu} }
+\author{ Carter T. Butts \email{buttsc@uci.edu} }
 %\note{ ~~further notes~~ }
 
 \seealso{ \code{\link{triad.classify}}, \code{\link{dyad.census}}, \code{\link{gtrans}} }

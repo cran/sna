@@ -81,7 +81,7 @@ This list of algorithms is itself somewhat unstable: some additional techniques 
 The estimated global optimum of \code{FUN} over the set of relabelings permitted by \code{exchange.list}
 }
 \references{ Butts, C.T., and Carley, K.M.  (2001).  ``Multivariate Methods for Interstructural Analysis.''  CASOS Working Paper, Carnegie Mellon University. }
-\author{ Carter T. Butts \email{ctb@andrew.cmu.edu}  }
+\author{ Carter T. Butts \email{buttsc@uci.edu}  }
 %\note{  }
 
 % ~Make other sections like WARNING with \section{WARNING }{....} ~

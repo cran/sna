@@ -26,7 +26,7 @@ A vector of transitivity scores
 \references{ Holland, P.W., and Leinhardt, S.  (1972).  ``Some Evidence on the Transitivity of Positive Interpersonal Sentiment.'' \emph{American Journal of Sociology,} 72, 1205-1209.
 
 Wasserman, S., and Faust, K.  (1994).  \emph{Social Network Analysis: Methods and Applications}.  Cambridge: Cambridge University Press. }
-\author{ Carter T. Butts \email{ctb@andrew.cmu.edu} }
+\author{ Carter T. Butts \email{buttsc@uci.edu} }
 \note{ In version 0.3, the strong form was the default (and only) option for \code{gtrans}. }
 
 % ~Make other sections like WARNING with \section{WARNING }{....} ~

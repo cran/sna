@@ -29,7 +29,7 @@ Null hypothesis tests for logistic network regression are handled using either t
   An object of class \code{netlogit}
 }
 \references{Butts, C.T., and Carley, K.M.  (2001).  ``Multivariate Methods for Interstructural Analysis.''  CASOS working paper, Carnegie Mellon University.}
-\author{ Carter T. Butts \email{ctb@andrew.cmu.edu} }
+\author{ Carter T. Butts \email{buttsc@uci.edu} }
 %\note{}
 
 % ~Make other sections like WARNING with \section{WARNING }{....} ~

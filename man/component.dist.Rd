@@ -37,7 +37,7 @@ A data frame containing:
   \item{cdist}{A vector of length |V(G)| with the (unnormalized) empirical distribution function of component sizes}
 }
 \references{ West, D.B.  (1996).  \emph{Introduction to Graph Theory.}  Upper Saddle River, N.J.: Prentice Hall.}
-\author{ Carter T. Butts \email{ctb@andrew.cmu.edu} }
+\author{ Carter T. Butts \email{buttsc@uci.edu} }
 
 \section{Note}{Unilaterally connected component partitions may not be well-defined, since it is possible for a given vertex to be unilaterally connected to two vertices which are not unilaterally connected with one another.  Consider, for instance, the graph \eqn{a \rightarrow b \leftarrow c \rightarrow d}{a->b<-c<-d}.  In this case, the maximal unilateral components are \eqn{ab} and \eqn{bcd}, with vertex \eqn{b} properly belonging to both components.  For such graphs, a unique partition of vertices by component does not exist, and we ``solve'' the problem by allocating each ``problem vertex'' to one of its components on an essentially arbitrary basis.  (\code{component.dist} generates a warning when this occurs.)  It is recommended that the \code{unilateral} option be avoided where possible.}
 

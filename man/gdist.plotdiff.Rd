@@ -28,7 +28,7 @@ gdist.plotdiff(d, meas, method="manhattan", jitter=TRUE,
 None
 }
 \references{ Butts, C.T., and Carley, K.M.  (2001).  ``Multivariate Methods for Interstructural Analysis.''  CASOS working paper, Carnegie Mellon University. }
-\author{ Carter T. Butts \email{ctb@andrew.cmu.edu} }
+\author{ Carter T. Butts \email{buttsc@uci.edu} }
 \note{ This function is actually quite generic, and can be used with node-level -- or even non-network -- data as well. }
 
  %~Make other sections like WARNING with \section{WARNING }{....} ~

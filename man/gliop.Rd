@@ -24,7 +24,7 @@ gliop(dat, GFUN, OP="-", g1=1, g2=2, ...)
 \code{OP(GFUN(dat[g1, , ],...),GFUN(dat[g2, , ],...))}
 }
 \references{ Anderson, B.S.; Butts, C.T.; and Carley, K.M. (1999). ``The Interaction of Size and Density with Graph-Level Indices.'' \emph{Social Networks}, 21(3), 239-267. }
-\author{ Carter T. Butts \email{ctb@andrew.cmu.edu} }
+\author{ Carter T. Butts \email{buttsc@uci.edu} }
 \note{ If the output of \code{GFUN} is not sufficiently well-behaved, undefined behavior may occur.  Common sense is advised. }
 
  %~Make other sections like WARNING with \section{WARNING }{....} ~

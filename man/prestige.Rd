@@ -52,7 +52,7 @@ Note that the centralization of prestige is simply the extent to which one actor
 \references{ Lin, N.  (1976).  \emph{Foundations of Social Research}.  New York: McGraw Hill.
 
 Wasserman, S., and Faust, K.  (1994).  \emph{Social Network Analysis: Methods and Applications.}  Cambridge: Cambridge University Press. }
-\author{ Carter T. Butts \email{ctb@andrew.cmu.edu} }
+\author{ Carter T. Butts \email{buttsc@uci.edu} }
 %\note{  }
 
  \section{Warning }{Making adjacency matrices doubly stochastic (row-column normalization) is not guaranteed to work.  In general, be wary of attempting to try normalizations on graphs with degenerate rows and columns.} 

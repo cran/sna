@@ -84,7 +84,7 @@ String indicating the null hypothesis employed.
 }
 }
 \references{ Butts, C.T., and Carley, K.M.  (2001).  ``Multivariate Methods for Interstructural Analysis.''  CASOS working paper, Carnegie Mellon University. }
-\author{ Carter T. Butts \email{ctb@andrew.cmu.edu} }
+\author{ Carter T. Butts \email{buttsc@uci.edu} }
 \note{ This will eventually be replaced with a superior cancor procedure with more interpretable output; the new version will handle arbitrary labeling as well. }
 
 % ~Make other sections like WARNING with \section{WARNING }{....} ~

@@ -37,7 +37,7 @@ Finally, note that \code{rgraph} will symmetrize all generated networks if \code
   A graph stack
 }
 \references{ Wasserman, S., and Faust, K.  \emph{Social Network Analysis: Methods and Applications}.  Cambridge: Cambridge University Press. }
-\author{ Carter T. Butts \email{ctb@andrew.cmu.edu} }
+\author{ Carter T. Butts \email{buttsc@uci.edu} }
 %\note{  }
 
  %~Make other sections like WARNING with \section{WARNING }{....} ~

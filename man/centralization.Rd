@@ -34,7 +34,7 @@ The centralization of the specified graph.
 
 Wasserman, S., and Faust, K.  (1994).  \emph{Social Network Analysis: Methods and Applications.}  Cambridge: Cambridge University Press.
  }
-\author{ Carter T. Butts \email{ctb@andrew.cmu.edu} }
+\author{ Carter T. Butts \email{buttsc@uci.edu} }
 \note{ See \code{\link{cugtest}} for null hypothesis tests involving centralization scores. }
 
 \seealso{ \code{\link{cugtest}} }

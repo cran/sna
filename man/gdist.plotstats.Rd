@@ -38,7 +38,7 @@ The primary use of \code{gdist.plotstats} is to explore broad relationships betw
 None
 }
 \references{ Butts, C.T., and Carley, K.M.  (2001).  ``Multivariate Methods for Interstructural Analysis.'' CASOS working paper, Carnegie Mellon University. }
-\author{ Carter T. Butts \email{ctb@andrew.cmu.edu} }
+\author{ Carter T. Butts \email{buttsc@uci.edu} }
 \note{ This routine does not actually depend on the data's being graphic in origin, and can be used with any distance matrix/measure matrix combination. }
 
 % ~Make other sections like WARNING with \section{WARNING }{....} ~

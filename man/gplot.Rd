@@ -44,7 +44,7 @@ gplot(dat, g=1, gmode="digraph", diag=FALSE, label=c(1:dim(dat)[2]),
 None.
 }
 \references{ Wasserman, S., and Faust, K.  (1994).  ``Social Network Analysis: Methods and Applications.''  Cambridge: Cambridge University Press. }
-\author{ Carter T. Butts \email{ctb@andrew.cmu.edu} }
+\author{ Carter T. Butts \email{buttsc@uci.edu} }
 %\note{  }
 
  %~Make other sections like WARNING with \section{WARNING }{....} ~

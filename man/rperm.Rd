@@ -19,7 +19,7 @@ rperm(exchange.list)
 A random permutation vector satisfying the given constraints
 }
 %\references{ }
-\author{ Carter T. Butts \email{ctb@andrew.cmu.edu} }
+\author{ Carter T. Butts \email{buttsc@uci.edu} }
 %\note{  }
 
  %~Make other sections like WARNING with \section{WARNING }{....} ~

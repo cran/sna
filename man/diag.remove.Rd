@@ -20,7 +20,7 @@ diag.remove(dat, remove.val=NA)
 The updated graph stack
 }
 
-\author{ Carter T. Butts \email{ctb@andrew.cmu.edu} }
+\author{ Carter T. Butts \email{buttsc@uci.edu} }
 
 
 \seealso{ \code{\link{diag}}, \code{\link{upper.tri.remove}}, \code{\link{lower.tri.remove}} }

@@ -29,7 +29,7 @@ graphcent(dat, g=1, nodes=c(1:dim(dat)[2]), gmode="digraph",
   A vector containing the centrality scores
 }
 \references{  }
-\author{ Carter T. Butts \email{ctb@andrew.cmu.edu} }
+\author{ Carter T. Butts \email{buttsc@uci.edu} }
 \note{ Judicious use of \code{geodist.precomp} can save a great deal of time when computing multiple path-based indices on the same network. }
 
 % ~Make other sections like WARNING with \section{WARNING }{....} ~

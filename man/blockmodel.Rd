@@ -51,7 +51,7 @@ An object of class \code{blockmodel}.
 }
 \references{White, H.C.; Boorman, S.A.; and Breiger, R.L.  (1976).  ``Social Structure from Multiple Networks I: Blockmodels of Roles and Positions.''  \emph{American Journal of Sociology}, 81, 730-779.}
 
-\author{ Carter T. Butts \email{ctb@andrew.cmu.edu} }
+\author{ Carter T. Butts \email{buttsc@uci.edu} }
 
 \note{ The \code{mva} library is required for \code{blockmodel} to function. }
 

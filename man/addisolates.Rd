@@ -20,7 +20,7 @@ addisolates(dat, n)
    The updated graph stack.
 }
 \references{ Butts, C.T., and Carley, K.M.  (2001).  ``Multivariate Methods for Inter-Structural Analysis.''  CASOS Working Paper, Carnegie Mellon University. }
-\author{ Carter T. Butts \email{ctb@andrew.cmu.edu} }
+\author{ Carter T. Butts \email{buttsc@uci.edu} }
 \note{ Isolate addition is particularly useful when computing structural distances between graphs of different orders; see the above reference for details. }
 
 \seealso{ \code{\link{isolates}} }

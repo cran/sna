@@ -1,5 +1,11 @@
 CHANGELOG:
 
+v0.42 - Minor Changes
+   Changes:
+      Author contact information has been updated
+      plot.matrix is now plot.sociomatrix, in order to ensure compatibility
+         with the new method standards; all code should be updated to reflect
+	 this fact
 v0.41 - Updates, New Features, and Bug Fixes
    Updates:
       Deprecated function .Alias removed (was used in netlm, netlogit)

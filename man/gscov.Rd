@@ -43,7 +43,7 @@ Structural covariance matrices are p.s.d., and are p.d. so long as no graph with
  An estimate of the structural covariance matrix
 }
 \references{ Butts, C.T., and Carley, K.M.  (2001).  ``Multivariate Methods for Interstructural Analysis.''  CASOS Working Paper, Carnegie Mellon University. }
-\author{ Carter T. Butts \email{ctb@andrew.cmu.edu} }
+\author{ Carter T. Butts \email{buttsc@uci.edu} }
 \note{ Consult Butts and Carley (2001) for advice and examples on theoretical exchangeability. }
 
 \section{Warning }{The search process can be \emph{very slow}, particularly for large graphs.  In particular, the \emph{exhaustive} method is order factorial, and will take approximately forever for unlabeled graphs of size greater than about 7-9.}

@@ -38,7 +38,7 @@ A graph correlation matrix
 
 Krackhardt, D.  (1987).  ``QAP Partialling as a Test of Spuriousness.''  \emph{Social Networks}, 9, 171-86
 }
-\author{ Carter T. Butts \email{ctb@andrew.cmu.edu} }
+\author{ Carter T. Butts \email{buttsc@uci.edu} }
 \note{  The \code{gcor} routine is really just a front-end to the standard \code{\link{cor}} method; the primary value-added is the transparent vectorization of the input graphs (with intelligent handling of simple versus directed graphs, diagonals, etc.).  As noted, the correlation coefficient returned is a standard Pearson's product-moment coefficient, and output should be interpreted accordingly.  Classical null hypothesis testing procedures are not recommended for use with graph correlations; for nonparametric null hypothesis testing regarding graph correlations, see \code{\link{cugtest}} and \code{\link{qaptest}}.  For multivariate correlations among graph sets, try \code{\link{netcancor}}. 
 }
 

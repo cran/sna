@@ -22,7 +22,7 @@ blockmodel.expand(b, ev, mode="digraph", diag=FALSE)
 An adjacency matrix, or stack thereof.
 }
 \references{ White, H.C.; Boorman, S.A.; and Breiger, R.L.  (1976).  ``Social Structure from Multiple Networks I: Blockmodels of Roles and Positions.''  \emph{American Journal of Sociology}, 81, 730-779. }
-\author{ Carter T. Butts \email{ctb@andrew.cmu.edu} }
+\author{ Carter T. Butts \email{buttsc@uci.edu} }
 \note{ Eventually, other content types will be supported. }
 
 

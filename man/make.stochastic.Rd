@@ -25,7 +25,7 @@ make.stochastic(dat, mode="rowcol", tol=0.005,
 The stochasticized adjacency matrices
 }
 \references{  }
-\author{ Carter T. Butts \email{ctb@andrew.cmu.edu}}
+\author{ Carter T. Butts \email{buttsc@uci.edu}}
 %\note{  }
 
 \section{Warning }{Rows or columns which sum to 0 in the original data will generate undefined results.  This can happen if, for instance, your input graphs contain in- or out-isolates.} 

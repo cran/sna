@@ -21,7 +21,7 @@ nties(dat, mode="digraph", diag=FALSE)
 The number of possible edges, or a vector of the same
 }
 %\references{  }
-\author{ Carter T. Butts \email{ctb@andrew.cmu.edu} }
+\author{ Carter T. Butts \email{buttsc@uci.edu} }
 \note{ For two-mode (hypergraphic) data, the value returned isn't technically the number of edges per se, but rather the number of edge memberships. }
 
  %~Make other sections like WARNING with \section{WARNING }{....} ~

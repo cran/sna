@@ -19,7 +19,7 @@ summary.netlogit(object, ...)
   An object of class \code{summary.netlogit}
 }
 %\references{  }
-\author{ Carter T. Butts \email{ctb@andrew.cmu.edu} }
+\author{ Carter T. Butts \email{buttsc@uci.edu} }
 %\note{  }
 
  %~Make other sections like WARNING with \section{WARNING }{....} ~

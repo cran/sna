@@ -30,7 +30,7 @@ Note that \code{gcov} computes only the covariance between \emph{uniquely labele
   A graph covariance matrix
 }
 \references{ Butts, C.T., and Carley, K.M.  (2001).  ``Multivariate Methods for Interstructural Analysis.''  CASOS Working Paper, Carnegie Mellon University. }
-\author{ Carter T. Butts \email{ctb@andrew.cmu.edu} }
+\author{ Carter T. Butts \email{buttsc@uci.edu} }
 \note{ The \code{gcov} routine is really just a front-end to the standard \code{\link{cov}} method; the primary value-added is the transparent vectorization of the input graphs (with intelligent handling of simple versus directed graphs, diagonals, etc.).  Classical null hypothesis testing procedures are not recommended for use with graph covariance; for nonparametric null hypothesis testing regarding graph covariance, see \code{\link{cugtest}} and \code{\link{qaptest}}.
 }
 

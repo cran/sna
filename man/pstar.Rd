@@ -81,7 +81,7 @@ Holland, P.W., and Leinhardt, S. (1981).  ``An Exponential Family of Probability
 
 Wasserman, S., and Pattison, P. (1996).  ``Logit Models and Logistic Regressions for Social Networks:  I.  An introduction to Markov Graphs and p*.''  \emph{Psychometrika,} 60, 401-426.
  }
-\author{ Carter T. Butts \email{ctb@andrew.cmu.edu} }
+\author{ Carter T. Butts \email{buttsc@uci.edu} }
 \note{ In the long run, support will be included for p* models involving arbitrary functions (much like the system used with \code{\link{cugtest}} and \code{\link{qaptest}}).}
 
  %~Make other sections like WARNING with \section{WARNING }{....} ~

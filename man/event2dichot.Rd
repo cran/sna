@@ -46,7 +46,7 @@ Note that when a quantile, rank, or value is said to be ``specified,'' this refe
 The dichotomized data matrix
 }
 \references{ ~put references to the literature/web site here ~ }
-\author{ Carter T. Butts \email{ctb@andrew.cmu.edu} }
+\author{ Carter T. Butts \email{buttsc@uci.edu} }
 %\note{ }
 
 % ~Make other sections like WARNING with \section{WARNING }{....} ~

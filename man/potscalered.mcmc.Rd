@@ -23,7 +23,7 @@ The potential scale reduction measure
 \references{ Gelman, A.; Carlin, J.B.; Stern, H.S.; and Rubin, D.B.  (1995).  \emph{Bayesian Data Analysis.}  London: Chapman and Hall.
 
 Gelman, A., and Rubin, D.B.  (1992).  ``Inference from Iterative Simulation Using Multiple Sequences.''  \emph{Statistical Science,} 7, 457-511. }
-\author{ Carter T. Butts \email{ctb@andrew.cmu.edu} }
+\author{ Carter T. Butts \email{buttsc@uci.edu} }
 %\note{  }
 
  %~Make other sections like WARNING with \section{WARNING }{....} ~

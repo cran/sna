@@ -37,7 +37,7 @@ bbnam.bf(dat, nprior=matrix(rep(0.5, dim(dat)[1]^2),
 Butts, C.T.  (1999).  ``Network Inference, Error, and Informant (In)Accuracy: A Bayesian Approach.''  CASOS Working Paper, Carnegie Mellon University.
 
 Robert, C.  (1994).  \emph{The Bayesian Choice: A Decision-Theoretic Motivation.}  Springer. }
-\author{ Carter T. Butts \email{ctb@andrew.cmu.edu} }
+\author{ Carter T. Butts \email{buttsc@uci.edu} }
 \note{ It is important to be aware that the model parameter priors are essential components of the models to be compared; inappropriate parameter priors will result in misleading Bayes Factors. }
 
 

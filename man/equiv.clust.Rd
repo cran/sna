@@ -36,7 +36,7 @@ Breiger, R.L.; Boorman, S.A.; and Arabie, P.  (1975).  ``An Algorithm for Cluste
 Burt, R.S.  (1976).  ``Positions in Networks.''  \emph{Social Forces}, 55, 93-122.
 
 Wasserman, S., and Faust, K.  \emph{Social Network Analysis: Methods and Applications.}  Cambridge: Cambridge University Press. }
-\author{ Carter T. Butts \email{ctb@andrew.cmu.edu} }
+\author{ Carter T. Butts \email{buttsc@uci.edu} }
 \note{ See \code{\link{sedist}} for an example of a distance function compatible with \code{equiv.clust}. }
 
 \section{Requires}{\code{mva}}

@@ -26,7 +26,7 @@ A data frame containing:
 Brandes, U.  (2000).  ``Faster Evaluation of Shortest-Path Based Centrality Indices.'' \emph{Konstanzer Schriften in Mathematik und Informatik}, 120.
 
 West, D.B.  (1996).  \emph{Introduction to Graph Theory.}  Upper Saddle River, N.J.: Prentice Hall. }
-\author{ Carter T. Butts \email{ctb@andrew.cmu.edu} }
+\author{ Carter T. Butts \email{buttsc@uci.edu} }
 %\note{ }
 
  %~Make other sections like WARNING with \section{WARNING }{....} ~

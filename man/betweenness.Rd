@@ -35,7 +35,7 @@ where \eqn{g_{ijk}}{g_ijk} is the number of geodesics from i to k through j.  Co
 A vector containing the betweenness scores.
 }
 \references{ Freeman, L.C.  (1979).  ``Centrality in Social Networks I: Conceptual Clarification.'' \emph{Social Networks}, 1, 215-239.}
-\author{ Carter T. Butts \email{ctb@andrew.cmu.edu} }
+\author{ Carter T. Butts \email{buttsc@uci.edu} }
 \note{ Judicious use of \code{geodist.precomp} can save a great deal of time when computing multiple path-based indices on the same network. }
 
 \section{Warning }{Rescale may cause unexpected results if all actors have zero betweenness.}

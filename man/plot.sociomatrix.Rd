@@ -1,12 +1,12 @@
-\name{plot.matrix}
-\alias{plot.matrix}
+\name{plot.sociomatrix}
+\alias{plot.sociomatrix}
 %- Also NEED an `\alias' for EACH other topic documented here.
 \title{ Plot Matrices Using a Color/Intensity Grid }
 \description{
   Plots a matrix, \code{m}, associating the magnitude of the i,jth cell of \code{m} with the color of the i,jth cell of an \code{nrow(m)} by \code{ncol(m)} grid.
 }
 \usage{
-plot.matrix(x, labels=list(seq(1:dim(x)[1]), seq(1:dim(x)[2])), 
+plot.sociomatrix(x, labels=list(seq(1:dim(x)[1]), seq(1:dim(x)[2])), 
     drawlab=TRUE, diaglab=TRUE, ...)
 }
 %- maybe also `usage' for other objects documented here.
@@ -18,13 +18,13 @@ plot.matrix(x, labels=list(seq(1:dim(x)[1]), seq(1:dim(x)[2])),
   \item{\dots}{ Additional arguments to \code{\link{plot}} }
 }
 \details{
-  \code{plot.matrix} is particularly valuable for examining large adjacency matrices, whose structure can be non-obvious otherwise.
+  \code{plot.sociomatrix} is particularly valuable for examining large adjacency matrices, whose structure can be non-obvious otherwise.
 }
 \value{
 None
 }
 %\references{ }
-\author{ Carter T. Butts \email{ctb@andrew.cmu.edu} }
+\author{ Carter T. Butts \email{buttsc@uci.edu} }
 %\note{ }
 
  %~Make other sections like WARNING with \section{WARNING }{....} ~
@@ -33,9 +33,9 @@ None
 
 \examples{
 #Plot a small adjacency matrix
-plot.matrix(rgraph(5))
+plot.sociomatrix(rgraph(5))
 
 #Plot a much larger one
-plot.matrix(rgraph(100),drawlab=FALSE,diaglab=FALSE)
+plot.sociomatrix(rgraph(100),drawlab=FALSE,diaglab=FALSE)
 }
 \keyword{ hplot }%-- one or more ...

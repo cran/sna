@@ -44,7 +44,7 @@ A string containing the triad classification, or \code{NA} if one or more edges 
 \references{ Davis, J.A. and Leinhardt, S.  (1972).  ``The Structure of Positive Interpersonal Relations in Small Groups.''  In J. Berger (Ed.), \emph{Sociological Theories in Progress, Volume 2}, 218-251.  Boston: Houghton Mifflin.
 
 Wasserman, S., and Faust, K.  (1994).  ``Social Network Analysis: Methods and Applications.''  Cambridge: Cambridge University Press.}
-\author{ Carter T. Butts  \email{ctb@andrew.cmu.edu} }
+\author{ Carter T. Butts  \email{buttsc@uci.edu} }
 %\note{ ~~further notes~~ }
 
 

@@ -22,7 +22,7 @@ The output of \code{gvectorize} is a matrix in which each column corresponds to 
 An nxk matrix, where n is the number of arcs and k is the number of graphs; if \code{censor.as.na==FALSE}, n will be reflect the relevant number of uncensored arcs.
 }
 %\references{ }
-\author{ Carter T. Butts \email{ctb@andrew.cmu.edu}}
+\author{ Carter T. Butts \email{buttsc@uci.edu}}
 %\note{  }
 
 % ~Make other sections like WARNING with \section{WARNING }{....} ~

@@ -22,7 +22,7 @@ gclust.centralgraph(h, k, mats, ...)
 An array containing the stack of central graph adjacency matrices
 }
 \references{ Butts, C.T., and Carley, K.M.  (2001).  ``Multivariate Methods for Interstructural Analysis.''  CASOS working paper, Carnegie Mellon University. }
-\author{ Carter T. Butts \email{ctb@andrew.cmu.edu} }
+\author{ Carter T. Butts \email{buttsc@uci.edu} }
 \note{  }
 
  %~Make other sections like WARNING with \section{WARNING }{....} ~

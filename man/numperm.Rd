@@ -20,7 +20,7 @@ numperm(olength, permnum)
 A permutation vector
 }
 \references{  }
-\author{ Carter T. Butts \email{ctb@andrew.cmu.edu} }
+\author{ Carter T. Butts \email{buttsc@uci.edu} }
 \note{ Permutation search is central to the estimation of structural distances, correlations, and covariances on partially labeled graphs.  \code{numperm} is hence used by \code{\link{structdist}}, \code{\link{gscor}}, \code{\link{gscov}}, etc. }
 
 % ~Make other sections like WARNING with \section{WARNING }{....} ~

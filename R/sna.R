@@ -1,7 +1,7 @@
 #
 # Various Useful Tools for Network Analysis in S
 #
-# By Carter Butts, ctb@andrew.cmu.edu
+# By Carter Butts, buttsc@uci.edu
 #
 # Current Version: 0.41
 #
@@ -83,7 +83,7 @@
 #plot.blockmodel - Plotting for blockmodel objects
 #plot.cugtest - Plotting for cugtest objects
 #plot.equiv.clust - Plotting for equivalence clustering objects
-#plot.matrix - Plotting of arbitrary matrices
+#plot.sociomatrix - Plotting of arbitrary matrices
 #plot.qaptest - Plotting for qaptest objects
 #potscalered.mcmc - Computes Gelman et al.'s potential scale reduction statistic
 #   for scalar estimands
@@ -3303,10 +3303,10 @@ centralgraph<-function(dat,normalize=FALSE){
 }
 
 
-#plot.matrix - An odd sort of plotting routine; plots a matrix (e.g., a Bernoulli graph density, or a set of
+#plot.sociomatrix - An odd sort of plotting routine; plots a matrix (e.g., a Bernoulli graph density, or a set of
 #adjacencies) as an image.  Very handy for visualizing large valued matrices...
 
-plot.matrix<-function(x,labels=list(seq(1:dim(x)[1]),seq(1:dim(x)[2])),drawlab=TRUE,diaglab=TRUE,...){       
+plot.sociomatrix<-function(x,labels=list(seq(1:dim(x)[1]),seq(1:dim(x)[2])),drawlab=TRUE,diaglab=TRUE,...){       
    n<-dim(x)[1]
    o<-dim(x)[2]
    d<-1-(x-min(x))/(max(x)-min(x))
@@ -3952,7 +3952,7 @@ plot.bbnam.fixed<-function(x,mode="density",intlines=TRUE,...){
    oldpar<-par()
    #Perform matrix plot of tie probabilities
    par(mfrow=c(1,1))
-   plot.matrix(apply(x$net,c(2,3),mean),labels=list(x$anames,x$anames),main="Marginal Posterior Tie Probability Distribution")
+   plot.sociomatrix(apply(x$net,c(2,3),mean),labels=list(x$anames,x$anames),main="Marginal Posterior Tie Probability Distribution")
    #Clean up
    par(oldpar)
 }
@@ -3989,7 +3989,7 @@ plot.bbnam.pooled<-function(x,mode="density",intlines=TRUE,...){
    }
    #Finally, try to plot histograms of tie probabilities
    par(mfrow=c(1,1))
-   plot.matrix(apply(x$net,c(2,3),mean),labels=list(x$anames,x$anames),main="Marginal Posterior Tie Probability Distribution")
+   plot.sociomatrix(apply(x$net,c(2,3),mean),labels=list(x$anames,x$anames),main="Marginal Posterior Tie Probability Distribution")
    #Clean up
    par(oldpar)
 }
@@ -4056,7 +4056,7 @@ plot.bbnam.actor<-function(x,mode="density",intlines=TRUE,...){
    }
    #Finally, try to plot histograms of tie probabilities
    par(mfrow=c(1,1))
-   plot.matrix(apply(x$net,c(2,3),mean),labels=list(x$anames,x$anames),main="Marginal Posterior Tie Probability Distribution")
+   plot.sociomatrix(apply(x$net,c(2,3),mean),labels=list(x$anames,x$anames),main="Marginal Posterior Tie Probability Distribution")
    #Clean up
    par(oldpar)
 }
@@ -4601,13 +4601,13 @@ plot.blockmodel<-function(x,...){
    par(mfrow=c(floor(sqrt(m)),ceiling(m/floor(sqrt(m)))))
    if(m>1)
       for(i in 1:m){
-         plot.matrix(x$blocked.data[i,,],labels=list(plab,plab),main=paste("Relation - ",glab[i]))
+         plot.sociomatrix(x$blocked.data[i,,],labels=list(plab,plab),main=paste("Relation - ",glab[i]))
          for(j in 2:n)
             if(x$block.membership[j]!=x$block.membership[j-1])
                abline(v=j-0.5,h=j-0.5,lty=3)
       }
    else{
-      plot.matrix(x$blocked.data,labels=list(plab,plab),main=paste("Relation - ",glab[1]))
+      plot.sociomatrix(x$blocked.data,labels=list(plab,plab),main=paste("Relation - ",glab[1]))
       for(j in 2:n)
          if(x$block.membership[j]!=x$block.membership[j-1])
             abline(v=j-0.5,h=j-0.5,lty=3)

@@ -19,7 +19,7 @@ print.cugtest(x, ...)
 None.
 }
 %\references{}
-\author{ Carter T. Butts \email{ctb@andrew.cmu.edu} }
+\author{ Carter T. Butts \email{buttsc@uci.edu} }
 %\note{  }
 
 % ~Make other sections like WARNING with \section{WARNING }{....} ~

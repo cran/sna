@@ -25,7 +25,7 @@ In \code{\link{pstar}}, calls to \code{eval.edgeperturbation} are used to constr
 The difference in the values of \code{FUN} as computed on the perturbed graphs.
 }
 \references{ Anderson, C.; Wasserman, S.; and Crouch, B. (1999).  ``A p* Primer:  Logit Models for Social Networks.  \emph{Social Networks,} 21,37-66. }
-\author{ Carter T. Butts \email{ctb@andrew.cmu.edu} }
+\author{ Carter T. Butts \email{buttsc@uci.edu} }
 \note{ \code{length(i)} and \code{length(j)} must be equal; where multiple edges are specified, the row and column listings are interpreted as pairs. }
 
 \seealso{ \code{\link{pstar}} }
