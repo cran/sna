@@ -7,17 +7,18 @@
 }
 \usage{
 gplot.vertex(x, y, radius = 1, sides = 4, border = 1, col = 2, 
-    lty = NULL, ...)
+    lty = NULL, rot = 0, ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{x}{ A vector of x coordinates }
-  \item{y}{ A vector of y coordinates }
-  \item{radius}{ A vector of vertex radii }
-  \item{sides}{ A vector containing the number of sides to draw for each vertex }
-  \item{border}{ A vector of vertex border colors }
-  \item{col}{ A vector of vertex interior colors }
-  \item{lty}{ A vector of vertex border line types }
+  \item{x}{ a vector of x coordinates. }
+  \item{y}{ a vector of y coordinates. }
+  \item{radius}{ a vector of vertex radii. }
+  \item{sides}{ a vector containing the number of sides to draw for each vertex. }
+  \item{border}{ a vector of vertex border colors. }
+  \item{col}{ a vector of vertex interior colors. }
+  \item{lty}{ a vector of vertex border line types. }
+  \item{rot}{ a vector of vertex rotation angles (in degrees). }
   \item{\dots}{ Additional arguments to \code{\link{polygon}} }
 }
 \details{

@@ -72,6 +72,7 @@ gplot.layout.target(d, layout.par)
     \item{layout.par\$area}{  Sets the "area" parameter for the F-R algorithm. (Defaults to \code{NROW(d)^2}.)}
     \item{layout.par\$cool.exp}{  Sets the cooling exponent for the annealer. (Defaults to 3.)}
     \item{layout.par\$repulse.rad}{  Determines the radius at which vertex-vertex repulsion cancels out attraction of adjacent vertices.  (Defaults to \code{area*NROW(d)}.)}
+    \item{layout.par\$seed.coord}{ A two-column matrix of initial vertex coordinates.  (Defaults to a random circular layout.) }  
     }
   }
   \item{hall}{ This function places vertices based on the last two eigenvectors of the Laplacian of the input matrix (Hall's algorithm).  It takes no arguments.}
@@ -83,6 +84,7 @@ gplot.layout.target(d, layout.par)
     \item{layout.par\$cool.exp}{  Sets the cooling exponent for the annealer. (Defaults to 0.99.)}
     \item{layout.par\$kkconst}{  Sets the Kamada-Kawai vertex attraction constant.  (Defaults to \code{NROW(d)^2}.)}
     \item{layout.par\$elen}{  Provides the matrix of interpoint distances to be approximated.  (Defaults to the geodesic distances of \code{d} after symmetrizing, capped at \code{sqrt(NROW(d))}.)}
+    \item{layout.par\$seed.coord}{ A two-column matrix of initial vertex coordinates.  (Defaults to a gaussian layout.) }  
     }
   }
   \item{mds}{ This function places vertices based on a metric multidimensional scaling of a specified distance matrix.  It takes the following arguments:

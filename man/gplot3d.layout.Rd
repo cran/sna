@@ -61,6 +61,7 @@ gplot3d.layout.seham(d, layout.par)
     \item{layout.par\$volume}{  Sets the "volume" parameter for the F-R algorithm. (Defaults to \code{NROW(d)^3}.)}
     \item{layout.par\$cool.exp}{  Sets the cooling exponent for the annealer. (Defaults to 3.)}
     \item{layout.par\$repulse.rad}{  Determines the radius at which vertex-vertex repulsion cancels out attraction of adjacent vertices.  (Defaults to \code{volume*NROW(d)}.)}
+    \item{layout.par\$seed.coord}{ A three-column matrix of initial vertex coordinates.  (Defaults to a random spherical layout.) }  
     }
   }
   \item{hall}{ This function places vertices based on the last three eigenvectors of the Laplacian of the input matrix (Hall's algorithm).  It takes no arguments.}
@@ -72,6 +73,7 @@ gplot3d.layout.seham(d, layout.par)
     \item{layout.par\$cool.exp}{  Sets the cooling exponent for the annealer. (Defaults to 0.99.)}
     \item{layout.par\$kkconst}{  Sets the Kamada-Kawai vertex attraction constant.  (Defaults to \code{NROW(d)^3}.)}
     \item{layout.par\$elen}{  Provides the matrix of interpoint distances to be approximated.  (Defaults to the geodesic distances of \code{d} after symmetrizing, capped at \code{sqrt(NROW(d))}.)}
+    \item{layout.par\$seed.coord}{ A three-column matrix of initial vertex coordinates.  (Defaults to a gaussian layout.) }  
     }
   }
   \item{mds}{ This function places vertices based on a metric multidimensional scaling of a specified distance matrix.  It takes the following arguments:

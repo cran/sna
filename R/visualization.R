@@ -3,7 +3,7 @@
 # visualization.R
 #
 # copyright (c) 2004, Carter T. Butts <buttsc@uci.edu>
-# Last Modified 1/05/05
+# Last Modified 1/09/05
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/sna package
@@ -54,11 +54,12 @@
 
 
 #gplot - Two-dimensional graph visualization
-gplot<-function(dat,g=1,gmode="digraph",diag=FALSE,label=c(1:dim(dat)[2]),coord=NULL,jitter=TRUE,thresh=0,usearrows=TRUE,mode="fruchtermanreingold",displayisolates=TRUE,interactive=FALSE,displaylabels=FALSE,boxed.labels=TRUE,xlab=NULL,ylab=NULL,xlim=NULL,ylim=NULL,pad=0.2,vertex.sides=8,arrowhead.cex=1,label.cex=1,vertex.cex=1,label.col=1,edge.col=1,vertex.col=2,vertex.border=1,edge.lty=1,vertex.lty=1,edge.lwd=0,edge.len=0.5,edge.curve=0.1,edge.steps=50,object.scale=0.01,uselen=FALSE,usecurve=FALSE,suppress.axes=TRUE,vertices.last=TRUE,new=TRUE,layout.par=NULL,...){
-   #Turn the annoying locator bell off
+gplot<-function(dat,g=1,gmode="digraph",diag=FALSE,label=c(1:dim(dat)[2]),coord=NULL,jitter=TRUE,thresh=0,usearrows=TRUE,mode="fruchtermanreingold",displayisolates=TRUE,interactive=FALSE,xlab=NULL,ylab=NULL,xlim=NULL,ylim=NULL,pad=0.2,label.pad=0.5,displaylabels=FALSE,boxed.labels=TRUE,label.pos=0,label.bg="white",vertex.sides=8,vertex.rot=0,arrowhead.cex=1,label.cex=1,loop.cex=1,vertex.cex=1,edge.col=1,label.col=1,vertex.col=2,label.border=1,vertex.border=1,edge.lty=1,label.lty=NULL,vertex.lty=1,edge.lwd=0,label.lwd=par("lwd"),edge.len=0.5,edge.curve=0.1,edge.steps=50,loop.steps=20,object.scale=0.01,uselen=FALSE,usecurve=FALSE,suppress.axes=TRUE,vertices.last=TRUE,new=TRUE,layout.par=NULL,...){
+   #Turn the annoying locator bell off, and remove recursion limit
    bellstate<-options()$locatorBell
-   on.exit(options(locatorBell=bellstate))
-   options(locatorBell=FALSE)
+   expstate<-options()$expression
+   on.exit(options(locatorBell=bellstate,expression=expstate))
+   options(locatorBell=FALSE,expression=Inf)
    #Create a useful interval inclusion operator
    "%iin%"<-function(x,int) (x>=int[1])&(x<=int[2])
    #Extract the graph to be displayed
@@ -116,22 +117,29 @@ gplot<-function(dat,g=1,gmode="digraph",diag=FALSE,label=c(1:dim(dat)[2]),coord=
      ylim<-c(min(y[use])-pad,max(y[use])+pad)
    xrng<-diff(xlim)          #Force scale to be symmetric
    yrng<-diff(ylim)
+   xctr<-(xlim[2]+xlim[1])/2 #Get center of plotting region
+   yctr<-(ylim[2]+ylim[1])/2
    if(xrng<yrng)
-     xlim<-xlim*yrng/xrng
+     xlim<-c(xctr-yrng/2,xctr+yrng/2)
    else
-     ylim<-ylim*xrng/yrng
+     ylim<-c(yctr-xrng/2,yctr+xrng/2)
    baserad<-min(diff(xlim),diff(ylim))*object.scale  #Extract "base radius"
-   vertex.radius<-rep(baserad*vertex.cex,length=n)   #Create vertex radii
    #Create the base plot, if needed
    if(new){  #If new==FALSE, we add to the existing plot; else create a new one
-     if((length(x)>0)&(!all(use==FALSE))){
-        plot(0,0,xlim=xlim,ylim=ylim,type="n",xlab=xlab,ylab=ylab,asp=1, col=vertex.col,cex=vertex.cex,axes=!suppress.axes,...)
-     }else
-        plot(0,0,type="n",xlab=xlab,ylab=ylab,col=vertex.col,asp=1, cex=vertex.cex,axes=!suppress.axes,...)
+     plot(0,0,xlim=xlim,ylim=ylim,type="n",xlab=xlab,ylab=ylab,asp=1, axes=!suppress.axes,...)
    }
+   #Fill out vertex vectors
+   vertex.cex <- rep(vertex.cex,length=n)
+   vertex.radius<-rep(baserad*vertex.cex,length=n)   #Create vertex radii
+   vertex.sides <- rep(vertex.sides,length=n)
+   vertex.border <- rep(vertex.border,length=n)
+   vertex.col <- rep(vertex.col,length=n)
+   vertex.lty <- rep(vertex.lty,length=n)
+   vertex.rot <- rep(vertex.rot,length=n)
+   loop.cex <- rep(loop.cex,length=n)
    #Plot vertices now, if desired
    if(!vertices.last)
-     gplot.vertex(x[use],y[use],radius=vertex.radius[use],sides=vertex.sides, col=vertex.col,border=vertex.border,lty=vertex.lty)
+     gplot.vertex(x[use],y[use],radius=vertex.radius[use], sides=vertex.sides[use],col=vertex.col[use],border=vertex.border[use],lty=vertex.lty[use],rot=vertex.rot[use])
    #Generate the edges and their attributes
    px0<-vector()   #Create position vectors (tail, head)
    py0<-vector()
@@ -144,6 +152,7 @@ gplot<-function(dat,g=1,gmode="digraph",diag=FALSE,label=c(1:dim(dat)[2]),coord=
    e.hoff<-vector() #Offset radii for heads
    e.toff<-vector() #Offset radii for tails
    e.diag<-vector() #Indicator for self-ties
+   e.rad<-vector()  #Edge radius (only used for loops)
    if(!is.array(edge.col))   #Coerce edge.col/edge.lty to array form
      edge.col<-array(edge.col,dim=dim(d))
    if(!is.array(edge.lty))
@@ -170,6 +179,7 @@ gplot<-function(dat,g=1,gmode="digraph",diag=FALSE,label=c(1:dim(dat)[2]),coord=
          }else
            e.lwd<-c(e.lwd,edge.lwd[i,j])
          e.diag<-c(e.diag,i==j)  #Is this a loop?
+         e.rad<-c(e.rad,vertex.radius[i]*loop.cex[i])
          if(uselen){   #Should we base curvature on interpoint distances?
            if(tl[i,j]>0){ 
              e.len<-dist[i,j]*tl.max/tl[i,j]
@@ -188,9 +198,9 @@ gplot<-function(dat,g=1,gmode="digraph",diag=FALSE,label=c(1:dim(dat)[2]),coord=
            }
          }
        }
-   #Plot loops for the diagonals, if diag==TRUE
+   #Plot loops for the diagonals, if diag==TRUE, rotating wrt center of mass
    if(diag&&(length(px0)>0)&&sum(e.diag>0)){  #Are there any loops present?
-     gplot.loop(as.vector(px0)[e.diag],as.vector(py0)[e.diag], length=1.5*baserad*arrowhead.cex,angle=25,col=e.col[e.diag],border=e.col[e.diag], lty=e.type[e.diag],width=e.lwd[e.diag]*baserad/10,offset=e.hoff[e.diag], arrowhead=usearrows)
+     gplot.loop(as.vector(px0)[e.diag],as.vector(py0)[e.diag], length=1.5*baserad*arrowhead.cex,angle=25,width=e.lwd[e.diag]*baserad/10,col=e.col[e.diag],border=e.col[e.diag],lty=e.type[e.diag],offset=e.hoff[e.diag],edge.steps=loop.steps,radius=e.rad[e.diag],arrowhead=usearrows,xctr=mean(x[use]),yctr=mean(y[use]))
    }
    #Plot standard (i.e., non-loop) edges
    if(length(px0)>0){  #If edges are present, remove loops from consideration
@@ -204,6 +214,7 @@ gplot<-function(dat,g=1,gmode="digraph",diag=FALSE,label=c(1:dim(dat)[2]),coord=
      e.col<-e.col[!e.diag]
      e.hoff<-e.hoff[!e.diag]
      e.toff<-e.toff[!e.diag]
+     e.rad<-e.rad[!e.diag]
    }
    if(!usecurve&!uselen){   #Straight-line edge case
      if(length(px0)>0)
@@ -215,16 +226,35 @@ gplot<-function(dat,g=1,gmode="digraph",diag=FALSE,label=c(1:dim(dat)[2]),coord=
    }
    #Plot vertices now, if we haven't already done so
    if(vertices.last)
-     gplot.vertex(x[use],y[use],radius=vertex.radius[use],sides=vertex.sides, col=vertex.col,border=vertex.border,lty=vertex.lty)
+     gplot.vertex(x[use],y[use],radius=vertex.radius[use], sides=vertex.sides[use],col=vertex.col[use],border=vertex.border[use],lty=vertex.lty[use],rot=vertex.rot[use])
    #Plot vertex labels, if needed
    if(displaylabels&(!all(label==""))&(!all(use==FALSE))){
-      if(boxed.labels){
-        lw<-strwidth(label[use],cex=label.cex)/2
-        lh<-strheight(label[use],cex=label.cex)/2
-	os<-c(0.2,0.4)*par()$cxy*label.cex
-        rect(x[use]-lw-os[1],y[use]-3.5*lh-os[2],x[use]+lw+os[1],y[use]-2.5*lh+os[2],col="white")
-      }	
-      text(x[use],y[use]-3*lh,label[use],cex=label.cex,col=label.col)
+     if (label.pos==0){
+       xoff <- x[use]-mean(x[use])
+       yoff <- y[use]-mean(y[use])
+       roff <- sqrt(xoff^2+yoff^2)
+       xhat <- xoff/roff
+       yhat <- yoff/roff
+     } else if (label.pos<5) {
+       xhat <- switch(label.pos,0,-1,0,1)
+       yhat <- switch(label.pos,-1,0,1,0)
+     } else {
+       xhat <- 0
+       yhat <- 0
+     }
+     os<-par()$cxy*label.cex
+     lw<-strwidth(label[use],cex=label.cex)/2
+     lh<-strheight(label[use],cex=label.cex)/2
+     if(boxed.labels){
+       rect(x[use]-lw*(1+label.pad)+xhat*(lw*(1+label.pad+0.2)+ vertex.radius[use]),
+            y[use]-lh*(1+label.pad)+yhat*(lh*(1+label.pad+0.2)+ vertex.radius[use]),
+            x[use]+lw*(1+label.pad)+xhat*(lw*(1+label.pad+0.2)+ vertex.radius[use]),
+            y[use]+lh*(1+label.pad)+yhat*(lh*(1+label.pad+0.2)+ vertex.radius[use]),
+            col=label.bg,border=label.border,lty=label.lty,lwd=label.lwd)
+     }
+     text(x[use]+xhat*(lw*(1+label.pad+0.2)+vertex.radius[use]),
+          y[use]+yhat*(lh*(1+label.pad+0.2)+vertex.radius[use]),
+          label[use],cex=label.cex,col=label.col,offset=0)
    }
    #If interactive, allow the user to mess with things
    if(interactive&&((length(x)>0)&&(!all(use==FALSE)))){
@@ -261,14 +291,14 @@ gplot<-function(dat,g=1,gmode="digraph",diag=FALSE,label=c(1:dim(dat)[2]),coord=
        if(all(label==""))
          label<-1:n
        #Clear out the old message, and write a new one
-       rect(textloc[1],textloc[2]-tmh/2,textloc[1]+tmw,textloc[2]+tmh/2,border="white",col="white")
+       rect(textloc[1],textloc[2]-tmh/2,textloc[1]+tmw,textloc[2]+tmh/2, border="white",col="white")
        tm<-"Where should I move this vertex?"
        tmh<-strheight(tm)
        tmw<-strwidth(tm)
        text(textloc[1],textloc[2],tm,adj=c(0,0.5))
        fm<-paste("Vertex",label[use][selvert],"selected")
        finx<-c(textloc[1],textloc[1]+strwidth(fm))
-       finy<-c(textloc[2]-3*tmh-strheight(fm)/2,textloc[2]-3*tmh+strheight(fm)/2)
+       finy<-c(textloc[2]-3*tmh-strheight(fm)/2,textloc[2]-3*tmh+ strheight(fm)/2)
        finbx<-finx+c(-os[1],os[1])
        finby<-finy+c(-os[2],os[2])
        rect(finbx[1],finby[1],finbx[2],finby[2],col="white")
@@ -295,7 +325,7 @@ gplot.arrow<-function(x0,y0,x1,y1,length=0.1,angle=20,width=0.01,col=1,border=1,
   if(length(x0)==0)   #Leave if there's nothing to do
     return;
   #Introduce a function to make coordinates for a single polygon
-  make.coords<-function(x0,y0,x1,y1,ahangle,ahlen,swid,toff,hoff,ahead, curve,csteps){
+  make.coords<-function(x0,y0,x1,y1,ahangle,ahlen,swid,toff,hoff,ahead, curve,csteps){ 
     slen<-sqrt((x0-x1)^2+(y0-y1)^2)  #Find the total length
     if(curve==0){         #Straight edges
       if(ahead){    
@@ -448,12 +478,16 @@ gplot.layout.fruchtermanreingold<-function(d,layout.par){
     repulse.rad<-area*n
   else
     repulse.rad<-layout.par$repulse.rad
+  if(is.null(layout.par$seed.coord)){
+    tempa<-sample((0:(n-1))/n) #Set initial positions randomly on the circle
+    x<-n/(2*pi)*sin(2*pi*tempa)
+    y<-n/(2*pi)*cos(2*pi*tempa)
+  }else{
+    x<-layout.par$seed.coord[,1]
+    y<-layout.par$seed.coord[,2]
+  }
   #Symmetrize the graph, just in case
   d<-d|t(d)  
-  #Set up positions
-  tempa<-sample((0:(n-1))/n) #Set initial positions randomly on the circle
-  x<-n/(2*pi)*sin(2*pi*tempa)
-  y<-n/(2*pi)*cos(2*pi*tempa)
   #Perform the layout calculation
   layout<-.C("gplot_layout_fruchtermanreingold_R", as.integer(d), as.double(n), as.integer(niter), as.double(max.delta), as.double(area), as.double(cool.exp), as.double(repulse.rad), x=as.double(x), y=as.double(y), PACKAGE="sna")
   #Return the result
@@ -511,9 +545,14 @@ gplot.layout.kamadakawai<-function(d,layout.par){
     elen<-geodist(symmetrize(d),inf.replace=sqrt(n))$gdist
   }else
     elen<-layout.par$elen
+  if(is.null(layout.par$seed.coord)){
+    x<-rnorm(n,0,n/4)
+    y<-rnorm(n,0,n/4)
+  }else{
+    x<-layout.par$seed.coord[,1]
+    y<-layout.par$seed.coord[,2]
+  }
   #Obtain locations
-  x<-rnorm(n,0,n/4)
-  y<-rnorm(n,0,n/4)
   pos<-.C("gplot_layout_kamadakawai_R",as.integer(d),as.double(n), as.integer(niter),as.double(elen),as.double(initemp),as.double(coolexp), as.double(kkconst),as.double(sigma),x=as.double(x),y=as.double(y), PACKAGE="sna")
   #Return to x,y coords
   cbind(pos$x,pos$y)
@@ -813,26 +852,44 @@ gplot.layout.target<-function(d,layout.par){
 
 
 #gplot.loop - Custom loop-drawing method for gplot
-gplot.loop<-function(x0,y0,length=0.1,angle=10,width=0.01,col=1,border=1,lty=1,offset=0,sides=10,arrowhead=TRUE,...){
+gplot.loop<-function(x0,y0,length=0.1,angle=10,width=0.01,col=1,border=1,lty=1,offset=0,edge.steps=10,radius=1,arrowhead=TRUE,xctr=0,yctr=0,...){
   if(length(x0)==0)   #Leave if there's nothing to do
     return;
   #Introduce a function to make coordinates for a single polygon
-  make.coords<-function(x0,y0,ahangle,ahlen,swid,off,ahead){
+  make.coords<-function(x0,y0,xctr,yctr,ahangle,ahlen,swid,off,rad,ahead){
+    #Determine the center of the plot
+    xoff <- x0-xctr
+    yoff <- y0-yctr
+    roff <- sqrt(xoff^2+yoff^2)
+    x0hat <- xoff/roff
+    y0hat <- yoff/roff
+    r0.vertex <- off
+    r0.loop <- rad
+    x0.loop <- x0hat*r0.loop
+    y0.loop <- y0hat*r0.loop
+    ang <- (((0:edge.steps)/edge.steps)*(1-(2*r0.vertex+0.5*ahlen*ahead)/ (2*pi*r0.loop))+r0.vertex/(2*pi*r0.loop))*2*pi+atan2(-yoff,-xoff)
+    ang2 <- ((1-(2*r0.vertex)/(2*pi*r0.loop))+r0.vertex/(2*pi*r0.loop))*2*pi+ atan2(-yoff,-xoff)
     if(ahead){
-      ang<-(0:sides)/sides*2.3*pi/2+pi
+      x0.arrow <- x0.loop+(r0.loop+swid/2)*cos(ang2)
+      y0.arrow <- y0.loop+(r0.loop+swid/2)*sin(ang2)
       coord<-rbind(
-        cbind((off+swid/2)*sin(ang)-off,(off+swid/2)*cos(ang)+off),
-        c(-ahlen*cos(pi/3.25+ahangle)+swid/2,ahlen*sin(pi/3.25+ahangle)+off),
-        c(0,off),
-        c(-ahlen*cos(pi/3.25-ahangle)-swid/2,ahlen*sin(pi/3.25-ahangle)+off),
-        cbind((off-swid/2)*sin(rev(ang))-off,(off-swid/2)*cos(rev(ang))+off),
+        cbind(x0.loop+(r0.loop+swid/2)*cos(ang), 
+          y0.loop+(r0.loop+swid/2)*sin(ang)),
+        cbind(x0.arrow+ahlen*cos(ang2-pi/2),
+          y0.arrow+ahlen*sin(ang2-pi/2)),
+        cbind(x0.arrow,y0.arrow),
+        cbind(x0.arrow+ahlen*cos(-2*ahangle+ang2-pi/2),
+          y0.arrow+ahlen*sin(-2*ahangle+ang2-pi/2)),
+        cbind(x0.loop+(r0.loop-swid/2)*cos(rev(ang)),
+          y0.loop+(r0.loop-swid/2)*sin(rev(ang))),
         c(NA,NA)
       )
     }else{
-      ang<-(0:sides)/sides*3*pi/2+pi
       coord<-rbind(
-        cbind((off+swid/2)*sin(ang)-off,(off+swid/2)*cos(ang)+off),
-        cbind((off-swid/2)*sin(rev(ang))-off,(off-swid/2)*cos(rev(ang))+off),
+        cbind(x0.loop+(r0.loop+swid/2)*cos(ang),
+          y0.loop+(r0.loop+swid/2)*sin(ang)),
+        cbind(x0.loop+(r0.loop-swid/2)*cos(rev(ang)),
+          y0.loop+(r0.loop-swid/2)*sin(rev(ang))),
         c(NA,NA)
       )
     }
@@ -848,12 +905,13 @@ gplot.loop<-function(x0,y0,length=0.1,angle=10,width=0.01,col=1,border=1,lty=1,o
   col<-rep(col,length=n)
   border<-rep(border,length=n)
   lty<-rep(lty,length=n)
+  rad<-rep(radius,length=n)
   arrowhead<-rep(arrowhead,length=n)
   offset<-rep(offset,length=n)
   #Obtain coordinates
   coord<-vector()
   for(i in 1:n)  
-    coord<-rbind(coord,make.coords(x0[i],y0[i],angle[i],length[i], width[i],offset[i],arrowhead[i]))
+    coord<-rbind(coord,make.coords(x0[i],y0[i],xctr,yctr,angle[i],length[i], width[i],offset[i],rad[i],arrowhead[i]))
   coord<-coord[-NROW(coord),]
   #Draw polygons
   polygon(coord,col=col,border=border,lty=lty,...)
@@ -911,10 +969,10 @@ gplot.target<-function(dat,x,circ.rad=(1:10)/10,circ.col="blue",circ.lwd=1,circ.
 
 
 #gplot.vertex - Routine to plot vertices, using polygons
-gplot.vertex<-function(x,y,radius=1,sides=4,border=1,col=2,lty=NULL,...){
+gplot.vertex<-function(x,y,radius=1,sides=4,border=1,col=2,lty=NULL,rot=0,...){
   #Introduce a function to make coordinates for a single polygon
-  make.coords<-function(x,y,r,s){
-    ang<-(1:s)/s*2*pi
+  make.coords<-function(x,y,r,s,rot){
+    ang<-(1:s)/s*2*pi+rot*2*pi/360
     rbind(cbind(x+r*cos(ang),y+r*sin(ang)),c(NA,NA))  
   }
   #Prep the vars
@@ -924,10 +982,11 @@ gplot.vertex<-function(x,y,radius=1,sides=4,border=1,col=2,lty=NULL,...){
   border<-rep(border,length=n)
   col<-rep(col,length=n)
   lty<-rep(lty,length=n)
+  rot<-rep(rot,length=n)
   #Obtain the coordinates
   coord<-vector()
   for(i in 1:length(x))
-    coord<-rbind(coord,make.coords(x[i],y[i],radius[i],sides[i]))
+    coord<-rbind(coord,make.coords(x[i],y[i],radius[i],sides[i],rot[i]))
   #Plot the polygons
   polygon(coord,border=border,col=col,lty=lty,...)
 }
@@ -1061,7 +1120,7 @@ gplot3d<-function(dat,g=1,gmode="digraph",diag=FALSE,label=c(1:dim(dat)[2]),coor
      rgl.texts(x[use]-vertex.radius[use],y[use],z[use],label[use], color=label.col)
    }
    #Return the vertex positions, should they be needed
-   invisible(cbind(x,y))
+   invisible(cbind(x,y,z))
 }
 
 
@@ -1178,14 +1237,20 @@ gplot3d.layout.fruchtermanreingold<-function(d,layout.par){
     repulse.rad<-volume*n
   else
     repulse.rad<-layout.par$repulse.rad
+  if(is.null(layout.par$seed.coord)){
+    tempa<-runif(n,0,2*pi) #Set initial positions randomly on the sphere
+    tempb<-runif(n,0,pi)
+    x<-n*sin(tempb)*cos(tempa)
+    y<-n*sin(tempb)*sin(tempa)
+    z<-n*cos(tempb)
+  }else{
+    x<-layout.par$seed.coord[,1]
+    y<-layout.par$seed.coord[,2]
+    z<-layout.par$seed.coord[,3]
+  }
   #Symmetrize the graph, just in case
   d<-d|t(d)  
   #Set up positions
-  tempa<-runif(n,0,2*pi) #Set initial positions randomly on the sphere
-  tempb<-runif(n,0,pi)
-  x<-n*sin(tempb)*cos(tempa)
-  y<-n*sin(tempb)*sin(tempa)
-  z<-n*cos(tempb)
   #Perform the layout calculation
   layout<-.C("gplot3d_layout_fruchtermanreingold_R", as.integer(d), as.double(n), as.integer(niter), as.double(max.delta), as.double(volume), as.double(cool.exp), as.double(repulse.rad), x=as.double(x), y=as.double(y), z=as.double(z),PACKAGE="sna")
   #Return the result
@@ -1243,10 +1308,16 @@ gplot3d.layout.kamadakawai<-function(d,layout.par){
     elen<-geodist(symmetrize(d),inf.replace=sqrt(n))$gdist
   }else
     elen<-layout.par$elen
+  if(is.null(layout.par$seed.coord)){
+    x<-rnorm(n,0,n/4)
+    y<-rnorm(n,0,n/4)
+    z<-rnorm(n,0,n/4)
+  }else{
+    x<-layout.par$seed.coord[,1]
+    y<-layout.par$seed.coord[,2]
+    z<-layout.par$seed.coord[,3]
+  }
   #Obtain locations
-  x<-rnorm(n,0,n/4)
-  y<-rnorm(n,0,n/4)
-  z<-rnorm(n,0,n/4)
   pos<-.C("gplot3d_layout_kamadakawai_R",as.integer(d),as.double(n), as.integer(niter),as.double(elen),as.double(initemp),as.double(coolexp), as.double(kkconst),as.double(sigma),x=as.double(x),y=as.double(y), z=as.double(z),PACKAGE="sna")
   #Return to x,y coords
   cbind(pos$x,pos$y,pos$z)

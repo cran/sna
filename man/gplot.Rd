@@ -9,15 +9,17 @@
 gplot(dat, g = 1, gmode = "digraph", diag = FALSE, 
     label = c(1:dim(dat)[2]), coord = NULL, jitter = TRUE, thresh = 0,
     usearrows = TRUE, mode = "fruchtermanreingold", 
-    displayisolates = TRUE, interactive = FALSE, 
-    displaylabels =  FALSE, boxed.labels = TRUE, xlab = NULL, 
-    ylab = NULL, xlim = NULL, ylim = NULL, pad = 0.2, 
-    vertex.sides = 8, arrowhead.cex = 1, label.cex = 1, 
-    vertex.cex = 1, label.col = 1, edge.col = 1, vertex.col = 2,
-    vertex.border = 1, edge.lty = 1, vertex.lty = 1, edge.lwd = 0,
-    edge.len = 0.5, edge.curve = 0.1, edge.steps = 50, 
+    displayisolates = TRUE, interactive = FALSE, xlab = NULL, 
+    ylab = NULL, xlim = NULL, ylim = NULL, pad = 0.2, label.pad = 0.5,
+    displaylabels = FALSE, boxed.labels = TRUE, label.pos = 0,
+    label.bg = "white", vertex.sides = 8, vertex.rot = 0,
+    arrowhead.cex = 1, label.cex = 1, loop.cex = 1, vertex.cex = 1,
+    edge.col = 1, label.col = 1, vertex.col = 2, label.border = 1,
+    vertex.border = 1, edge.lty = 1, label.lty = NULL, vertex.lty = 1,
+    edge.lwd = 0, label.lwd = par("lwd"), edge.len = 0.5, 
+    edge.curve = 0.1, edge.steps = 50, loop.steps = 20, 
     object.scale = 0.01, uselen = FALSE, usecurve = FALSE,
-    suppress.axes = TRUE, vertices.last = TRUE, new = TRUE,
+    suppress.axes = TRUE, vertices.last = TRUE, new = TRUE, 
     layout.par = NULL, ...)
 }
 %- maybe also 'usage' for other objects documented here.
@@ -34,27 +36,36 @@ gplot(dat, g = 1, gmode = "digraph", diag = FALSE,
   \item{mode}{ the vertex placement algorithm; this must correspond to a \code{\link{gplot.layout}} function. }
   \item{displayisolates}{ boolean; should isolates be displayed? }
   \item{interactive}{ boolean; should interactive adjustment of vertex placement be attempted? }
-  \item{displaylabels}{ boolean; should vertex labels be displayed? }
-  \item{boxed.labels}{ boolean; place vertex labels within boxes? }
   \item{xlab}{ x axis label. }
   \item{ylab}{ y axis label. }
   \item{xlim}{ the x limits (min, max) of the plot. }
   \item{ylim}{ the y limits of the plot. } 
   \item{pad}{ amount to pad the plotting range; useful if labels are being clipped. }
+  \item{label.pad}{ amount to pad label boxes (if \code{boxed.labels==TRUE}), in character size units. }
+  \item{displaylabels}{ boolean; should vertex labels be displayed? }
+  \item{boxed.labels}{ boolean; place vertex labels within boxes? }
+  \item{label.pos}{ position at which labels should be placed, relative to vertices.  \code{0} results in labels which are placed away from the center of the plotting region; \code{1}, \code{2}, \code{3}, and \code{4} result in labels being placed below, to the left of, above, and to the right of vertices (respectively); and \code{label.pos>=5} results in labels which are plotted with no offset (i.e., at the vertex positions). }
+  \item{label.bg}{ background color for label boxes (if \code{boxed.labels==TRUE}); may be a vector, if boxes are to be of different colors.}
   \item{vertex.sides}{ number of polygon sides for vertices; may be given as a vector, if vertices are to be of different types. }
+  \item{vertex.rot}{ angle of rotation for vertices (in degrees); may be given as a vector, if vertices are to be rotated differently. }
   \item{arrowhead.cex}{ expansion factor for edge arrowheads.}
   \item{label.cex}{ character expansion factor for label text. }
-  \item{vertex.cex}{ expansion factor for vertices; may be given as a vector, if vertices are to be of different types. }
-  \item{label.col}{ color for vertex labels; may be given as a vector, if labels are to be of different colors. }
+  \item{loop.cex}{ expansion factor for loops; may be given as a vector, if loops are to be of different sizes. }
+  \item{vertex.cex}{ expansion factor for vertices; may be given as a vector, if vertices are to be of different sizes. }
   \item{edge.col}{ color for edges; may be given as a vector or adjacency matrix, if edges are to be of different colors. }
+  \item{label.col}{ color for vertex labels; may be given as a vector, if labels are to be of different colors. }
   \item{vertex.col}{ color for vertices; may be given as a vector, if vertices are to be of different colors. }
+  \item{label.border}{ label border colors (if \code{boxed.labels==TRUE}); may be given as a vector, if label boxes are to have different colors. }
   \item{vertex.border}{ border color for vertices; may be given as a vector, if vertex borders are to be of different colors. }
   \item{edge.lty}{ line type for edge borders; may be given as a vector or adjacency matrix, if edge borders are to have different line types. }
+  \item{label.lty}{ line type for label boxes (if \code{boxed.labels==TRUE}); may be given as a vector, if label boxes are to have different line types. }
   \item{vertex.lty}{ line type for vertex borders; may be given as a vector or adjacency matrix, if vertex borders are to have different line types. }
   \item{edge.lwd}{ line width scale for edges; if set greater than 0, edge widths are scaled by \code{edge.lwd*dat}.  May be given as a vector or adjacency matrix, if edges are to have different line widths. }
+  \item{label.lwd}{ line width for label boxes (if \code{boxed.labels==TRUE}); may be given as a vector, if label boxes are to have different line widths. }
   \item{edge.len}{ if \code{uselen==TRUE}, curved edge lengths are scaled by \code{edge.len}. }
   \item{edge.curve}{ if \code{usecurve==TRUE}, the extent of edge curvature is controlled by \code{edge.curv}.  May be given as a fixed value, vector, or adjacency matrix, if edges are to have different levels of curvature.  }
-  \item{edge.steps}{ for curved edges (including loops), the number of line segments to use for the curve approximation. }
+  \item{edge.steps}{ for curved edges (excluding loops), the number of line segments to use for the curve approximation. }
+  \item{loop.steps}{ for loops, the number of line segments to use for the curve approximation. }
   \item{object.scale}{ base length for plotting objects, as a fraction of the linear scale of the plotting region. Defaults to 0.01.}
   \item{uselen}{ boolean; should we use \code{edge.len} to rescale edge lengths? }
   \item{usecurve}{ boolean; should we use \code{edge.curve}? }
@@ -87,6 +98,12 @@ Alex Montgomery \email{ahm@stanford.edu}
 gplot(rgraph(5))               #Plot a random graph
 gplot(rgraph(5),usecurv=TRUE)  #This time, use curved edges
 gplot(rgraph(5),mode="mds")    #Try an alternative layout scheme
+
+#A colorful demonstration...
+gplot(rgraph(5,diag=TRUE),diag=TRUE,vertex.cex=1:5,vertex.sides=3:8,
+    vertex.col=1:5,vertex.border=2:6,vertex.rot=(0:4)*72,
+    displaylabels=TRUE,label.bg="gray90")
+    
 }
 \keyword{ graphs }% at least one, from doc/KEYWORDS
 \keyword{ hplot }% __ONLY ONE__ keyword per line

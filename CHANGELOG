@@ -1,5 +1,17 @@
 CHANGELOG:
 
+v0.51 - New Features and Bug Fixes
+   New Features:
+      gplot now supports vertex rotation, more refined label placement,
+        and improved loop positioning [submitted by Alex Montgomery]
+      gplot.layout.fruchtermanreingold, gplot.layout.kamadakawai, and their
+        three-dimensional counterparts now accept "seed" coordinates through
+        layout.par [suggested by Alex Montgomery]
+   Bug Fixes:
+      efficiency was producing incorrect values on some graphs
+      options()$expression was limiting the number of vertex relocations
+        in gplot's interactive mode
+      gplot3d was not returning z coordinate [submitted by Alex Montgomery]
 v0.5 - New Functions, Changes, and Bug Fixes
    New Functions:
       gplot.arrow - Custom arrow-drawing for gplot

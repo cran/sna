@@ -3,7 +3,7 @@
 # gli.R
 #
 # copyright (c) 2004, Carter T. Butts <buttsc@uci.edu>
-# Last Modified 12/26/04
+# Last Modified 1/09/04
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/sna package
@@ -92,10 +92,11 @@ efficiency<-function(dat,g=1:stackcount(dat),diag=FALSE){
    inteff<-function(g,diag){
       comsz<-component.dist(g,connected="weak")$csize
       reqedge<-sum(comsz-1)     #Get required edges
+      maxv<-sum(comsz*(comsz-(!diag))-(comsz-1)) #Get maximum violations
       if(!diag)
          g<-diag.remove(g)
       edgec<-sum(g,na.rm=TRUE)  #Get count of actual edges
-      1-(edgec-reqedge)/(prod(dim(g))-(!diag)*dim(g)[1]-reqedge)
+      1-(edgec-reqedge)/maxv
    }
    #Perform the actual calculation
    d<-array(dim=c(length(g),dim(dat)[2],dim(dat)[2]))

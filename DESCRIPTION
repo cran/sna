@@ -1,6 +1,6 @@
 Package: sna
-Version: 0.50-1
-Date: 2005-1-05
+Version: 0.51-0
+Date: 2005-1-09
 Title: Tools for Social Network Analysis
 Author: Carter T. Butts <buttsc@uci.edu>
 Maintainer: Carter T. Butts <buttsc@uci.edu>
@@ -9,4 +9,4 @@ Suggests: rgl
 Description: A range of tools for social network analysis, including node and graph-level indices, structural distance and covariance methods, structural equivalence detection, p* modeling, random graph generation, and 2D/3D network visualization.
 License: GPL Version 2 or newer
 URL: http://erzuli.ss.uci.edu/R.stuff
-Packaged: Wed Jan  5 22:33:36 2005; eagle
+Packaged: Sun Jan  9 19:04:13 2005; eagle
