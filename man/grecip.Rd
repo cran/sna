@@ -6,15 +6,16 @@
   \code{grecip} calculates the dyadic reciprocity of the elements of \code{dat} selected by \code{g}.
 }
 \usage{
-grecip(dat, g=NULL)
+grecip(dat, g = NULL, measure = c("dyadic", "edgewise"))
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
   \item{dat}{ An adjacency matrix, or stack thereof }
   \item{g}{ A vector indicating which matrices to evaluate (optional) }
+  \item{measure}{ One of \code{"dyadic"} (default) or \code{"edgewise"} }
 }
 \details{
-  The dyadic reciprocity of a graph is the proportion of dyads which are symmetric; this is computed and returned by \code{grecip} for the graphs indicated.  Note that the dyadic reciprocity is distinct from the \emph{tie reciprocity}, which is the proportion of \emph{edges} which are reciprocated.  
+  The dyadic reciprocity of a graph is the proportion of dyads which are symmetric; this is computed and returned by \code{grecip} for the graphs indicated.  Note that the dyadic reciprocity is distinct from the \emph{edgewise} or \emph{tie reciprocity}, which is the proportion of \emph{edges} which are reciprocated.  This latter form may be obtained by setting \code{measure="edgewise"}.
 }
 \value{
   The graph reciprocity value(s)
@@ -28,8 +29,8 @@ grecip(dat, g=NULL)
 \seealso{ \code{\link{mutuality}}, \code{\link{symmetrize}} }
 
 \examples{
-#Calculate the reciprocity scores for some random graphs
+#Calculate the dyadic reciprocity scores for some random graphs
 grecip(rgraph(10,5))
 }
+\keyword{ network }%-- one or more ...
 \keyword{ univar }%-- one or more ...
-\keyword{ network }

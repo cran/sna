@@ -34,4 +34,4 @@ Gelman, A., and Rubin, D.B.  (1992).  ``Inference from Iterative Simulation Usin
 
 }
 \keyword{ models }%-- one or more ...
-\keyword{univariate}
+\keyword{univar}

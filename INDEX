@@ -19,6 +19,7 @@ component.dist           Calculate the Component Size Distribution of a
                          Graph
 components               Find the Number of (Maximal) Components Within a
                          Given Graph
+connectedness            Compute Graph Connectedness Scores
 consensus                Estimate a Consensus Structure from Multiple
                          Observations
 cugtest                  Perform Conditional Uniform Graph (CUG)
@@ -27,6 +28,8 @@ degree                   Compute the Degree Centrality Scores of Network
                          Positions
 diag.remove              Remove the Diagonals of Adjacency Matrices in a
                          Graph Stack
+dyad.census              Compute a Holland and Leinhardt MAN Dyad Census
+efficiency               Compute Graph Efficiency Scores
 equiv.clust              Find Clusters of Positions Based on an
                          Equivalence Relation
 eval.edgeperturbation    Compute the Effects of Single-Edge Perturbations
@@ -64,6 +67,9 @@ gtrans                   Compute the Transitivity of an Input Graph or
 gvectorize               Vectorization of Adjacency Matrices
 hdist                    Find the Hamming Distances Between Two or More
                          Graphs
+hierarchy                Compute Graph Hierarchy Scores
+infocent                 Find Information Centrality Scores of Network
+                         Positions
 interval.graph           Convert Spell Data to Interval Graphs
 is.isolate               Is Ego an Isolate?
 isolates                 List the Isolates in a Graph or Graph Stack
@@ -71,6 +77,7 @@ lab.optimize             Optimize a Bivariate Graph Statistic Across a
                          Set of Accessible Permutations
 lower.tri.remove         Remove the Lower Triangles of Adjacency Matrices
                          in a Graph Stack
+lubness                  Compute Graph LUBness Scores
 make.stochastic          Make a Graph Stack Row, Column, or Row-column
                          Stochastic
 mutuality                Find the Mutuality of a Graph
@@ -114,6 +121,7 @@ print.summary.qaptest    Printing for summary.qaptest Objects
 pstar                    Fit a p* Model Using a Logistic Approximation
 qaptest                  Perform Quadratic Assignment Procedure (QAP)
                          Hypothesis Tests for Graph-Level Statistics
+reachability             Find the Reachability Matrix of a Graph
 read.nos                 Read (N)eo-(O)rg(S)tat Input Files
 rgraph                   Generate Bernoulli Random Graphs
 rmperm                   Randomly Permute the Rows and Columns of an
@@ -141,5 +149,8 @@ summary.netlm            Detailed Summaries of netlm Objects
 summary.netlogit         Detailed Summaries of netlogit Objects
 summary.qaptest          Detailed Summaries of qaptest Objects
 symmetrize               Symmetrize an Adjacency Matrix
+triad.census             Compute the Davis and Leinhardt Triad Census
+triad.classify           Compute the Davis and Leinhardt Classification
+                         of a Given Triad
 upper.tri.remove         Remove the Upper Triangles of Adjacency Matrices
                          in a Graph Stack

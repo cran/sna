@@ -20,7 +20,7 @@ centralgraph(dat, normalize=FALSE)
 A matrix containing the central graph (or mean matrix)
 }
 \references{ 
-Banks, D.L., and Carley, K.M.  (1994).  ``Metric Inference for Social Networks.''  \emph{Journal of Classification.'' 
+Banks, D.L., and Carley, K.M.  (1994).  ``Metric Inference for Social Networks.''  \emph{Journal of Classification}, 11(1), 121-49. 
  }
 \author{ Carter T. Butts \email{ctb@andrew.cmu.edu} }
 \note{ 0.5 is used as the cutoff value regardless of whether or not the data is dichotomous (as is tacitly assumed).  The routine is unaffected by data type when \code{normalize==TRUE}. }

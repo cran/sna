@@ -25,8 +25,8 @@ closeness(dat, g=1, nodes=c(1:dim(dat)[2]), gmode="digraph",
 \details{
   The closeness of a vertex v is defined as
 
-\deqn{C_C(v) = \frac{1}{\sum_{i : i \neq v} d(v,i)}}{%
-C_C(v) = 1/sum( d(v,i), i in V(G), i!=v )}
+\deqn{C_C(v) = \frac{\left|V\left(G\right)\right|-1}{\sum_{i : i \neq v} d(v,i)}}{%
+C_C(v) = (|V(G)|-1)/sum( d(v,i), i in V(G), i!=v )}
 
 where \eqn{d(i,j)}{d(i,j)} is the geodesic distance between i and j (where defined).  Closeness is ill-defined on disconnected graphs; in such cases, this routine substitutes a number one greater than the maximum path length (i.e., |V(G)|) for the geodesic distance).  It should be understood that this modification is not canonical, but can be avoided by not attempting to measure closeness on disconnected graphs in the first place!  Intuitively, closeness provides an index of the extent to which a given vertex has short paths to all other vertices in the graph; this is one reasonable measure of the extent to which a vertex is in the ``middle'' of a given structure.
 }

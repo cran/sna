@@ -3,9 +3,9 @@
 #
 # By Carter Butts, ctb@andrew.cmu.edu
 #
-# Current Version: 0.3
+# Current Version: 0.4
 #
-# Last updated 5/25/01
+# Last updated 10/26/01
 #
 #Contents:
 #
@@ -24,10 +24,13 @@
 #closeness - Find the closeness centralities of network positions
 #component.dist - Find the distribution of (maximal) component sizes within a graph
 #components - Find the number of (maximal) components within a given graph
+#connectedness - Find the Krackhardt connectedness of a graph or graph stack
 #consensus - Find a consensus structure, using one of several algorithms
 #cugtest - Generic Conditional Uniform Graph (CUG) test for bigraphic statistics
 #degree - Computes the degree centralities of network positions
 #diag.remove - NAs the diagonals of graphs in a stack
+#dyad.census - Compute the Holland and Leinhardt MAN dyad census for a graph or graph stack
+#efficiency - Find the Krackhardt efficiency of a graph or graph stack
 #equiv.clust - Find clusters of positions based on an equivalence relation
 #eval.edgeperturbation - Evaluate a function on a given graph with and without a given edge
 #evcent - Find the eigenvector centralities of network positions
@@ -49,11 +52,14 @@
 #gscov - Computes the structural covariance between graphs
 #gvectorize - Vectorization of adjacency matrices
 #hdist - Computes the Hamming distance between two labeled graphs
+#hierarchy - Find the hierarchy score of a graph or graph stack
+#infocent - Find the information centrality scores of network positions
 #interval.graph - Construct one or more interval graphs (and exchangeability vectors) from a set of spells
 #is.isolate - Determines whether a particular vertex is isolated
 #isolates - Returns a list of isolates
 #lab.optimize - Optimize a bivariate graph statistic over a set of labelings
 #lower.tri.remove - NAs the lower triangles of graphs in graph stacks
+#lubness - Find Krackhardt's Least Upper Boundedness of a graph or graph stack
 #make.stochastic - Make a graph stack row, column, or row-column stochastic
 #mutuality - Find the number of mutual (i.e., reciprocated) edges in a graph
 #netcancor - Canonical correlations for network variables (requires mva)
@@ -88,6 +94,7 @@
 #print.summary.qaptest - Printing for qaptest summary objects
 #pstar - Fit a p* model using the logistic regression approximation.
 #qaptest - Generic QAP test for bigraphic statistics
+#reachability - Find the reachability matrix of a graph
 #read.nos - Import data files in Neo-OrgStat format
 #rgraph - Draws Bernoulli graphs
 #rmperm - Randomly permutes the rows and columns of a graph stack
@@ -107,6 +114,8 @@
 #summary.netlogit - Detailed printing for netlogit objects
 #summary.qaptest - Detailed printing for qaptest objects
 #symmetrize - Symmetrize a graph or graph stack
+#triad.census - Conduct a Davis and Leinhardt triad census for a graph or graph stack
+#triad.classify - Return the Davis and Leinhardt classification of a given triad
 #upper.tri.remove - NAs the upper triangles of graphs in graph stacks
 #
 #NOTES:
@@ -130,6 +139,61 @@
 #
 #
 #CHANGELOG:
+#
+#v0.4 - New Features, Changes, and Fixes
+#   New Functions:
+#      connectedness - Find the Krackhardt connectedness of a graph or graph stack
+#      dyad.census - Compute the Holland and Leinhardt MAN dyad census for a graph
+#         or graph stack
+#      efficiency - Find the Krackhardt efficiency of a graph or graph stack
+#      hierarchy - Find the hierarchy score of a graph or graph stack.
+#      infocent - Find the information centrality scores of network positions
+#         [submitted by David Barron]
+#      lubness - Find Krackhardt's Least Upper Boundedness of a graph or graph 
+#         stack
+#      reachability - Find the reachability matrix of a graph.
+#      triad.census - Conduct a Davis and Leinhardt triad census for a graph or 
+#         graph stack
+#      triad.classify - Return the Davis and Leinhardt classification of a given 
+#         triad
+#   New Features:
+#      gplot now adjusts line width for valued graphs, via the edge.lwd 
+#         parameter, and allows users to set the vertex point type (using
+#         vertex.pch.  gmode=="graph" now sets usearrows<-FALSE, and new
+#         gmode "twomode" automagically plots two-mode data.  New display modes
+#         have also been added: geodist (MDS of proximities); adj (MDS with 
+#         adjacency as similarity); and seham (MDS of SE dist using Hamming 
+#         method).
+#      grecip now supports a "measure" option, which allows the user to choose
+#         between "dyadic" reciprocity (aRb iff bRa) and "edgewise" reciprocity
+#         (aRb if bRa).  The old version (and default) is the "dyadic" option,
+#         which (as the above implies) takes null dyads into account; the 
+#         "edgewise" definition omits null dyads from the calculation.
+#      gtrans now supports a "measure" option, which allows the user to choose
+#         between "weak" transitivity (aRc if aRb & bRc) and "strong" transitivity
+#         (aRc iff aRb & bRc).  The old version was strong-only, but much of the
+#         field prefers the weak version.  Each of these options has a respective
+#         census variant ("weakcensus", "strongcensus") which returns a count of
+#         legal triads rather than a rate.
+#      pstar now supports separate options for strong/weak transitivity scores,
+#         and for strong/weak transitive triad counts.
+#   Bug Fixes:
+#      Labeling optimizers were not pre-sorting to guard against
+#         mixed-up exchange lists (these are now checked, too).
+#      Various centrality measures were not returning the correct
+#         absolute maximum deviation with tmaxdev==TRUE.
+#      gtrans was ignoring settings and counting diagonal entries [submitted by
+#         David Barron]
+#      pstar behaved badly when external predictors were unnamed [submitted by
+#         Gindo Tampubolon]
+#   Changes:
+#      Comparable labelings are now _enforced_ where applicable.
+#      lab.optimize.gumbel now just tries to scare you off, rather
+#         than refusing you altogether.
+#      Path-based indices (betweenness, closeness, stresscent,
+#         graphcent, etc.) now automatically assume 
+#         cmode=="undirected" whenever gmode="graph".
+#      The default mode for gtrans is now "weak", to match the usage of W&F
 #
 #v0.3 - New Features, Changes, and Fixes
 #   General:
@@ -650,7 +714,7 @@ gden<-function(dat,g=NULL,diag=FALSE,mode="digraph"){
 
 #grecip - Compute the reciprocity of an input graph or graph stack.
 
-grecip<-function(dat,g=NULL){
+grecip<-function(dat,g=NULL,measure=c("dyadic","edgewise")){
    n<-dim(dat)[2]
    if(length(dim(dat))>2){     #Is this a stack?
       if(!is.null(g)){                 #Were individual graphs selected?
@@ -673,7 +737,10 @@ grecip<-function(dat,g=NULL){
    gr<-vector()
    for(i in 1:gn){
       temp<-d[i,,]
-      gr[i]<-1-mean(abs(temp[upper.tri(temp)]-t(temp)[upper.tri(temp)]),na.rm=TRUE)
+      gr[i]<-switch(match.arg(measure),
+         dyadic=1-mean(abs(temp-t(temp))[upper.tri(temp)],na.rm=TRUE),
+         edgewise=1-mean(abs(temp-t(temp))[upper.tri(temp)&(temp|t(temp))],na.rm=TRUE)
+      )
    }
    gr
 }
@@ -681,7 +748,7 @@ grecip<-function(dat,g=NULL){
 
 #gtrans - Compute the transitivity of an input graph or graph stack.
 
-gtrans<-function(dat,g=NULL,diag=FALSE,mode="digraph"){
+gtrans<-function(dat,g=NULL,diag=FALSE,mode="digraph",measure=c("weak","strong","weakcensus","strongcensus")){
    n<-dim(dat)[2]
    if(length(dim(dat))>2){     #Is this a stack?
       if(!is.null(g)){                 #Were individual graphs selected?
@@ -716,7 +783,12 @@ gtrans<-function(dat,g=NULL,diag=FALSE,mode="digraph"){
       if(mode=="graph")
          dt[upper.tri(dt)]<-NA              
       #Compute the transitivity
-      t[i]<-mean(((d[i,,]%*%d[i,,])>0)==(d[i,,]>0),na.rm=TRUE)
+      t[i]<-switch(match.arg(measure),
+         strong=mean(dsqt==dt,na.rm=TRUE),
+         strongcensus=sum(dsqt==dt,na.rm=TRUE),
+         weak=mean(dsqt&dt,na.rm=TRUE),
+         weakcensus=sum(dsqt&dt,na.rm=TRUE)
+      )
    }
    #Return the result
    t
@@ -814,8 +886,10 @@ lab.optimize<-function(d1,d2,FUN,exchange.list=0,seek="min",opt.method=c("anneal
       lab.optimize.mc(d1,d2,FUN,exchange.list,seek,...)
    else if(meth=="hillclimb")
       lab.optimize.hillclimb(d1,d2,FUN,exchange.list,seek,...)
-   else if(meth=="gumbel")
-      stop("Sorry, gumbel method not yet supported.\n")
+   else if(meth=="gumbel"){
+      warning("Warning, gumbel method not yet supported. Try at your own risk.\n")
+      lab.optimize.gumbel(d1,d2,FUN,exchange.list,seek,...)
+   }
 }
 
 lab.optimize.exhaustive<-function(d1,d2,FUN,exchange.list=0,seek="min",...){
@@ -832,12 +906,18 @@ lab.optimize.exhaustive<-function(d1,d2,FUN,exchange.list=0,seek="min",...){
       el<-exchange.list
    #Initialize various things
    fun<-match.fun(FUN)       #Find the function to be optimized
-   best<-fun(d1,d2,...)          #Take the seed value
+   d1<-d1[order(el[1,]),order(el[1,])]  #Reorder d1
+   d2<-d2[order(el[2,]),order(el[2,])]  #Reorder d2
+   el[1,]<-el[1,order(el[1,])]  #Reorder the exchange lists to match
+   el[2,]<-el[2,order(el[2,])]
+   if(any(el[1,]!=el[2,]))  #Make sure the exlist is legal
+      stop("Illegal exchange list; lists must be comparable!\n")
+   best<-fun(d1,d2,...)  #Take the seed value (this has to be legal)
    #Search exhaustively - I hope you're not in a hurry!
-   if(any(duplicated(el[2,])))                #If we're dealing with the labeled case, don't bother.
+   if(any(duplicated(el[1,])))  #If we're dealing with the labeled case, don't bother.
       for(k in 0:(gamma(n+1)-1)){
          o<-numperm(n,k)
-         if(all(el[2,]==el[2,o])){
+         if(all(el[1,]==el[2,o])){
             if(seek=="min")
                best<-min(best,fun(d1,d2[o,o],...))
             else
@@ -863,9 +943,15 @@ lab.optimize.mc<-function(d1,d2,FUN,exchange.list=0,seek="min",draws=1000,...){
       el<-exchange.list
    #Initialize various things
    fun<-match.fun(FUN)       #Find the function to be optimized
-   best<-fun(d1,d2,...)          #Take the seed value
+   d1<-d1[order(el[1,]),order(el[1,])]  #Reorder d1
+   d2<-d2[order(el[2,]),order(el[2,])]  #Reorder d2
+   el[1,]<-el[1,order(el[1,])]  #Reorder the exchange lists to match
+   el[2,]<-el[2,order(el[2,])]
+   if(any(el[1,]!=el[2,]))  #Make sure the exlist is legal
+      stop("Illegal exchange list; lists must be comparable!\n")
+   best<-fun(d1,d2,...)  #Take the seed value (this has to be legal)
    #Search via blind monte carlo - slow, yet ineffectual
-   if(any(duplicated(el[2,])))                #If we're dealing with the labeled case, don't bother.
+   if(any(duplicated(el[1,])))  #If we're dealing with the labeled case, don't bother.
       for(i in 1:draws){
          o<-rperm(el[2,])
          if(seek=="min")
@@ -893,6 +979,12 @@ lab.optimize.gumbel<-function(d1,d2,FUN,exchange.list=0,seek="min",draws=500,tol
    #Initialize various things
    fun<-match.fun(FUN)       #Find the function to be optimized
    fg<-vector()                    #Set up the function
+   d1<-d1[order(el[1,]),order(el[1,])]  #Reorder d1
+   d2<-d2[order(el[2,]),order(el[2,])]  #Reorder d2
+   el[1,]<-el[1,order(el[1,])]  #Reorder the exchange lists to match
+   el[2,]<-el[2,order(el[2,])]
+   if(any(el[1,]!=el[2,]))  #Make sure the exlist is legal
+      stop("Illegal exchange list; lists must be comparable!\n")
    #Approximate the distribution using Monte Carlo
    for(i in 1:draws){
       o<-rperm(el[2,])
@@ -939,7 +1031,13 @@ lab.optimize.anneal<-function(d1,d2,FUN,exchange.list=0,seek="min",prob.init=1,p
       el<-exchange.list
    #Initialize various things
    fun<-match.fun(FUN)       #Find the function to be optimized
-   best<-fun(d1,d2,...)          #Take the seed value
+   d1<-d1[order(el[1,]),order(el[1,])]  #Reorder d1
+   d2<-d2[order(el[2,]),order(el[2,])]  #Reorder d2
+   el[1,]<-el[1,order(el[1,])]  #Reorder the exchange lists to match
+   el[2,]<-el[2,order(el[2,])]
+   if(any(el[1,]!=el[2,]))  #Make sure the exlist is legal
+      stop("Illegal exchange list; lists must be comparable!\n")
+   best<-fun(d1,d2,...)  #Take the seed value (this has to be legal)
    o<-1:n                              #Set the initial ordering
    global.best<-best              #Set global best values
    global.o<-o
@@ -1086,7 +1184,13 @@ lab.optimize.hillclimb<-function(d1,d2,FUN,exchange.list=0,seek="min",...){
       el<-exchange.list
    #Initialize various things
    fun<-match.fun(FUN)       #Find the function to be optimized
-   best<-fun(d1,d2,...)          #Take the seed value
+   d1<-d1[order(el[1,]),order(el[1,])]  #Reorder d1
+   d2<-d2[order(el[2,]),order(el[2,])]  #Reorder d2
+   el[1,]<-el[1,order(el[1,])]  #Reorder the exchange lists to match
+   el[2,]<-el[2,order(el[2,])]
+   if(any(el[1,]!=el[2,]))  #Make sure the exlist is legal
+      stop("Illegal exchange list; lists must be comparable!\n")
+   best<-fun(d1,d2,...)  #Take the seed value (this has to be legal)
    o<-1:n                              #Set the initial ordering
    nc<-choose(n,2)               #How many candidate steps?
    candp<-sapply(o,rep,choose(n,2))   #Build the candidate permutation matrix
@@ -1263,12 +1367,12 @@ structdist<-function(dat,g1=c(1:dim(dat)[1]),g2=c(1:dim(dat)[1]),normalize=FALSE
       d<-upper.tri.remove(d)
    #If exchange list is a single number or vector, expand it via replication in a reasonable manner
    if(is.null(dim(exchange.list))){       #Exchange list was given as a single number or vector
-      if(length(exchange.list)==1){                 #Single number case
+      if(length(exchange.list)==1){             #Single number case
          el<-matrix(rep(exchange.list,gn*n),nrow=gn,ncol=n)
-      }else{                                                    #Vector case
+      }else{                                    #Vector case
          el<-sapply(exchange.list,rep,gn)
       }  
-   }else                         #Exchange list was given as a matrix; keep it.
+   }else                #Exchange list was given as a matrix; keep it.
       el<-exchange.list
    #Compute the distance matrix
    hd<-matrix(nrow=gn1,ncol=gn2)
@@ -1276,15 +1380,8 @@ structdist<-function(dat,g1=c(1:dim(dat)[1]),g2=c(1:dim(dat)[1]),normalize=FALSE
    colnames(hd)<-g2
    if(method=="exhaustive"){
       for(i in 1:gn1)
-         for(j in 1:gn2){
-            best<-n^2+1
-            for(k in 0:(gamma(n+1)-1)){
-               o<-numperm(n,k)
-               if(all(el[g2[j],]==el[g2[j],o]))
-                  best<-min(best,sum(abs(d[g1[i],,]-d[g2[j],o,o]),na.rm=TRUE))
-            }
-            hd[i,j]<-best
-         }
+         for(j in 1:gn2)
+            hd[i,j]<-lab.optimize.exhaustive(d[g1[i],,],d[g2[j],,],function(m1,m2){sum(abs(m1-m2),na.rm=TRUE)},exchange.list=el[c(g1[i],g2[j]),],seek="min")
    }else if(method=="anneal"){
       for(i in 1:gn1)
          for(j in 1:gn2){
@@ -1296,67 +1393,19 @@ structdist<-function(dat,g1=c(1:dim(dat)[1]),g2=c(1:dim(dat)[1]),normalize=FALSE
             hd[i,j]<-lab.optimize.hillclimb(d[g1[i],,],d[g2[j],,],function(m1,m2){sum(abs(m1-m2),na.rm=TRUE)},exchange.list=el[c(g1[i],g2[j]),],seek="min")
    }else if(method=="mc"){
       for(i in 1:gn1)
-         for(j in 1:gn2){
-            best<-sum(abs(d[g1[i],,]-d[g2[j],,]),na.rm=TRUE)
-            for(k in 1:reps){
-               o<-rperm(el[g2[j],])
-               best<-min(best,sum(abs(d[g1[i],,]-d[g2[j],o,o]),na.rm=TRUE))
-            }
-            hd[i,j]<-best
-         }
+         for(j in 1:gn2)
+            hd[i,j]<-lab.optimize.mc(d[g1[i],,],d[g2[j],,],function(m1,m2){sum(abs(m1-m2),na.rm=TRUE)},exchange.list=el[c(g1[i],g2[j]),],seek="min",draws=reps)
    }else if(method=="ga"){
       #This is broken right now - exit with a warning
-      cat("Sorry, GA mode is not currently supported.\n")
-      abort()
-      #set initial params
-      galen<-log2(gamma(n+1))
-      gamult<-c(0,cumprod(rep(2,galen-1)))
-      for(i in 1:gn1)
-         for(j in 1:gn2){
-            best<-n^2+1
-            for(k in 1:trials){
-               #initialize the population
-               gapop<-matrix(sample(c(0,1),galen*pop,replace=TRUE),nrow=pop,ncol=galen)
-               #run the GA
-               for(l in 1:reps){
-                  #compute the distances
-                  for(m in 1:pop){
-                     o<-numperm(n,sum(gamult*gapop[m,]))
-                     gadist[i]<-sum(abs(d[g1[i],,]-d[g2[j],o,o]),na.rm=TRUE)
-                     best<-min(best,gadist[i])
-                  }
-                  #randomly draw candidates
-                  gacand<-matrix(sample(1:pop,4*pop,replace=TRUE),ncol=4,nrow=pop)
-                  #determine two "winners" for each contest
-                  gawin<-matrix(nrow=pop,ncol=2)
-                  for(m in 1:pop){
-                     if(gadist[gacand[m,1]]<gadist[gacand[m,2]])
-                        gawin[m,1]<-gacand[m,1]
-                     else
-                        gawin[m,1]<-gacand[m,2]
-                     if(gadist[gacand[m,3]]<gadist[gacand[m,4]])
-                        gawin[m,2]<-gacand[m,3]
-                     else
-                        gawin[m,2]<-gacand[m,4]
-                  }
-                  #Create the new population
-                  gacross<-sample(1:galen,pop,replace=TRUE)
-                  ganew1<-gapop[gawin[,1],]
-                  ganew2<-gapop[gawin[,2],]
-                  for(m in 1:pop)
-                     gapop[m,]<-c(ganew1[m,1:gacross[m]],ganew2[m,1:gacross[m]])
-                  #Apply mutation
-                  for(m in 1:pop)
-                     for(n in 1:galen)
-                        gapop[m,n]<-sample(c(gapop[m,n],1-gapop[m,n]),1,prob=c(1-mut,mut))
-               }
-            }
-            hd[i,j]<-best
-         }
+      stop("Sorry, GA mode is not currently supported.\n")
    }else if(method=="none"){
       for(i in 1:gn1)
          for(j in 1:gn2){
-            hd[i,j]<-sum(abs(d[g1[i],,]-d[g2[j],,]),na.rm=TRUE)
+            d1<-d[g1[i],order(el[1,]),order(el[1,])]  #Reorder d1
+            d2<-d[g2[j],order(el[2,]),order(el[2,])]  #Reorder d2
+            if(any(el[1,]!=el[2,]))  #Make sure the exlist is legal
+               stop("Illegal exchange list; lists must be comparable!\n")
+            hd[i,j]<-sum(abs(d1-d2),na.rm=TRUE)
          }
    }else{
       cat("Method",method,"not implemented yet.\n")
@@ -1569,19 +1618,17 @@ gscor<-function(dat,dat2=NULL,g1=c(1:dim(dat)[1]),g2=c(1:dim(dat)[1]),diag=FALSE
    colnames(gd)<-g2
    if(method=="none"){
       for(i in 1:gn1)
-         for(j in 1:gn2)
-            gd[i,j]<-cor(as.vector(d[g1[i],,]),as.vector(d[g2[j],,]),use="complete.obs")
+         for(j in 1:gn2){
+            d1<-d[g1[i],order(el[1,]),order(el[1,])]  #Reorder d1
+            d2<-d[g2[j],order(el[2,]),order(el[2,])]  #Reorder d2
+            if(any(el[1,]!=el[2,]))  #Make sure the exlist is legal
+               stop("Illegal exchange list; lists must be comparable!\n")
+            gd[i,j]<-cor(as.vector(d1),as.vector(d2),use="complete.obs")
+         }
    }else if(method=="exhaustive"){
       for(i in 1:gn1)
-         for(j in 1:gn2){
-            best<--Inf
-            for(k in 0:(gamma(n+1)-1)){
-               o<-numperm(n,k)
-               if(all(el[g2[j],]==el[g2[j],o]))
-                  best<-max(best,cor(as.vector(d[g1[i],,]),as.vector(d[g2[j],o,o]),use="complete.obs"))
-            }
-            gd[i,j]<-best
-         }
+         for(j in 1:gn2)
+            gd[i,j]<-lab.optimize.exhaustive(d[g1[i],,],d[g2[j],,],function(m1,m2){cor(as.vector(m1),as.vector(m2),use="complete.obs")},exchange.list=el[c(g1[i],g2[j]),],seek="max")
    }else if(method=="anneal"){
       for(i in 1:gn1)
          for(j in 1:gn2)
@@ -1592,14 +1639,8 @@ gscor<-function(dat,dat2=NULL,g1=c(1:dim(dat)[1]),g2=c(1:dim(dat)[1]),diag=FALSE
             gd[i,j]<-lab.optimize.hillclimb(d[g1[i],,],d[g2[j],,],function(m1,m2){cor(as.vector(m1),as.vector(m2),use="complete.obs")},exchange.list=el[c(g1[i],g2[j]),],seek="max")
    }else if(method=="mc"){
       for(i in 1:gn1)
-         for(j in 1:gn2){
-            best<-cor(as.vector(d[g1[i],,]),as.vector(d[g2[j],,]),use="complete.obs")
-            for(k in 1:reps){
-               o<-rperm(el[g2[j],])
-               best<-max(best,cor(as.vector(d[g1[i],,]),as.vector(d[g2[j],o,o]),use="complete.obs"))
-            }
-            gd[i,j]<-best
-         }
+         for(j in 1:gn2)
+            gd[i,j]<-lab.optimize.mc(d[g1[i],,],d[g2[j],,],function(m1,m2){cor(as.vector(m1),as.vector(m2),use="complete.obs")},exchange.list=el[c(g1[i],g2[j]),],seek="max",draws=reps)
    }
    #If only one comparison requested, return as an element
    if((gn1==1)&(gn2==1))
@@ -1667,19 +1708,17 @@ gscov<-function(dat,dat2=NULL,g1=c(1:dim(dat)[1]),g2=c(1:dim(dat)[1]),diag=FALSE
    colnames(gd)<-g2
    if(method=="none"){
       for(i in 1:gn1)
-         for(j in 1:gn2)
-            gd[i,j]<-cov(as.vector(d[g1[i],,]),as.vector(d[g2[j],,]),use="complete.obs")
+         for(j in 1:gn2){
+            d1<-d[g1[i],order(el[1,]),order(el[1,])]  #Reorder d1
+            d2<-d[g2[j],order(el[2,]),order(el[2,])]  #Reorder d2
+            if(any(el[1,]!=el[2,]))  #Make sure the exlist is legal
+               stop("Illegal exchange list; lists must be comparable!\n")
+            gd[i,j]<-cov(as.vector(d1),as.vector(d2),use="complete.obs")
+         }
    }else if(method=="exhaustive"){
       for(i in 1:gn1)
-         for(j in 1:gn2){
-            best<--Inf
-            for(k in 0:(gamma(n+1)-1)){
-               o<-numperm(n,k)
-               if(all(el[g2[j],]==exchange.list[g2[j],o]))
-                  best<-max(best,cov(as.vector(d[g1[i],,]),as.vector(d[g2[j],o,o]),use="complete.obs"))
-            }
-            gd[i,j]<-best
-         }
+         for(j in 1:gn2)
+            gd[i,j]<-lab.optimize.exhaustive(d[g1[i],,],d[g2[j],,],function(m1,m2){cov(as.vector(m1),as.vector(m2),use="complete.obs")},exchange.list=el[c(g1[i],g2[j]),],seek="max")
    }else if(method=="anneal"){
       for(i in 1:gn1)
          for(j in 1:gn2)
@@ -1690,14 +1729,8 @@ gscov<-function(dat,dat2=NULL,g1=c(1:dim(dat)[1]),g2=c(1:dim(dat)[1]),diag=FALSE
             gd[i,j]<-lab.optimize.hillclimb(d[g1[i],,],d[g2[j],,],function(m1,m2){cov(as.vector(m1),as.vector(m2),use="complete.obs")},exchange.list=el[c(g1[i],g2[j]),],seek="max")
    }else if(method=="mc"){
       for(i in 1:gn1)
-         for(j in 1:gn2){
-            best<-cov(as.vector(d[g1[i],,]),as.vector(d[g2[j],,]),use="complete.obs")
-            for(k in 1:reps){
-               o<-rperm(el[g2[j],])
-               best<-max(best,cov(as.vector(d[g1[i],,]),as.vector(d[g2[j],o,o]),use="complete.obs"))
-            }
-            gd[i,j]<-best
-         }
+         for(j in 1:gn2)
+            gd[i,j]<-lab.optimize.mc(d[g1[i],,],d[g2[j],,],function(m1,m2){cov(as.vector(m1),as.vector(m2),use="complete.obs")},exchange.list=el[c(g1[i],g2[j]),],seek="max",draws=reps)
    }
    #If only one comparison requested, return as an element
    if((gn1==1)&(gn2==1))
@@ -1834,6 +1867,19 @@ geodist<-function(dat,inf.replace=dim(dat)[2]){
 }
 
 
+#reachability - Find the reachability matrix of a graph.
+
+reachability<-function(dat,geodist.precomp=NULL){
+   #Get the counts matrix
+   if(is.null(geodist.precomp))
+      cnt<-geodist(dat)$counts
+   else
+      cnt<-geodist.precomp$counts
+   #Dichotomize and return
+   apply(cnt>0,c(1,2),as.numeric)
+}
+
+
 #component.dist - Returns a data frame containing a vector of length n such that the ith element
 #contains the number of components of G having size i, and a vector of length n giving component
 #membership.  Component strength is determined by the rule which is used to symmetrize the matrix;
@@ -1905,6 +1951,8 @@ components<-function(dat,connected="strong",comp.dist.precomp=NULL){
 #betweenness - Find the betweenness centralities of network positions
 
 betweenness<-function(dat,g=1,nodes=c(1:dim(dat)[2]),gmode="digraph",diag=FALSE,tmaxdev=FALSE,cmode="directed",geodist.precomp=NULL,rescale=FALSE){
+   if(gmode=="graph")   #If the data is symmetric, treat it as such
+      cmode<-"undirected"
    if(tmaxdev){
       #We got off easy: just return the theoretical maximum deviation for the centralization routine
       bet<-switch(cmode,
@@ -1949,6 +1997,8 @@ betweenness<-function(dat,g=1,nodes=c(1:dim(dat)[2]),gmode="digraph",diag=FALSE,
 #stresscent - Find the stress centralities of network positions
 
 stresscent<-function(dat,g=1,nodes=c(1:dim(dat)[2]),gmode="digraph",diag=FALSE,tmaxdev=FALSE,cmode="directed",geodist.precomp=NULL,rescale=FALSE){
+   if(gmode=="graph")   #If the data is symmetric, treat it as such
+      cmode<-"undirected"
    if(tmaxdev){
       #We got off easy: just return the theoretical maximum deviation for the centralization routine
       str<-switch(cmode,
@@ -1980,7 +2030,7 @@ stresscent<-function(dat,g=1,nodes=c(1:dim(dat)[2]),gmode="digraph",diag=FALSE,t
                   str[i]<-str[i]+gd$counts[j,i]*gd$counts[i,k]
       }
       if(cmode=="undirected")
-         str/2
+         str<-str/2
       #Return the results
       if(rescale)
          str<-str/sum(str)
@@ -1993,11 +2043,13 @@ stresscent<-function(dat,g=1,nodes=c(1:dim(dat)[2]),gmode="digraph",diag=FALSE,t
 #closeness - Find the closeness centralities of network positions
 
 closeness<-function(dat,g=1,nodes=c(1:dim(dat)[2]),gmode="digraph",diag=FALSE,tmaxdev=FALSE,cmode="directed",geodist.precomp=NULL,rescale=FALSE){
+   if(gmode=="graph")   #If the data is symmetric, treat it as such
+      cmode<-"undirected"
    if(tmaxdev){
       #We got off easy: just return the theoretical maximum deviation for the centralization routine
       n<-dim(dat)[2]
       clo<-switch(cmode,
-         directed = (n-1)*(1/(n-1)-1/((n-2)*n)),    #Depends on n subst for max distance
+         directed = (n-1)*(1-1/n),    #Depends on n subst for max distance
          undirected = (n-2)*(n-1)/(2*n-3)
       )
    }else{
@@ -2008,22 +2060,16 @@ closeness<-function(dat,g=1,nodes=c(1:dim(dat)[2]),gmode="digraph",diag=FALSE,tm
          d<-dat
       n<-dim(d)[1]
       if(cmode=="undirected")   #Symmetrize if need be
-         for(i in 1:n)
-            for(j in 1:n)
-               if(i!=j)
-                  d[i,j]<-max(d[i,j],d[j,i])
+         d<-symmetrize(d,"weak")
       #Do the computation
       if(is.null(geodist.precomp))
          gd<-geodist(d)
       else
          gd<-geodist.precomp
       clo<-rep(0,n)
-      for(i in 1:n){
-         for(j in 1:n)
-            if(j!=i)
-               clo[i]<-clo[i]+gd$gdist[i,j]
-      }
-      clo<-1/clo
+      for(i in 1:n)
+         clo[i]<-sum(gd$gdist[i,-i])
+      clo<-(n-1)/clo
       if(rescale)
          clo<-clo/sum(clo)
       clo<-clo[nodes]
@@ -2036,6 +2082,8 @@ closeness<-function(dat,g=1,nodes=c(1:dim(dat)[2]),gmode="digraph",diag=FALSE,tm
 #graphcent - Find the graph centralities of network positions
 
 graphcent<-function(dat,g=1,nodes=c(1:dim(dat)[2]),gmode="digraph",diag=FALSE,tmaxdev=FALSE,cmode="directed",geodist.precomp=NULL,rescale=FALSE){
+   if(gmode=="graph")   #If the data is symmetric, treat it as such
+      cmode<-"undirected"
    if(tmaxdev){
       #We got off easy: just return the theoretical maximum deviation for the centralization routine
       n<-dim(dat)[2]
@@ -2114,7 +2162,14 @@ degree<-function(dat,g=1,nodes=c(1:dim(dat)[2]),gmode="digraph",diag=FALSE,tmaxd
 evcent<-function(dat,g=1,nodes=c(1:dim(dat)[2]),gmode="digraph",diag=FALSE,tmaxdev=FALSE,rescale=FALSE){
    if(tmaxdev){
       #We got off easy: just return the theoretical maximum deviation for the centralization routine
-      deg<-dim(dat)[2]-2
+      if(gmode=="graph"){
+         temp<-matrix(0,dim(dat)[2],dim(dat)[2]) #Construct the max
+         temp[1,2]<-1                            #deviation structure
+         temp[2,1]<-1
+         ev<-eigen(temp)$vectors[,1]
+         ev<-sum(max(ev)-ev)
+      }else
+         ev<-dim(dat)[2]-1
    }else{
       #First, prepare the data
       if(length(dim(dat))>2)
@@ -2139,7 +2194,10 @@ evcent<-function(dat,g=1,nodes=c(1:dim(dat)[2]),gmode="digraph",diag=FALSE,tmaxd
 bonpow<-function(dat,g=1,nodes=c(1:dim(dat)[2]),gmode="digraph",diag=FALSE,tmaxdev=FALSE,exponent=1,rescale=FALSE,tol=1e-7){
    if(tmaxdev){
       #We got off easy: just return the theoretical maximum deviation for the centralization routine
-      deg<-dim(dat)[2]-2
+      if(gmode=="graph")
+         ev<-(dim(dat)[2]-2)*sqrt(dim(dat)[2]/2)
+      else
+         ev<-sqrt(dim(dat)[2])*(dim(dat)[2]-1)
    }else{
       #First, prepare the data
       if(length(dim(dat))>2)
@@ -2169,7 +2227,27 @@ bonpow<-function(dat,g=1,nodes=c(1:dim(dat)[2]),gmode="digraph",diag=FALSE,tmaxd
 prestige<-function(dat,g=1,nodes=c(1:dim(dat)[2]),gmode="digraph",diag=FALSE,cmode="indegree",tmaxdev=FALSE,rescale=FALSE,tol=1e-7){
    if(tmaxdev){
       #We got off easy: just return the theoretical maximum deviation for the centralization routine
-      deg<-dim(dat)[2]-2
+      n<-dim(dat)[2]
+      if(cmode=="indegree")
+         p<-degree(dat=matrix(nrow=n,ncol=n),g=1,tmaxdev=TRUE,gmode=gmode,diag=diag,cmode="indegree",rescale=FALSE)
+      else if(cmode=="indegree.rownorm")
+         p<-degree(dat=matrix(nrow=n,ncol=n),g=1,tmaxdev=TRUE,gmode=gmode,diag=diag,cmode="indegree",rescale=FALSE)
+      else if(cmode=="indegree.rowcolnorm")
+         p<-degree(dat=matrix(nrow=n,ncol=n),g=1,tmaxdev=TRUE,gmode=gmode,diag=diag,cmode="indegree",rescale=FALSE)
+      else if(cmode=="eigenvector")
+         p<-evcent(dat=matrix(nrow=n,ncol=n),g=1,tmaxdev=TRUE,gmode=gmode,diag=diag)
+      else if(cmode=="eigenvector.rownorm")
+         p<-evcent(dat=matrix(nrow=n,ncol=n),g=1,tmaxdev=TRUE,gmode=gmode,diag=diag)
+      else if(cmode=="eigenvector.colnorm")
+         p<-evcent(dat=matrix(nrow=n,ncol=n),g=1,tmaxdev=TRUE,gmode=gmode,diag=diag)
+      else if(cmode=="eigenvector.rowcolnorm")
+         p<-evcent(dat=matrix(nrow=n,ncol=n),g=1,tmaxdev=TRUE,gmode=gmode,diag=diag)
+      else if(cmode=="domain"){
+         p<-(n-1)^2
+      }else if(cmode=="domain.proximity"){
+         p<-(n-1)^2
+      }else
+         stop(paste("Cmode",cmode,"unknown.\n"))      
    }else{
       #First, prepare the data
       if(length(dim(dat))>2)
@@ -2195,8 +2273,8 @@ prestige<-function(dat,g=1,nodes=c(1:dim(dat)[2]),gmode="digraph",diag=FALSE,cmo
       else if(cmode=="eigenvector.rowcolnorm")
          p<-eigen(t(make.stochastic(d,mode="rowcol")))$vector[,1]
       else if(cmode=="domain"){
-         g<-geodist(d)
-         p<-apply(g$counts>0,2,sum)-1
+         r<-reachability(d)
+         p<-apply(r,2,sum)-1
       }else if(cmode=="domain.proximity"){
          g<-geodist(d)
          p<-(apply(g$counts>0,2,sum)-1)^2/(apply((g$counts>0)*(g$gdist),2,sum)*(n-1))
@@ -2208,6 +2286,53 @@ prestige<-function(dat,g=1,nodes=c(1:dim(dat)[2]),gmode="digraph",diag=FALSE,cmo
       p<-p[nodes]
    }  
    p
+}
+
+
+# infocent - Find actor information centrality scores
+# Wasserman & Faust pp. 192-197; based on code generously submitted by David
+# Barron (thanks!) and tweaked by myself to enable compatibility with the
+# centralization() routine.
+infocent <- function(dat,g=1,nodes=c(1:dim(dat)[2]),gmode="digraph",diag=FALSE,cmode="weak",tmaxdev=FALSE,rescale=FALSE,tol=1e-20){
+   if(tmaxdev){  #If necessary, return the theoretical maximum deviation
+      #We don't know the real maximum value...return the lone dyad instead
+      m<-matrix(0,nr=dim(dat)[2],nc=dim(dat)[2])
+      m[1,2]<-1
+      m[2,1]<-1
+      IC<-infocent(m,1,rescale=rescale)  #Get ICs for dyad
+      cent<-sum(max(IC)-IC,na.rm=T)      #Return the theoretical max deviation 
+   }else{
+      #First, prepare the data
+      if(length(dim(dat))>2)
+         m<-dat[g,,]
+      else
+         m<-dat
+      if(sum(m != t(m),na.rm=T) > 0)   # test to see if directed
+         m <- symmetrize(m,rule=cmode)  #if not, we have to symmetrize...
+      n <- dim(m)[1]
+      if(!diag) 
+         diag(m)<-NA   # if diag=F set diagonal to NA
+      iso <- is.isolate(m,1:n,diag=diag) # check for isolates
+      ix <- which(!iso)
+      m <- m[ix,ix]           # remove any isolates (can't invert A otherwise)
+      A<-1-m
+      A[m==0] <- 1
+      diag(A) <- 1 + apply(m, 1, sum, na.rm=TRUE)
+      Cn <- solve(A,tol=tol)
+      Tr <- sum(diag(Cn))
+      R <- apply(Cn, 1, sum)
+      IC <- 1/(diag(Cn) + (Tr - 2*R)/n)   # Actor information centrality
+      #Add back the isolates
+      cent<-rep(0,n)
+      cent[ix]<-IC
+      #Rescale if needed
+      if(rescale)
+         cent<-cent/sum(cent)
+      #Subset as requested
+      cent<-cent[nodes]
+   }
+   #Return the result
+   cent
 }
 
 
@@ -2230,15 +2355,124 @@ centralization<-function(dat,FUN,g=1,mode="digraph",diag=FALSE,normalize=TRUE,..
 }
 
 
+#hierarchy - Find the hierarchy score of a graph or graph stack
+
+hierarchy<-function(dat,g=1:stackcount(dat),measure=c("reciprocity","krackhardt")){
+   if(match.arg(measure)=="reciprocity")  #Use reciprocity scores
+         h<-1-grecip(dat,g)
+   else if(match.arg(measure)=="krackhardt"){ #Calculate the Krackhardt reciprocity
+      d<-array(dim=c(length(g),dim(dat)[2],dim(dat)[2]))
+      if(length(dim(dat))>2)
+         d<-dat[g,,,drop=FALSE]
+      else
+         d[1,,]<-dat
+      h<-1-apply(d,1,function(x){r<-reachability(x); grecip(r,measure="edgewise")})
+   }
+   #Return the result
+   h
+}
+
+
+#efficiency - Find the Krackhardt efficiency of a graph or graph stack
+
+efficiency<-function(dat,g=1:stackcount(dat),diag=FALSE){
+   #Define an internal function, for convenience
+   inteff<-function(g,diag){
+      comsz<-component.dist(g,connected="weak")$csize
+      reqedge<-sum(comsz-1)     #Get required edges
+      if(!diag)
+         g<-diag.remove(g)
+      edgec<-sum(g,na.rm=TRUE)  #Get count of actual edges
+      1-(edgec-reqedge)/(prod(dim(g))-(!diag)*dim(g)[1]-reqedge)
+   }
+   #Perform the actual calculation
+   d<-array(dim=c(length(g),dim(dat)[2],dim(dat)[2]))
+   if(length(dim(dat))>2)
+      d<-dat[g,,,drop=FALSE]
+   else
+      d[1,,]<-dat
+   eff<-apply(d,1,inteff,diag=diag)
+   #Return the result
+   eff
+}
+
+
+#connectedness - Find the Krackhardt connectedness of a graph or graph stack
+
+connectedness<-function(dat,g=1:stackcount(dat)){
+   d<-array(dim=c(length(g),dim(dat)[2],dim(dat)[2]))
+   if(length(dim(dat))>2)
+      d<-dat[g,,,drop=FALSE]
+   else
+      d[1,,]<-dat
+   con<-apply(d,1,function(x){r<-reachability(symmetrize(x,rule="weak")); gden(r,diag=FALSE)})
+   #Return the result
+   con
+}
+
+
+#lubness - Find Krackhardt's Least Upper Boundedness of a graph or graph stack
+
+lubness<-function(dat,g=1:stackcount(dat)){
+   #Define an internal function, for convenience
+   intlub<-function(g){
+      r<-reachability(g)    #Get reachability (in directed paths) of g
+      cd<-component.dist(g,connected="weak")  #Get weak components of g
+      nolub<-0
+      maxnolub<-0
+      for(i in 1:max(cd$membership)){   #Walk through the components
+         vi<-(1:dim(g)[1])[cd$membership==i]  #Get the vertices of component i
+         if(length(vi)>2){  #Don't bother unless we have at least three vertices
+            #Accumulate violations of LUBness
+            for(j in 1:length(vi))     #Check each dyad
+               for(k in j:length(vi))
+                  if(k>j){
+                     ub<-vi[r[vi,vi[j]]*r[vi,vi[k]]>0]  #Get upper bounds
+                     if((length(ub)==0)||(!any(apply(r[ub,ub,drop=FALSE],2,prod))))  #Any least upper bounds?
+                        nolub<-nolub+1
+                  }
+            #Also accumulate maximum violations
+            maxnolub<-maxnolub+(length(vi)-1)*(length(vi)-2)/2 
+         }
+      }
+      #Return 1-violations/max(violations)
+      1-nolub/maxnolub
+   }
+   #Perform the actual calculation
+   d<-array(dim=c(length(g),dim(dat)[2],dim(dat)[2]))
+   if(length(dim(dat))>2)
+      d<-dat[g,,,drop=FALSE]
+   else
+      d[1,,]<-dat
+   lub<-apply(d,1,intlub)
+   #Return the result
+   lub
+}
+
+
 #gplot - Graph visualization
 
-gplot<-function(dat, g=1,gmode="digraph",diag=FALSE,label=c(1:dim(dat)[2]),coord=NULL,jitter=TRUE,thresh=0,usearrows=TRUE,mode="mds",displayisolates=TRUE,pad=0,label.cex=1,vertex.cex=1,label.col=1,edge.col=1,vertex.col=1,arrowhead.length=0.2,edge.type=1,...){
+gplot<-function(dat, g=1,gmode="digraph",diag=FALSE,label=c(1:dim(dat)[2]),coord=NULL,jitter=TRUE,thresh=0,usearrows=TRUE,mode="mds",displayisolates=TRUE,pad=0,vertex.pch=19,label.cex=1,vertex.cex=1,label.col=1,edge.col=1,vertex.col=1,arrowhead.length=0.2,edge.type=1,edge.lwd=0,...){
    #Extract the graph to be displayed
    if(length(dim(dat))>2)
       d<-dat[g,,]
    else
       d<-dat
-   n<-dim(d)[1]
+   #Make adjustments for gmode, if required
+   if(gmode=="graph"){
+      usearrows<-FALSE
+      n<-dim(d)[1]
+   }else if(gmode=="twomode"){
+      n<-sum(dim(d))
+      temp<-matrix(0,nrow=n,ncol=n)
+      temp[1:dim(d)[1],(dim(d)[1]+1):n]<-d
+      d<-temp
+      if(all(label==1:dim(dat)[2]))
+         label<-1:n
+   }else 
+      n<-dim(d)[1]
+   #Replace NAs with 0s
+   d[is.na(d)]<-0
    #Determine coordinate placement
    if(!is.null(coord)){      #If the user has specified coords, override all other considerations
       x<-coord[,1]
@@ -2288,8 +2522,25 @@ gplot<-function(dat, g=1,gmode="digraph",diag=FALSE,label=c(1:dim(dat)[2]),coord
       y<-tempd*cos(tempa)
    }else if(mode=="rmds"){   #MDS from the MVA library
       require(mva)
-      x<-cmdscale(dist(d))[,1]
-      y<-cmdscale(dist(d))[,2]
+      tempmds<-cmdscale(dist(d))
+      x<-tempmds[,1]
+      y<-tempmds[,2]
+   }else if(mode=="geodist"){   #MDS of geodesic distances
+      require(mva)
+      tempmds<-cmdscale(as.dist(geodist(d)$gdist))
+      x<-tempmds[,1]
+      y<-tempmds[,2]
+   }else if(mode=="adj"){   #MDS of adjacency structure as similarities
+      require(mva)
+      tempmds<-cmdscale(as.dist(-d+max(d)))
+      x<-tempmds[,1]
+      y<-tempmds[,2]
+   }else if(mode=="seham"){   #MDS of SE distance (Hamming)
+      require(mva)
+      temp<-sedist(d)
+      tempmds<-cmdscale(as.dist(temp))
+      x<-tempmds[,1]
+      y<-tempmds[,2]
    }
    #Jitter the coordinates if need be
    if(jitter){
@@ -2300,13 +2551,14 @@ gplot<-function(dat, g=1,gmode="digraph",diag=FALSE,label=c(1:dim(dat)[2]),coord
    use<-displayisolates|(!is.isolate(d,ego=1:dim(d)[1]))   
    #Plot the results
    if((length(x)>0)&(!all(use==FALSE)))
-      plot(x[use],y[use],xlim=c(min(x[use])-pad,max(x[use])+pad),ylim=c(min(y[use])-pad,max(y[use])+pad),type="p",pch=19,xlab=expression(lambda[1]),ylab=expression(lambda[2]),col=vertex.col,cex=vertex.cex,...)
+      plot(x[use],y[use],xlim=c(min(x[use])-pad,max(x[use])+pad),ylim=c(min(y[use])-pad,max(y[use])+pad),type="p",pch=vertex.pch,xlab=expression(lambda[1]),ylab=expression(lambda[2]),col=vertex.col,cex=vertex.cex,...)
    else
-      plot(0,0,type="n",pch=19,xlab=expression(lambda[1]),ylab=expression(lambda[2]),col=vertex.col,cex=vertex.cex,...)
+      plot(0,0,type="n",pch=vertex.pch,xlab=expression(lambda[1]),ylab=expression(lambda[2]),col=vertex.col,cex=vertex.cex,...)
    px0<-vector()
    py0<-vector()
    px1<-vector()
    py1<-vector()
+   e.lwd<-vector()
    for(i in c(1:n)[use])
       for(j in c(1:n)[use])
          if((i!=j)&(d[i,j]>thresh)){
@@ -2314,11 +2566,15 @@ gplot<-function(dat, g=1,gmode="digraph",diag=FALSE,label=c(1:dim(dat)[2]),coord
                py0<-c(py0,as.real(y[i]))
                px1<-c(px1,as.real(x[j]))
                py1<-c(py1,as.real(y[j]))
+               if(edge.lwd>0)
+                  e.lwd<-c(e.lwd,edge.lwd*d[i,j])
+               else
+                  e.lwd<-c(e.lwd,1)
          }
    if(usearrows&(length(px0)>0))
-      arrows(as.vector(px0),as.vector(py0),as.vector(px1),as.vector(py1),length=arrowhead.length,angle=15,col=edge.col,lty=edge.type)
+      arrows(as.vector(px0),as.vector(py0),as.vector(px1),as.vector(py1),length=arrowhead.length,angle=15,col=edge.col,lty=edge.type,lwd=e.lwd)
    else if(length(px0)>0)
-      segments(as.vector(px0),as.vector(py0),as.vector(px1),as.vector(py1),col=edge.col,lty=edge.type)
+      segments(as.vector(px0),as.vector(py0),as.vector(px1),as.vector(py1),col=edge.col,lty=edge.type,lwd=e.lwd)
    if((length(label)>0)&(!all(use==FALSE)))
       text(x[use],y[use],label[use],pos=1,cex=label.cex,col=label.col)
 }
@@ -4418,7 +4674,6 @@ mutuality<-function(dat,g=NULL){
 }
 
 
-
 #eval.edgeperturbation - Evaluate a function on a given graph with and without a given edge, returning
 #the difference between the results in each case.
 
@@ -4439,7 +4694,7 @@ eval.edgeperturbation<-function(dat,i,j,FUN,...){
 #result of this is returned as a GLM object, and subsequent printing/summarizing/etc. should be treated
 #accordingly.
 
-pstar<-function(dat,effects=c("choice","mutuality","density","reciprocity","transitivity","outdegree","indegree","betweenness","closeness","degcentralization","betcentralization","clocentralization"),attr=NULL,memb=NULL,diag=FALSE,mode="digraph"){
+pstar<-function(dat,effects=c("choice","mutuality","density","reciprocity","stransitivity","wtransitivity","stranstri","wtranstri","outdegree","indegree","betweenness","closeness","degcentralization","betcentralization","clocentralization","connectedness","hierarchy","lubness","efficiency"),attr=NULL,memb=NULL,diag=FALSE,mode="digraph"){
    #First, take care of various details
    n<-dim(dat)[1]
    m<-dim(dat)[2]
@@ -4451,10 +4706,18 @@ pstar<-function(dat,effects=c("choice","mutuality","density","reciprocity","tran
    if(mode=="graph")
       d<-upper.tri.remove(d)
    #Make sure that attr and memb are well-behaved
-   if(is.vector(attr))
-      attr<-matrix(attr,ncol=1)
-   if(is.vector(memb))
-      memb<-matrix(memb,ncol=1)
+   if(!is.null(attr)){
+      if(is.vector(attr))
+         attr<-matrix(attr,ncol=1)
+      if(is.null(colnames(attr)))
+         colnames(attr)<-paste("Attribute",1:dim(attr)[2])
+   }
+   if(!is.null(memb)){
+      if(is.vector(memb))
+         memb<-matrix(memb,ncol=1)
+      if(is.null(colnames(memb)))
+         colnames(memb)<-paste("Membership",1:dim(memb)[2])
+   }
    #Now, evaluate each specified effect given each possible perturbation
    tiedat<-vector()
    for(i in 1:n)
@@ -4474,8 +4737,17 @@ pstar<-function(dat,effects=c("choice","mutuality","density","reciprocity","tran
             if(!is.na(pmatch("reciprocity",effects))){  #Compute a reciprocity effect
                td<-c(td,eval.edgeperturbation(d,i,j,"grecip"))
             }
-            if(!is.na(pmatch("transitivity",effects))){  #Compute a transitivity effect
-               td<-c(td,eval.edgeperturbation(d,i,j,"gtrans",mode=mode,diag=diag))
+            if(!is.na(pmatch("stransitivity",effects))){  #Compute a strong transitivity effect
+               td<-c(td,eval.edgeperturbation(d,i,j,"gtrans",mode=mode,diag=diag,measure="strong"))
+            }
+            if(!is.na(pmatch("wtransitivity",effects))){  #Compute a weak transitivity effect
+               td<-c(td,eval.edgeperturbation(d,i,j,"gtrans",mode=mode,diag=diag,measure="weak"))
+            }
+            if(!is.na(pmatch("stranstri",effects))){  #Compute a strong trans census effect
+               td<-c(td,eval.edgeperturbation(d,i,j,"gtrans",mode=mode,diag=diag,measure="strongcensus"))
+            }
+            if(!is.na(pmatch("wtranstri",effects))){  #Compute a weak trans census effect
+               td<-c(td,eval.edgeperturbation(d,i,j,"gtrans",mode=mode,diag=diag,measure="weakcensus"))
             }
             if(!is.na(pmatch("outdegree",effects))){  #Compute outdegree effects
                td<-c(td,eval.edgeperturbation(d,i,j,"degree",cmode="outdegree",gmode=gmode,diag=diag))
@@ -4498,6 +4770,18 @@ pstar<-function(dat,effects=c("choice","mutuality","density","reciprocity","tran
             if(!is.na(pmatch("clocentralization",effects))){  #Compute closeness centralization effects
                td<-c(td,eval.edgeperturbation(d,i,j,"centralization","closeness",mode=mode,diag=diag))
             }
+            if(!is.na(pmatch("connectedness",effects))){  #Compute connectedness effects
+               td<-c(td,eval.edgeperturbation(d,i,j,"connectedness"))
+            }
+            if(!is.na(pmatch("hierarchy",effects))){  #Compute hierarchy effects
+               td<-c(td,eval.edgeperturbation(d,i,j,"hierarchy"))
+            }
+            if(!is.na(pmatch("lubness",effects))){  #Compute lubness effects
+               td<-c(td,eval.edgeperturbation(d,i,j,"lubness"))
+            }
+            if(!is.na(pmatch("efficiency",effects))){  #Compute efficiency effects
+               td<-c(td,eval.edgeperturbation(d,i,j,"efficiency",diag=diag))
+            }
             #Add attribute differences, if needed
             if(!is.null(attr))
                td<-c(td,abs(attr[i,]-attr[j,]))
@@ -4507,37 +4791,52 @@ pstar<-function(dat,effects=c("choice","mutuality","density","reciprocity","tran
             #Add this data to the aggregated tie data
             tiedat<-rbind(tiedat,c(d[i,j],td))
          }
-         #Label the tie data matrix
-         tiedat.lab<-"EdgeVal"
-         if(!is.na(pmatch("choice",effects)))  #Label the choice effect
-            tiedat.lab<-c(tiedat.lab,"Choice")
-         if(!is.na(pmatch("mutuality",effects)))  #Label the mutuality effect
-            tiedat.lab<-c(tiedat.lab,"Mutuality")
-         if(!is.na(pmatch("density",effects)))  #Label the density effect
-            tiedat.lab<-c(tiedat.lab,"Density")
-         if(!is.na(pmatch("reciprocity",effects)))  #Label the reciprocity effect
-            tiedat.lab<-c(tiedat.lab,"Reciprocity")
-         if(!is.na(pmatch("transitivity",effects)))  #Label the transitivity effect
-            tiedat.lab<-c(tiedat.lab,"Transitivity")
-         if(!is.na(pmatch("outdegree",effects)))  #Label the outdegree effect
-            tiedat.lab<-c(tiedat.lab,paste("Outdegree",1:n))
-         if(!is.na(pmatch("indegree",effects)))  #Label the indegree effect
-            tiedat.lab<-c(tiedat.lab,paste("Indegree",1:n))
-         if(!is.na(pmatch("betweenness",effects)))  #Label the betweenness effect
-            tiedat.lab<-c(tiedat.lab,paste("Betweenness",1:n))
-         if(!is.na(pmatch("closeness",effects)))  #Label the closeness effect
-            tiedat.lab<-c(tiedat.lab,paste("Closeness",1:n))
-         if(!is.na(pmatch("degcent",effects)))  #Label the degree centralization effect
-            tiedat.lab<-c(tiedat.lab,"DegCentralization")
-         if(!is.na(pmatch("betcent",effects)))  #Label the betweenness centralization effect
-            tiedat.lab<-c(tiedat.lab,"BetCentralization")
-         if(!is.na(pmatch("clocent",effects)))  #Label the closeness centralization effect
-            tiedat.lab<-c(tiedat.lab,"CloCentralization")
-         if(!is.null(attr))
-            tiedat.lab<-c(tiedat.lab,colnames(attr))
-         if(!is.null(memb))
-            tiedat.lab<-c(tiedat.lab,colnames(memb))
-         colnames(tiedat)<-tiedat.lab
+   #Label the tie data matrix
+   tiedat.lab<-"EdgeVal"
+   if(!is.na(pmatch("choice",effects)))  #Label the choice effect
+      tiedat.lab<-c(tiedat.lab,"Choice")
+   if(!is.na(pmatch("mutuality",effects)))  #Label the mutuality effect
+      tiedat.lab<-c(tiedat.lab,"Mutuality")
+   if(!is.na(pmatch("density",effects)))  #Label the density effect
+      tiedat.lab<-c(tiedat.lab,"Density")
+   if(!is.na(pmatch("reciprocity",effects)))  #Label the reciprocity effect
+      tiedat.lab<-c(tiedat.lab,"Reciprocity")
+   if(!is.na(pmatch("stransitivity",effects)))  #Label the strans effect
+      tiedat.lab<-c(tiedat.lab,"STransitivity")
+   if(!is.na(pmatch("wtransitivity",effects)))  #Label the wtrans effect
+      tiedat.lab<-c(tiedat.lab,"WTransitivity")
+   if(!is.na(pmatch("stranstri",effects)))  #Label the stranstri effect
+      tiedat.lab<-c(tiedat.lab,"STransTriads")
+   if(!is.na(pmatch("wtranstri",effects)))  #Label the wtranstri effect
+      tiedat.lab<-c(tiedat.lab,"WTransTriads")
+   if(!is.na(pmatch("outdegree",effects)))  #Label the outdegree effect
+      tiedat.lab<-c(tiedat.lab,paste("Outdegree",1:n))
+   if(!is.na(pmatch("indegree",effects)))  #Label the indegree effect
+      tiedat.lab<-c(tiedat.lab,paste("Indegree",1:n))
+   if(!is.na(pmatch("betweenness",effects)))  #Label the betweenness effect
+      tiedat.lab<-c(tiedat.lab,paste("Betweenness",1:n))
+   if(!is.na(pmatch("closeness",effects)))  #Label the closeness effect
+      tiedat.lab<-c(tiedat.lab,paste("Closeness",1:n))
+   if(!is.na(pmatch("degcent",effects)))  #Label the degree centralization effect
+      tiedat.lab<-c(tiedat.lab,"DegCentralization")
+   if(!is.na(pmatch("betcent",effects)))  #Label the betweenness centralization effect
+      tiedat.lab<-c(tiedat.lab,"BetCentralization")
+   if(!is.na(pmatch("clocent",effects)))  #Label the closeness centralization effect
+      tiedat.lab<-c(tiedat.lab,"CloCentralization")
+   if(!is.na(pmatch("connectedness",effects)))  #Label the connectedness effect
+      tiedat.lab<-c(tiedat.lab,"Connectedness")
+   if(!is.na(pmatch("hierarchy",effects)))  #Label the hierarchy effect
+      tiedat.lab<-c(tiedat.lab,"Hierarchy")
+   if(!is.na(pmatch("lubness",effects)))  #Label the lubness effect
+      tiedat.lab<-c(tiedat.lab,"LUBness")
+   if(!is.na(pmatch("efficiency",effects)))  #Label the efficiency effect
+      tiedat.lab<-c(tiedat.lab,"Efficiency")
+   if(!is.null(attr))
+      tiedat.lab<-c(tiedat.lab,colnames(attr))
+   if(!is.null(memb))
+      tiedat.lab<-c(tiedat.lab,colnames(memb))
+   colnames(tiedat)<-tiedat.lab
+   print(tiedat)
    #Having had our fun, it's time to get serious.  Run a GLM on the resulting data.
    o<-glm(tiedat[,1]~-1+tiedat[,2:dim(tiedat)[2]],family="binomial")
    o$tiedata<-tiedat
@@ -4566,5 +4865,113 @@ read.nos<-function(file){
             gstack[i,j,k]<-dat[(i-1)*n*o+(j-1)*o+k]   
    #Return the stack
    gstack
+}
+
+
+#dyad.census - Return the Holland and Leinhardt MAN dyad census for a given graph 
+#or graph stack
+dyad.census<-function(dat,g=1:stackcount(dat)){
+   #Define an internal function
+   intcalc<-function(m,meas){
+      switch(meas,
+         mut=sum(m[upper.tri(m)]&t(m)[upper.tri(m)],na.rm=TRUE),
+         asym=sum(xor(m[upper.tri(m)],t(m)[upper.tri(m)]),na.rm=TRUE),
+         null=sum(!m[upper.tri(m)]&!t(m)[upper.tri(m)],na.rm=TRUE)
+      )
+   }
+   #Organize the data
+   if(length(dim(dat))>2)
+      d<-dat[g,,,drop=FALSE]
+   else{
+      d<-array(dim=c(1,dim(dat)[1],dim(dat)[2]))
+      d[1,,]<-dat
+   }
+   #Perform the census
+   man<-cbind(apply(d,1,intcalc,"mut"),apply(d,1,intcalc,"asym"),apply(d,1,intcalc,"null"))
+   colnames(man)<-c("Mut","Asym","Null")
+   #Return the result
+   man
+}
+
+
+#triad.classify - Return the Davis and Leinhardt classification of a given triad
+triad.classify<-function(dat,g=1,tri=c(1,2,3)){
+   #Zeroth step: extract the triad
+   if(length(dim(dat))==2)
+      d<-dat[tri,tri]
+   else
+      d<-dat[g,tri,tri]
+   #First, classify as NA if any entries are missing
+   if(any(is.na(d[upper.tri(d)|lower.tri(d)])))
+      man<-NA
+   else{
+      man<-dyad.census(d)  #Start with the dyad census
+      #Refine the classification using configural properties
+      if(all(man==c(0,2,1))){   #The two asym/one null triad
+         ind<-apply(d,2,sum)  
+         outd<-apply(d,1,sum)
+         if(any(ind==2))
+            man<-c(man,"U")   #"Up" variant
+         else if(any(outd==2))
+            man<-c(man,"D")   #"Down" variant
+         else
+            man<-c(man,"C")   #"Cyclic" variant
+      }else if(all(man==c(1,1,1))){   #The one mut/one asym/one null triad
+         ind<-apply(d,2,sum)  
+         if(any(ind==2))
+            man<-c(man,"U")   #"Up" variant
+         else
+            man<-c(man,"D")   #"Down" variant
+      }else if(all(man==c(0,3,0))){   #The three asym triad
+         ind<-apply(d,2,sum)  
+         if(any(ind==2))
+            man<-c(man,"T")   #"Transitive" variant
+         else
+            man<-c(man,"C")   #"Cyclic" variant
+      }else if(all(man==c(1,2,0))){   #The one mut/two asym triad
+         ind<-apply(d,2,sum)  
+         outd<-apply(d,1,sum)
+         if(any(ind==0))
+            man<-c(man,"D")   #"Down" variant
+         else if(any(outd==0))
+            man<-c(man,"U")   #"Up" variant
+         else
+            man<-c(man,"C")   #"Cyclic" variant
+      }         
+   }
+   #Return the classification
+   paste(man,collapse="")
+}
+
+
+#triad.census - Conduct a Davis and Leinhardt triad census for a graph or graph stack
+triad.census<-function(dat,g=1:stackcount(dat)){
+   #First, define the triad class vector
+   tc<-c("003","012","102","021D","021U","021C","111D","111U","030T","030C","201","120D","120U","120C","210","300")
+   #Define an internal census function
+   intcalc<-function(m,tcv){
+      n<-dim(m)[1]
+      tricent<-rep(0,length(tcv))
+      for(i in 1:n)
+         for(j in i:n)
+            for(k in j:n)
+               if((i!=j)&&(j!=k)&&(i!=k)){
+                  tric<-triad.classify(m,tri=c(i,j,k))
+                  tricent[tcv==tric]<-tricent[tcv==tric]+1
+               }
+      tricent
+   }
+   #Organize the data
+   if(length(dim(dat))>2)
+      d<-dat[g,,,drop=FALSE]
+   else{
+      d<-array(dim=c(1,dim(dat)[1],dim(dat)[2]))
+      d[1,,]<-dat
+   }
+   #Perform the census
+   census<-t(apply(d,1,intcalc,tc))
+   colnames(census)<-tc
+   #Return the result
+   census
 }
 

@@ -1,49 +1,137 @@
 CHANGELOG:
 
+v0.4 - New Features, Changes, and Fixes
+   New Functions:
+      connectedness - Find the Krackhardt connectedness of a graph 
+         or graph stack
+      dyad.census - Compute the Holland and Leinhardt MAN dyad 
+         census for a graph or graph stack
+      efficiency - Find the Krackhardt efficiency of a graph or 
+         graph stack
+      hierarchy - Find the hierarchy score of a graph or graph stack
+      infocent - Find the information centrality scores of network 
+         positions [submitted by David Barron]
+      lubness - Find Krackhardt's Least Upper Boundedness of a graph
+         or graph stack
+      reachability - Find the reachability matrix of a graph
+      triad.census - Conduct a Davis and Leinhardt triad census for 
+         a graph or graph stack
+      triad.classify - Return the Davis and Leinhardt classification
+         of a given triad
+   New Features:
+      gplot now adjusts line width for valued graphs, via the 
+         edge.lwd parameter, and allows users to set the vertex 
+         point type (using vertex.pch).  gmode=="graph" now sets 
+         usearrows=FALSE, and new gmode "twomode" automagically 
+         plots two-mode data.  New display modes have also been 
+         added: geodist (MDS of proximities); adj (MDS with 
+         adjacency as similarity); and seham (MDS of SE dist using 
+         Hamming method).
+      grecip now supports a "measure" option, which allows the user 
+         to choose between "dyadic" reciprocity (aRb iff bRa) and 
+         "edgewise" reciprocity (aRb if bRa).  The old version (and 
+         default) is the "dyadic" option, which (as the above 
+         implies) takes null dyads into account; the "edgewise" 
+         definition omits null dyads from the calculation.
+      gtrans now supports a "measure" option, which allows the user 
+         to choose between "weak" transitivity (aRc if aRb & bRc) 
+         and "strong" transitivity (aRc iff aRb & bRc).  The old 
+         version was strong-only, but much of the field prefers the 
+         weak version.  Each of these options has a respective
+         census variant ("weakcensus", "strongcensus") which returns
+         a count of legal triads rather than a rate.
+      pstar now supports separate options for strong/weak 
+         transitivity scores, strong/weak transitive triad counts,
+         and the four Krackhardt measures (connectedness, efficiency,
+         hierarchy, and LUBness).
+   Bug Fixes:
+      Labeling optimizers were not pre-sorting to guard against
+         mixed-up exchange lists (these are now checked, too).
+      Various centrality measures were not returning the correct
+         absolute maximum deviation with tmaxdev==TRUE.
+      gtrans was ignoring settings and counting diagonal entries 
+         [submitted by David Barron]
+      pstar behaved badly when external predictors were unnamed 
+         [submitted by Gindo Tampubolon]
+   Changes:
+      Comparable labelings are now _enforced_ where applicable.
+      lab.optimize.gumbel now just tries to scare you off, rather
+         than refusing you altogether.
+      Path-based indices (betweenness, closeness, stresscent,
+         graphcent, etc.) now automatically assume 
+         cmode=="undirected" whenever gmode="graph".
+      The default mode for gtrans is now "weak", to match the usage 
+         of W&F
+
 v0.3 - New Features, Changes, and Fixes
    General:
       All standard functions are now documented
       R package format is now supported
    New Functions:
-      component.dist - Find the distribution of (maximal) component sizes within a graph
-      components - Find the number of (maximal) components within a given graph
-      eval.edgeperturbation - Evaluate a function on a given graph with and without a given edge, returning
-      the difference between the results in each case.
-      interval.graph - Construct one or more interval graphs (and exchangeability vectors) from a set of spells
-      mutuality - Find the number of mutual (i.e., reciprocated) edges in a graph
+      component.dist - Find the distribution of (maximal) component 
+         sizes within a graph
+      components - Find the number of (maximal) components within a 
+         given graph
+      eval.edgeperturbation - Evaluate a function on a given graph 
+         with and without a given edge, returning the difference 
+         between the results in each case.
+      interval.graph - Construct one or more interval graphs (and 
+         exchangeability vectors) from a set of spells
+      mutuality - Find the number of mutual (i.e., reciprocated) 
+         edges in a graph
       gscor - Computes the structural correlation between graphs
       gscov - Computes the structural covariance between graphs
-      gtrans - Compute the transitivity of an input graph or graph stack.
-      lab.optimize - Optimize a bivariate graph statistic over a set of labelings
-      pstar - Fits a p* model using the logistic regression approximation 
+      gtrans - Compute the transitivity of an input graph or graph 
+         stack
+      lab.optimize - Optimize a bivariate graph statistic over a 
+         set of labelings
+      pstar - Fits a p* model using the logistic regression 
+         approximation 
       read.nos - Reads input files in Neo-OrgStat format
-      rperm - Draw a random permutation vector with exchangability constraints
+      rperm - Draw a random permutation vector with exchangability 
+         constraints
    Features and Modifications:
-      diag.remove, upper.tri.remove, and lower.tri.remove now allow replacement with any value
-      gplot now provides a slew of new parameters to change color, size, etc. of vertices, edges, and labels
+      diag.remove, upper.tri.remove, and lower.tri.remove now allow 
+         replacement with any value
+      gplot now provides a slew of new parameters to change color, 
+         size, etc. of vertices, edges, and labels
       gscor and gscov now delegate to lab.optimize
-      gscor, gscov, structdist now support exchange lists (via lab.optimize)
+      gscor, gscov, structdist now support exchange lists (via 
+         lab.optimize)
 
 v0.2 - New Features and Some Bug Fixes
    New Functions:
-      blockmodel - Generate blockmodels based on partitions of network positions
-      blockmodel.expand - Generate a graph from a given blockmodel using particular expansion rules
-      bonpow - Find the Bonacich power centrality scores of network positions
-      equiv.clust - Find clusters of positions based on an equivalence relation
+      blockmodel - Generate blockmodels based on partitions of 
+         network positions
+      blockmodel.expand - Generate a graph from a given blockmodel 
+         using particular expansion rules
+      bonpow - Find the Bonacich power centrality scores of network 
+         positions
+      equiv.clust - Find clusters of positions based on an 
+         equivalence relation
       evcent - Find the eigenvector centralities of network positions
-      gdist.plotdiff - Plot differences in graph-level statistics against inter-graph distances
-      gdist.plotstats - Plot statistics associated with graphs against (projected) inter-graph distances
-      make.stochastic - Make a graph stack row, column, or row-column stochastic
+      gdist.plotdiff - Plot differences in graph-level statistics 
+         against inter-graph distances
+      gdist.plotstats - Plot statistics associated with graphs 
+         against (projected) inter-graph distances
+      make.stochastic - Make a graph stack row, column, or 
+         row-column stochastic
       plot.blockmodel - Plotting for blockmodel objects
       plot.equiv.clust - Plotting for equivalence clustering objects
-      prestige - Find actor prestige scores from one of several measures
+      prestige - Find actor prestige scores from one of several 
+         measures
       print.blockmodel - Printing for blockmodel objects
-      print.summary.blockmodel - Printing for blockmodel summary objects
-      sedist - Find distances between positions based on structural equivalence
-      stackcount -Find the number of matrices in a graph stack (matrix or array data acceptable)
+      print.summary.blockmodel - Printing for blockmodel summary 
+         objects
+      sedist - Find distances between positions based on structural 
+         equivalence
+      stackcount -Find the number of matrices in a graph stack 
+         (matrix or array data acceptable)
       summary.blockmodel - Detailed printing for blockmodel objects
    Features and Modifications:
-      All centrality routines can now be rescaled (division by maximum realized value); default is always FALSE   
+      All centrality routines can now be rescaled (division by 
+         maximum realized value); default is always FALSE   
    Bug Fixes:
-      Various centrality routines once again return values for the selected graph and vertices
+      Various centrality routines once again return values for the 
+         selected graph and vertices
       

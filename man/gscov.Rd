@@ -48,7 +48,7 @@ Structural covariance matrices are p.s.d., and are p.d. so long as no graph with
 
 \section{Warning }{The search process can be \emph{very slow}, particularly for large graphs.  In particular, the \emph{exhaustive} method is order factorial, and will take approximately forever for unlabeled graphs of size greater than about 7-9.}
 
-\seealso{ \code{\link{gscor}}, \code{\link{gcov}}, \code{\link{gcor} }
+\seealso{ \code{\link{gscor}}, \code{\link{gcov}}, \code{\link{gcor}} }
 
 \examples{
 #Generate two random graphs

@@ -7,10 +7,11 @@
 }
 \usage{
 pstar(dat, effects=c("choice", "mutuality", "density", "reciprocity",
-    "transitivity", "outdegree", "indegree", "betweenness", 
-    "closeness", "degcentralization", "betcentralization", 
-    "clocentralization"), attr=NULL, memb=NULL, diag=FALSE, 
-    mode="digraph")
+    "stransitivity", "stransitivity", "wtranstri", "stranstri", 
+    "outdegree", "indegree", "betweenness", "closeness", 
+    "degcentralization", "betcentralization", "clocentralization",
+    "connectedness", "hierarchy", "lubness", "efficiency"), 
+    attr=NULL, memb=NULL, diag=FALSE, mode="digraph")
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
@@ -19,7 +20,7 @@ pstar(dat, effects=c("choice", "mutuality", "density", "reciprocity",
   \item{attr}{ A matrix whose columns contain individual attributes (one row per vertex) whose differences should be used as supplemental predictors }
   \item{memb}{ A matrix whose columns contain group memberships whose categorical similarities (same group/not same group) should be used as supplemental predictors}
   \item{diag}{ A boolean indicating whether or not diagonal entries (loops) should be counted as meaningful data }
-  \item{mode}{ ``digraph'' if \code{dat} is directed, else ``graph'' }
+  \item{mode}{ \code{"digraph"} if \code{dat} is directed, else \code{"graph"} }
 }
 \details{
 p* is a loglinear model specification for network data.  Under p*, it is assumed that
@@ -29,29 +30,43 @@ for all g, where the betas represent real coefficients and the gammas represent 
 
 Using the \code{effects} argument, a range of different potential parameters can be estimated.  The network measure associated with each is, in turn, the edge-perturbed difference in:
 \enumerate{
-\item choice: the number of edges in the graph (acts as a constant)
+\item \code{choice}: the number of edges in the graph (acts as a constant)
 
-\item mutuality: the number of reciprocated edges in the graph
+\item \code{mutuality}: the number of reciprocated dyads in the graph
 
-\item density: the density of the graph
+\item \code{density}: the density of the graph
 
-\item reciprocity: the dyadic reciprocity of the graph
+\item \code{reciprocity}: the edgewise reciprocity of the graph
 
-\item transitivity: the transitivity of the graph
+\item \code{stransitivity}: the strong transitivity of the graph
 
-\item outdegree: the outdegree of each actor (|V| parameters)
+\item \code{wtransitivity}: the weak transitivity of the graph
 
-\item indegree: the indegree of each actor (|V| parameters)
+\item \code{stranstri}: the number of strongly transitive triads in the graph
 
-\item betweenness: the betweenness of each actor (|V| parameters)
+\item \code{wtranstri}: the number of weakly transitive triads in the graph
 
-\item closeness: the closeness of each actor (|V| parameters)
+\item \code{outdegree}: the outdegree of each actor (|V| parameters)
 
-\item degcentralization: the Freeman degree centralization of the graph
+\item \code{indegree}: the indegree of each actor (|V| parameters)
 
-\item betcentralization: the betweenness centralization of the graph
+\item \code{betweenness}: the betweenness of each actor (|V| parameters)
 
-\item clocentralization: the closeness centralization of the graph
+\item \code{closeness}: the closeness of each actor (|V| parameters)
+
+\item \code{degcentralization}: the Freeman degree centralization of the graph
+
+\item \code{betcentralization}: the betweenness centralization of the graph
+
+\item \code{clocentralization}: the closeness centralization of the graph
+
+\item \code{connectedness}: the Krackhardt connectedness of the graph
+
+\item \code{hierarchy}: the Krackhardt hierarchy of the graph
+
+\item \code{efficiency}: the Krackhardt efficiency of the graph
+
+\item \code{lubness}: the Krackhardt LUBness of the graph
 }
 (Note that some of these do differ somewhat from the common p* parameter formulation, e.g. quantities such as density and reciprocity are computed as per the \code{\link{gden}} and \code{\link{grecip}} functions rather than via the unnormalized "choice" and "mutual" quantities one often finds in the p* literature.)  \emph{Please do not attempt to use all effects simultaneously!!!}  In addition to the above, the user may specify a matrix of individual attributes whose absolute dyadic differences are to be used as predictors, as well as a matrix of individual memberships whose dyadic categorical similarities (same/different) are used in the same manner.
 

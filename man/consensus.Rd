@@ -35,7 +35,7 @@ It should be noted that a model for estimating an underlying criterion structure
 An adjacency matrix representing the consensus structure
 }
 \references{ 
-Banks, D.L., and Carley, K.M.  (1994).  ``Metric Inference for Social Networks.''  \emph{Journal of Classification.'' 
+Banks, D.L., and Carley, K.M.  (1994).  ``Metric Inference for Social Networks.''  \emph{Journal of Classification,}  11(1), 121-49.
 
 Butts, C.T., and Carley, K.M.  (2001).  ``Multivariate Methods for Inter-Structural Analysis.''  CASOS Working Paper, Carnegie Mellon University.
 

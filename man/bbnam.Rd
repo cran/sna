@@ -101,7 +101,7 @@ Krackhardt, D.  (1987).  ``Cognitive Social Structures.'' \emph{Social Networks,
 \author{ Carter T. Butts \email{ctb@andrew.cmu.edu} }
 \note{ As indicated, the posterior draws are conditional on the observed data, and hence on the data collection mechanism if the collection design is non-ignorable.  Complete data (e.g., a CSS) and random tie samples are examples of ignorable designs; see Gelman et al. for more information concerning ignorability.}
  
-\seealso{\code{\link{npostpred}}, \code{\link{event2dichot}, \code{\link{bbnam.bf}}}
+\seealso{\code{\link{npostpred}}, \code{\link{event2dichot}}, \code{\link{bbnam.bf}}}
 
 \examples{
 #Create some random data

@@ -13,9 +13,9 @@ sedist(dat, g=c(1:dim(dat)[1]), method="hamming",
 \arguments{
   \item{dat}{ A graph or graph stack }
   \item{g}{ A vector indicating which elements of \code{dat} should be examined }
-  \item{method}{ One of ``correlation'', ``euclidean'', ``hamming'', and ``gamma'' }
+  \item{method}{ One of \code{?correlation?}, \code{?euclidean?}, \code{?hamming?}, and \code{?gamma?}}
   \item{joint.analysis}{ Should equivalence be assessed across all networks jointly (\code{TRUE}), or individually within each (\code{FALSE}) }
-  \item{mode}{ ``digraph'' for directed data, otherwise ``graph'' }
+  \item{mode}{ \code{?digraph?} for directed data, otherwise \code{?graph?} }
   \item{diag}{ Boolean indicating whether diagonal entries (loops) should be treated as meaningful data }
   \item{code.diss}{ Reverse-code the raw comparison values}
 }

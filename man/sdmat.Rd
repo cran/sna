@@ -15,9 +15,9 @@ sdmat(dat, normalize=FALSE, diag=FALSE, mode="digraph",
   \item{dat}{ Data array to be analyzed.  By assumption, the first dimension of the array indexes the graph, with the next two indexing the actors.  This data need not be dichotomous, and missing values are allowed. }
   \item{normalize}{ Divide by the number of available dyads? }
   \item{diag}{ Boolean indicating whether or not the diagonal should be treated as valid data.  Set this true if and only if the data can contain loops.  \code{diag} is \code{FALSE} by default. }
-  \item{mode}{ String indicating the type of graph being evaluated.  "digraph" indicates that edges should be interpreted as directed; "graph" indicates that edges are undirected.  \code{mode} is set to "digraph" by default. }
-  \item{output}{ "matrix" for matrix output, "dist" for a \code{\link[mva]{dist}} object (requires \code{mva}). }
-  \item{method}{ Method to be used to search the space of accessible permutations; must be one of ``none'', ``exhaustive'', ``anneal'', ``hillclimb'', or ``mc''. }
+  \item{mode}{ String indicating the type of graph being evaluated.  \code{?digraph"} indicates that edges should be interpreted as directed; \code{"graph"} indicates that edges are undirected.  \code{mode} is set to \code{"digraph"} by default. }
+  \item{output}{ \code{"matrix"} for matrix output, \code{"dist"} for a \code{\link[mva]{dist}} object (requires \code{mva}). }
+  \item{method}{ Method to be used to search the space of accessible permutations; must be one of \code{?none?}, \code{?exhaustive?}, \code{?anneal?}, \code{?hillclimb?}, or \code{?mc?}. }
   \item{exchange.list}{ Information on which vertices are exchangeable (see below); this must be a single number, a vector of length n, or a nx2 matrix. }
   \item{\dots}{ Additional arguments to \code{\link{lab.optimize}}}
 }
