@@ -1,0 +1,13 @@
+Package: sna
+Version: 0.3
+Date: 2001-05-25
+Title: Tools for Social Network Analysis
+Author: Carter T. Butts <ctb@andrew.cmu.edu>
+Maintainer: Carter T. Butts <ctb@andrew.cmu.edu>
+Depends: R (>= 1.2), mva
+Description: A range of tools for social network analysis, including
+ node and graph-level indices, structural distance and covariance 
+ methods, structural equivalence detection, p* modeling, and network 
+ visualization.
+License: GPL Version 2 or newer
+URL: http://legba.hss.cmu.edu/R.stuff

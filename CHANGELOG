@@ -1,0 +1,49 @@
+CHANGELOG:
+
+v0.3 - New Features, Changes, and Fixes
+   General:
+      All standard functions are now documented
+      R package format is now supported
+   New Functions:
+      component.dist - Find the distribution of (maximal) component sizes within a graph
+      components - Find the number of (maximal) components within a given graph
+      eval.edgeperturbation - Evaluate a function on a given graph with and without a given edge, returning
+      the difference between the results in each case.
+      interval.graph - Construct one or more interval graphs (and exchangeability vectors) from a set of spells
+      mutuality - Find the number of mutual (i.e., reciprocated) edges in a graph
+      gscor - Computes the structural correlation between graphs
+      gscov - Computes the structural covariance between graphs
+      gtrans - Compute the transitivity of an input graph or graph stack.
+      lab.optimize - Optimize a bivariate graph statistic over a set of labelings
+      pstar - Fits a p* model using the logistic regression approximation 
+      read.nos - Reads input files in Neo-OrgStat format
+      rperm - Draw a random permutation vector with exchangability constraints
+   Features and Modifications:
+      diag.remove, upper.tri.remove, and lower.tri.remove now allow replacement with any value
+      gplot now provides a slew of new parameters to change color, size, etc. of vertices, edges, and labels
+      gscor and gscov now delegate to lab.optimize
+      gscor, gscov, structdist now support exchange lists (via lab.optimize)
+
+v0.2 - New Features and Some Bug Fixes
+   New Functions:
+      blockmodel - Generate blockmodels based on partitions of network positions
+      blockmodel.expand - Generate a graph from a given blockmodel using particular expansion rules
+      bonpow - Find the Bonacich power centrality scores of network positions
+      equiv.clust - Find clusters of positions based on an equivalence relation
+      evcent - Find the eigenvector centralities of network positions
+      gdist.plotdiff - Plot differences in graph-level statistics against inter-graph distances
+      gdist.plotstats - Plot statistics associated with graphs against (projected) inter-graph distances
+      make.stochastic - Make a graph stack row, column, or row-column stochastic
+      plot.blockmodel - Plotting for blockmodel objects
+      plot.equiv.clust - Plotting for equivalence clustering objects
+      prestige - Find actor prestige scores from one of several measures
+      print.blockmodel - Printing for blockmodel objects
+      print.summary.blockmodel - Printing for blockmodel summary objects
+      sedist - Find distances between positions based on structural equivalence
+      stackcount -Find the number of matrices in a graph stack (matrix or array data acceptable)
+      summary.blockmodel - Detailed printing for blockmodel objects
+   Features and Modifications:
+      All centrality routines can now be rescaled (division by maximum realized value); default is always FALSE   
+   Bug Fixes:
+      Various centrality routines once again return values for the selected graph and vertices
+      

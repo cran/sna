@@ -1,0 +1,4570 @@
+#
+# Various Useful Tools for Network Analysis in S
+#
+# By Carter Butts, ctb@andrew.cmu.edu
+#
+# Current Version: 0.3
+#
+# Last updated 5/25/01
+#
+#Contents:
+#
+#addisolates - Add isolates to a graph set
+#bbnam - Draw from Butts' (Hierarchical) Bayesian Network Accuracy Model
+#bbnam.bf - Bayes factors for Butts' (Hierarchical) Bayesian Network Accuracy Model
+#bbnam.probtie - Internal routine for finding tie likelihoods under bbnam
+#bbnam.jntlik - Internal routine for computing joint likelihoods under bbnam
+#bbnam.jntlik.slice - Internal routine for joint likelihood computation under bbnam, by data slice
+#betweenness - Find the betweenness centralities of network positions
+#blockmodel - Generate blockmodels based on partitions of network positions
+#blockmodel.expand - Generate a graph from a given blockmodel using particular expansion rules
+#bonpow - Find the Bonacich power centrality scores of network positions
+#centralgraph - Find the central graph of a graph stack
+#centralization - Generic centralization routine (uses centrality routines)
+#closeness - Find the closeness centralities of network positions
+#component.dist - Find the distribution of (maximal) component sizes within a graph
+#components - Find the number of (maximal) components within a given graph
+#consensus - Find a consensus structure, using one of several algorithms
+#cugtest - Generic Conditional Uniform Graph (CUG) test for bigraphic statistics
+#degree - Computes the degree centralities of network positions
+#diag.remove - NAs the diagonals of graphs in a stack
+#equiv.clust - Find clusters of positions based on an equivalence relation
+#eval.edgeperturbation - Evaluate a function on a given graph with and without a given edge
+#evcent - Find the eigenvector centralities of network positions
+#event2dichot - Convert observed event matrices to dichotomous matrices
+#gclust.boxstats - Plot statistics associated with clusters
+#gclust.centralgraph - Get central graphs associated with clusters
+#gcor - Computes the correlation between graphs
+#gcov - Computes the covariance between graphs
+#gden - Computes the density of one or more graphs
+#gdist.plotdiff - Plot differences in graph-level statistics against inter-graph distances
+#gdist.plotstats - Plot statistics associated with graphs against (projected) inter-graph distances
+#geodist - Finds geodesic distances and shortest paths within a graph
+#gliop - Return a binary operation on GLI values computed on two graphs (for test routines)
+#gplot - Plots graphs using eigenvector projection, classical MDS, or custom coords
+#graphcent - Find the graph centralities of network positions
+#grecip - Computes the reciprocity of one or more graphs
+#gtrans - Computes the transitivity of one or more graphs
+#gscor - Computes the structural correlation between graphs
+#gscov - Computes the structural covariance between graphs
+#gvectorize - Vectorization of adjacency matrices
+#hdist - Computes the Hamming distance between two labeled graphs
+#interval.graph - Construct one or more interval graphs (and exchangeability vectors) from a set of spells
+#is.isolate - Determines whether a particular vertex is isolated
+#isolates - Returns a list of isolates
+#lab.optimize - Optimize a bivariate graph statistic over a set of labelings
+#lower.tri.remove - NAs the lower triangles of graphs in graph stacks
+#make.stochastic - Make a graph stack row, column, or row-column stochastic
+#mutuality - Find the number of mutual (i.e., reciprocated) edges in a graph
+#netcancor - Canonical correlations for network variables (requires mva)
+#netlm - Fits a network OLS regression model (w/CUG or QAP tests)
+#netlogit - Fits a network logit model (w/CUG or QAP tests)
+#npostpred - Take posterior predictive draws for functions of graphs
+#nties - Find the number of ties in a given graph
+#numperm - Get the nth permutation vector, using a periodic numbering scheme
+#plot.bbnam - Plotting for bbnam objects
+#plot.blockmodel - Plotting for blockmodel objects
+#plot.cugtest - Plotting for cugtest objects
+#plot.equiv.clust - Plotting for equivalence clustering objects
+#plot.matrix - Plotting of arbitrary matrices
+#plot.qaptest - Plotting for qaptest objects
+#potscalered.mcmc - Computes Gelman et al.'s potential scale reduction statistic for scalar estimands
+#prestige - Find actor prestige scores from one of several measures
+#print.bayes.factor - Printing for Bayes factor objects
+#print.bbnam - Printing for bbnam objects
+#print.blockmodel - Printing for blockmodel objects
+#print.cugtest - Printing for cugtest objects
+#print.netcancor - Printing for netcancor objects
+#print.netlm - Printing for netlm objects
+#print.netlogit - Printing for netlogit objects
+#print.qaptest - Printing for qaptest objects
+#print.summary.bayes.factor - Printing for Bayes factor summary objects 
+#print.summary.bbnam - Printing for bbnam summary objects
+#print.summary.blockmodel - Printing for blockmodel summary objects
+#print.summary.cugtest - Printing for cugtest summary objects
+#print.summary.netcancor - Printing for netcancor summary objects
+#print.summary.netlm - Printing for netlm summary objects
+#print.summary.netlogit - Printing for netlogit summary objects
+#print.summary.qaptest - Printing for qaptest summary objects
+#pstar - Fit a p* model using the logistic regression approximation.
+#qaptest - Generic QAP test for bigraphic statistics
+#read.nos - Import data files in Neo-OrgStat format
+#rgraph - Draws Bernoulli graphs
+#rmperm - Randomly permutes the rows and columns of a graph stack
+#rperm - Draw a random permutation vector with exchangability constraints
+#sdmat - Estimate the matrix of structural distances among unlabeled graphs
+#sedist - Find distances between positions based on structural equivalence
+#sr2css - Convert a row-wise self-report matrix to a CSS matrix with missing observations
+#stackcount -Find the number of matrices in a graph stack (matrix or array data acceptable)
+#stresscent - Find the stress centralities of network positions
+#structdist - Estimate the structural distance between unlabeled graphs
+#summary.bayes.factor - Detailed printing for Bayes factor objects
+#summary.bbnam - Detailed printing for bbnam objects
+#summary.blockmodel - Detailed printing for blockmodel objects
+#summary.cugtest - Detailed printing for qaptest objects
+#summary.netcancor - Detailed printing for netcancor objects
+#summary.netlm - Detailed printing for netlm objects
+#summary.netlogit - Detailed printing for netlogit objects
+#summary.qaptest - Detailed printing for qaptest objects
+#symmetrize - Symmetrize a graph or graph stack
+#upper.tri.remove - NAs the upper triangles of graphs in graph stacks
+#
+#NOTES:
+#
+#License: This software is made available under the terms of the GNU Public License (GPL), version
+#2.0 or later.  Please visit the Free Software Foundation (www.fsf.org) for more details.
+#
+#Lack of support: It must be noted that this code is provided AS IS, without support or warranty
+#(express or implied).  The author will generally try to fix bugs where possible, but the end user is
+#generally on his/her own with respect to this software; the author apologizes for this fact, but
+#would like to point out that he has numerous professional and other obligations which prevent his
+#working full-time on this project.
+#
+#Implementation: This code has been written for the R implementation of the S language, and is
+#currently thought to work with version 1.2 and higher.  Systematic testing, however, has been
+#limited: caveat emptor. 
+#
+#A general note on data frames: Graphs are assumed to be n x n matrices (for single structures)
+#or m x n x n arrays (for graph stacks).  By default, all network tools will expect this sort of data;
+#this winds up being important for allowing things like general network hypothesis testing routines.
+#
+#
+#CHANGELOG:
+#
+#v0.3 - New Features, Changes, and Fixes
+#   General:
+#      All standard functions are now documented
+#      R package format is now supported
+#   New Functions:
+#      component.dist - Find the distribution of (maximal) component sizes within a graph
+#      components - Find the number of (maximal) components within a given graph
+#      eval.edgeperturbation - Evaluate a function on a given graph with and without a given edge, returning
+#      the difference between the results in each case.
+#      interval.graph - Construct one or more interval graphs (and exchangeability vectors) from a set of spells
+#      mutuality - Find the number of mutual (i.e., reciprocated) edges in a graph
+#      gscor - Computes the structural correlation between graphs
+#      gscov - Computes the structural covariance between graphs
+#      gtrans - Compute the transitivity of an input graph or graph stack.
+#      lab.optimize - Optimize a bivariate graph statistic over a set of labelings
+#      pstar - Fits a p* model using the logistic regression approximation 
+#      read.nos - Reads input files in Neo-OrgStat format
+#      rperm - Draw a random permutation vector with exchangability constraints
+#   Features and Modifications:
+#      diag.remove, upper.tri.remove, and lower.tri.remove now allow replacement with any value
+#      gplot now provides a slew of new parameters to change color, size, etc. of vertices, edges, and labels
+#      gscor and gscov now delegate to lab.optimize
+#      gscor, gscov, structdist now support exchange lists (via lab.optimize)
+#
+#v0.2 - New Features and Some Bug Fixes
+#   New Functions:
+#      blockmodel - Generate blockmodels based on partitions of network positions
+#      blockmodel.expand - Generate a graph from a given blockmodel using particular expansion rules
+#      bonpow - Find the Bonacich power centrality scores of network positions
+#      equiv.clust - Find clusters of positions based on an equivalence relation
+#      evcent - Find the eigenvector centralities of network positions
+#      gdist.plotdiff - Plot differences in graph-level statistics against inter-graph distances
+#      gdist.plotstats - Plot statistics associated with graphs against (projected) inter-graph distances
+#      make.stochastic - Make a graph stack row, column, or row-column stochastic
+#      plot.blockmodel - Plotting for blockmodel objects
+#      plot.equiv.clust - Plotting for equivalence clustering objects
+#      prestige - Find actor prestige scores from one of several measures
+#      print.blockmodel - Printing for blockmodel objects
+#      print.summary.blockmodel - Printing for blockmodel summary objects
+#      sedist - Find distances between positions based on structural equivalence
+#      stackcount -Find the number of matrices in a graph stack (matrix or array data acceptable)
+#      summary.blockmodel - Detailed printing for blockmodel objects
+#   Features and Modifications:
+#      All centrality routines can now be rescaled (division by maximum realized value); default is always FALSE   
+#   Bug Fixes:
+#      Various centrality routines once again return values for the selected graph and vertices
+#      
+#
+
+
+#make.stochastic - Make a graph stack row, column, or row-column stochastic
+
+make.stochastic<-function(dat,mode="rowcol",tol=0.005,maxiter=prod(dim(dat))*100,anneal.decay=0.01,errpow=1){
+   #Organize the data
+   m<-stackcount(dat)
+   if(m==1){
+      n<-dim(dat)[1]
+      o<-dim(dat)[2]
+      d<-array(dim=c(m,n,o))
+      d[1,,]<-dat
+   }else{
+      n<-dim(dat)[2]
+      o<-dim(dat)[3]
+      d<-dat
+   }
+   #Stochasticize
+   if(mode=="row"){
+      for(i in 1:m)
+         d[i,,]<-d[i,,]/t(sapply(apply(d[i,,],1,sum),rep,o))
+   }else if(mode=="col"){
+      for(i in 1:m)
+         d[i,,]<-d[i,,]/sapply(apply(d[i,,],2,sum),rep,n)
+   }else if(mode=="rowcol"){
+      for(i in 1:m){
+         f<-d[i,,]/t(sapply(apply(d[i,,],1,sum),rep,o))   #Seed with the row-stochastic form
+         f<-f/sapply(apply(f,2,sum),rep,n)   #Col-stochasticize for good measure (sometimes this works)
+         edgelist<-cbind(rep(1:n,o),rep(1:o,rep(n,o)))
+         edgelist<-edgelist[d[i,,][edgelist]>0,]   #Skip edges which are forced to be zero-valued
+         err<-sum(abs(apply(f,2,sum)-rep(1,o))^errpow,abs(apply(f,1,sum)-rep(1,n))^errpow)
+         iter<-0
+         while((err>(n+o)*tol)&(iter<maxiter)){  #Right now, use an annealer to find an approximate solution
+            edge<-sample(1:dim(edgelist)[1],1)
+            x<-edgelist[edge,1]
+            y<-edgelist[edge,2]
+            draw<-max(0,min(rnorm(1,f[x,y],d[i,x,y]/10),d[i,x,y]))
+            nerr<-err-abs(sum(f[x,])-1)^errpow-abs(sum(f[,y])-1)^errpow+abs(sum(f[x,][-y])+draw-1)^errpow+abs(sum(f[,y][-x])+draw-1)^errpow
+            if((nerr<err)|(runif(1,0,1)<exp(-anneal.decay*iter))){
+               f[x,y]<-draw
+               err<-nerr
+            }
+            iter<-iter+1
+         }
+         d[i,,]<-f
+         if(err>(n+o)*tol)
+            warning(paste("Annealer unable to reduce total error below apx",round(err,digits=7),"in matrix",i,". Hope that's OK....\n"))
+      }
+   }else if(mode=="total"){
+         for(i in 1:m)
+            d[i,,]<-d[i,,]/sum(d[i,,])
+   }
+   #Patch NaN values
+   d[is.nan(d)]<-0
+   #Return the output
+   if(m==1)
+      d[1,,]
+   else
+      d
+}
+
+
+#stackcount -How many matrices in a given stack?
+
+stackcount<-function(d){
+   if(length(dim(d))>2)
+      dim(d)[1]
+   else
+      1
+}
+
+
+#gvectorize - Vectorization of adjacency matrices
+
+gvectorize<-function(mats,mode="digraph",diag=FALSE,censor.as.na=TRUE){
+   #Build the input data structures
+   if(length(dim(mats))>2){
+      m<-dim(mats)[1]
+      n<-dim(mats)[2]
+      n<-dim(mats)[3]
+      d<-mats
+   }else{
+      m<-1
+      n<-dim(mats)[1]
+      o<-dim(mats)[2]
+      d<-array(dim=c(1,n,o))
+      d[1,,]<-mats
+   }
+   #If using NA censoring, turn unused parts of the matrices to NAs and vectorize
+   if(censor.as.na){
+      if(mode=="graph")
+         d<-upper.tri.remove(d)
+      if(!diag)
+         d<-diag.remove(d)
+      out<-apply(d,1,as.vector)
+   }else{   #Otherwise, vectorize only the useful parts
+      mask<-apply(d,1,lower.tri,diag=diag)
+      out<-apply(d,1,as.vector)
+      if(m==1)
+         out<-out[mask]
+      else
+         out<-matrix(out[mask],ncol=m)      
+   }
+   out
+}
+
+
+#gclust.centralgraph - Get central graphs associated with clusters
+
+gclust.centralgraph<-function(h,k,mats,...){
+   #h must be an hclust object, k the number of groups, and mats the array of graphs
+   out<-array(dim=c(k,dim(mats)[2],dim(mats)[2]))
+   gmat<-matrix(nrow=dim(mats)[1],ncol=2)
+   gmat[,1]<-c(1:dim(mats)[1])
+   gmat[,2]<-cutree(h,k=k)
+   for(i in 1:k)
+      out[i,,]<-centralgraph(mats[gmat[gmat[,2]==i,1],,],...)
+   out
+}
+
+
+#gclust.boxstats - Plot statistics associated with clusters
+
+gclust.boxstats<-function(h,k,meas,...){
+   #h must be an hclust object, k the number of groups, and meas the group measurement vector
+   out<-matrix(nrow=length(meas),ncol=k)
+   gmat<-matrix(nrow=length(meas),ncol=2)
+   gmat[,1]<-c(1:length(meas))
+   gmat[,2]<-cutree(h,k=k)
+   for(i in 1:k){
+      out[1:length(meas[gmat[gmat[,2]==i,1]]),i]<-meas[gmat[gmat[,2]==i,1]]
+   }
+   boxplot(data.frame(out),...)
+}
+
+
+#gdist.plotdiff - Plot differences in graph-level statistics against inter-graph distances
+
+gdist.plotdiff<-function(d,meas,method="manhattan",jitter=TRUE,xlab="Inter-Graph Distance",ylab="Measure Distance",lm.line=FALSE,...){
+   #Note that d must be a matrix of distances, and meas must be a matrix of measures
+   #Create a matrix of differences in graph-level statistics
+   require(mva)
+   md<-dist(meas,method=method)
+   #Vectorize
+   dv<-as.vector(as.dist(d))
+   mdv<-as.vector(md)
+   if(jitter){
+      dv<-jitter(dv)
+      mdv<-jitter(mdv)
+   }
+   #Plot the results
+   plot(dv,mdv,xlab=xlab,ylab=ylab,...)   
+   #If needed, add a line fit
+   abline(lm(mdv~dv),col="red")
+}
+
+
+#gdist.plotstats - Plot statistics associated with graphs against (projected) inter-graph distances
+
+gdist.plotstats<-function(d,meas,siz.lim=c(0,0.15),rescale="quantile",display.scale="radius",display.type="circleray",cex=0.5,pch=1,labels=NULL,pos=1,labels.cex=1,legend=NULL,legend.xy=NULL,legend.cex=1,...){
+   #d must be a matrix of distances (e.g., from structdist or hdist) and meas a matrix or vector of measures
+   #Perform an MDS on the distances
+   require(mva)
+   xy<-cmdscale(as.dist(d))
+   n<-dim(xy)[1]
+   #Adjust and rescale the measure(s) prior to display
+   if(is.null(dim(meas)))
+      m<-matrix(meas,ncol=1)
+   else
+      m<-meas
+   nm<-dim(m)[2]
+   if(rescale=="quantile"){   #Rescale by (empirical) quantiles (ordinal rescaling)
+      m<-apply(m,2,order)
+      m<-sweep(m,2,apply(m,2,min))
+      m<-sweep(m,2,apply(m,2,max),"/")
+   }else if(rescale=="affine"){   #Rescale the measure(s) by affine transformation to the [0,1] interval
+      m<-sweep(m,2,apply(m,2,min))
+      m<-sweep(m,2,apply(m,2,max),"/")
+   }else if(rescale=="normalize"){   #Rescale the measure(s) by their maximum values
+      m<-sweep(m,2,apply(m,2,max),"/")
+   }
+   #Determine how large our drawn symbols are to be
+   if(display.scale=="area")  #If we're using area scaling, we need to take square roots
+      m<-sqrt(m)
+   msize<-m*siz.lim[2]+siz.lim[1]   #Now, express the scaled measures as fractions of the plotting range
+   pwid<-max(xy)-min(xy)  #Grab width of plotting range
+   msize<-msize*pwid          #Adjust the msize matrix.
+   #Plot the data
+   plot(xy,xlab=expression(lambda[1]),ylab=expression(lambda[2]),cex=cex,pch=pch,xlim=c(min(xy),max(xy)),ylim=c(min(xy),max(xy)),...)   #Plot the graphs' MDS positions
+   if(display.type=="poly"){  #Plot measures using polygons
+      for(i in 1:nm){
+         for(j in 1:n){
+            x<-xy[j,1]+sin(2*pi*((0:nm)/nm))*msize[j,i]
+            y<-xy[j,2]+cos(2*pi*((0:nm)/nm))*msize[j,i]
+            lines(x,y,col=i)
+         }
+      }
+   }else if(display.type=="circle"){  #Plot measures using circles
+      for(i in 1:nm){
+         for(j in 1:n){
+            x<-xy[j,1]+sin(2*pi*((0:500)/500))*msize[j,i]
+            y<-xy[j,2]+cos(2*pi*((0:500)/500))*msize[j,i]
+            lines(x,y,col=i)
+         }
+      }
+   }else if(display.type=="ray"){  #Plot measures using rays
+      for(i in 1:nm){
+         for(j in 1:n){
+            lines(c(xy[j,1],xy[j,1]+sin(2*pi*((i-1)/nm))*msize[j,i]),c(xy[j,2],xy[j,2]+cos(2*pi*((i-1)/nm))*msize[j,i]),col=i)
+         }
+      }      
+   }else if(display.type=="polyray"){  #Plot measures using polys and rays
+      for(i in 1:nm){
+         for(j in 1:n){
+            x<-xy[j,1]+sin(2*pi*((0:nm)/nm))*msize[j,i]
+            y<-xy[j,2]+cos(2*pi*((0:nm)/nm))*msize[j,i]
+            lines(x,y,col=i)
+            lines(c(xy[j,1],xy[j,1]+sin(2*pi*((i-1)/nm))*msize[j,i]),c(xy[j,2],xy[j,2]+cos(2*pi*((i-1)/nm))*msize[j,i]),col=i)
+         }
+      }      
+   }else if(display.type=="circleray"){  #Plot measures using circles and rays
+      for(i in 1:nm){
+         for(j in 1:n){
+            x<-xy[j,1]+sin(2*pi*((0:500)/500))*msize[j,i]
+            y<-xy[j,2]+cos(2*pi*((0:500)/500))*msize[j,i]
+            lines(x,y,col=i)
+            lines(c(xy[j,1],xy[j,1]+sin(2*pi*((i-1)/nm))*msize[j,i]),c(xy[j,2],xy[j,2]+cos(2*pi*((i-1)/nm))*msize[j,i]),col=i)
+         }
+      }      
+   }
+   #Add labels, if needed
+   if(!is.null(labels))
+      text(xy[,1],xy[,2],labels,pos=pos,cex=labels.cex)
+   #Add legend?
+   if(!is.null(legend)){
+      if(is.null(legend.xy))
+         legend.xy<-c(min(xy),max(xy))
+      legend(legend.xy[1],legend.xy[2],legend=legend,fill=1:nm,cex=legend.cex)
+   }
+}
+
+
+#is.isolate - Returns TRUE iff ego is an isolate
+
+is.isolate<-function(dat,ego,g=1,diag=FALSE){
+   if(length(dim(dat))>2)
+      d<-dat[g,,]
+   else
+      d<-dat
+   if(!diag)
+      diag(d)<-NA
+   o<-vector()
+   for(i in 1:length(ego))
+      o<-c(o,all(is.na(d[ego[i],])|(d[ego[i],]==0))&all(is.na(d[,ego[i]])|(d[,ego[i]]==0)))
+   o   
+}
+
+
+#isolates - Returns a list of the isolates in a given graph or stack
+
+isolates<-function(dat,diag=FALSE){
+   if(length(dim(dat))>2){
+      o<-vector()
+      for(g in 1:dim(dat)[1])
+         o<-c(o,list(seq(1:dim(dat)[2])[is.isolate(dat,g=g,ego=1:dim(dat)[2],diag=diag)]))
+   }else
+      o<-seq(1:dim(dat)[2])[is.isolate(dat,ego=1:dim(dat)[2],diag=diag)]
+   o
+}
+
+
+#addisolates - Add isolates to one or more graphs
+
+addisolates<-function(dat,n){
+   if(length(dim(dat))>2){
+      d<-array(dim=c(dim(dat)[1],dim(dat)[2]+n,dim(dat)[3]+n))
+      d[,,]<-0
+      for(i in 1:dim(dat)[1])
+         d[i,1:dim(dat)[2],1:dim(dat)[2]]<-dat[i,,]
+   }
+   else{
+      d<-matrix(nrow=dim(dat)[1]+n,ncol=dim(dat)[2]+n)
+      d[,]<-0
+      d[1:dim(dat)[2],1:dim(dat)[2]]<-dat
+   }   
+   d
+}
+
+
+#diag.remove - NA the diagonals of adjacency matrices in a graph stack
+
+diag.remove<-function(dat,remove.val=NA){
+   if(length(dim(dat))>2){
+      d<-dat
+      for(i in 1:dim(dat)[1])
+         diag(d[i,,])<-remove.val
+   }
+   else{
+      d<-dat
+      diag(d)<-remove.val
+   }   
+   d
+}
+
+
+#upper.tri.remove - NA the upper triangles of adjacency matrices in a graph stack
+
+upper.tri.remove<-function(dat,remove.val=NA){
+   if(length(dim(dat))>2){
+      d<-dat
+      for(i in 1:dim(dat)[1]){
+         temp<-d[i,,]
+         temp[upper.tri(temp,diag=FALSE)]<-remove.val
+         d[i,,]<-temp
+      }
+   }
+   else{
+      d<-dat
+      d[upper.tri(d,diag=FALSE)]<-remove.val
+   }   
+   d
+}
+
+
+#lower.tri.remove - NA the lower triangles of adjacency matrices in a graph stack
+
+lower.tri.remove<-function(dat,remove.val=NA){
+   if(length(dim(dat))>2){
+      d<-dat
+      for(i in 1:dim(dat)[1]){
+         temp<-d[i,,]
+         temp[lower.tri(temp,diag=FALSE)]<-remove.val
+         d[i,,]<-temp
+      }
+   }
+   else{
+      d<-dat
+      d[lower.tri(d,diag=FALSE)]<-remove.val
+   }   
+   d
+}
+
+
+#nties - Find the number of ties in a given graph or stack
+
+nties<- function(dat,mode="digraph",diag=FALSE){
+   #Did someone send us a stack?
+   if(length(dim(dat))>2)
+      shiftit<-1
+   else
+      shiftit<-0
+   #Get size params
+   n<-dim(dat)[1+shiftit]
+   m<-dim(dat)[2+shiftit]
+   #Sanity check for hypergraphs
+   if(mode=="hgraph")
+      diag<-TRUE
+   #Get the initial count
+   count<-switch(mode,
+      digraph = n*n,
+      graph = (n*n-n)/2+n,
+      hgraph = n*m
+   )
+   #Modify for diag, if needed
+   if(!diag)
+      count<-count-n
+   #Return the needed info
+   if(shiftit)
+      rep(count,dim(dat)[1])
+   else
+      count                
+}
+
+
+#rgraph - Draw a Bernoulli graph.
+
+rgraph<-function(n,m=1,tprob=0.5,mode="digraph",diag=FALSE,replace=FALSE,tielist=NULL){
+   if(m==1){
+      if(is.null(tielist)){
+         if(length(dim(tprob))==2){
+            g<-matrix(ncol=n,nrow=n)
+            for(i in 1:n)
+               for(j in 1:n)
+                  g[i,j]<-sample(0:1,1,replace=TRUE,prob=c(1-tprob[i,j],tprob[i,j]))
+         }else{
+            g<-matrix(data=sample(0:1,n*n,replace=TRUE,prob=c(1-tprob,tprob)),ncol=n,nrow=n)
+         }
+      }else{
+         g<-matrix(data=sample(as.vector(tielist),n*n,replace=replace),ncol=n,nrow=n)
+      }
+      if(!diag)
+         diag(g)<-0
+      if(mode!="digraph")
+#         for(i in 1:n)
+#            g[i,c(1:i)[-i]]<-g[c(1:i)[-i],i]
+         g[upper.tri(g)]<-t(g)[upper.tri(g)]
+   }else{
+      g<-array(dim=c(m,n,n))
+      if(is.null(tielist)){
+         if(length(dim(tprob))==2){
+            for(i in 1:m)
+               for(j in 1:n)
+                  for(k in 1:n)
+                     g[i,j,k]<-sample(0:1,1,replace=TRUE,prob=c(1-tprob[j,k],tprob[j,k]))
+         }else if(length(tprob)==m){
+            for(i in 1:m){
+               g[i,,]<-array(sample(0:1,n*n,replace=TRUE,prob=c(1-tprob[i],tprob[i])),dim=c(n,n))
+            }
+         }else{
+            for(i in 1:m){
+               g[i,,]<-array(sample(0:1,n*n,replace=TRUE,prob=c(1-tprob,tprob)),dim=c(n,n))
+            }
+         }
+      }else{
+         if(length(dim(tielist))==3){
+            for(i in 1:m)
+               g[i,,]<-array(sample(as.vector(tielist[i,,]),n*n,replace=replace),dim=c(n,n))
+         }else{
+            for(i in 1:m)
+               g[i,,]<-array(sample(as.vector(tielist),n*n,replace=replace),dim=c(n,n))
+         }
+      }
+      if(!diag)
+         for(i in 1:m)
+            diag(g[i,,])<-0
+      if(mode!="digraph")
+         for(i in 1:m){
+#            for(j in 1:n)
+#               g[i,j,c(1:j)[-j]]<-g[i,c(1:j)[-j],j]
+            temp<-g[i,,]
+            temp[upper.tri(temp)]<-t(temp)[upper.tri(temp)]
+            g[i,,]<-temp
+         }
+   }
+   g
+}
+
+
+#gden - Compute the density of an input graph or graph stack.
+
+gden<-function(dat,g=NULL,diag=FALSE,mode="digraph"){
+   n<-dim(dat)[2]
+   if(length(dim(dat))>2){     #Is this a stack?
+      if(!is.null(g)){                 #Were individual graphs selected?
+         gn<-length(g)
+         d<-dat[g,,]
+      }else{
+         d<-dat
+         gn<-dim(dat)[1]
+      }
+   }else{
+      d<-dat
+      gn<-1
+   }
+   if(gn==1){     #Only one graph - convert to stack format
+      temp<-array(dim=c(1,n,n))
+      temp[1,,]<-d
+      d<-temp
+   }
+   if(!diag)           #If not using the diagonal, remove it
+      d<-diag.remove(d)
+   if(mode=="graph")    #If this is a simple graph, remove one triangle of each matrix
+      d<-upper.tri.remove(d)
+   #Find number of ties, and counts
+   count<-apply(d,1,sum,na.rm=TRUE)
+   count/nties(d[1,,],mode=mode,diag=diag)
+}
+
+
+#grecip - Compute the reciprocity of an input graph or graph stack.
+
+grecip<-function(dat,g=NULL){
+   n<-dim(dat)[2]
+   if(length(dim(dat))>2){     #Is this a stack?
+      if(!is.null(g)){                 #Were individual graphs selected?
+         gn<-length(g)
+         d<-dat[g,,]
+      }else{
+         d<-dat
+         gn<-dim(dat)[1]
+      }
+   }else{
+      d<-dat
+      gn<-1
+   }
+   if(gn==1){     #Only one graph - convert to stack format
+      temp<-array(dim=c(1,n,n))
+      temp[1,,]<-d
+      d<-temp
+   }
+   #Find mean lack of reciprocation
+   gr<-vector()
+   for(i in 1:gn){
+      temp<-d[i,,]
+      gr[i]<-1-mean(abs(temp[upper.tri(temp)]-t(temp)[upper.tri(temp)]),na.rm=TRUE)
+   }
+   gr
+}
+
+
+#gtrans - Compute the transitivity of an input graph or graph stack.
+
+gtrans<-function(dat,g=NULL,diag=FALSE,mode="digraph"){
+   n<-dim(dat)[2]
+   if(length(dim(dat))>2){     #Is this a stack?
+      if(!is.null(g)){                 #Were individual graphs selected?
+         gn<-length(g)
+         d<-dat[g,,]
+      }else{
+         d<-dat
+         gn<-dim(dat)[1]
+      }
+   }else{
+      d<-dat
+      gn<-1
+   }
+   if(gn==1){     #Only one graph - convert to stack format
+      temp<-array(dim=c(1,n,n))
+      temp[1,,]<-d
+      d<-temp
+   }
+   if(!diag)           #If not using the diagonal, remove it
+      d<-diag.remove(d,remove.val=0)
+   if(mode=="graph")    #If this is a simple graph, remove one triangle of each matrix
+      d<-upper.tri.remove(d,remove.val=0)
+   #Find the fraction of transitive triads, removing any NAs 
+   t<-vector()
+   for(i in 1:gn){
+      #Prepare the transitivity test matrices
+      dsqt<-(d[i,,]%*%d[i,,])>0
+      dt<-d[i,,]>0
+      #NA the appropriate portions of the graph, if needed (this to prevent their being counted)
+      if(!diag)
+         diag(dt)<-NA
+      if(mode=="graph")
+         dt[upper.tri(dt)]<-NA              
+      #Compute the transitivity
+      t[i]<-mean(((d[i,,]%*%d[i,,])>0)==(d[i,,]>0),na.rm=TRUE)
+   }
+   #Return the result
+   t
+}
+
+
+#rmperm - Randomly permutes the rows and columns of an input matrix.
+
+rmperm<-function(m){
+   if(length(dim(m))==2){
+      #Only a single matrix is included
+      o<-sample(1:dim(m)[1])
+      p<-matrix(data=m[o,o],nrow=dim(m)[1],ncol=dim(m)[2])
+   }else{
+      #Here, we assume a stack of matrices
+      p<-array(dim=c(dim(m)[1],dim(m)[2],dim(m)[3]))
+      for(i in 1:dim(m)[1]){
+         o<-sample(1:dim(m)[2])
+         p[i,,]<-array(m[i,o,o])
+      }
+   }
+   p
+}
+
+
+#qaptest - Generate, print, and plot QAP test objects.
+
+qaptest<-function(dat,FUN,reps=1000,...){
+   out<-data.frame()
+   #First, find the test value for fun on dat
+   fun<-match.fun(FUN)
+   out$testval<-fun(dat,...)
+   #Now, perform reps replications on random permutations of the data
+   out$dist<-vector(mode="numeric",length=reps)
+   for(i in 1:reps){
+      out$dist[i]<-fun(rmperm(dat),...)
+   }
+   #Find p values
+   out$pgreq<-mean(as.numeric(out$dist>=out$testval))
+   out$pleeq<-mean(as.numeric(out$dist<=out$testval))
+   class(out)<-c("qaptest","qap")
+   out
+}
+
+summary.qaptest<-function(q){
+   out<-q
+   class(out)<-c("summary.qaptest",class(out))
+   out
+}
+
+print.summary.qaptest<-function(q){
+   cat("\nQAP Test Results\n\n")
+   cat("Estimated p-values:\n")
+   cat("\tp(f(perm) >= f(d)):",q$pgreq,"\n")
+   cat("\tp(f(perm) <= f(d)):",q$pleeq,"\n")
+   cat("\nTest Diagnostics:\n")
+   cat("\tTest Value (f(d)):",q$testval,"\n")
+   cat("\tReplications:",length(q$dist),"\n")
+   cat("\tDistribution Summary:\n")
+   cat("\t\tMin:\t",quantile(q$dist,probs=0,names=FALSE),"\n")
+   cat("\t\t1stQ:\t",quantile(q$dist,probs=0.25,names=FALSE),"\n")
+   cat("\t\tMed:\t",quantile(q$dist,probs=0.5,names=FALSE),"\n")
+   cat("\t\tMean:\t",mean(q$dist),"\n")
+   cat("\t\t3rdQ:\t",quantile(q$dist,probs=0.75,names=FALSE),"\n")
+   cat("\t\tMax:\t",quantile(q$dist,probs=1,names=FALSE),"\n")
+   cat("\n")
+}
+
+print.qaptest<-function(q){
+   cat("\nQAP Test Results\n\n")
+   cat("Estimated p-values:\n")
+   cat("\tp(f(perm) >= f(d)):",q$pgreq,"\n")
+   cat("\tp(f(perm) <= f(d)):",q$pleeq,"\n\n")      
+}
+
+plot.qaptest<-function(q,mode="density",...){
+   if(mode=="density"){
+      plot(density(q$dist),main="Estimated Density of QAP Replications",xlab="Test Statistic",...)
+   }else{
+      hist(q$dist,main="Histogram of QAP Replications",xlab="Test Statistic",...)
+   }
+   abline(v=q$testval,lty=2)
+}
+
+
+#lab.optimize - Optimize a function over the accessible permutation groups of two or more graphs.  This routine is a front end for various method-specific functions, and is in turn intended to be called from structural distance/covariance routines and the like.  The methods supported at this time include "exhaustive" (exhaustive search - I hope these are _small_ graphs!), "mc" (simple monte carlo search), " 
+
+lab.optimize<-function(d1,d2,FUN,exchange.list=0,seek="min",opt.method=c("anneal","exhaustive","mc","hillclimb","gumbel"),...){
+   meth<-match.arg(opt.method)
+   if(meth=="anneal")
+      lab.optimize.anneal(d1,d2,FUN,exchange.list,seek,...)
+   else if(meth=="exhaustive")
+      lab.optimize.exhaustive(d1,d2,FUN,exchange.list,seek,...)
+   else if(meth=="mc")
+      lab.optimize.mc(d1,d2,FUN,exchange.list,seek,...)
+   else if(meth=="hillclimb")
+      lab.optimize.hillclimb(d1,d2,FUN,exchange.list,seek,...)
+   else if(meth=="gumbel")
+      stop("Sorry, gumbel method not yet supported.\n")
+}
+
+lab.optimize.exhaustive<-function(d1,d2,FUN,exchange.list=0,seek="min",...){
+   #Find the data set size
+   n<-dim(d1)[2]
+   #If exchange list is a single number or vector, expand it via replication in a reasonable manner
+   if(is.null(dim(exchange.list))){       #Exchange list was given as a single number or vector
+      if(length(exchange.list)==1){                 #Single number case
+         el<-matrix(rep(exchange.list,2*n),nrow=2,ncol=n)
+      }else{                                                    #Vector case
+         el<-sapply(exchange.list,rep,2)
+      }  
+   }else                         #Exchange list was given as a matrix; keep it.
+      el<-exchange.list
+   #Initialize various things
+   fun<-match.fun(FUN)       #Find the function to be optimized
+   best<-fun(d1,d2,...)          #Take the seed value
+   #Search exhaustively - I hope you're not in a hurry!
+   if(any(duplicated(el[2,])))                #If we're dealing with the labeled case, don't bother.
+      for(k in 0:(gamma(n+1)-1)){
+         o<-numperm(n,k)
+         if(all(el[2,]==el[2,o])){
+            if(seek=="min")
+               best<-min(best,fun(d1,d2[o,o],...))
+            else
+               best<-max(best,fun(d1,d2[o,o],...))
+         }
+      }
+   #Report the results
+   best
+}
+
+
+lab.optimize.mc<-function(d1,d2,FUN,exchange.list=0,seek="min",draws=1000,...){
+   #Find the data set size
+   n<-dim(d1)[2]
+   #If exchange list is a single number or vector, expand it via replication in a reasonable manner
+   if(is.null(dim(exchange.list))){       #Exchange list was given as a single number or vector
+      if(length(exchange.list)==1){                 #Single number case
+         el<-matrix(rep(exchange.list,2*n),nrow=2,ncol=n)
+      }else{                                                    #Vector case
+         el<-sapply(exchange.list,rep,2)
+      }  
+   }else                         #Exchange list was given as a matrix; keep it.
+      el<-exchange.list
+   #Initialize various things
+   fun<-match.fun(FUN)       #Find the function to be optimized
+   best<-fun(d1,d2,...)          #Take the seed value
+   #Search via blind monte carlo - slow, yet ineffectual
+   if(any(duplicated(el[2,])))                #If we're dealing with the labeled case, don't bother.
+      for(i in 1:draws){
+         o<-rperm(el[2,])
+         if(seek=="min")
+            best<-min(best,fun(d1,d2[o,o],...))
+         else
+            best<-max(best,fun(d1,d2[o,o],...))
+      }
+   #Report the results
+   best
+}
+
+
+lab.optimize.gumbel<-function(d1,d2,FUN,exchange.list=0,seek="min",draws=500,tol=1e-5,estimator="median",...){
+   #Find the data set size
+   n<-dim(d1)[2]
+   #If exchange list is a single number or vector, expand it via replication in a reasonable manner
+   if(is.null(dim(exchange.list))){       #Exchange list was given as a single number or vector
+      if(length(exchange.list)==1){                 #Single number case
+         el<-matrix(rep(exchange.list,2*n),nrow=2,ncol=n)
+      }else{                                                    #Vector case
+         el<-sapply(exchange.list,rep,2)
+      }  
+   }else                         #Exchange list was given as a matrix; keep it.
+      el<-exchange.list
+   #Initialize various things
+   fun<-match.fun(FUN)       #Find the function to be optimized
+   fg<-vector()                    #Set up the function
+   #Approximate the distribution using Monte Carlo
+   for(i in 1:draws){
+      o<-rperm(el[2,])
+      fg[i]<-fun(d1,d2[o,o],...)
+   }
+   #Use the approximated distribution to fit a Gumbel model for the extreme values;
+   #this is only approximate, since the extreme value model assumes an unbounded, continuous underlying
+   #distribution.  Also, these results are "unproven," in the sense that no actual permutation has been
+   #found by the algorithm which results in the predicted value (unlike the other methods); OTOH, in 
+   #a world of approximations, this one may not be any worse than the others....
+   b<-1
+   b.old<-1
+   bdiff<-Inf
+   mfg<-mean(fg)
+   print(quantile(fg))
+   while(bdiff>tol){         #Solve iteratively for bhat
+      cat("bold=",b.old,"b=",b,"bdiff=",bdiff,"\n")
+      b.old<-b
+      b<-mfg-sum(fg*exp(-fg/b))/sum(exp(-fg/b))
+      bdiff<-abs(b.old-b)
+   }
+   a<--b*log(sum(exp(-fg/b))/draws)     #Given this, ahat is a function of bhat and the data
+   #Report the results
+   cat("a=",a,"b=",b,"\n")
+   switch(estimator,
+      mean=a-b*digamma(1),
+      mode=a,
+      median=a-b*log(log(2))
+   )
+}
+
+
+lab.optimize.anneal<-function(d1,d2,FUN,exchange.list=0,seek="min",prob.init=1,prob.decay=0.99,freeze.time=1000,full.neighborhood=TRUE,...){
+   #Find the data set size
+   n<-dim(d1)[2]
+   #If exchange list is a single number or vector, expand it via replication in a reasonable manner
+   if(is.null(dim(exchange.list))){       #Exchange list was given as a single number or vector
+      if(length(exchange.list)==1){                 #Single number case
+         el<-matrix(rep(exchange.list,2*n),nrow=2,ncol=n)
+      }else{                                                    #Vector case
+         el<-sapply(exchange.list,rep,2)
+      }  
+   }else                         #Exchange list was given as a matrix; keep it.
+      el<-exchange.list
+   #Initialize various things
+   fun<-match.fun(FUN)       #Find the function to be optimized
+   best<-fun(d1,d2,...)          #Take the seed value
+   o<-1:n                              #Set the initial ordering
+   global.best<-best              #Set global best values
+   global.o<-o
+   prob<-prob.init                  #Set acceptance prob
+   ftime<-freeze.time            #Set time until freezing occurs
+   nc<-choose(n,2)               #How many candidate steps?
+   candp<-sapply(o,rep,choose(n,2))   #Build the candidate permutation matrix
+   ccount<-1
+   for(i in 1:n)
+      for(j in i:n)
+         if(i!=j){                                          #Perform binary exchanges 
+            temp<-candp[ccount,i]
+            candp[ccount,i]<-candp[ccount,j]
+            candp[ccount,j]<-temp
+            ccount<-ccount+1
+         }         
+   #Run the annealer
+   flag<-FALSE
+   if(any(duplicated(el[2,])))                #If we're dealing with the labeled case, don't bother.
+      while((!flag)|(ftime>0)){           #Until we both freeze _and_ reach an optimum...
+         #cat("Best: ",o," Perf: ",best," Global best: ",global.o," Global perf: ",global.best," Temp: ",prob,"\n")
+         #cat("Perf: ",best," Global perf: ",global.best," Temp: ",prob,"\n")
+         flag<-TRUE
+         if(full.neighborhood){ #Full neighborhood search method - much slower, but more likely to find the optimum
+            candperf<-vector()
+            for(i in 1:nc)                           #Use candidate permutation matrix to produce new candidates
+               if(all(el[2,]==el[2,o[candp[i,]]]))   #Is this legal?
+                  candperf[i]<-fun(d1,d2[o[candp[i,]],o[candp[i,]]],...)
+               else
+                  candperf[i]<-NA   #If not, put the results in as missing data
+            if(seek=="min"){
+               bestcand<-(1:nc)[candperf==min(candperf,na.rm=TRUE)]   #Find the best candidate
+               bestcand<-bestcand[!is.na(bestcand)]            
+               if(length(bestcand)>1)
+                  bestcand<-sample(bestcand,1)  #If we have multiple best candidates, choose one at random
+               #cat(min(candperf,na.rm=TRUE),bestcand,candperf[bestcand],"\n")
+               if(candperf[bestcand]<best){  #If this is better, move on and keep looking...        
+                  o<-o[candp[bestcand,]]
+                  best<-candperf[bestcand]
+                  flag<-FALSE
+                  if(best<global.best){   #Check to see if this is better than the global best
+                     global.best<-best
+                     global.o<-o
+                  }
+               }else if((ftime>0)&(runif(1,0,1)<prob)){   #...but if not frozen and no better option, take a chance.
+                  #print(candperf)
+                  bestcand<-sample(1:nc,1)               #Choose randomly from the available options
+                  while(!all(el[2,]==el[2,o[candp[bestcand,]]]))  #Make sure we have a legal one...
+                     bestcand<-sample(1:nc,1)
+                  #cat("Wildcard - perm ",bestcand," perf ",candperf[bestcand],"\n")
+                  o<-o[candp[bestcand,]]                #Accept the new candidate
+                  best<-candperf[bestcand]
+               }
+            }else{
+               bestcand<-(1:nc)[candperf==max(candperf,na.rm=TRUE)]   #Find the best candidate
+               bestcand<-bestcand[!is.na(bestcand)]            
+               if(length(bestcand)>1)
+                  bestcand<-sample(bestcand,1)          #If we have multiple best candidates, choose one at random
+               if((candperf[bestcand]>best)|(runif(1,0,1)<prob)){  #If this is better, move on and keep looking...        
+                  o<-o[candp[bestcand,]]
+                  best<-candperf[bestcand]
+                  flag<-FALSE
+                  if(best>global.best){   #Check to see if this is better than the global best
+                     global.best<-best
+                     global.o<-o
+                  }
+               }else if((ftime>0)&(runif(1,0,1)<prob)){   #...but if not frozen and no better option, take a chance.
+                  bestcand<-sample(1:nc,1)               #Choose randomly from the available options
+                  while(!all(el[2,]==el[2,o[candp[bestcand,]]]))  #Make sure we have a legal one...
+                     bestcand<-sample(1:nc,1)
+                  o<-o[candp[bestcand,]]                #Accept the new candidate
+                  best<-candperf[bestcand]
+               }
+            }
+         }else{      #Single candidate method.  Much faster, but less likely to find the optimum.
+            #Use candidate permutation matrix to produce new candidates
+            i<-sample(1:nc,1)       
+            while(!all(el[2,]==el[2,o[candp[i,]]]))   #Is this legal?
+               i<-sample(1:nc,1)       #Keep trying till we get it right.
+            #Assess candidate performance
+            candperf<-fun(d1,d2[o[candp[i,]],o[candp[i,]]],...)
+            #Make a decision
+            if(seek=="min"){
+               if(candperf<best){  #If this is better, move on and keep looking...        
+                  o<-o[candp[i,]]
+                  best<-candperf
+                  flag<-FALSE
+                  if(best<global.best){   #Check to see if this is better than the global best
+                     global.best<-best
+                     global.o<-o
+                  }
+               }else if((ftime>0)&(runif(1,0,1)<prob)){   #...but if not frozen and no better option, take a chance.
+                  i<-sample(1:nc,1)               #Choose randomly from the available options
+                  while(!all(el[2,]==el[2,o[candp[i,]]]))  #Make sure we have a legal one...
+                     i<-sample(1:nc,1)
+                  o<-o[candp[i,]]                #Accept the new candidate
+                  best<-candperf
+                  if(best<global.best){   #Check to see if this is better than the global best
+                     global.best<-best
+                     global.o<-o
+                  }
+               }
+            }else{
+               if(candperf>best){  #If this is better, move on and keep looking...        
+                  o<-o[candp[i,]]
+                  best<-candperf
+                  flag<-FALSE
+                  if(best>global.best){   #Check to see if this is better than the global best
+                     global.best<-best
+                     global.o<-o
+                  }
+               }else if((ftime>0)&(runif(1,0,1)<prob)){   #...but if not frozen and no better option, take a chance.
+                  i<-sample(1:nc,1)               #Choose randomly from the available options
+                  while(!all(el[2,]==el[2,o[candp[i,]]]))  #Make sure we have a legal one...
+                     i<-sample(1:nc,1)
+                  o<-o[candp[i,]]                #Accept the new candidate
+                  best<-candperf
+                  if(best>global.best){   #Check to see if this is better than the global best
+                     global.best<-best
+                     global.o<-o
+                  }
+               }
+            }
+         }
+         #Set things up for the next iteration (if there is one)
+         ftime<-ftime-1               #Continue the countdown to the freezing point
+         prob<-prob*prob.decay   #Cool things off a bit
+      }
+   #Report the results
+   global.best
+}
+
+lab.optimize.hillclimb<-function(d1,d2,FUN,exchange.list=0,seek="min",...){
+   #Find the data set size
+   n<-dim(d1)[2]
+   #If exchange list is a single number or vector, expand it via replication in a reasonable manner
+   if(is.null(dim(exchange.list))){       #Exchange list was given as a single number or vector
+      if(length(exchange.list)==1){                 #Single number case
+         el<-matrix(rep(exchange.list,2*n),nrow=2,ncol=n)
+      }else{                                                    #Vector case
+         el<-sapply(exchange.list,rep,2)
+      }  
+   }else                         #Exchange list was given as a matrix; keep it.
+      el<-exchange.list
+   #Initialize various things
+   fun<-match.fun(FUN)       #Find the function to be optimized
+   best<-fun(d1,d2,...)          #Take the seed value
+   o<-1:n                              #Set the initial ordering
+   nc<-choose(n,2)               #How many candidate steps?
+   candp<-sapply(o,rep,choose(n,2))   #Build the candidate permutation matrix
+   ccount<-1
+   for(i in 1:n)
+      for(j in i:n)
+         if(i!=j){                                          #Perform binary exchanges 
+            temp<-candp[ccount,i]
+            candp[ccount,i]<-candp[ccount,j]
+            candp[ccount,j]<-temp
+            ccount<-ccount+1
+         }         
+   #Run the hill climber
+   flag<-FALSE
+   while(!flag){           #Until we reach an optimum...
+      #cat("Best: ",o," Perf: ",best,"\n")
+      flag<-TRUE
+      candperf<-vector()
+      for(i in 1:nc)                           #Use candidate permutation matrix to produce new candidates
+         if(all(el[2,]==el[2,o[candp[i,]]]))   #Is this legal?
+            candperf[i]<-fun(d1,d2[o[candp[i,]],o[candp[i,]]],...)
+         else
+            candperf[i]<-NA   #If not, put the results in as missing data
+      if(seek=="min"){
+         bestcand<-(1:nc)[candperf==min(candperf,na.rm=TRUE)]   #Find the best candidate
+         if(length(bestcand)>1)
+            bestcand<-sample(bestcand,1)          #If we have multiple best candidates, choose one at random
+         if(candperf[bestcand]<best){          #If this is better, move on and keep looking...        
+            o<-o[candp[bestcand,]]
+            best<-candperf[bestcand]
+            flag<-FALSE
+         }
+      }else{
+         bestcand<-(1:nc)[candperf==max(candperf,na.rm=TRUE)]   #Find the best candidate
+         if(length(bestcand)>1)
+            bestcand<-sample(bestcand,1)          #If we have multiple best candidates, choose one at random
+         if(candperf[bestcand]>best){          #If this is better, move on and keep looking...        
+            o<-o[candp[bestcand,]]
+            best<-candperf[bestcand]
+            flag<-FALSE
+         }
+      }
+   }
+   #Report the results
+   best
+}
+
+
+#hdist - Find the Hamming distances between two or more graphs.
+
+hdist<-function(dat,dat2=NULL,g1=c(1:dim(dat)[1]),g2=c(1:dim(dat)[1]),normalize=FALSE,diag=FALSE,mode="digraph"){
+   #Collect data and various parameters
+   if(!is.null(dat2)){
+      if(length(dim(dat))>2)
+         temp1<-dat
+      else{
+         temp1<-array(dim=c(1,dim(dat)[2],dim(dat)[2]))
+         temp1[1,,]<-dat
+      }
+      if(length(dim(dat2))>2)
+         temp2<-dat2
+      else{
+         temp2<-array(dim=c(1,dim(dat2)[2],dim(dat2)[2]))
+         temp2[1,,]<-dat2
+      }
+      if(dim(temp1)[2]>dim(temp2)[2])
+         temp2<-addisolates(temp2,dim(temp1)[2]-dim(temp2)[2])
+      if(dim(temp2)[2]>dim(temp1)[2])
+         temp1<-addisolates(temp1,dim(temp2)[2]-dim(temp1)[2])
+      n<-dim(temp1)[2]
+      gn<-dim(temp1)[1]+dim(temp2)[1]
+      gn1<-dim(temp1)[1]
+      gn2<-dim(temp2)[1]
+      d<-array(dim=c(gn,n,n))
+      d[1:gn1,,]<-temp1
+      d[(gn1+1):(gn2+gn1),,]<-temp2
+      g1<-1:gn1
+      g2<-(gn1+1):(gn1+gn2)
+   }else{
+      d<-dat
+      n<-dim(dat)[2]
+      gn<-dim(dat)[1]
+      gn1<-length(g1)
+      gn2<-length(g2)
+   }
+   #Scrap the diagonals, if required
+   if(!diag)
+      d<-diag.remove(d)
+   #Now, get rid of the upper triangle if these are simple graphs
+   if(mode=="graph")
+      d<-upper.tri.remove(d)
+   #Compute the raw distance matrix
+   hd<-matrix(nrow=gn1,ncol=gn2)
+   rownames(hd)<-g1
+   colnames(hd)<-g2
+   for(i in 1:gn1)
+      for(j in 1:gn2)
+         hd[i,j]<-sum(abs(d[g1[i],,]-d[g2[j],,]),na.rm=TRUE)
+   #Normalize if need be
+   if(normalize)
+      hd<-hd/nties(dat[1,,],mode=mode,diag=diag)
+   #If only one comparison requested, return as an element
+   if((gn1==1)&(gn2==1))
+      hd[1,1]
+   else
+      hd
+}
+
+
+#rperm - Draw a random permutation vector with exchangability constraints
+
+rperm<-function(exchange.list){
+   #Note that exchange.list should be a vector whose entries correspond to the class identity
+   #of the respective element.  It doesn't matter what the values are, so long as elements have
+   #the same value iff they are exchangeable.
+   n<-length(exchange.list)   #Get the length of the output vector
+   grp<-unique(exchange.list) #Get the groups
+   o<-1:n  #Create the initial ordering
+   #Randomly scramble orders within groups
+   for(i in grp){
+      v<-(1:n)[exchange.list==i]
+      if(length(v)>1)      #Need this test, because sample is too smart for its own good...
+         o[v]<-sample(v)
+   }
+   #Return the permutation
+   o
+}
+
+
+#numperm - Get the nth permutation vector by periodic placement
+
+numperm<-function(olength,permnum){
+   if((permnum>gamma(olength+1)-1)|(permnum<0)){
+      cat("permnum must be an integer in [0,olength!-1]\n")
+   }
+   o<-vector(length=olength)
+   o[]<--1
+   pnum<-permnum
+   for(i in 1:olength){
+      relpos<-pnum%%(olength-i+1)
+      flag<-FALSE
+      p<-1
+      while(!flag)
+         if(o[p]==-1){
+            if(relpos==0){
+               o[p]<-i
+               flag<-TRUE
+            }else{
+               p<-p+1
+               relpos<-relpos-1
+            }
+         }else
+            p<-p+1      
+      pnum<-pnum%/%(olength-i+1)
+   }
+   o
+}
+
+
+#structdist - Estimate the structural distance between two or more unlabeled graphs.
+
+structdist<-function(dat,g1=c(1:dim(dat)[1]),g2=c(1:dim(dat)[1]),normalize=FALSE,diag=FALSE,mode="digraph",method="anneal",reps=1000,prob.init=0.9,prob.decay=0.85,freeze.time=25,full.neighborhood=TRUE,mut=0.05,pop=20,trials=5,exchange.list=rep(0,dim(dat)[2])){
+   #Collect data and various parameters
+   d<-dat
+   n<-dim(dat)[2]
+   gn<-dim(dat)[1]
+   gn1<-length(g1)
+   gn2<-length(g2)
+   #Scrap the diagonals, if required
+   if(!diag)
+      d<-diag.remove(d)
+   #Now, get rid of the upper triangle if these are simple graphs
+   if(mode=="graph")
+      d<-upper.tri.remove(d)
+   #If exchange list is a single number or vector, expand it via replication in a reasonable manner
+   if(is.null(dim(exchange.list))){       #Exchange list was given as a single number or vector
+      if(length(exchange.list)==1){                 #Single number case
+         el<-matrix(rep(exchange.list,gn*n),nrow=gn,ncol=n)
+      }else{                                                    #Vector case
+         el<-sapply(exchange.list,rep,gn)
+      }  
+   }else                         #Exchange list was given as a matrix; keep it.
+      el<-exchange.list
+   #Compute the distance matrix
+   hd<-matrix(nrow=gn1,ncol=gn2)
+   rownames(hd)<-g1
+   colnames(hd)<-g2
+   if(method=="exhaustive"){
+      for(i in 1:gn1)
+         for(j in 1:gn2){
+            best<-n^2+1
+            for(k in 0:(gamma(n+1)-1)){
+               o<-numperm(n,k)
+               if(all(el[g2[j],]==el[g2[j],o]))
+                  best<-min(best,sum(abs(d[g1[i],,]-d[g2[j],o,o]),na.rm=TRUE))
+            }
+            hd[i,j]<-best
+         }
+   }else if(method=="anneal"){
+      for(i in 1:gn1)
+         for(j in 1:gn2){
+            hd[i,j]<-lab.optimize.anneal(d[g1[i],,],d[g2[j],,],function(m1,m2){sum(abs(m1-m2),na.rm=TRUE)},exchange.list=el[c(g1[i],g2[j]),],seek="min",prob.init=prob.init,prob.decay=prob.decay,freeze.time=freeze.time,full.neighborhood=full.neighborhood)
+         }
+   }else if(method=="hillclimb"){
+      for(i in 1:gn1)
+         for(j in 1:gn2)
+            hd[i,j]<-lab.optimize.hillclimb(d[g1[i],,],d[g2[j],,],function(m1,m2){sum(abs(m1-m2),na.rm=TRUE)},exchange.list=el[c(g1[i],g2[j]),],seek="min")
+   }else if(method=="mc"){
+      for(i in 1:gn1)
+         for(j in 1:gn2){
+            best<-sum(abs(d[g1[i],,]-d[g2[j],,]),na.rm=TRUE)
+            for(k in 1:reps){
+               o<-rperm(el[g2[j],])
+               best<-min(best,sum(abs(d[g1[i],,]-d[g2[j],o,o]),na.rm=TRUE))
+            }
+            hd[i,j]<-best
+         }
+   }else if(method=="ga"){
+      #This is broken right now - exit with a warning
+      cat("Sorry, GA mode is not currently supported.\n")
+      abort()
+      #set initial params
+      galen<-log2(gamma(n+1))
+      gamult<-c(0,cumprod(rep(2,galen-1)))
+      for(i in 1:gn1)
+         for(j in 1:gn2){
+            best<-n^2+1
+            for(k in 1:trials){
+               #initialize the population
+               gapop<-matrix(sample(c(0,1),galen*pop,replace=TRUE),nrow=pop,ncol=galen)
+               #run the GA
+               for(l in 1:reps){
+                  #compute the distances
+                  for(m in 1:pop){
+                     o<-numperm(n,sum(gamult*gapop[m,]))
+                     gadist[i]<-sum(abs(d[g1[i],,]-d[g2[j],o,o]),na.rm=TRUE)
+                     best<-min(best,gadist[i])
+                  }
+                  #randomly draw candidates
+                  gacand<-matrix(sample(1:pop,4*pop,replace=TRUE),ncol=4,nrow=pop)
+                  #determine two "winners" for each contest
+                  gawin<-matrix(nrow=pop,ncol=2)
+                  for(m in 1:pop){
+                     if(gadist[gacand[m,1]]<gadist[gacand[m,2]])
+                        gawin[m,1]<-gacand[m,1]
+                     else
+                        gawin[m,1]<-gacand[m,2]
+                     if(gadist[gacand[m,3]]<gadist[gacand[m,4]])
+                        gawin[m,2]<-gacand[m,3]
+                     else
+                        gawin[m,2]<-gacand[m,4]
+                  }
+                  #Create the new population
+                  gacross<-sample(1:galen,pop,replace=TRUE)
+                  ganew1<-gapop[gawin[,1],]
+                  ganew2<-gapop[gawin[,2],]
+                  for(m in 1:pop)
+                     gapop[m,]<-c(ganew1[m,1:gacross[m]],ganew2[m,1:gacross[m]])
+                  #Apply mutation
+                  for(m in 1:pop)
+                     for(n in 1:galen)
+                        gapop[m,n]<-sample(c(gapop[m,n],1-gapop[m,n]),1,prob=c(1-mut,mut))
+               }
+            }
+            hd[i,j]<-best
+         }
+   }else if(method=="none"){
+      for(i in 1:gn1)
+         for(j in 1:gn2){
+            hd[i,j]<-sum(abs(d[g1[i],,]-d[g2[j],,]),na.rm=TRUE)
+         }
+   }else{
+      cat("Method",method,"not implemented yet.\n")
+   }
+   #Normalize if need be
+   if(normalize)
+      hd<-hd/nties(dat[1,,],mode=mode,diag=diag)
+   #If only one comparison requested, return as an element
+   if((gn1==1)&(gn2==1))
+      hd[1,1]
+   else
+      hd
+}
+
+#sdmat - Estimate the matrix of structural distances among a set of unlabeled graphs.
+#NOTE: This is redundant, as the included functionality is now included within hdist and
+#structdist, but the function is left for reasons of compatibility as well as speed (currently,
+#the distance functions don't check for duplicate calculations when building distance matrices).
+
+sdmat<-function(dat,normalize=FALSE,diag=FALSE,mode="digraph",output="matrix",method="mc",exchange.list=rep(0,dim(dat)[2]),...){
+   m<-dim(dat)[1]
+   sdm<-matrix(nrow=m,ncol=m)
+   for(i in 1:m)
+      if(i<m)
+         for(j in i:m)
+         sdm[i,j]<-structdist(dat,g1=i,g2=j,normalize=normalize,diag=diag,mode=mode,method=method,exchange.list=exchange.list,...)
+   diag(sdm)<-0
+   for(i in 1:m)
+      sdm[i,c(1:i)[-i]]<-sdm[c(1:i)[-i],i]
+   if(output=="dist"){
+      #This is for compatibility with the mva library
+      require(mva)
+      sdm<-as.dist(sdm)
+   }
+   sdm
+}
+
+
+#gcor - Correlation between two or more graphs.
+
+gcor<-function(dat,dat2=NULL,g1=c(1:dim(dat)[1]),g2=c(1:dim(dat)[1]),diag=FALSE,mode="digraph"){
+   #Collect data and various parameters
+   if(!is.null(dat2)){
+      if(length(dim(dat))>2)
+         temp1<-dat
+      else{
+         temp1<-array(dim=c(1,dim(dat)[2],dim(dat)[2]))
+         temp1[1,,]<-dat
+      }
+      if(length(dim(dat2))>2)
+         temp2<-dat2
+      else{
+         temp2<-array(dim=c(1,dim(dat2)[2],dim(dat2)[2]))
+         temp2[1,,]<-dat2
+      }
+      if(dim(temp1)[2]>dim(temp2)[2])
+         temp2<-addisolates(temp2,dim(temp1)[2]-dim(temp2)[2])
+      if(dim(temp2)[2]>dim(temp1)[2])
+         temp1<-addisolates(temp1,dim(temp2)[2]-dim(temp1)[2])
+      n<-dim(temp1)[2]
+      gn<-dim(temp1)[1]+dim(temp2)[1]
+      gn1<-dim(temp1)[1]
+      gn2<-dim(temp2)[1]
+      d<-array(dim=c(gn,n,n))
+      d[1:gn1,,]<-temp1
+      d[(gn1+1):(gn2+gn1),,]<-temp2
+      g1<-1:gn1
+      g2<-(gn1+1):(gn1+gn2)
+   }else{
+      d<-dat
+      n<-dim(dat)[2]
+      gn<-dim(dat)[1]
+      gn1<-length(g1)
+      gn2<-length(g2)
+   }
+   #Scrap the diagonals, if required
+   if(!diag)
+      d<-diag.remove(d)
+   #Now, get rid of the upper triangle if these are simple graphs
+   if(mode=="graph")
+      d<-upper.tri.remove(d)
+   #Compute the graph correlation matrix
+   gd<-matrix(nrow=gn1,ncol=gn2)
+   rownames(gd)<-g1
+   colnames(gd)<-g2
+   for(i in 1:gn1)
+      for(j in 1:gn2)
+         gd[i,j]<-cor(as.vector(d[g1[i],,]),as.vector(d[g2[j],,]),use="complete.obs")
+   #If only one comparison requested, return as an element
+   if((gn1==1)&(gn2==1))
+      gd[1,1]
+   else
+      gd
+}
+
+
+#gcov - Covariance between two or more graphs.
+
+gcov<-function(dat,dat2=NULL,g1=c(1:dim(dat)[1]),g2=c(1:dim(dat)[1]),diag=FALSE,mode="digraph"){
+   #Collect data and various parameters
+   if(!is.null(dat2)){
+      if(length(dim(dat))>2)
+         temp1<-dat
+      else{
+         temp1<-array(dim=c(1,dim(dat)[2],dim(dat)[2]))
+         temp1[1,,]<-dat
+      }
+      if(length(dim(dat2))>2)
+         temp2<-dat2
+      else{
+         temp2<-array(dim=c(1,dim(dat2)[2],dim(dat2)[2]))
+         temp2[1,,]<-dat2
+      }
+      if(dim(temp1)[2]>dim(temp2)[2])
+         temp2<-addisolates(temp2,dim(temp1)[2]-dim(temp2)[2])
+      if(dim(temp2)[2]>dim(temp1)[2])
+         temp1<-addisolates(temp1,dim(temp2)[2]-dim(temp1)[2])
+      n<-dim(temp1)[2]
+      gn<-dim(temp1)[1]+dim(temp2)[1]
+      gn1<-dim(temp1)[1]
+      gn2<-dim(temp2)[1]
+      d<-array(dim=c(gn,n,n))
+      d[1:gn1,,]<-temp1
+      d[(gn1+1):(gn2+gn1),,]<-temp2
+      g1<-1:gn1
+      g2<-(gn1+1):(gn1+gn2)
+   }else{
+      d<-dat
+      n<-dim(dat)[2]
+      gn<-dim(dat)[1]
+      gn1<-length(g1)
+      gn2<-length(g2)
+   }
+   #Scrap the diagonals, if required
+   if(!diag)
+      d<-diag.remove(d)
+   #Now, get rid of the upper triangle if these are simple graphs
+   if(mode=="graph")
+      d<-upper.tri.remove(d)
+   #Compute the graph covariance matrix
+   gd<-matrix(nrow=gn1,ncol=gn2)
+   rownames(gd)<-g1
+   colnames(gd)<-g2
+   for(i in 1:gn1)
+      for(j in 1:gn2)
+         gd[i,j]<-cov(as.vector(d[g1[i],,]),as.vector(d[g2[j],,]),use="complete.obs")
+   #If only one comparison requested, return as an element
+   if((gn1==1)&(gn2==1))
+      gd[1,1]
+   else
+      gd
+}
+
+
+#gscor - Structural correlation between two or more graphs.
+
+gscor<-function(dat,dat2=NULL,g1=c(1:dim(dat)[1]),g2=c(1:dim(dat)[1]),diag=FALSE,mode="digraph",method="anneal",reps=1000,prob.init=0.9,prob.decay=0.85,freeze.time=25,full.neighborhood=TRUE,exchange.list=rep(0,dim(dat)[2])){
+   #Collect data and various parameters
+   if(!is.null(dat2)){
+      if(length(dim(dat))>2)
+         temp1<-dat
+      else{
+         temp1<-array(dim=c(1,dim(dat)[2],dim(dat)[2]))
+         temp1[1,,]<-dat
+      }
+      if(length(dim(dat2))>2)
+         temp2<-dat2
+      else{
+         temp2<-array(dim=c(1,dim(dat2)[2],dim(dat2)[2]))
+         temp2[1,,]<-dat2
+      }
+      if(dim(temp1)[2]>dim(temp2)[2])
+         temp2<-addisolates(temp2,dim(temp1)[2]-dim(temp2)[2])
+      if(dim(temp2)[2]>dim(temp1)[2])
+         temp1<-addisolates(temp1,dim(temp2)[2]-dim(temp1)[2])
+      n<-dim(temp1)[2]
+      gn<-dim(temp1)[1]+dim(temp2)[1]
+      gn1<-dim(temp1)[1]
+      gn2<-dim(temp2)[1]
+      d<-array(dim=c(gn,n,n))
+      d[1:gn1,,]<-temp1
+      d[(gn1+1):(gn2+gn1),,]<-temp2
+      g1<-1:gn1
+      g2<-(gn1+1):(gn1+gn2)
+   }else{
+      d<-dat
+      n<-dim(dat)[2]
+      gn<-dim(dat)[1]
+      gn1<-length(g1)
+      gn2<-length(g2)
+   }
+   #Scrap the diagonals, if required
+   if(!diag)
+      d<-diag.remove(d)
+   #Now, get rid of the upper triangle if these are simple graphs
+   if(mode=="graph")
+      d<-upper.tri.remove(d)
+   #If exchange list is a single number or vector, expand it via replication in a reasonable manner
+   if(is.null(dim(exchange.list))){       #Exchange list was given as a single number or vector
+      if(length(exchange.list)==1){                 #Single number case
+         el<-matrix(rep(exchange.list,gn*n),nrow=gn,ncol=n)
+      }else{                                                    #Vector case
+         el<-sapply(exchange.list,rep,gn)
+      }  
+   }else                         #Exchange list was given as a matrix; keep it.
+      el<-exchange.list
+   #Compute the structural correlation matrix
+   gd<-matrix(nrow=gn1,ncol=gn2)
+   rownames(gd)<-g1
+   colnames(gd)<-g2
+   if(method=="none"){
+      for(i in 1:gn1)
+         for(j in 1:gn2)
+            gd[i,j]<-cor(as.vector(d[g1[i],,]),as.vector(d[g2[j],,]),use="complete.obs")
+   }else if(method=="exhaustive"){
+      for(i in 1:gn1)
+         for(j in 1:gn2){
+            best<--Inf
+            for(k in 0:(gamma(n+1)-1)){
+               o<-numperm(n,k)
+               if(all(el[g2[j],]==el[g2[j],o]))
+                  best<-max(best,cor(as.vector(d[g1[i],,]),as.vector(d[g2[j],o,o]),use="complete.obs"))
+            }
+            gd[i,j]<-best
+         }
+   }else if(method=="anneal"){
+      for(i in 1:gn1)
+         for(j in 1:gn2)
+            gd[i,j]<-lab.optimize.anneal(d[g1[i],,],d[g2[j],,],function(m1,m2){cor(as.vector(m1),as.vector(m2),use="complete.obs")},exchange.list=el[c(g1[i],g2[j]),],seek="max",prob.init=prob.init,prob.decay=prob.decay,freeze.time=freeze.time,full.neighborhood=full.neighborhood)
+   }else if(method=="hillclimb"){
+      for(i in 1:gn1)
+         for(j in 1:gn2)
+            gd[i,j]<-lab.optimize.hillclimb(d[g1[i],,],d[g2[j],,],function(m1,m2){cor(as.vector(m1),as.vector(m2),use="complete.obs")},exchange.list=el[c(g1[i],g2[j]),],seek="max")
+   }else if(method=="mc"){
+      for(i in 1:gn1)
+         for(j in 1:gn2){
+            best<-cor(as.vector(d[g1[i],,]),as.vector(d[g2[j],,]),use="complete.obs")
+            for(k in 1:reps){
+               o<-rperm(el[g2[j],])
+               best<-max(best,cor(as.vector(d[g1[i],,]),as.vector(d[g2[j],o,o]),use="complete.obs"))
+            }
+            gd[i,j]<-best
+         }
+   }
+   #If only one comparison requested, return as an element
+   if((gn1==1)&(gn2==1))
+      gd[1,1]
+   else
+      gd
+}
+
+
+#gscov - Structural covariance between two or more graphs.
+
+gscov<-function(dat,dat2=NULL,g1=c(1:dim(dat)[1]),g2=c(1:dim(dat)[1]),diag=FALSE,mode="digraph",method="anneal",reps=1000,prob.init=0.9,prob.decay=0.85,freeze.time=25,full.neighborhood=TRUE,exchange.list=rep(0,dim(dat)[2])){
+   #Collect data and various parameters
+   if(!is.null(dat2)){
+      if(length(dim(dat))>2)
+         temp1<-dat
+      else{
+         temp1<-array(dim=c(1,dim(dat)[2],dim(dat)[2]))
+         temp1[1,,]<-dat
+      }
+      if(length(dim(dat2))>2)
+         temp2<-dat2
+      else{
+         temp2<-array(dim=c(1,dim(dat2)[2],dim(dat2)[2]))
+         temp2[1,,]<-dat2
+      }
+      if(dim(temp1)[2]>dim(temp2)[2])
+         temp2<-addisolates(temp2,dim(temp1)[2]-dim(temp2)[2])
+      if(dim(temp2)[2]>dim(temp1)[2])
+         temp1<-addisolates(temp1,dim(temp2)[2]-dim(temp1)[2])
+      n<-dim(temp1)[2]
+      gn<-dim(temp1)[1]+dim(temp2)[1]
+      gn1<-dim(temp1)[1]
+      gn2<-dim(temp2)[1]
+      d<-array(dim=c(gn,n,n))
+      d[1:gn1,,]<-temp1
+      d[(gn1+1):(gn2+gn1),,]<-temp2
+      g1<-1:gn1
+      g2<-(gn1+1):(gn1+gn2)
+   }else{
+      d<-dat
+      n<-dim(dat)[2]
+      gn<-dim(dat)[1]
+      gn1<-length(g1)
+      gn2<-length(g2)
+   }
+   #Scrap the diagonals, if required
+   if(!diag)
+      d<-diag.remove(d)
+   #Now, get rid of the upper triangle if these are simple graphs
+   if(mode=="graph")
+      d<-upper.tri.remove(d)
+   #If exchange list is a single number or vector, expand it via replication in a reasonable manner
+   if(is.null(dim(exchange.list))){       #Exchange list was given as a single number or vector
+      if(length(exchange.list)==1){                 #Single number case
+         el<-matrix(rep(exchange.list,gn*n),nrow=gn,ncol=n)
+      }else{                                                    #Vector case
+         el<-sapply(exchange.list,rep,gn)
+      }  
+   }else                         #Exchange list was given as a matrix; keep it.
+      el<-exchange.list
+   #Compute the structural covariance matrix
+   gd<-matrix(nrow=gn1,ncol=gn2)
+   rownames(gd)<-g1
+   colnames(gd)<-g2
+   if(method=="none"){
+      for(i in 1:gn1)
+         for(j in 1:gn2)
+            gd[i,j]<-cov(as.vector(d[g1[i],,]),as.vector(d[g2[j],,]),use="complete.obs")
+   }else if(method=="exhaustive"){
+      for(i in 1:gn1)
+         for(j in 1:gn2){
+            best<--Inf
+            for(k in 0:(gamma(n+1)-1)){
+               o<-numperm(n,k)
+               if(all(el[g2[j],]==exchange.list[g2[j],o]))
+                  best<-max(best,cov(as.vector(d[g1[i],,]),as.vector(d[g2[j],o,o]),use="complete.obs"))
+            }
+            gd[i,j]<-best
+         }
+   }else if(method=="anneal"){
+      for(i in 1:gn1)
+         for(j in 1:gn2)
+            gd[i,j]<-lab.optimize.anneal(d[g1[i],,],d[g2[j],,],function(m1,m2){cov(as.vector(m1),as.vector(m2),use="complete.obs")},exchange.list=el[c(g1[i],g2[j]),],seek="max",prob.init=prob.init,prob.decay=prob.decay,freeze.time=freeze.time,full.neighborhood=full.neighborhood)
+   }else if(method=="hillclimb"){
+      for(i in 1:gn1)
+         for(j in 1:gn2)
+            gd[i,j]<-lab.optimize.hillclimb(d[g1[i],,],d[g2[j],,],function(m1,m2){cov(as.vector(m1),as.vector(m2),use="complete.obs")},exchange.list=el[c(g1[i],g2[j]),],seek="max")
+   }else if(method=="mc"){
+      for(i in 1:gn1)
+         for(j in 1:gn2){
+            best<-cov(as.vector(d[g1[i],,]),as.vector(d[g2[j],,]),use="complete.obs")
+            for(k in 1:reps){
+               o<-rperm(el[g2[j],])
+               best<-max(best,cov(as.vector(d[g1[i],,]),as.vector(d[g2[j],o,o]),use="complete.obs"))
+            }
+            gd[i,j]<-best
+         }
+   }
+   #If only one comparison requested, return as an element
+   if((gn1==1)&(gn2==1))
+      gd[1,1]
+   else
+      gd
+}
+
+
+#gliop - Return a binary operation on GLI values computed on two graphs (for test routines).
+
+gliop<-function(dat,GFUN,OP="-",g1=1,g2=2,...){
+   fun<-match.fun(GFUN)
+   op<-match.fun(OP)
+   op(fun(dat[g1,,],...),fun(dat[g2,,],...))
+}
+
+
+#cugtest - Generate, print, and plot CUG (conditional uniform graph) test objects.
+
+cugtest<-function(dat,FUN,reps=1000,gmode="digraph",cmode="density",diag=FALSE,g1=1,g2=2,...){
+   out<-data.frame()
+   #First, find the test value for fun on dat
+   fun<-match.fun(FUN)
+   out$testval<-fun(dat,g1=g1,g2=g2,...)
+   #Next, determine on what we are conditioning
+   if(cmode=="density"){
+      d<-c(gden(dat,g=g1,mode=gmode,diag=diag),gden(dat,g=g2,mode=gmode,diag=diag))
+   }else{
+      d<-c(0.5,0.5)
+   }
+   #Now, perform reps replications on random recreations of the data
+   out$dist<-vector(mode="numeric",length=reps)
+   for(i in 1:reps){
+      if(cmode=="ties"){
+         out$dist[i]<-fun(rgraph(dim(dat)[2],2,diag=diag,mode=gmode,tielist=dat),g1=1,g2=2,...)
+      }else{
+         out$dist[i]<-fun(rgraph(dim(dat)[2],2,tprob=d,diag=diag,mode=gmode),g1=1,g2=2,...)
+      }
+   }
+   #Find p values
+   out$pgreq<-mean(as.numeric(out$dist>=out$testval))
+   out$pleeq<-mean(as.numeric(out$dist<=out$testval))
+   class(out)<-c("cugtest","cug")
+   out
+}
+
+summary.cugtest<-function(c){
+   out<-c
+   class(out)<-c("summary.cugtest",class(out))
+   out
+}
+
+print.summary.cugtest<-function(c){
+   cat("\nCUG Test Results\n\n")
+   cat("Estimated p-values:\n")
+   cat("\tp(f(rnd) >= f(d)):",c$pgreq,"\n")
+   cat("\tp(f(rnd) <= f(d)):",c$pleeq,"\n")
+   cat("\nTest Diagnostics:\n")
+   cat("\tTest Value (f(d)):",c$testval,"\n")
+   cat("\tReplications:",length(c$dist),"\n")
+   cat("\tDistribution Summary:\n")
+   cat("\t\tMin:\t",quantile(c$dist,probs=0,names=FALSE),"\n")
+   cat("\t\t1stQ:\t",quantile(c$dist,probs=0.25,names=FALSE),"\n")
+   cat("\t\tMed:\t",quantile(c$dist,probs=0.5,names=FALSE),"\n")
+   cat("\t\tMean:\t",mean(c$dist),"\n")
+   cat("\t\t3rdQ:\t",quantile(c$dist,probs=0.75,names=FALSE),"\n")
+   cat("\t\tMax:\t",quantile(c$dist,probs=1,names=FALSE),"\n")
+   cat("\n")
+}
+
+print.cugtest<-function(c){
+   cat("\nCUG Test Results\n\n")
+   cat("Estimated p-values:\n")
+   cat("\tp(f(rnd) >= f(d)):",c$pgreq,"\n")
+   cat("\tp(f(rnd) <= f(d)):",c$pleeq,"\n\n")      
+}
+
+plot.cugtest<-function(c,mode="density",...){
+   if(mode=="density"){
+      plot(density(c$dist),main="Estimated Density of CUG Replications",xlab="Test Statistic",...)
+   }else{
+      hist(c$dist,main="Histogram of CUG Replications",xlab="Test Statistic",...)
+   }
+   abline(v=c$testval,lty=2)
+}
+
+#geodist - Find the numbers and lengths of geodesics among nodes in a graph using a BFS, a la
+#Brandes (2000).  (Thanks, Ulrik!)
+
+geodist<-function(dat,inf.replace=dim(dat)[2]){
+   n<-dim(dat)[2]
+   sigma<-matrix(nrow=n,ncol=n)
+   gd<-matrix(nrow=n,ncol=n)
+   #Initialize the matrices
+   sigma[,]<-0
+   gd[,]<-inf.replace    #Use the infinite replace value
+   #Cycle through each node, performing a BFS
+   for(v in 1:n){
+      visited<-rep(0,n)   #No nodes have been visited
+      i<-v                      #Start with the source node
+      visited[i]<-1
+      sigma[v,v]<-1
+      gd[v,v]<-0
+      #cat("\nBeginning trace for node",v,"\n")
+      while(any(visited==1)){
+         while(any(visited==1)){
+            i<-match(1,visited)[1]   #Increment to the next visitable node 
+            #cat(i,"->")
+            visited[i]<-3     #Mark this node as visited
+            for(j in 1:n){
+               if(((visited[j]==0)|(visited[j]==2))&(dat[i,j])){     #Walk through the unvisited neighborhood
+                  #cat(j)
+                  if(visited[j]==0)                #If we've never seen this node, we'll visit it next time
+                     visited[j]<-2
+                  gd[v,j]<-gd[v,i]+1          #Geodesic distance is this node's+1
+                  sigma[v,j]<-sigma[v,j]+sigma[v,i]     #Add the accumulated paths to the total path count
+               }
+            }
+            #cat("\n")
+            if(any(visited==1))
+               i<-match(1,visited)[1]   #Increment to the next visitable node 
+         }   #Continue until we run out of nodes at this level
+         for(j in 1:n)
+            if(visited[j]==2)       #Mark the to-be-visited nodes as visitable
+               visited[j]<-1
+      }   #Keep going until there's no one left at all
+   }
+   #Return the results
+   o<-data.frame()
+   o$counts<-sigma
+   o$gdist<-gd
+   o
+}
+
+
+#component.dist - Returns a data frame containing a vector of length n such that the ith element
+#contains the number of components of G having size i, and a vector of length n giving component
+#membership.  Component strength is determined by the rule which is used to symmetrize the matrix;
+#this controlled by the eponymous parameter given to the symmetrize command.
+
+component.dist<-function(dat,connected="strong"){
+   n<-dim(dat)[2]
+   #Symmetrize dat based on the connectedness rule
+   dat<-symmetrize(dat,rule=connected)
+   #Perform initial setup
+   membership<-rep(0,n)
+   #Cycle through each node, performing a BFS
+   for(v in 1:n)
+      if(membership[v]==0){   #Ignore nodes whose membership is already certain
+         comp<-max(membership)+1  #Which component are we on?
+         visited<-rep(0,n)   #No nodes have been visited
+         i<-v                      #Start with the source node
+         visited[i]<-1
+         membership[i]<-comp   #Set initial membership
+         #cat("\nBeginning trace for node",v,"\n")
+         while(any(visited==1)){
+            while(any(visited==1)){
+               i<-match(1,visited)[1]   #Increment to the next visitable node 
+               #cat(i,"->")
+               visited[i]<-3     #Mark this node as visited
+               membership[i]<-comp  #Set membership to current component
+               for(j in 1:n){
+                  if(((visited[j]==0)|(visited[j]==2))&(dat[i,j])){     #Walk through the unvisited neighborhood
+                     #cat(j)
+                     if(visited[j]==0)                #If we've never seen this node, we'll visit it next time
+                        visited[j]<-2
+                  }
+               }
+               #cat("\n")
+               if(any(visited==1))
+                  i<-match(1,visited)[1]   #Increment to the next visitable node 
+            }   #Continue until we run out of nodes at this level
+            for(j in 1:n)
+               if(visited[j]==2)       #Mark the to-be-visited nodes as visitable
+                  visited[j]<-1
+         }   #Keep going until there's no one left at all
+      }
+   #Return the results
+   o<-data.frame()
+   o$membership<-membership          #Copy memberships
+   o$csize<-vector()
+   for(i in 1:max(membership))           #Extract component sizes
+      o$csize[i]<-length(membership[membership==i])
+   o$cdist<-vector()
+   for(i in 1:n)                                     #Find component size distribution
+      o$cdist[i]<-length(o$csize[o$csize==i])
+   o
+}
+
+
+#components - Find the number of (maximal) components within a given graph
+
+components<-function(dat,connected="strong",comp.dist.precomp=NULL){
+   #Use component.dist to get the distribution
+   if(!is.null(comp.dist.precomp))
+      cd<-comp.dist.precomp
+   else
+      cd<-component.dist(dat,connected=connected)
+   #Return the result
+   length(unique(cd$membership))
+}
+
+
+#betweenness - Find the betweenness centralities of network positions
+
+betweenness<-function(dat,g=1,nodes=c(1:dim(dat)[2]),gmode="digraph",diag=FALSE,tmaxdev=FALSE,cmode="directed",geodist.precomp=NULL,rescale=FALSE){
+   if(tmaxdev){
+      #We got off easy: just return the theoretical maximum deviation for the centralization routine
+      bet<-switch(cmode,
+         directed = (dim(dat)[2]-1)^2*(dim(dat)[2]-2),
+         undirected = (dim(dat)[2]-1)^2*(dim(dat)[2]-2)/2
+      )
+   }else{
+      #First, prepare the data
+      if(length(dim(dat))>2)
+         d<-dat[g,,]
+      else
+         d<-dat
+      n<-dim(d)[1]
+      if(cmode=="undirected")   #Symmetrize if need be
+         for(i in 1:n)
+            for(j in 1:n)
+               if(i!=j)
+                  d[i,j]<-max(d[i,j],d[j,i])
+      #Do the computation
+      if(is.null(geodist.precomp))
+         gd<-geodist(d)
+      else
+         gd<-geodist.precomp
+      bet<-rep(0,n)
+      for(i in 1:n){
+         for(j in 1:n)
+            for(k in 1:n)
+               if((j!=i)&(k!=i)&(j!=k)&(gd$gdist[j,k]>=gd$gdist[j,i]+gd$gdist[i,k]))
+                  bet[i]<-bet[i]+gd$counts[j,i]*gd$counts[i,k]/gd$counts[j,k]
+      }
+      if(cmode=="undirected")
+         bet<-bet/2
+      #Return the results
+      if(rescale)
+         bet<-bet/sum(bet)
+      bet<-bet[nodes]
+   }
+   bet
+}
+
+
+#stresscent - Find the stress centralities of network positions
+
+stresscent<-function(dat,g=1,nodes=c(1:dim(dat)[2]),gmode="digraph",diag=FALSE,tmaxdev=FALSE,cmode="directed",geodist.precomp=NULL,rescale=FALSE){
+   if(tmaxdev){
+      #We got off easy: just return the theoretical maximum deviation for the centralization routine
+      str<-switch(cmode,
+         directed = (dim(dat)[2]-1)^2*(dim(dat)[2]-2),
+         undirected = (dim(dat)[2]-1)^2*(dim(dat)[2]-2)/2
+      )
+   }else{
+      #First, prepare the data
+      if(length(dim(dat))>2)
+         d<-dat[g,,]
+      else
+         d<-dat
+      n<-dim(d)[1]
+      if(cmode=="undirected")   #Symmetrize if need be
+         for(i in 1:n)
+            for(j in 1:n)
+               if(i!=j)
+                  d[i,j]<-max(d[i,j],d[j,i])
+      #Do the computation
+      if(is.null(geodist.precomp))
+         gd<-geodist(d)
+      else
+         gd<-geodist.precomp
+      str<-rep(0,n)
+      for(i in 1:n){
+         for(j in 1:n)
+            for(k in 1:n)
+               if((j!=i)&(k!=i)&(j!=k)&(gd$gdist[j,k]>=gd$gdist[j,i]+gd$gdist[i,k]))
+                  str[i]<-str[i]+gd$counts[j,i]*gd$counts[i,k]
+      }
+      if(cmode=="undirected")
+         str/2
+      #Return the results
+      if(rescale)
+         str<-str/sum(str)
+      str<-str[nodes]
+   }
+   str
+}
+
+
+#closeness - Find the closeness centralities of network positions
+
+closeness<-function(dat,g=1,nodes=c(1:dim(dat)[2]),gmode="digraph",diag=FALSE,tmaxdev=FALSE,cmode="directed",geodist.precomp=NULL,rescale=FALSE){
+   if(tmaxdev){
+      #We got off easy: just return the theoretical maximum deviation for the centralization routine
+      n<-dim(dat)[2]
+      clo<-switch(cmode,
+         directed = (n-1)*(1/(n-1)-1/((n-2)*n)),    #Depends on n subst for max distance
+         undirected = (n-2)*(n-1)/(2*n-3)
+      )
+   }else{
+      #First, prepare the data
+      if(length(dim(dat))>2)
+         d<-dat[g,,]
+      else
+         d<-dat
+      n<-dim(d)[1]
+      if(cmode=="undirected")   #Symmetrize if need be
+         for(i in 1:n)
+            for(j in 1:n)
+               if(i!=j)
+                  d[i,j]<-max(d[i,j],d[j,i])
+      #Do the computation
+      if(is.null(geodist.precomp))
+         gd<-geodist(d)
+      else
+         gd<-geodist.precomp
+      clo<-rep(0,n)
+      for(i in 1:n){
+         for(j in 1:n)
+            if(j!=i)
+               clo[i]<-clo[i]+gd$gdist[i,j]
+      }
+      clo<-1/clo
+      if(rescale)
+         clo<-clo/sum(clo)
+      clo<-clo[nodes]
+   }
+   #Return the results
+   clo
+}
+
+
+#graphcent - Find the graph centralities of network positions
+
+graphcent<-function(dat,g=1,nodes=c(1:dim(dat)[2]),gmode="digraph",diag=FALSE,tmaxdev=FALSE,cmode="directed",geodist.precomp=NULL,rescale=FALSE){
+   if(tmaxdev){
+      #We got off easy: just return the theoretical maximum deviation for the centralization routine
+      n<-dim(dat)[2]
+      gc<-switch(cmode,
+         directed = (n-1)*(1-1/n),  #Depends on n subst for infinite distance
+         undirected = (n-1)/2
+      )
+   }else{
+      #First, prepare the data
+      if(length(dim(dat))>2)
+         d<-dat[g,,]
+      else
+         d<-dat
+      n<-dim(d)[1]
+      if(cmode=="undirected")   #Symmetrize if need be
+         for(i in 1:n)
+            for(j in 1:n)
+               if(i!=j)
+                  d[i,j]<-max(d[i,j],d[j,i])
+      #Do the computation
+      if(is.null(geodist.precomp))
+         gd<-geodist(d)
+      else
+         gd<-geodist.precomp
+      gc<-rep(0,n)
+      for(i in 1:n){
+         for(j in 1:n)
+            if(j!=i)
+               gc[i]<-max(gc[i],gd$gdist[i,j])
+      }
+      gc<-1/gc
+      if(rescale)
+         gc<-gc/sum(gc)
+      gc<-gc[nodes]
+   }
+   #Return the results
+   gc
+}
+
+
+#degree - Find the degree centralities of network positions
+
+degree<-function(dat,g=1,nodes=c(1:dim(dat)[2]),gmode="digraph",diag=FALSE,tmaxdev=FALSE,cmode="freeman",rescale=FALSE){
+   if(tmaxdev){
+      #We got off easy: just return the theoretical maximum deviation for the centralization routine
+      deg<-switch(cmode,
+         indegree = (dim(dat)[2]-1)*(dim(dat)[2]-2+as.numeric(diag)),
+         outdegree = (dim(dat)[2]-1)*(dim(dat)[2]-2+as.numeric(diag)),
+         freeman = (dim(dat)[2]-1)*(2*(dim(dat)[2]-1)-2+2*as.numeric(diag))
+      )
+   }else{
+      #First, prepare the data
+      if(length(dim(dat))>2)
+         d<-dat[g,,]
+      else
+         d<-dat
+      n<-dim(d)[1]
+      if(!diag)
+         diag(d)<-NA
+      #Do the computation
+      deg<-switch(cmode,
+         indegree = apply(d,2,sum,na.rm=TRUE),
+         outdegree = apply(d,1,sum,na.rm=TRUE),
+         freeman = apply(d,2,sum,na.rm=TRUE) + apply(d,1,sum,na.rm=TRUE)
+      )
+      if(rescale)
+         deg<-deg/sum(deg)
+      deg<-deg[nodes]
+   }
+   deg
+}
+
+
+#evcent - Find the eigenvector centralities of network positions
+
+evcent<-function(dat,g=1,nodes=c(1:dim(dat)[2]),gmode="digraph",diag=FALSE,tmaxdev=FALSE,rescale=FALSE){
+   if(tmaxdev){
+      #We got off easy: just return the theoretical maximum deviation for the centralization routine
+      deg<-dim(dat)[2]-2
+   }else{
+      #First, prepare the data
+      if(length(dim(dat))>2)
+         d<-dat[g,,]
+      else
+         d<-dat
+      n<-dim(d)[1]
+      if(!diag)
+         diag(d)<-0
+      #Do the computation
+      ev<-abs(eigen(d)$vectors[,1])
+      if(rescale)
+         ev<-ev/sum(ev)
+      ev<-ev[nodes]
+   }
+   ev
+}
+
+
+#bonpow - Find the Bonacich power centrality scores of network positions
+
+bonpow<-function(dat,g=1,nodes=c(1:dim(dat)[2]),gmode="digraph",diag=FALSE,tmaxdev=FALSE,exponent=1,rescale=FALSE,tol=1e-7){
+   if(tmaxdev){
+      #We got off easy: just return the theoretical maximum deviation for the centralization routine
+      deg<-dim(dat)[2]-2
+   }else{
+      #First, prepare the data
+      if(length(dim(dat))>2)
+         d<-dat[g,,]
+      else
+         d<-dat
+      n<-dim(d)[1]
+      if(!diag)
+         diag(d)<-0
+      #Make an identity matrix
+      id<-matrix(rep(0,n*n),nrow=n)
+      diag(id)<-1
+      #Do the computation
+      ev<-apply(solve(id-exponent*d,tol=tol)%*%d,1,sum)  #This works, when it works.
+      #Apply the Bonacich scaling, by default (sum of squared ev=n)
+      ev<-ev*sqrt(n/sum((ev)^2))
+      if(rescale)
+         ev<-ev/sum(ev)
+      ev[nodes]
+   }
+   ev
+}
+
+
+#prestige - Find actor prestige scores from one of several measures
+
+prestige<-function(dat,g=1,nodes=c(1:dim(dat)[2]),gmode="digraph",diag=FALSE,cmode="indegree",tmaxdev=FALSE,rescale=FALSE,tol=1e-7){
+   if(tmaxdev){
+      #We got off easy: just return the theoretical maximum deviation for the centralization routine
+      deg<-dim(dat)[2]-2
+   }else{
+      #First, prepare the data
+      if(length(dim(dat))>2)
+         d<-dat[g,,]
+      else
+         d<-dat
+      n<-dim(d)[1]
+      if(!diag)
+         diag(d)<-0
+      #Now, perform the computation
+      if(cmode=="indegree")
+         p<-degree(dat=dat,g=g,nodes=nodes,gmode=gmode,diag=diag,cmode="indegree",rescale=FALSE)
+      else if(cmode=="indegree.rownorm")
+         p<-degree(dat=make.stochastic(d,mode="row"),g=1,nodes=nodes,gmode=gmode,diag=diag,cmode="indegree",rescale=FALSE)
+      else if(cmode=="indegree.rowcolnorm")
+         p<-degree(dat=make.stochastic(d,mode="rowcol"),g=1,nodes=nodes,gmode=gmode,diag=diag,cmode="indegree",rescale=FALSE)
+      else if(cmode=="eigenvector")
+         p<-eigen(t(d))$vector[,1]      
+      else if(cmode=="eigenvector.rownorm")
+         p<-eigen(t(make.stochastic(d,mode="row")))$vector[,1]      
+      else if(cmode=="eigenvector.colnorm")
+         p<-eigen(t(make.stochastic(d,mode="col")))$vector[,1]      
+      else if(cmode=="eigenvector.rowcolnorm")
+         p<-eigen(t(make.stochastic(d,mode="rowcol")))$vector[,1]
+      else if(cmode=="domain"){
+         g<-geodist(d)
+         p<-apply(g$counts>0,2,sum)-1
+      }else if(cmode=="domain.proximity"){
+         g<-geodist(d)
+         p<-(apply(g$counts>0,2,sum)-1)^2/(apply((g$counts>0)*(g$gdist),2,sum)*(n-1))
+         p[is.nan(p)]<-0
+      }else
+         stop(paste("Cmode",cmode,"unknown.\n"))      
+      if(rescale)
+         p<-p/sum(p)
+      p<-p[nodes]
+   }  
+   p
+}
+
+
+#centralization - Find the centralization of a graph (for some arbitrary centrality measure)
+
+centralization<-function(dat,FUN,g=1,mode="digraph",diag=FALSE,normalize=TRUE,...){
+   #Find the centrality function
+   fun<-match.fun(FUN)
+   #Grab the vector of centralities
+   cv<-fun(dat,g=g,gmode=mode,diag=diag,...)
+   #Find the empirical maximum
+   cmax<-max(cv)
+   #Now, for the absolute deviations....
+   cent<-sum(cmax-cv)
+   #If we're normalizing, we'll need to get the theoretical max from our centrality function
+   if(normalize)
+      cent<-cent/fun(dat,g=g,gmode=mode,diag=diag,tmaxdev=TRUE,...)
+   #Return the centralization
+   cent
+}
+
+
+#gplot - Graph visualization
+
+gplot<-function(dat, g=1,gmode="digraph",diag=FALSE,label=c(1:dim(dat)[2]),coord=NULL,jitter=TRUE,thresh=0,usearrows=TRUE,mode="mds",displayisolates=TRUE,pad=0,label.cex=1,vertex.cex=1,label.col=1,edge.col=1,vertex.col=1,arrowhead.length=0.2,edge.type=1,...){
+   #Extract the graph to be displayed
+   if(length(dim(dat))>2)
+      d<-dat[g,,]
+   else
+      d<-dat
+   n<-dim(d)[1]
+   #Determine coordinate placement
+   if(!is.null(coord)){      #If the user has specified coords, override all other considerations
+      x<-coord[,1]
+      y<-coord[,2]
+   }else if(mode=="princoord"){     #Place using the eigenstructure of the correlation matrix
+      cd<-cor(rbind(d,t(d)),use="pairwise.complete.obs")
+      cd<-replace(cd,is.na(cd),0)
+      e<-eigen(cd,symmetric=TRUE)
+      x<-Re(e$vectors[,1])
+      y<-Re(e$vectors[,2])
+   }else if(mode=="eigen"){     #Place using the eigenstructure of the adjacency matrix
+      e<-eigen(d,symmetric=(gmode!="digraph"))
+      x<-Re(e$vectors[,1])
+      y<-Re(e$vectors[,2])
+   }else if(mode=="mds"){      #Place using an MDS on euclidean distances by position
+      #Build the (Euclidean) distance matrix
+      Dmat<-matrix(nrow=n,ncol=n)
+      diag(Dmat)<-0
+      for(i in 1:n)
+         for(j in 1:n)
+            if(i>j)
+               Dmat[i,j]<-sqrt(sum(abs(d[i,]-d[j,]))+sum(abs(d[,i]-d[,j])))
+      Dmat[upper.tri(Dmat)]<-t(Dmat)[upper.tri(Dmat)]
+      #Build the identity matrix
+      Imat<-matrix(nrow=n,ncol=n)
+      Imat[,]<-0
+      diag(Imat)<-1
+      #Construct the centering Matrix
+      Hmat<-Imat-(1/n)*rep(1,n)%*%t(rep(1,n))
+      #Construct the A squared distance matrix
+      Amat<--0.5*Dmat^2
+      #Now, finally, build the matrix of rescaled distances
+      Bmat<-Hmat%*%Amat%*%Hmat
+      e<-eigen(Bmat)
+      x<-Re(e$vectors[,1])
+      y<-Re(e$vectors[,2])
+   }else if(mode=="random"){   #Uniform random placement
+      x<-runif(n,-1,1)
+      y<-runif(n,-1,1)
+   }else if(mode=="circle"){
+      x<-sin(2*pi*((0:(n-1))/n))
+      y<-cos(2*pi*((0:(n-1))/n))
+   }else if(mode=="circrand"){   #Random placement around the unit circle
+      tempd<-rnorm(n,1,0.25)
+      tempa<-runif(n,0,2*pi)
+      x<-tempd*sin(tempa)
+      y<-tempd*cos(tempa)
+   }else if(mode=="rmds"){   #MDS from the MVA library
+      require(mva)
+      x<-cmdscale(dist(d))[,1]
+      y<-cmdscale(dist(d))[,2]
+   }
+   #Jitter the coordinates if need be
+   if(jitter){
+      x<-jitter(x)
+      y<-jitter(y)
+   }
+   #Which nodes should we use?
+   use<-displayisolates|(!is.isolate(d,ego=1:dim(d)[1]))   
+   #Plot the results
+   if((length(x)>0)&(!all(use==FALSE)))
+      plot(x[use],y[use],xlim=c(min(x[use])-pad,max(x[use])+pad),ylim=c(min(y[use])-pad,max(y[use])+pad),type="p",pch=19,xlab=expression(lambda[1]),ylab=expression(lambda[2]),col=vertex.col,cex=vertex.cex,...)
+   else
+      plot(0,0,type="n",pch=19,xlab=expression(lambda[1]),ylab=expression(lambda[2]),col=vertex.col,cex=vertex.cex,...)
+   px0<-vector()
+   py0<-vector()
+   px1<-vector()
+   py1<-vector()
+   for(i in c(1:n)[use])
+      for(j in c(1:n)[use])
+         if((i!=j)&(d[i,j]>thresh)){
+               px0<-c(px0,as.real(x[i]))
+               py0<-c(py0,as.real(y[i]))
+               px1<-c(px1,as.real(x[j]))
+               py1<-c(py1,as.real(y[j]))
+         }
+   if(usearrows&(length(px0)>0))
+      arrows(as.vector(px0),as.vector(py0),as.vector(px1),as.vector(py1),length=arrowhead.length,angle=15,col=edge.col,lty=edge.type)
+   else if(length(px0)>0)
+      segments(as.vector(px0),as.vector(py0),as.vector(px1),as.vector(py1),col=edge.col,lty=edge.type)
+   if((length(label)>0)&(!all(use==FALSE)))
+      text(x[use],y[use],label[use],pos=1,cex=label.cex,col=label.col)
+}
+
+
+#netlogit - God help me, it's a network regression routine using a binomial/logit GLM.  It's also
+#frighteningly slow, since it's essentially a front end to the builtin GLM routine with a bunch of
+#network hypothesis testing stuff thrown in for good measure.
+
+netlogit<-function(y,x,mode="digraph",diag=FALSE,nullhyp="cugtie",reps=1000){
+   out<-data.frame()
+   out$dist<-matrix(nrow=reps,ncol=dim(x)[1]+1)
+   iy<-vector()
+   if(length(dim(x))>2){
+      ix<-matrix(nrow=dim(x)[1],ncol=dim(x)[2]*dim(x)[3])
+   }else{
+      ix<-matrix(nrow=1,ncol=dim(x)[1]*dim(x)[2])
+      temp<-x
+      x<-array(dim=c(1,dim(temp)[1],dim(temp)[2]))
+      x[1,,]<-temp
+   }
+   n<-dim(y)[1]
+   m<-dim(x)[1]
+   out$dist<-matrix(nrow=reps,ncol=m+1)
+   #Convert the response first.
+   d<-y
+   if(!diag){
+      diag(d)<-NA
+   }
+   if(mode!="digraph")
+      d[lower.tri(d)]<-NA
+   iy<-as.vector(d)
+   #Now for the independent variables.
+   for(i in 1:m){
+      d<-x[i,,]
+      if(!diag){
+         diag(d)<-NA
+      }
+      if(mode!="digraph")
+         d[lower.tri(d)]<-NA
+      ix[i,]<-as.vector(d)
+   }   
+   #Run the initial model fit
+   xnam <- paste("ix[", 1:m, ",]", sep="")
+   fmla <- as.formula(paste("iy ~ ", paste(xnam, collapse= "+")))
+   nm<-glm(fmla,family=binomial,na.action=na.omit)
+   out$ctable<-table(as.numeric(fitted.values(nm)>=0.5),iy[!is.na(iy)],dnn=c("Predicted","Actual"))  #Get the contingency table 
+   #Now, repeat the whole thing an ungodly number of times.
+   for(i in 1:reps){
+      #Clear out the internal structures
+      iy<-vector()
+      ix<-matrix(nrow=dim(x)[1],ncol=dim(x)[2]*dim(x)[3])
+      #Convert (and mutate) the response first.
+      d<-switch(nullhyp,
+         qap = rmperm(y),
+         cug = rgraph(n,1,mode=mode,diag=diag),
+         cugden = rgraph(n,1,tprob=gden(y,mode=mode,diag=diag),mode=mode,diag=diag),
+         cugtie = rgraph(n,1,mode=mode,diag=diag,tielist=y)
+      )
+      if(!diag){
+         diag(d)<-NA
+      }
+      if(mode!="digraph")
+         d[lower.tri(d)]<-NA
+      iy<-as.vector(d)
+      #Now for the independent variables.
+      for(j in 1:m){
+         d<-switch(nullhyp,
+            qap = rmperm(x[j,,]),
+            cug = rgraph(n,1,mode=mode,diag=diag),
+            cugden = rgraph(n,1,tprob=gden(x[j,,],mode=mode,diag=diag),mode=mode,diag=diag),
+            cugtie = rgraph(n,1,mode=mode,diag=diag,tielist=x[j,,])
+         )
+         if(!diag){
+            diag(d)<-NA
+         }
+         if(mode!="digraph")
+            d[lower.tri(d)]<-NA
+         ix[j,]<-as.vector(d)
+      }   
+      #Finally, fit the test model
+      xnam <- paste("ix[", 1:m, ",]", sep="")
+      fmla <- as.formula(paste("iy ~ ", paste(xnam, collapse= "+")))
+      tm<-glm(fmla,family=binomial,na.action=na.omit)
+      #Gather the coefficients for use later...
+      out$dist[i,]<-as.numeric(coef(tm))
+   }
+   #Find the p-values for our monte carlo null hypothesis tests
+   out$coefficients<-nm$coefficients
+   out$pgreq<-vector(length=m+1)
+   out$pleeq<-vector(length=m+1)
+   for(i in 1:(m+1)){
+      out$pgreq[i]<-mean(out$dist[,i]>=out$coefficients[i],na.rm=TRUE)
+      out$pleeq[i]<-mean(out$dist[,i]<=out$coefficients[i],na.rm=TRUE)
+   }
+   #Having completed the model fit and MC tests, we gather useful information for
+   #the end user.  This is a combination of GLM output and our own stuff.
+   out$names<-as.vector(c("(intercept)",paste("x",1:m,sep="")))
+   out$nullhyp<-nullhyp
+   out$deviance<-nm$deviance
+   out$df.residual<-nm$df.residual
+   out$df.null<-nm$df.null
+   out$aic<-nm$aic
+   out$null.deviance<-nm$null.deviance
+   class(out)<-c("netlogit","netglm","netlm")
+   out
+}
+
+summary.netlogit<-function(n){
+   out<-n
+   class(out)<-c("summary.netlogit",class(out))
+   out
+}
+
+print.summary.netlogit<-function(n){
+   cat("\nNetwork Logit Model\n\n")
+   cat("Coefficients:\n\n")
+   cmat <- as.vector(format(as.numeric(n$coefficients)))
+   cmat <- cbind(cmat, as.vector(format(exp(as.numeric(n$coefficients)))))
+   cmat <- cbind(cmat, as.vector(format(n$pgreq)))
+   cmat <- cbind(cmat, as.vector(format(n$pleeq)))
+   colnames(cmat) <- c("Estimate", "Exp(b)", "Pr(>=b)", "Pr(<=b)")
+   rownames(cmat)<- as.vector(n$names)
+   print.table(cmat)
+   cat("\nGoodness of Fit Statistics:\n")
+   cat("\nNull deviance (-2*Ln(L)):",n$null.deviance,"on",n$df.null,"degrees of freedom\n")
+   cat("Residual deviance (-2*Ln(L)):",n$deviance,"on",n$df.residual,"degrees of freedom\n")
+   cat("Chi-Squared test of fit improvement:\n\t",n$null.deviance-n$deviance,"on",n$df.null-n$df.residual,"degrees of freedom, p-value",1-pchisq(n$null.deviance-n$deviance,df=n$df.null-n$df.residual),"\n") 
+   cat("AIC:",n$aic,"\tBIC:",n$deviance+log(n$df.null+1)*(n$df.null-n$df.residual),"\nPseudo-R^2 Measures:\n\t(Dn-Dr)/(Dn-Dr+dfn):",(n$null.deviance-n$deviance)/(n$null.deviance-n$deviance+n$df.null),"\n\t(Dn-Dr)/Dn:",1-n$deviance/n$null.deviance,"\n")
+   cat("Contingency Table (predicted (rows) x actual (cols)):\n\n")
+   print.table(n$ctable,print.gap=3)
+   cat("\n\tTotal Fraction Correct:",(n$ctable[1,1]+n$ctable[2,2])/sum(n$ctable),"\n\tFraction 1s Correct:",n$ctable[2,2]/sum(n$ctable[2,]),"\n\tFraction 0s Correct:",n$ctable[1,1]/sum(n$ctable[1,]),"\n")
+   cat("\nTest Diagnostics:\n\n")
+   cat("\tNull Hypothesis:")
+   if(n$nullhyp=="qap")
+      cat(" QAP\n")
+   else
+      cat(" CUG\n")
+   cat("\tReplications:",dim(n$dist)[1],"\n")
+   cat("\tDistribution Summary:\n\n")
+   dmat<-apply(n$dist,2,min,na.rm=TRUE)
+   dmat<-rbind(dmat,apply(n$dist,2,quantile,probs=0.25,names=FALSE,na.rm=TRUE))
+   dmat<-rbind(dmat,apply(n$dist,2,quantile,probs=0.5,names=FALSE,na.rm=TRUE))
+   dmat<-rbind(dmat,apply(n$dist,2,mean,na.rm=TRUE))
+   dmat<-rbind(dmat,apply(n$dist,2,quantile,probs=0.75,names=FALSE,na.rm=TRUE))
+   dmat<-rbind(dmat,apply(n$dist,2,max,na.rm=TRUE))
+   colnames(dmat)<-as.vector(n$names)
+   rownames(dmat)<-c("Min","1stQ","Median","Mean","3rdQ","Max")
+   print.table(dmat,digits=4)
+   cat("\n")
+}
+
+print.netlogit<-function(n){
+   cat("\nNetwork Logit Model\n\n")
+   cat("Coefficients:\n\n")
+   cmat <- as.vector(format(as.numeric(n$coefficients)))
+   cmat <- cbind(cmat, as.vector(format(n$pgreq)))
+   cmat <- cbind(cmat, as.vector(format(n$pleeq)))
+   colnames(cmat) <- c("Estimate", "Pr(>=b)", "Pr(<=b)")
+   rownames(cmat)<- as.vector(n$names)
+   print.table(cmat)
+   cat("\nGoodness of Fit Statistics:\n")
+   cat("\nNull deviance (-2*Ln(L)):",n$null.deviance,"on",n$df.null,"degrees of freedom\n")
+   cat("Residual deviance (-2*Ln(L)):",n$deviance,"on",n$df.residual,"degrees of freedom\n")
+   cat("Chi-Squared test of fit improvement:\n\t",n$null.deviance-n$deviance,"on",n$df.null-n$df.residual,"degrees of freedom, p-value",1-pchisq(n$null.deviance-n$deviance,df=n$df.null-n$df.residual),"\n") 
+   cat("AIC:",n$aic,"\tBIC:",n$deviance+log(n$df.null+1)*(n$df.null-n$df.residual),"\nPseudo-R^2 Measures:\n\t(Dn-Dr)/(Dn-Dr+dfn):",(n$null.deviance-n$deviance)/(n$null.deviance-n$deviance+n$df.null),"\n\t(Dn-Dr)/Dn:",1-n$deviance/n$null.deviance,"\n")
+   cat("\n")
+}
+
+
+#netlm - OLS network regression routine using a QAP/CUG null hypotheses.  This routine is
+#frighteningly slow, since it's essentially a front end to the builtin lm routine with a bunch of
+#network hypothesis testing stuff thrown in for good measure.
+
+netlm<-function(y,x,mode="digraph",diag=FALSE,nullhyp="cugtie",reps=1000){
+   out<-data.frame()
+   out$r.squared.dist<-vector(length=reps)
+   out$adj.r.squared.dist<-vector(length=reps)
+   out$sigma.dist<-vector(length=reps)
+   iy<-vector()
+   if(length(dim(x))>2){
+      ix<-matrix(nrow=dim(x)[1],ncol=dim(x)[2]*dim(x)[3])
+   }else{
+      ix<-matrix(nrow=1,ncol=dim(x)[1]*dim(x)[2])
+      temp<-x
+      x<-array(dim=c(1,dim(temp)[1],dim(temp)[2]))
+      x[1,,]<-temp
+   }
+   n<-dim(y)[1]
+   m<-dim(x)[1]
+   out$dist<-matrix(nrow=reps,ncol=m+1)
+   #Convert the response first.
+   d<-y
+   if(!diag){
+      diag(d)<-NA
+   }
+   if(mode!="digraph")
+      d[lower.tri(d)]<-NA
+   iy<-as.vector(d)
+   #Now for the independent variables.
+   for(i in 1:m){
+      d<-x[i,,]
+      if(!diag){
+         diag(d)<-NA
+      }
+      if(mode!="digraph")
+         d[lower.tri(d)]<-NA
+      ix[i,]<-as.vector(d)
+   }   
+   #Run the initial model fit
+   xnam <- paste("ix[", 1:m, ",]", sep="")
+   fmla <- as.formula(paste("iy ~ ", paste(xnam, collapse= "+")))
+   nm<-lm(fmla,na.action=na.omit,singular.ok=TRUE)
+   #Now, repeat the whole thing an ungodly number of times.
+   for(i in 1:reps){
+      #Clear out the internal structures
+      iy<-vector()
+      ix<-matrix(nrow=dim(x)[1],ncol=dim(x)[2]*dim(x)[3])
+      #Convert (and mutate) the response first.
+      d<-switch(nullhyp,
+         qap = rmperm(y),
+         cug = rgraph(n,1,mode=mode,diag=diag),
+         cugden = rgraph(n,1,tprob=gden(y,mode=mode,diag=diag),mode=mode,diag=diag),
+         cugtie = rgraph(n,1,mode=mode,diag=diag,tielist=y)
+      )
+      if(!diag){
+         diag(d)<-NA
+      }
+      if(mode!="digraph")
+         d[lower.tri(d)]<-NA
+      iy<-as.vector(d)
+      #Now for the independent variables.
+      for(j in 1:m){
+         d<-switch(nullhyp,
+            qap = rmperm(x[j,,]),
+            cug = rgraph(n,1,mode=mode,diag=diag),
+            cugden = rgraph(n,1,tprob=gden(x[j,,],mode=mode,diag=diag),mode=mode,diag=diag),
+            cugtie = rgraph(n,1,mode=mode,diag=diag,tielist=x[j,,])
+         )
+         if(!diag){
+            diag(d)<-NA
+         }
+         if(mode!="digraph")
+            d[lower.tri(d)]<-NA
+         ix[j,]<-as.vector(d)
+      }   
+      #Finally, fit the test model
+      xnam <- paste("ix[", 1:m, ",]", sep="")
+      fmla <- as.formula(paste("iy ~ ", paste(xnam, collapse= "+")))
+      tm<-lm(fmla,na.action=na.omit,singular.ok=TRUE)
+      #Gather the coefficients for use later...
+      out$dist[i,]<-as.numeric(coef(tm))
+      #Also grab R^2, sigma, and adjusted R^2s
+      z<-.Alias(tm)
+      Qr<-.Alias(tm$qr)
+      mss<-if(attr(tm$terms,"intercept"))
+         sum((fitted(z)-mean(fitted(z)))^2)
+      else
+         sum(fitted(z)^2)
+      rss<-sum(resid(z)^2)
+      qn<-NROW(Qr$qr)
+      df.int<-if(attr(tm$terms,"intercept")) 1
+         else 0
+      rdf<-qn-tm$rank
+      out$r.squared.dist[i]<-mss/(mss+rss)
+      out$adj.r.squared.dist[i]<-1-(1-out$r.squared.dist[i])*((qn-df.int)/rdf)
+      out$sigma.dist[i]<-sqrt(rss/rdf)
+   }
+   #Find the p-values for our monte carlo null hypothesis tests
+   out$coefficients<-nm$coefficients
+   out$pgreq<-vector(length=m+1)
+   out$pleeq<-vector(length=m+1)
+   for(i in 1:(m+1)){
+      out$pgreq[i]<-mean(out$dist[,i]>=out$coefficients[i],na.rm=TRUE)
+      out$pleeq[i]<-mean(out$dist[,i]<=out$coefficients[i],na.rm=TRUE)
+   }
+   #Having completed the model fit and MC tests, we gather useful information for
+   #the end user.  This is a combination of GLM output and our own stuff.
+   out$names<-as.vector(c("(intercept)",paste("x",1:m,sep="")))
+   out$nullhyp<-nullhyp
+   out$residuals<-nm$residuals
+   out$qr<-nm$qr
+   out$fitted.values<-nm$fitted.values
+   out$rank<-nm$rank
+   out$terms<-nm$terms
+   out$df.residual<-nm$df.residual
+   class(out)<-c("netlm")
+   out
+}
+
+summary.netlm<-function(n){
+   out<-n
+   class(out)<-c("summary.netlm",class(out))
+   out
+}
+
+print.summary.netlm<-function(n){
+   cat("\nOLS Network Model\n\n")
+   cat("Coefficients:\n\n")
+   cmat <- as.vector(format(as.numeric(n$coefficients)))
+   cmat <- cbind(cmat, as.vector(format(n$pgreq)))
+   cmat <- cbind(cmat, as.vector(format(n$pleeq)))
+   colnames(cmat) <- c("Estimate", "Pr(>=b)", "Pr(<=b)")
+   rownames(cmat)<- as.vector(n$names)
+   print.table(cmat)
+   #Goodness of fit measures
+   z<-.Alias(n)
+   Qr<-.Alias(n$qr)
+   mss<-if(attr(n$terms,"intercept"))
+      sum((fitted(z)-mean(fitted(z)))^2)
+   else
+      sum(fitted(z)^2)
+   rss<-sum(resid(z)^2)
+   qn<-NROW(Qr$qr)
+   df.int<-if(attr(n$terms,"intercept")) 1
+      else 0
+   rdf<-qn-n$rank
+   resvar<-rss/rdf
+   fstatistic<-c(value=(mss/(n$rank-df.int))/resvar,numdf=n$rank-df.int,dendf=rdf)
+   r.squared<-mss/(mss+rss)
+   adj.r.squared<-1-(1-r.squared)*((qn-df.int)/rdf)
+   sigma<-sqrt(resvar)
+   cat("\nResidual standard error:",format(sigma,digits=4),"on",rdf,"degrees of freedom\n")
+   cat("F-statistic:",formatC(fstatistic[1],digits=4),"on",fstatistic[2],"and",fstatistic[3],"degrees of freedom, \tp-value:",formatC(1-pf(fstatistic[1],fstatistic[2],fstatistic[3]),dig=4),"\n")
+   cat("Multiple R^2:",format(r.squared,digits=4),"\n")
+   cat("Adjusted R^2:",format(adj.r.squared,digits=4),"\n")
+   #Test diagnostics
+   cat("\n\nTest Diagnostics:\n\n")
+   cat("\tNull Hypothesis:")
+   if(n$nullhyp=="qap")
+      cat(" QAP\n")
+   else
+      cat(" CUG\n")
+   cat("\tReplications:",dim(n$dist)[1],"\n")
+   cat("\tGoodness of Fit Distribution Summary:\n\n")
+   gof<-cbind(n$sigma.dist,n$r.squared.dist,n$adj.r.squared.dist)
+   dmat<-apply(gof,2,min,na.rm=TRUE)
+   dmat<-rbind(dmat,apply(gof,2,quantile,probs=0.25,names=FALSE,na.rm=TRUE))
+   dmat<-rbind(dmat,apply(gof,2,quantile,probs=0.5,names=FALSE,na.rm=TRUE))
+   dmat<-rbind(dmat,apply(gof,2,mean,na.rm=TRUE))
+   dmat<-rbind(dmat,apply(gof,2,quantile,probs=0.75,names=FALSE,na.rm=TRUE))
+   dmat<-rbind(dmat,apply(gof,2,max,na.rm=TRUE))
+   colnames(dmat)<-c("Sigma","R^2","Adj. R^2")
+   rownames(dmat)<-c("Min","1stQ","Median","Mean","3rdQ","Max")
+   print.table(dmat,digits=4)
+   cat("\n")
+   cat("\tCoefficient Distribution Summary:\n\n")
+   dmat<-apply(n$dist,2,min,na.rm=TRUE)
+   dmat<-rbind(dmat,apply(n$dist,2,quantile,probs=0.25,names=FALSE,na.rm=TRUE))
+   dmat<-rbind(dmat,apply(n$dist,2,quantile,probs=0.5,names=FALSE,na.rm=TRUE))
+   dmat<-rbind(dmat,apply(n$dist,2,mean,na.rm=TRUE))
+   dmat<-rbind(dmat,apply(n$dist,2,quantile,probs=0.75,names=FALSE,na.rm=TRUE))
+   dmat<-rbind(dmat,apply(n$dist,2,max,na.rm=TRUE))
+   colnames(dmat)<-as.vector(n$names)
+   rownames(dmat)<-c("Min","1stQ","Median","Mean","3rdQ","Max")
+   print.table(dmat,digits=4)
+   cat("\n")
+}
+
+print.netlm<-function(n){
+   cat("\nOLS Network Model\n\n")
+   cat("Coefficients:\n\n")
+   cmat <- as.vector(format(as.numeric(n$coefficients)))
+   cmat <- cbind(cmat, as.vector(format(n$pgreq)))
+   cmat <- cbind(cmat, as.vector(format(n$pleeq)))
+   colnames(cmat) <- c("Estimate", "Pr(>=b)", "Pr(<=b)")
+   rownames(cmat)<- as.vector(n$names)
+   print.table(cmat)
+   #Goodness of fit measures
+   z<-.Alias(n)
+   Qr<-.Alias(n$qr)
+   mss<-if(attr(n$terms,"intercept"))
+      sum((fitted(z)-mean(fitted(z)))^2)
+   else
+      sum(fitted(z)^2)
+   rss<-sum(resid(z)^2)
+   qn<-NROW(Qr$qr)
+   df.int<-if(attr(n$terms,"intercept")) 1
+      else 0
+   rdf<-qn-n$rank
+   resvar<-rss/rdf
+   fstatistic<-c(value=(mss/(n$rank-df.int))/resvar,numdf=n$rank-df.int,dendf=rdf)
+   r.squared<-mss/(mss+rss)
+   adj.r.squared<-1-(1-r.squared)*((qn-df.int)/rdf)
+   sigma<-sqrt(resvar)
+   cat("\nResidual standard error:",format(sigma,digits=4),"on",rdf,"degrees of freedom\n")
+   cat("F-statistic:",formatC(fstatistic[1],digits=4),"on",fstatistic[2],"and",fstatistic[3],"degrees of freedom, \tp-value:",formatC(1-pf(fstatistic[1],fstatistic[2],fstatistic[3]),dig=4),"\n")
+   cat("Multiple R^2:",format(r.squared,digits=4),"\n")
+   cat("Adjusted R^2:",format(adj.r.squared,digits=4),"\n")
+   cat("\n")
+}
+
+
+#netcancor - Canonical correlations for network variables.  NOTE: requires that mva be loaded.
+
+netcancor<-function(y,x,mode="digraph",diag=FALSE,nullhyp="cugtie",reps=1000){
+   require(mva)
+   if(length(dim(y))>2){
+      iy<-matrix(nrow=dim(y)[1],ncol=dim(y)[2]*dim(y)[3])
+   }else{
+      iy<-matrix(nrow=1,ncol=dim(y)[1]*dim(y)[2])
+      temp<-y
+      y<-array(dim=c(1,dim(temp)[1],dim(temp)[2]))
+      y[1,,]<-temp
+   }
+   if(length(dim(x))>2){
+      ix<-matrix(nrow=dim(x)[1],ncol=dim(x)[2]*dim(x)[3])
+   }else{
+      ix<-matrix(nrow=1,ncol=dim(x)[1]*dim(x)[2])
+      temp<-x
+      x<-array(dim=c(1,dim(temp)[1],dim(temp)[2]))
+      x[1,,]<-temp
+   }
+   my<-dim(y)[1]
+   mx<-dim(x)[1]
+   n<-dim(y)[2]
+   out<-data.frame()
+   out$xdist<-array(dim=c(reps,mx,mx))
+   out$ydist<-array(dim=c(reps,my,my))
+   #Convert the response first.
+   for(i in 1:my){
+      d<-y[i,,]
+      #if(!diag){
+      #   diag(d)<-NA
+      #}
+      #if(mode!="digraph")
+      #   d[lower.tri(d)]<-NA
+      iy[i,]<-as.vector(d)
+   }
+   #Now for the independent variables.
+   for(i in 1:mx){
+      d<-x[i,,]
+      #if(!diag){
+      #   diag(d)<-NA
+      #}
+      #if(mode!="digraph")
+      #   d[lower.tri(d)]<-NA
+      ix[i,]<-as.vector(d)
+   }   
+   #Run the initial model fit
+   nc<-cancor(t(ix),t(iy))  #Had to take out na.action=na.omit, since it's not supported
+   #Now, repeat the whole thing an ungodly number of times.
+   out$cdist<-array(dim=c(reps,length(nc$cor)))
+   for(i in 1:reps){
+      #Clear out the internal structures
+      iy<-matrix(nrow=dim(y)[1],ncol=dim(y)[2]*dim(y)[3])
+      ix<-matrix(nrow=dim(x)[1],ncol=dim(x)[2]*dim(x)[3])
+      #Convert (and mutate) the response first.
+      for(j in 1:my){
+         d<-switch(nullhyp,
+            qap = rmperm(y[j,,]),
+            cug = rgraph(n,1,mode=mode,diag=diag),
+            cugden = rgraph(n,1,tprob=gden(y[j,,],mode=mode,diag=diag),mode=mode,diag=diag),
+            cugtie = rgraph(n,1,mode=mode,diag=diag,tielist=y[j,,])
+         )
+         #if(!diag){
+         #   diag(d)<-NA
+         #}
+         #if(mode!="digraph")
+         #   d[lower.tri(d)]<-NA
+         iy[j,]<-as.vector(d)
+      }
+      #Now for the independent variables.
+      for(j in 1:mx){
+         d<-switch(nullhyp,
+            qap = rmperm(x[j,,]),
+            cug = rgraph(n,1,mode=mode,diag=diag),
+            cugden = rgraph(n,1,tprob=gden(x[j,,],mode=mode,diag=diag),mode=mode,diag=diag),
+            cugtie = rgraph(n,1,mode=mode,diag=diag,tielist=x[j,,])
+         )
+         #if(!diag){
+         #   diag(d)<-NA
+         #}
+         #if(mode!="digraph")
+         #   d[lower.tri(d)]<-NA
+         ix[j,]<-as.vector(d)
+      }   
+      #Finally, fit the test model
+      tc<-cancor(t(ix),t(iy))         #Had to take out na.action=na.omit, since it's not supported
+      #Gather the coefficients for use later...
+      out$cdist[i,]<-tc$cor
+      out$xdist[i,,]<-tc$xcoef
+      out$ydist[i,,]<-tc$ycoef
+   }
+   #Find the p-values for our monte carlo null hypothesis tests
+   out$cor<-nc$cor
+   out$xcoef<-nc$xcoef
+   out$ycoef<-nc$ycoef
+   out$cpgreq<-vector(length=length(nc$cor))
+   out$cpleeq<-vector(length=length(nc$cor))
+   for(i in 1:length(nc$cor)){
+      out$cpgreq[i]<-mean(out$cdist[,i]>=out$cor[i],na.rm=TRUE)
+      out$cpleeq[i]<-mean(out$cdist[,i]<=out$cor[i],na.rm=TRUE)
+   }
+   out$xpgreq<-matrix(ncol=mx,nrow=mx)
+   out$xpleeq<-matrix(ncol=mx,nrow=mx)
+   for(i in 1:mx){
+      for(j in 1:mx){ 
+         out$xpgreq[i,j]<-mean(out$xdist[,i,j]>=out$xcoef[i,j],na.rm=TRUE)
+         out$xpleeq[i,j]<-mean(out$xdist[,i,j]<=out$xcoef[i,j],na.rm=TRUE)
+      }
+   }
+   out$ypgreq<-matrix(ncol=my,nrow=my)
+   out$ypleeq<-matrix(ncol=my,nrow=my)
+   for(i in 1:my){
+      for(j in 1:my){ 
+         out$ypgreq[i,j]<-mean(out$ydist[,i,j]>=out$ycoef[i,j],na.rm=TRUE)
+         out$ypleeq[i,j]<-mean(out$ydist[,i,j]<=out$ycoef[i,j],na.rm=TRUE)
+      }
+   }
+   #Having completed the model fit and MC tests, we gather useful information for
+   #the end user.  This is a combination of cancor output and our own stuff.
+   out$cnames<-as.vector(paste("cor",1:min(mx,my),sep=""))
+   out$xnames<-as.vector(paste("x",1:mx,sep=""))
+   out$ynames<-as.vector(paste("y",1:my,sep=""))
+   out$xcenter<-nc$xcenter
+   out$ycenter<-nc$ycenter
+   out$nullhyp<-nullhyp
+   class(out)<-c("netcancor")
+   out
+}
+
+print.netcancor<-function(n){
+   cat("\nCanonical Network Correlation\n\n")
+
+   cat("Canonical Correlations:\n\n")
+   cmat<-matrix(data=n$cor,ncol=length(n$cor),nrow=1)
+   rownames(cmat)<-""
+   colnames(cmat)<-as.vector(n$cnames)
+   print.table(cmat)
+   cat("\n")
+   cat("Pr(>=cor):\n\n")
+   cmat <- matrix(data=format(n$cpgreq),ncol=length(n$cpgreq),nrow=1)
+   colnames(cmat) <- as.vector(n$cnames)
+   rownames(cmat)<- ""
+   print.table(cmat)
+   cat("\n")
+   cat("Pr(<=cor):\n\n")
+   cmat <- matrix(data=format(n$cpleeq),ncol=length(n$cpleeq),nrow=1)
+   colnames(cmat) <- as.vector(n$cnames)
+   rownames(cmat)<- ""
+   print.table(cmat)
+   cat("\n")
+
+   cat("X Coefficients:\n\n")
+   cmat <- format(n$xcoef)
+   colnames(cmat) <- as.vector(n$xnames)
+   rownames(cmat)<- as.vector(n$xnames)
+   print.table(cmat)
+   cat("\n")
+   cat("Pr(>=xcoef):\n\n")
+   cmat <- format(n$xpgreq)
+   colnames(cmat) <- as.vector(n$xnames)
+   rownames(cmat)<- as.vector(n$xnames)
+   print.table(cmat)
+   cat("\n")
+   cat("Pr(<=xcoef):\n\n")
+   cmat <- format(n$xpleeq)
+   colnames(cmat) <- as.vector(n$xnames)
+   rownames(cmat)<- as.vector(n$xnames)
+   print.table(cmat)
+   cat("\n")
+
+   cat("Y Coefficients:\n\n")
+   cmat <- format(n$ycoef)
+   colnames(cmat) <- as.vector(n$ynames)
+   rownames(cmat)<- as.vector(n$ynames)
+   print.table(cmat)
+   cat("\n")
+   cat("Pr(>=ycoef):\n\n")
+   cmat <- format(n$ypgreq)
+   colnames(cmat) <- as.vector(n$ynames)
+   rownames(cmat)<- as.vector(n$ynames)
+   print.table(cmat)
+   cat("\n")
+   cat("Pr(<=ycoef):\n\n")
+   cmat <- format(n$ypleeq)
+   colnames(cmat) <- as.vector(n$ynames)
+   rownames(cmat)<- as.vector(n$ynames)
+   print.table(cmat)
+   cat("\n")
+}
+
+summary.netcancor<-function(n){
+   out<-n
+   class(out)<-c("summary.netcancor",class(out))
+   out
+}
+
+print.summary.netcancor<-function(n){
+   cat("\nCanonical Network Correlation\n\n")
+
+   cat("Canonical Correlations:\n\n")
+   cmat<-as.vector(n$cor)
+   cmat<-rbind(cmat,as.vector((n$cor)^2))
+   rownames(cmat)<-c("Correlation","Coef. of Det.")
+   colnames(cmat)<-as.vector(n$cnames)
+   print.table(cmat)
+   cat("\n")
+   cat("Pr(>=cor):\n\n")
+   cmat <- matrix(data=format(n$cpgreq),ncol=length(n$cpgreq),nrow=1)
+   colnames(cmat) <- as.vector(n$cnames)
+   rownames(cmat)<- ""
+   print.table(cmat)
+   cat("\n")
+   cat("Pr(<=cor):\n\n")
+   cmat <- matrix(data=format(n$cpleeq),ncol=length(n$cpleeq),nrow=1)
+   colnames(cmat) <- as.vector(n$cnames)
+   rownames(cmat)<- ""
+   print.table(cmat)
+   cat("\n")
+
+   cat("X Coefficients:\n\n")
+   cmat <- format(n$xcoef)
+   colnames(cmat) <- as.vector(n$xnames)
+   rownames(cmat)<- as.vector(n$xnames)
+   print.table(cmat)
+   cat("\n")
+   cat("Pr(>=xcoef):\n\n")
+   cmat <- format(n$xpgreq)
+   colnames(cmat) <- as.vector(n$xnames)
+   rownames(cmat)<- as.vector(n$xnames)
+   print.table(cmat)
+   cat("\n")
+   cat("Pr(<=xcoef):\n\n")
+   cmat <- format(n$xpleeq)
+   colnames(cmat) <- as.vector(n$xnames)
+   rownames(cmat)<- as.vector(n$xnames)
+   print.table(cmat)
+   cat("\n")
+
+   cat("Y Coefficients:\n\n")
+   cmat <- format(n$ycoef)
+   colnames(cmat) <- as.vector(n$ynames)
+   rownames(cmat)<- as.vector(n$ynames)
+   print.table(cmat)
+   cat("\n")
+   cat("Pr(>=ycoef):\n\n")
+   cmat <- format(n$ypgreq)
+   colnames(cmat) <- as.vector(n$ynames)
+   rownames(cmat)<- as.vector(n$ynames)
+   print.table(cmat)
+   cat("\n")
+   cat("Pr(<=ycoef):\n\n")
+   cmat <- format(n$ypleeq)
+   colnames(cmat) <- as.vector(n$ynames)
+   rownames(cmat)<- as.vector(n$ynames)
+   print.table(cmat)
+   cat("\n")
+
+   cat("Test Diagnostics:\n\n")
+   cat("\tNull Hypothesis:")
+   if(n$nullhyp=="qap")
+      cat(" QAP\n")
+   else
+      cat(" CUG\n")
+   cat("\tReplications:",dim(n$cdist)[1],"\n")
+   cat("\tDistribution Summary for Correlations:\n\n")
+   dmat<-apply(n$cdist,2,min,na.rm=TRUE)
+   dmat<-rbind(dmat,apply(n$cdist,2,quantile,probs=0.25,names=FALSE,na.rm=TRUE))
+   dmat<-rbind(dmat,apply(n$cdist,2,quantile,probs=0.5,names=FALSE,na.rm=TRUE))
+   dmat<-rbind(dmat,apply(n$cdist,2,mean,na.rm=TRUE))
+   dmat<-rbind(dmat,apply(n$cdist,2,quantile,probs=0.75,names=FALSE,na.rm=TRUE))
+   dmat<-rbind(dmat,apply(n$cdist,2,max,na.rm=TRUE))
+   colnames(dmat)<-as.vector(n$cnames)
+   rownames(dmat)<-c("Min","1stQ","Median","Mean","3rdQ","Max")
+   print.table(dmat,digits=4)
+   cat("\n")
+}
+
+
+#centralgraph - Find the central graph of a graph stack
+
+centralgraph<-function(dat,normalize=FALSE){
+   #Check to see if someone foolishly called this with one graph
+   if(length(dim(dat))==2)
+      out<-dat
+   else{
+      if(normalize)
+         out<-apply(dat,c(2,3),mean,na.rm=TRUE)
+      else
+         out<-matrix(data=as.numeric(apply(dat,c(2,3),mean,na.rm=TRUE)>=0.5),nrow=dim(dat)[2],ncol=dim(dat)[2])
+   }
+   out
+}
+
+
+#plot.matrix - An odd sort of plotting routine; plots a matrix (e.g., a Bernoulli graph density, or a set of
+#adjacencies) as an image.  Very handy for visualizing large valued matrices...
+
+plot.matrix<-function(m,labels=list(seq(1:dim(m)[1]),seq(1:dim(m)[2])),drawlab=TRUE,diaglab=TRUE,...){       
+   n<-dim(m)[1]
+   o<-dim(m)[2]
+   d<-1-(m-min(m))/(max(m)-min(m))
+   plot(1,1,xlim=c(0,o+1),ylim=c(n+1,0),type="n",axes=FALSE,...)
+   for(i in 1:n)
+      for(j in 1:o)
+         rect(j-0.5,i+0.5,j+0.5,i-0.5,col=gray(d[i,j]),xpd=TRUE)
+   if(drawlab){
+      text(rep(0,n),1:n,labels[[1]])
+      text(1:o,rep(0,o),labels[[2]])
+   }
+   if((n==o)&(drawlab)&(diaglab))
+      if(labels[[1]]==labels[[2]])
+         text(1:o,1:n,labels[[1]])
+}
+
+
+#bbnam.bf - Estimate Bayes Factors for the Butts Bayesian Network Accuracy Model.  This implementation
+#relies on monte carlo integration to estimate the BFs, and tests the fixed probability, pooled, and pooled by
+#actor models.
+
+bbnam.jntlik.slice<-function(s,dat,a,em,ep,log=FALSE){
+   if(length(em)>1)
+      em.l<-em[s]
+   else
+      em.l<-em
+   if(length(ep)>1)
+      ep.l<-ep[s]
+   else
+      ep.l<-ep
+   p<-sum(log((1-a)*(dat[s,,]*ep.l+(1-dat[s,,])*(1-ep.l))+a*(dat[s,,]*(1-em.l)+(1-dat[s,,])*em.l)),na.rm=TRUE)
+   if(!log)
+      exp(p)
+   else
+      p
+}
+
+bbnam.jntlik<-function(dat,log=FALSE,...){
+   p<-sum(sapply(1:dim(dat)[1],bbnam.jntlik.slice,dat=dat,log=TRUE,...))
+   if(!log)
+      exp(p)
+   else
+      p
+}
+
+bbnam.bf<-function(dat,nprior=matrix(rep(0.5,dim(dat)[1]^2),nrow=dim(dat)[1],ncol=dim(dat)[1]),em.fp=0.5,ep.fp=0.5,emprior.pooled=c(1,1),epprior.pooled=c(1,1),emprior.actor=cbind(rep(1,dim(dat)[1]),rep(1,dim(dat)[1])),epprior.actor=cbind(rep(1,dim(dat)[1]),rep(1,dim(dat)[1])),diag=FALSE, mode="digraph",reps=1000){
+   n<-dim(dat)[1]
+   d<-dat
+   if(!diag)
+      d<-diag.remove(d)
+   if(mode=="graph")
+      d<-lower.tri.remove(d)
+   pfpv<-vector()
+   ppov<-vector()
+   pacv<-vector()
+   #Draw em, ep, and a values for the various models
+   for(i in 1:reps){
+      a<-rgraph(n,1,tprob=nprior)
+      em.pooled<-eval(call("rbeta",1,emprior.pooled[1],emprior.pooled[2]))
+      ep.pooled<-eval(call("rbeta",1,epprior.pooled[1],epprior.pooled[2]))
+      em.actor<-eval(call("rbeta",n,emprior.actor[,1],emprior.actor[,2]))
+      ep.actor<-eval(call("rbeta",n,epprior.actor[,1],epprior.actor[,2]))
+      pfpv[i]<-bbnam.jntlik(d,a=a,em=em.fp,ep=ep.fp)
+      ppov[i]<-bbnam.jntlik(d,a=a,em=em.pooled,ep=ep.pooled)
+      pacv[i]<-bbnam.jntlik(d,a=a,em=em.actor,ep=ep.actor)
+   }
+   int.lik<-c(mean(pfpv),mean(ppov),mean(pacv))
+   int.lik.std<-sqrt(c(var(pfpv),var(ppov),var(pacv)))
+   #Find the Bayes Factors
+   o<-data.frame()
+   o$int.lik<-matrix(nrow=3,ncol=3)
+   for(i in 1:3)
+      for(j in 1:3){
+         if(i!=j)
+            o$int.lik[i,j]<-int.lik[i]/int.lik[j]
+         else
+            o$int.lik[i,i]<-int.lik[i]
+      }
+   o$int.lik.std<-int.lik.std
+   o$reps<-reps
+   o$prior.param<-list(nprior,em.fp,ep.fp,emprior.pooled,epprior.pooled,emprior.actor,epprior.actor)
+   o$prior.param.names<-c("nprior","em.fp","ep.fp","emprior.pooled","epprior.pooled","emprior.actor","epprior.actor")
+   o$model.names<-c("Fixed Error Prob","Pooled Error Prob","Actor Error Prob")
+   class(o)<-c("bbnam.bf","bayes.factor")
+   o
+}
+
+
+#print.bayes.factor - A fairly generic routine for printing bayes factors, here used for the bbnam routine.
+
+print.bayes.factor<-function(bf){
+   tab<-bf$int.lik
+   rownames(tab)<-bf$model.names
+   colnames(tab)<-bf$model.names
+   cat("Bayes Factors by Model:\n\n(Diagonals indicate raw integrated likelihood estimates.)\n\n")
+   print(tab)
+   cat("\n")   
+}
+
+
+#summary.bayes.factor - A fairly generic summary routine for bayes factors.  Clearly, this belongs in
+#some other library than sna, but for the moment this will have to do...
+
+summary.bayes.factor<-function(bf){
+   o<-bf
+   rownames(o$int.lik)<-o$model.names
+   colnames(o$int.lik)<-o$model.names
+   o$inv.bf<-1/o$int.lik
+   for(i in 1:dim(o$int.lik)[1])
+      o$inv.bf[i,i]<-o$int.lik[i,i]/sum(diag(o$int.lik))
+   class(o)<-c("summary.bayes.factor","bayes.factor")
+   o
+}
+
+
+#print.summary.bayes.factor - Printing for bayes factor summary objects
+
+print.summary.bayes.factor<-function(sbf){
+   cat("Bayes Factors by Model:\n\n(Diagonals indicate raw integrated likelihood estimates.)\n\n")
+   print(sbf$int.lik)
+   stdtab<-matrix(sbf$int.lik.std,nrow=1)
+   colnames(stdtab)<-sbf$model.names
+   cat("\n\nInverse Bayes Factors:\n\n(Diagonals indicate posterior probability of model under within-set choice constraints and uniform model priors.\n\n")
+   print(sbf$inv.bf)
+   cat("\n\nDiagnostics:\n\nReplications - ",sbf$reps,"\n\nStd deviations of integrated likelihood estimates:\n\n")
+   print(sbf$int.lik.std)
+   cat("\n\nVector of hyperprior parameters:\n\n")
+   priortab<-matrix(sbf$prior.param,nrow=1,ncol=length(sbf$prior.param))
+   colnames(priortab)<-sbf$prior.param.names
+   print(priortab)
+   cat("\n\n")   
+}
+
+
+#potscalered.mcmc - Potential scale reduction (sqrt(Rhat)) for scalar estimands.  Input must be a 
+#matrix whose columns correspond to replicate chains.  This, clearly, doesn't belong here, but lacking
+#a better place to put it I have included it nonetheless.
+
+potscalered.mcmc<-function(psi){
+   #Use Gelman et al. notation, for convenience
+   J<-dim(psi)[2]
+   n<-dim(psi)[1]
+   #Find between-group variance estimate
+   mpsij<-apply(psi,2,mean)
+   mpsitot<-mean(mpsij)
+   B<-(n/(J-1))*sum((mpsij-mpsitot)^2)
+   #Find within-group variance estimate
+   s2j<-apply(psi,2,var)
+   W<-mean(s2j)
+   #Calculate the (estimated) marginal posterior variance of the estimand
+   varppsi<-((n-1)/n)*W+(1/n)*B
+   #Return the potential scale reduction estimate
+   sqrt(varppsi/W)
+}
+
+
+#bbnam - Draw from Butts' Bayesian Network Accuracy Model.  This version uses a Gibbs' Sampler,
+#and assumes error rates to be drawn from conditionally independent betas for each actor.  Note
+#that dat MUST be an n x n x n array, and that the data in question MUST be dichotomous.  Priors
+#are also assumed to be in the right form (n x 2 matrices of alpha, beta pairs for em and ep, and
+#an n x n probability matrix for the network itself), and are not checked; default behavior if no
+#priors are provided is the uninformative case.
+
+#Probability of a given tie
+bbnam.probtie<-function(dat,i,j,npriorij,em,ep){
+   num<-npriorij
+   denom<-1-npriorij
+   num<-num*prod(dat[,i,j]*(1-em)+(1-dat[,i,j])*em,na.rm=TRUE)
+   denom<-denom*prod(dat[,i,j]*ep+(1-dat[,i,j])*(1-ep),na.rm=TRUE)
+   p<-num/(denom+num)
+   p
+}
+
+#Wrapper function for the various bbnam models
+bbnam<-function(dat,model="actor",...){
+   if(model=="actor")
+      bbnam.actor(dat,...)
+   else if(model=="pooled")
+      bbnam.pooled(dat,...)
+   else if(model=="fixed")
+      bbnam.fixed(dat,...)
+}
+
+#Draw from the fixed probability error model
+bbnam.fixed<-function(dat,nprior=matrix(rep(0.5,dim(dat)[2]^2),nrow=dim(dat)[2],ncol=dim(dat)[2]),em=0.25,ep=0.25,diag=FALSE,mode="digraph",draws=1500,outmode="draws",anames=paste("a",1:dim(dat)[2],sep=""),onames=paste("o",1:dim(dat)[1],sep="")){
+   #How many actors are involved?
+   m<-dim(dat)[1]
+   n<-dim(dat)[2]
+   #Check to see if we've been given full matrices (or vectors) of error probs...
+   if(length(em)==m*n^2)
+      em.a<-em
+   else if(length(em)==n^2)
+      em.a<-apply(em,c(1,2),rep,m)
+   else if(length(em)==m)
+      em.a<-aperm(array(sapply(em,rep,n^2),dim=c(n,n,m)),c(3,2,1))
+   else if(length(em)==1)
+      em.a<-array(rep(em,m*n^2),dim=c(m,n,n))
+   if(length(ep)==m*n^2)
+      ep.a<-ep
+   else if(length(ep)==n^2)
+      ep.a<-apply(ep,c(1,2),rep,m)
+   else if(length(ep)==m)
+      ep.a<-aperm(array(sapply(ep,rep,n^2),dim=c(n,n,m)),c(3,2,1))
+   else if(length(ep)==1)
+      ep.a<-array(rep(ep,m*n^2),dim=c(m,n,n))
+   #Find the network posterior
+   pygt<-apply(dat*(1-em.a)+(1-dat)*em.a,c(2,3),prod,na.rm=TRUE)
+   pygnt<-apply(dat*ep.a+(1-dat)*(1-ep.a),c(2,3),prod,na.rm=TRUE)
+   npost<-(nprior*pygt)/(nprior*pygt+(1-nprior)*pygnt)
+   #Send the needed output
+   if(outmode=="posterior")
+      npost
+   else{
+      o<-data.frame()
+      o$net<-rgraph(n,draws,tprob=npost,diag=diag,mode=mode)
+      o$anames<-anames
+      o$onames<-onames
+      o$nactors<-n
+      o$nobservers<-m
+      o$draws<-draws
+      o$model<-"fixed"
+      class(o)<-c("bbnam.fixed","bbnam")
+      o
+   }
+}
+
+#Draw from the pooled error model
+bbnam.pooled<-function(dat,nprior=matrix(rep(0.5,dim(dat)[2]*dim(dat)[3]),nrow=dim(dat)[2],ncol=dim(dat)[3]),emprior=c(1,1),epprior=c(1,1),diag=FALSE, mode="digraph",reps=5,draws=1500,burntime=500,quiet=TRUE,anames=paste("a",1:dim(dat)[2],sep=""),onames=paste("o",1:dim(dat)[1],sep=""),compute.sqrtrhat=TRUE){
+   #First, collect some basic model parameters and do other "setup" stuff
+   m<-dim(dat)[1]
+   n<-dim(dat)[2]
+   d<-dat
+   slen<-burntime+floor(draws/reps)
+   out<-data.frame()
+   #Remove any data which doesn't count...
+   if(mode=="graph")
+      d<-upper.tri.remove(d)
+   if(!diag)
+      d<-diag.remove(d)
+   #OK, let's get started.  First, create temp variables to hold draws, and draw
+   #initial conditions for the Markov chain
+   if(!quiet)
+      cat("Creating temporary variables and drawing initial conditions....\n")
+   a<-array(dim=c(reps,slen,n,n))
+   em<-array(dim=c(reps,slen))
+   ep<-array(dim=c(reps,slen))
+   for(k in 1:reps){
+      a[k,1,,]<-rgraph(n,1,diag=diag,mode=mode)
+      em[k,1]<-runif(1,0,0.5)
+      ep[k,1]<-runif(1,0,0.5)
+   }
+   #Let the games begin: draw from the Gibbs' sampler
+   for(i in 1:reps){
+      for(j in 2:slen){
+         if(!quiet)
+            cat("Repetition",i,", draw",j,":\n\tDrawing adjacency matrix\n")
+         #Create tie probability matrix
+         ep.a<-array(rep(ep[i,j-1],m*n^2),dim=c(m,n,n))
+         em.a<-array(rep(em[i,j-1],m*n^2),dim=c(m,n,n))
+         pygt<-apply(d*(1-em.a)+(1-d)*em.a,c(2,3),prod,na.rm=TRUE)
+         pygnt<-apply(d*ep.a+(1-d)*(1-ep.a),c(2,3),prod,na.rm=TRUE)
+         tieprob<-(nprior*pygt)/(nprior*pygt+(1-nprior)*pygnt)
+         #Draw Bernoulli graph
+         a[i,j,,]<-rgraph(n,1,tprob=tieprob,mode=mode,diag=diag)
+         if(!quiet)
+            cat("\tAggregating binomial counts\n")
+         cem<-vector(length=2)
+         cep<-vector(length=2)
+         a.a<-apply(a[i,j,,],c(1,2),rep,m)
+         cem[1]<-sum((1-d)*a.a,na.rm=TRUE)
+         cem[2]<-sum(d*a.a,na.rm=TRUE)
+         cep[1]<-sum(d*(1-a.a),na.rm=TRUE)
+         cep[2]<-sum((1-d)*(1-a.a),na.rm=TRUE)
+         #cat("em - alpha",cem[1],"beta",cem[2]," ep - alpha",cep[1],"beta",cep[2],"\n")
+         if(!quiet)
+            cat("\tDrawing error parameters\n")
+         em[i,j]<-rbeta(1,emprior[1]+cem[1],emprior[2]+cem[2])
+         ep[i,j]<-rbeta(1,epprior[1]+cep[1],epprior[2]+cep[2])
+      }
+   }
+   if(!quiet)
+      cat("Finished drawing from Markov chain.  Now computing potential scale reduction statistics.\n")
+   if(compute.sqrtrhat){
+      out$sqrtrhat<-vector()
+      for(i in 1:n)
+         for(j in 1:n)
+            out$sqrtrhat<-c(out$sqrtrhat,potscalered.mcmc(aperm(a,c(2,1,3,4))[,,i,j]))
+      out$sqrtrhat<-c(out$sqrtrhat,potscalered.mcmc(em),potscalered.mcmc(ep))
+   if(!quiet)
+      cat("\tMax potential scale reduction (Gelman et al.'s sqrt(Rhat)) for all scalar estimands:",max(out$sqrtrhat[!is.nan(out$sqrtrhat)],na.rm=TRUE),"\n")
+   }
+   if(!quiet)
+      cat("Preparing output.\n")
+   #Whew, we're done with the MCMC.  Now, let's get that data together.
+   out$net<-array(dim=c(reps*(slen-burntime),n,n))
+   for(i in 1:reps)
+      for(j in burntime:slen){
+         out$net[(i-1)*(slen-burntime)+(j-burntime),,]<-a[i,j,,]
+      }
+   if(!quiet)
+      cat("\tAggregated network variable draws\n")
+   out$em<-em[1,(burntime+1):slen]
+   out$ep<-ep[1,(burntime+1):slen]
+   if(reps>=2)
+      for(i in 2:reps){
+         out$em<-c(out$em,em[i,(burntime+1):slen])
+         out$ep<-c(out$ep,ep[i,(burntime+1):slen])
+      }
+   if(!quiet)
+      cat("\tAggregated error parameters\n")
+   #Mix up draws (keeping components together, of course!) to reduce dependence
+   o<-sample(1:length(out$em))
+   out$net<-out$net[o,,]
+   out$em<-out$em[o]
+   out$ep<-out$ep[o]
+   if(!quiet)
+      cat("Remixing draws\n")
+   #Finish off the output and return it.
+   out$anames<-anames
+   out$onames<-onames
+   out$nactors<-n
+   out$nobservers<-m
+   out$reps<-reps
+   out$draws<-length(out$em)
+   out$burntime<-burntime
+   out$model<-"pooled"
+   class(out)<-c("bbnam.pooled","bbnam")
+   out
+}
+
+
+#Draw from the error-prob-by-actor model
+bbnam.actor<-function(dat,nprior=matrix(rep(0.5,dim(dat)[2]*dim(dat)[3]),nrow=dim(dat)[2],ncol=dim(dat)[3]),emprior=cbind(rep(1,dim(dat)[1]),rep(1,dim(dat)[1])),epprior=cbind(rep(1,dim(dat)[1]),rep(1,dim(dat)[1])),diag=FALSE, mode="digraph",reps=5,draws=1500,burntime=500,quiet=TRUE,anames=paste("a",1:dim(dat)[2],sep=""),onames=paste("o",1:dim(dat)[1],sep=""),compute.sqrtrhat=TRUE){
+   #First, collect some basic model parameters and do other "setup" stuff
+   m<-dim(dat)[1]
+   n<-dim(dat)[2]
+   d<-dat
+   slen<-burntime+floor(draws/reps)
+   out<-data.frame()
+   #Remove any data which doesn't count...
+   if(mode=="graph")
+      d<-upper.tri.remove(d)
+   if(!diag)
+      d<-diag.remove(d)
+   #OK, let's get started.  First, create temp variables to hold draws, and draw
+   #initial conditions for the Markov chain
+   if(!quiet)
+      cat("Creating temporary variables and drawing initial conditions....\n")
+   a<-array(dim=c(reps,slen,n,n))
+   em<-array(dim=c(reps,slen,m))
+   ep<-array(dim=c(reps,slen,m))
+   for(k in 1:reps){
+      a[k,1,,]<-rgraph(n,1,diag=diag,mode=mode)
+      em[k,1,]<-runif(m,0,0.5)
+      ep[k,1,]<-runif(m,0,0.5)
+   }
+   #Let the games begin: draw from the Gibbs' sampler
+   for(i in 1:reps){
+      for(j in 2:slen){
+         if(!quiet)
+            cat("Repetition",i,", draw",j,":\n\tDrawing adjacency matrix\n")
+         #Create tie probability matrix
+         ep.a<-aperm(array(sapply(ep[i,j-1,],rep,n^2),dim=c(n,n,m)),c(3,2,1))
+         em.a<-aperm(array(sapply(em[i,j-1,],rep,n^2),dim=c(n,n,m)),c(3,2,1))
+         pygt<-apply(d*(1-em.a)+(1-d)*em.a,c(2,3),prod,na.rm=TRUE)
+         pygnt<-apply(d*ep.a+(1-d)*(1-ep.a),c(2,3),prod,na.rm=TRUE)
+         tieprob<-(nprior*pygt)/(nprior*pygt+(1-nprior)*pygnt)
+         #Draw Bernoulli graph
+         a[i,j,,]<-rgraph(n,1,tprob=tieprob,mode=mode,diag=diag)
+         if(!quiet)
+            cat("\tAggregating binomial counts\n")
+         cem<-matrix(nrow=m,ncol=2)
+         cep<-matrix(nrow=m,ncol=2)
+         for(x in 1:m){
+               cem[x,1]<-sum((1-d[x,,])*a[i,j,,],na.rm=TRUE)
+               cem[x,2]<-sum(d[x,,]*a[i,j,,],na.rm=TRUE)
+               cep[x,1]<-sum(d[x,,]*(1-a[i,j,,]),na.rm=TRUE)
+               cep[x,2]<-sum((1-d[x,,])*(1-a[i,j,,]),na.rm=TRUE)
+         }
+         if(!quiet)
+            cat("\tDrawing error parameters\n")
+         em[i,j,]<-rbeta(m,emprior[,1]+cem[,1],emprior[,2]+cem[,2])
+         ep[i,j,]<-rbeta(m,epprior[,1]+cep[,1],epprior[,2]+cep[,2])
+      }
+   }
+   if(!quiet)
+      cat("Finished drawing from Markov chain.  Now computing potential scale reduction statistics.\n")
+   if(compute.sqrtrhat){
+      out$sqrtrhat<-vector()
+      for(i in 1:n)
+         for(j in 1:n)
+            out$sqrtrhat<-c(out$sqrtrhat,potscalered.mcmc(aperm(a,c(2,1,3,4))[,,i,j]))
+      for(i in 1:m)
+         out$sqrtrhat<-c(out$sqrtrhat,potscalered.mcmc(aperm(em,c(2,1,3))[,,i]),potscalered.mcmc(aperm(ep,c(2,1,3))[,,i]))
+      if(!quiet)
+         cat("\tMax potential scale reduction (Gelman et al.'s sqrt(Rhat)) for all scalar estimands:",max(out$sqrtrhat[!is.nan(out$sqrtrhat)],na.rm=TRUE),"\n")
+   }
+   if(!quiet)
+      cat("Preparing output.\n")
+   #Whew, we're done with the MCMC.  Now, let's get that data together.
+   out$net<-array(dim=c(reps*(slen-burntime),n,n))
+   for(i in 1:reps)
+      for(j in burntime:slen){
+         out$net[(i-1)*(slen-burntime)+(j-burntime),,]<-a[i,j,,]
+      }
+   if(!quiet)
+      cat("\tAggregated network variable draws\n")
+   out$em<-em[1,(burntime+1):slen,]
+   out$ep<-ep[1,(burntime+1):slen,]
+   if(reps>=2)
+      for(i in 2:reps){
+         out$em<-rbind(out$em,em[i,(burntime+1):slen,])
+         out$ep<-rbind(out$ep,ep[i,(burntime+1):slen,])
+      }
+   if(!quiet)
+      cat("\tAggregated error parameters\n")
+   #Mix up draws (keeping components together, of course!) to reduce dependence
+   o<-sample(1:dim(out$em)[1])
+   out$net<-out$net[o,,]
+   out$em<-out$em[o,]
+   out$ep<-out$ep[o,]
+   if(!quiet)
+      cat("Remixing draws\n")
+   #Finish off the output and return it.
+   out$anames<-anames
+   out$onames<-onames
+   out$nactors<-n
+   out$nobservers<-m
+   out$reps<-reps
+   out$draws<-dim(out$em)[1]
+   out$burntime<-burntime
+   out$model<-"actor"
+   class(out)<-c("bbnam.actor","bbnam")
+   out
+}
+
+print.bbnam<-function(b){
+   UseMethod("print",b)
+}
+
+print.bbnam.fixed<-function(b){
+   cat("\nButts' Hierarchical Bayes Model for Network Estimation/Informant Accuracy\n\n")
+   cat("Fixed Error Probability Model\n\n")
+   #Dump marginal posterior network
+   cat("Marginal Posterior Network Distribution:\n\n")
+   d<-apply(b$net,c(2,3),mean)
+   rownames(d)<-as.vector(b$anames)
+   colnames(d)<-as.vector(b$anames)
+   print.table(d,digits=2)
+   cat("\n")
+}
+
+print.bbnam.pooled<-function(b){
+   cat("\nButts' Hierarchical Bayes Model for Network Estimation/Informant Accuracy\n\n")
+   cat("Pooled Error Probability Model\n\n")
+   #Dump marginal posterior network
+   cat("Marginal Posterior Network Distribution:\n\n")
+   d<-apply(b$net,c(2,3),mean)
+   rownames(d)<-as.vector(b$anames)
+   colnames(d)<-as.vector(b$anames)
+   print.table(d,digits=2)
+   cat("\n")
+   #Dump summary of error probabilities
+   cat("Marginal Posterior Global Error Distribution:\n\n")
+   d<-matrix(ncol=2,nrow=6)
+   d[1:3,1]<-quantile(b$em,c(0,0.25,0.5),names=FALSE,na.rm=TRUE)
+   d[4,1]<-mean(b$em,na.rm=TRUE)
+   d[5:6,1]<-quantile(b$em,c(0.75,1.0),names=FALSE,na.rm=TRUE)
+   d[1:3,2]<-quantile(b$ep,c(0,0.25,0.5),names=FALSE,na.rm=TRUE)
+   d[4,2]<-mean(b$ep,na.rm=TRUE)
+   d[5:6,2]<-quantile(b$ep,c(0.75,1.0),names=FALSE,na.rm=TRUE)
+   colnames(d)<-c("e^-","e^+")
+   rownames(d)<-c("Min","1stQ","Median","Mean","3rdQ","Max")
+   print.table(d,digits=4)
+   cat("\n")
+}
+
+print.bbnam.actor<-function(b){
+   cat("\nButts' Hierarchical Bayes Model for Network Estimation/Informant Accuracy\n\n")
+   cat("Multiple Error Probability Model\n\n")
+   #Dump marginal posterior network
+   cat("Marginal Posterior Network Distribution:\n\n")
+   d<-apply(b$net,c(2,3),mean)
+   rownames(d)<-as.vector(b$anames)
+   colnames(d)<-as.vector(b$anames)
+   print.table(d,digits=2)
+   cat("\n")
+   #Dump summary of error probabilities
+   cat("Marginal Posterior Global Error Distribution:\n\n")
+   d<-matrix(ncol=2,nrow=6)
+   d[1:3,1]<-quantile(b$em,c(0,0.25,0.5),names=FALSE,na.rm=TRUE)
+   d[4,1]<-mean(b$em,na.rm=TRUE)
+   d[5:6,1]<-quantile(b$em,c(0.75,1.0),names=FALSE,na.rm=TRUE)
+   d[1:3,2]<-quantile(b$ep,c(0,0.25,0.5),names=FALSE,na.rm=TRUE)
+   d[4,2]<-mean(b$ep,na.rm=TRUE)
+   d[5:6,2]<-quantile(b$ep,c(0.75,1.0),names=FALSE,na.rm=TRUE)
+   colnames(d)<-c("e^-","e^+")
+   rownames(d)<-c("Min","1stQ","Median","Mean","3rdQ","Max")
+   print.table(d,digits=4)
+   cat("\n")
+}
+
+summary.bbnam<-function(b){
+   out<-b
+   class(out)<-c("summary.bbnam",class(out))
+   out
+}
+
+summary.bbnam.fixed<-function(b){
+   out<-b
+   class(out)<-c("summary.bbnam.fixed",class(out))
+   out
+}
+
+summary.bbnam.pooled<-function(b){
+   out<-b
+   class(out)<-c("summary.bbnam.pooled",class(out))
+   out
+}
+
+summary.bbnam.actor<-function(b){
+   out<-b
+   class(out)<-c("summary.bbnam.actor",class(out))
+   out
+}
+
+print.summary.bbnam<-function(b){
+   UseMethod("print",b)
+}
+
+print.summary.bbnam.fixed<-function(b){
+   cat("\nButts' Hierarchical Bayes Model for Network Estimation/Informant Accuracy\n\n")
+   cat("Fixed Error Probability Model\n\n")
+   #Dump marginal posterior network
+   cat("Marginal Posterior Network Distribution:\n\n")
+   d<-apply(b$net,c(2,3),mean)
+   rownames(d)<-as.vector(b$anames)
+   colnames(d)<-as.vector(b$anames)
+   print.table(d,digits=2)
+   cat("\n")
+   #Dump model diagnostics
+   cat("Model Diagnostics:\n\n")
+   cat("\tTotal Draws:",b$draws,"\n\t(Note: Draws taken directly from network posterior.)")
+   cat("\n")
+}
+
+print.summary.bbnam.pooled<-function(b){
+   cat("\nButts' Hierarchical Bayes Model for Network Estimation/Informant Accuracy\n\n")
+   cat("Pooled Error Probability Model\n\n")
+   #Dump marginal posterior network
+   cat("Marginal Posterior Network Distribution:\n\n")
+   d<-apply(b$net,c(2,3),mean)
+   rownames(d)<-as.vector(b$anames)
+   colnames(d)<-as.vector(b$anames)
+   print.table(d,digits=2)
+   cat("\n")
+   #Dump summary of error probabilities
+   cat("Marginal Posterior Error Distribution:\n\n")
+   d<-matrix(ncol=2,nrow=6)
+   d[1:3,1]<-quantile(b$em,c(0,0.25,0.5),names=FALSE,na.rm=TRUE)
+   d[4,1]<-mean(b$em,na.rm=TRUE)
+   d[5:6,1]<-quantile(b$em,c(0.75,1.0),names=FALSE,na.rm=TRUE)
+   d[1:3,2]<-quantile(b$ep,c(0,0.25,0.5),names=FALSE,na.rm=TRUE)
+   d[4,2]<-mean(b$ep,na.rm=TRUE)
+   d[5:6,2]<-quantile(b$ep,c(0.75,1.0),names=FALSE,na.rm=TRUE)
+   colnames(d)<-c("e^-","e^+")
+   rownames(d)<-c("Min","1stQ","Median","Mean","3rdQ","Max")
+   print.table(d,digits=4)
+   cat("\n")
+   #Dump MCMC diagnostics
+   cat("MCMC Diagnostics:\n\n")
+   cat("\tReplicate Chains:",b$reps,"\n")
+   cat("\tBurn Time:",b$burntime,"\n")
+   cat("\tDraws per Chain:",b$draws/b$reps,"Total Draws:",b$draws,"\n")
+   if("sqrtrhat" %in% names(b))
+      cat("\tPotential Scale Reduction (G&R's sqrt(Rhat)):\n \t\tMax:",max(b$sqrtrhat[!is.nan(b$sqrtrhat)]),"\n\t\tMed:",median(b$sqrtrhat[!is.nan(b$sqrtrhat)]),"\n\t\tIQR:",IQR(b$sqrtrhat[!is.nan(b$sqrtrhat)]),"\n")
+   cat("\n")
+}
+
+print.summary.bbnam.actor<-function(b){
+   cat("\nButts' Hierarchical Bayes Model for Network Estimation/Informant Accuracy\n\n")
+   cat("Multiple Error Probability Model\n\n")
+   #Dump marginal posterior network
+   cat("Marginal Posterior Network Distribution:\n\n")
+   d<-apply(b$net,c(2,3),mean)
+   rownames(d)<-as.vector(b$anames)
+   colnames(d)<-as.vector(b$anames)
+   print.table(d,digits=2)
+   cat("\n")
+   #Dump summary of error probabilities
+   cat("Marginal Posterior Global Error Distribution:\n\n")
+   d<-matrix(ncol=2,nrow=6)
+   d[1:3,1]<-quantile(b$em,c(0,0.25,0.5),names=FALSE,na.rm=TRUE)
+   d[4,1]<-mean(b$em,na.rm=TRUE)
+   d[5:6,1]<-quantile(b$em,c(0.75,1.0),names=FALSE,na.rm=TRUE)
+   d[1:3,2]<-quantile(b$ep,c(0,0.25,0.5),names=FALSE,na.rm=TRUE)
+   d[4,2]<-mean(b$ep,na.rm=TRUE)
+   d[5:6,2]<-quantile(b$ep,c(0.75,1.0),names=FALSE,na.rm=TRUE)
+   colnames(d)<-c("e^-","e^+")
+   rownames(d)<-c("Min","1stQ","Median","Mean","3rdQ","Max")
+   print.table(d,digits=4)
+   cat("\n")
+   #Dump error probability estimates per observer
+   cat("Marginal Posterior Error Distribution (by observer):\n\n")
+   cat("Probability of False Negatives (e^-):\n\n")
+   d<-matrix(ncol=6)
+   for(i in 1:b$nobservers){
+      dv<-matrix(c(quantile(b$em[,i],c(0,0.25,0.5),names=FALSE,na.rm=TRUE),mean(b$em[,i],na.rm=TRUE),quantile(b$em[,i],c(0.75,1.0),names=FALSE,na.rm=TRUE)),nrow=1,ncol=6)
+      d<-rbind(d,dv)
+   }
+   d<-d[2:(b$nobservers+1),]
+   rownames(d)<-as.vector(b$onames)
+   colnames(d)<-c("Min","1stQ","Median","Mean","3rdQ","Max")
+   print.table(d,digits=4)
+   cat("\n")
+   cat("Probability of False Positives (e^+):\n\n")
+   d<-matrix(ncol=6)
+   for(i in 1:b$nobservers){
+      dv<-matrix(c(quantile(b$ep[,i],c(0,0.25,0.5),names=FALSE,na.rm=TRUE),mean(b$ep[,i],na.rm=TRUE),quantile(b$ep[,i],c(0.75,1.0),names=FALSE,na.rm=TRUE)),nrow=1,ncol=6)
+      d<-rbind(d,dv)
+   }
+   d<-d[2:(b$nobservers+1),]
+   rownames(d)<-as.vector(b$onames)
+   colnames(d)<-c("Min","1stQ","Median","Mean","3rdQ","Max")
+   print.table(d,digits=4)
+   cat("\n")
+   #Dump MCMC diagnostics
+   cat("MCMC Diagnostics:\n\n")
+   cat("\tReplicate Chains:",b$reps,"\n")
+   cat("\tBurn Time:",b$burntime,"\n")
+   cat("\tDraws per Chain:",b$draws/b$reps,"Total Draws:",b$draws,"\n")
+   if("sqrtrhat" %in% names(b))
+      cat("\tPotential Scale Reduction (G&R's sqrt(Rhat)):\n \t\tMax:",max(b$sqrtrhat[!is.nan(b$sqrtrhat)]),"\n\t\tMed:",median(b$sqrtrhat[!is.nan(b$sqrtrhat)]),"\n\t\tIQR:",IQR(b$sqrtrhat[!is.nan(b$sqrtrhat)]),"\n")
+   cat("\n")
+}
+
+plot.bbnam<-function(b,mode="density",intlines=TRUE,...){
+   UseMethod("plot",b)
+}
+
+plot.bbnam.fixed<-function(b,mode="density",intlines=TRUE,...){
+   #Get the initial graphical settings, so we can restore them later
+   oldpar<-par()
+   #Perform matrix plot of tie probabilities
+   par(mfrow=c(1,1))
+   plot.matrix(apply(b$net,c(2,3),mean),labels=list(b$anames,b$anames),main="Marginal Posterior Tie Probability Distribution")
+   #Clean up
+   par(oldpar)
+}
+
+plot.bbnam.pooled<-function(b,mode="density",intlines=TRUE,...){
+   #Get the initial graphical settings, so we can restore them later
+   oldpar<-par()
+   #Change plotting params
+   par(ask=TRUE)
+   #Initial plot: pooled error distribution
+   par(mfrow=c(2,1))
+   if(mode=="density"){   #Approximate the pdf using kernel density estimation
+      #Plot marginal population (i.e. across actors) density of p(false negative)
+      plot(density(b$em),main=paste("Estimated Marginal Posterior Density of",expression(e^"-"),",",b$draws,"Draws"),xlab=expression({e^{"-"}}),xlim=c(0,1),...)
+      #Plot interval lines if required.
+      if(intlines)
+         abline(v=quantile(b$em,c(0.05,0.5,0.95)),lty=c(3,2,3))
+      #Plot marginal population (i.e. across actors) density of p(false positive)
+      plot(density(b$ep),main=paste("Estimated Marginal Posterior Density of",expression(e^"+"),",",b$draws,"Draws"),xlab=expression({e^{"+"}}),xlim=c(0,1),...)
+      #Plot interval lines if required.
+      if(intlines)
+         abline(v=quantile(b$ep,c(0.05,0.5,0.95)),lty=c(3,2,3))
+   }else{     #Use histograms to plot the estimated density
+      #Plot marginal population (i.e. across actors) density of p(false negative)
+      hist(b$em,main=paste("Histogram of",expression(e^"-"),",",b$draws,"Draws"),xlab=expression({e^{"-"}}),xlim=c(0,1),...)
+      #Plot interval lines if required.
+      if(intlines)
+         abline(v=quantile(b$em,c(0.05,0.5,0.95)),lty=c(3,2,3))
+      #Plot marginal population (i.e. across actors) density of p(false positive)
+      hist(b$ep,main=paste("Histogram of",expression(e^"+"),",",b$draws,"Draws"),xlab=expression({e^{"+"}}),xlim=c(0,1),...)
+      #Plot interval lines if required.
+      if(intlines)
+         abline(v=quantile(b$ep,c(0.05,0.5,0.95)),lty=c(3,2,3))
+   }
+   #Finally, try to plot histograms of tie probabilities
+   par(mfrow=c(1,1))
+   plot.matrix(apply(b$net,c(2,3),mean),labels=list(b$anames,b$anames),main="Marginal Posterior Tie Probability Distribution")
+   #Clean up
+   par(oldpar)
+}
+
+plot.bbnam.actor<-function(b,mode="density",intlines=TRUE,...){
+   #Get the initial graphical settings, so we can restore them later
+   oldpar<-par()
+   #Change plotting params
+   par(ask=TRUE)
+   #Initial plot: global error distribution
+   par(mfrow=c(2,1))
+   if(mode=="density"){   #Approximate the pdf using kernel density estimation
+      #Plot marginal population (i.e. across actors) density of p(false negative)
+      plot(density(b$em),main=paste("Estimated Marginal Population Density of",expression(e^"-"),",",b$draws,"Draws"),xlab=expression({e^{"-"}}),xlim=c(0,1),...)
+      #Plot interval lines if required.
+      if(intlines)
+         abline(v=quantile(b$em,c(0.05,0.5,0.95)),lty=c(3,2,3))
+      #Plot marginal population (i.e. across actors) density of p(false positive)
+      plot(density(b$ep),main=paste("Estimated Marginal Population Density of",expression(e^"+"),",",b$draws,"Draws"),xlab=expression({e^{"+"}}),xlim=c(0,1),...)
+      #Plot interval lines if required.
+      if(intlines)
+         abline(v=quantile(b$ep,c(0.05,0.5,0.95)),lty=c(3,2,3))
+   }else{     #Use histograms to plot the estimated density
+      #Plot marginal population (i.e. across actors) density of p(false negative)
+      hist(b$em,main=paste("Histogram of",expression(e^"-"),",",b$draws,"Draws"),xlab=expression({e^{"-"}}),xlim=c(0,1),...)
+      #Plot interval lines if required.
+      if(intlines)
+         abline(v=quantile(b$em,c(0.05,0.5,0.95)),lty=c(3,2,3))
+      #Plot marginal population (i.e. across actors) density of p(false positive)
+      hist(b$ep,main=paste("Histogram of",expression(e^"+"),",",b$draws,"Draws"),xlab=expression({e^{"+"}}),xlim=c(0,1),...)
+      #Plot interval lines if required.
+      if(intlines)
+         abline(v=quantile(b$ep,c(0.05,0.5,0.95)),lty=c(3,2,3))
+   }
+   #Plot e- next
+   par(mfrow=c(floor(sqrt(b$nobservers)),ceiling(sqrt(b$nobservers))))
+   for(i in 1:b$nobservers){
+      if(mode=="density"){
+         plot(density(b$em[,i]),main=paste("Estimated Density of",expression(e^"-"[i]),",",b$draws,"Draws"),xlab=expression({e^{"-"}}[i]),xlim=c(0,1),...)
+         #Plot interval lines if required.
+         if(intlines)
+            abline(v=quantile(b$em[,i],c(0.05,0.5,0.95)),lty=c(3,2,3))
+      }else{
+         hist(b$em[,i],main=paste("Histogram of",expression(e^"-"[i]),",",b$draws,"Draws"),xlab=expression({e^{"-"}}[i]),xlim=c(0,1),...)
+         #Plot interval lines if required.
+         if(intlines)
+            abline(v=quantile(b$em[,i],c(0.05,0.5,0.95)),lty=c(3,2,3))
+      }
+   }
+   #Now plot e+
+   par(mfrow=c(floor(sqrt(b$nobservers)),ceiling(sqrt(b$nobservers))))
+   for(i in 1:b$nobservers){
+      if(mode=="density"){
+         plot(density(b$ep[,i]),main=paste("Estimated Density of",expression(e^"+"[i]),",",b$draws,"Draws"),xlab=expression({e^{"+"}}[i]),xlim=c(0,1),...)
+         #Plot interval lines if required.
+         if(intlines)
+            abline(v=quantile(b$ep[,i],c(0.05,0.5,0.95)),lty=c(3,2,3))
+      }else{
+         hist(b$ep[,i],main=paste("Histogram of",expression(e^"+"[i]),",",b$draws,"Draws"),xlab=expression({e^{"+"}}[i]),xlim=c(0,1),...)
+         #Plot interval lines if required.
+         if(intlines)
+            abline(v=quantile(b$ep[,i],c(0.05,0.5,0.95)),lty=c(3,2,3))
+      }
+   }
+   #Finally, try to plot histograms of tie probabilities
+   par(mfrow=c(1,1))
+   plot.matrix(apply(b$net,c(2,3),mean),labels=list(b$anames,b$anames),main="Marginal Posterior Tie Probability Distribution")
+   #Clean up
+   par(oldpar)
+}
+
+
+#npostpred - Take posterior predictive draws for functions of networks.
+
+npostpred<-function(b,FUN,...){
+   #Find the desired function
+   fun<-match.fun(FUN)
+   #Take the draws
+   out<-apply(b$net,1,fun,...)
+   out
+}
+
+
+#sr2css - Convert a row-wise self-report matrix to a CSS matrix with missing observations.
+
+sr2css<-function(net){
+   n<-dim(net)[1]
+   css<-array(dim=c(n,n,n))
+   for(i in 1:n){
+      css[i,,]<-NA
+      css[i,i,]<-net[i,]
+   }
+   css
+}
+
+
+#event2dichot - Convert an observed event matrix to a dichotomous matrix.  Methods are quantile,
+#mean, rquantile, rmean, cquantile, cmean, absolute, rank, rrank, and crank.  Thresh specifies the
+#cutoff, in terms of whatever method is used (if applicable).
+
+event2dichot<-function(m,method="quantile",thresh=0.5,leq=FALSE){
+   if(method=="quantile"){
+      q<-quantile(m,thresh,na.rm=TRUE, names=FALSE)
+      out<-as.numeric(m>q)
+   } else if(method=="rquantile"){
+      q<-quantile(m[1,],thresh,na.rm=TRUE, names=FALSE)
+      out<-as.numeric(m[1,]>q)
+      for(i in 2:dim(m)[1]){      
+         q<-quantile(m[i,],thresh,na.rm=TRUE, names=FALSE)
+         out<-rbind(out,as.numeric(m[i,]>q))
+      }
+   } else if(method=="cquantile"){
+      q<-quantile(m[,1],thresh,na.rm=TRUE, names=FALSE)
+      out<-as.numeric(m[,1]>q)
+      for(i in 2:dim(m)[2]){      
+         q<-quantile(m[,i],thresh,na.rm=TRUE, names=FALSE)
+         out<-cbind(out,as.numeric(m[,i]>q))
+      }
+   } else if(method=="mean"){
+      q<-mean(m)
+      out<-as.numeric(m>q)
+   } else if(method=="rmean"){
+      q<-mean(m[1,])
+      out<-as.numeric(m[1,]>q)
+      for(i in 2:dim(m)[1]){      
+         q<-mean(m[i,])
+         out<-rbind(out,as.numeric(m[i,]>q))
+      }
+   } else if(method=="cmean"){
+      q<-mean(m[,1])
+      out<-as.numeric(m[,1]>q)
+      for(i in 2:dim(m)[2]){      
+         q<-mean(m[,i])
+         out<-rbind(out,as.numeric(m[,i]>q))
+      }
+   } else if(method=="absolute"){
+      out<-as.numeric(m>thresh)
+   } else if(method=="rank"){
+      o<-order(m)
+      out<-as.numeric((max(o)-o+1)<thresh)
+   } else if(method=="rrank"){
+      o<-order(m[1,])
+      out<-as.numeric((max(o)-o+1)<thresh)
+      for(i in 2:dim(m)[1]){      
+         o<-order(m[i,])
+         out<-rbind(out,as.numeric((max(o)-o+1)<thresh))
+      }
+   } else if(method=="crank"){
+      o<-order(m[,1])
+      out<-as.numeric((max(o)-o+1)<thresh)
+      for(i in 2:dim(m)[2]){      
+         o<-order(m[,i])
+         out<-cbind(out,as.numeric((max(o)-o+1)<thresh))
+      }
+   }
+   if(leq==TRUE)
+      out<-1-out
+   if(is.null(dim(out))!=is.null(dim(m)))
+      out<-array(out,dim=dim(m))
+   else
+      if(dim(out)!=dim(m))
+         out<-array(out,dim=dim(m))
+   out
+}
+
+
+#symmetrize - Convert a graph or graph stack to a symmetric form.  Current rules for symmetrizing
+#include "upper" and "lower" diagonals, "weak" connectedness rule, and a "strong" connectedness rule.
+
+symmetrize<-function(mats,rule="weak"){
+   #Build the input data structures
+   if(length(dim(mats))>2){
+      m<-dim(mats)[1]
+      n<-dim(mats)[2]
+      o<-dim(mats)[3]
+      d<-mats
+   }else{
+      m<-1
+      n<-dim(mats)[1]
+      o<-dim(mats)[2]
+      d<-array(dim=c(1,n,o))
+      d[1,,]<-mats
+   }
+   #Apply the symmetry rule
+   for(i in 1:m){
+      if(rule=="upper"){
+         temp<-d[i,,]
+         for(j in 1:n)
+            temp[j:n,j]<-temp[j,j:n]
+         d[i,,]<-temp
+      }else if(rule=="lower"){
+         temp<-d[i,,]
+         for(j in 1:n)
+            temp[j,j:n]<-temp[j:n,j]
+         d[i,,]<-temp
+      }else if(rule=="weak"){
+         d[i,,]<-matrix(as.numeric(d[i,,]|t(d[i,,])),nrow=n,ncol=o)
+      }else if(rule=="strong"){
+         d[i,,]<-matrix(as.numeric(d[i,,]&t(d[i,,])),nrow=n,ncol=o)
+      }
+   }
+   #Return the symmetrized matrix
+   if(m==1)
+      out<-d[1,,]
+   else
+      out<-d
+   out
+}
+
+
+#consensus - Find a consensus structure, using one of several algorithms.  Note that this is currently
+#experimental, and that the routines are not guaranteed to produce meaningful output
+
+consensus<-function(dat,mode="digraph",diag=FALSE,method="central.graph",tol=0.01){
+   n<-dim(dat)[2]
+   m<-dim(dat)[1]
+   #First, prepare the data
+   if(mode=="graph")
+      d<-upper.tri.remove(dat)
+   else
+      d<-dat
+   if(!diag)
+      d<-diag.remove(d)
+   #Now proceed by method
+   #First, use the central graph if called for
+   if(method=="central.graph"){
+      cong<-centralgraph(d)
+   #Try the iterative reweighting algorithm....
+   }else if(method=="iterative.reweight"){
+      stop("Sorry, but iterative rewieghting is not currently supported.\n")
+      oldrwv<-rep(1/m,m)
+      gc<-gcor(d)
+      gc[is.na(gc)]<-0
+      diag(gc)<-1
+      rwv<-apply(gc,1,sum)/sum(gc)
+      while(sum(abs(rwv-oldrwv))>tol){
+         cong<-apply(d*aperm(array(sapply(rwv,rep,n^2),dim=c(n,n,m)),c(3,2,1)),c(2,3),sum)
+         oldrwv<-rwv
+         rwv<-gcor(cong,d)
+         rwv<-rwv/sum(rwv)
+      }
+   #Perform a single reweighting using mean correlation
+   }else if(method=="single.reweight"){
+      gc<-gcor(d)
+      gc[is.na(gc)]<-0
+      diag(gc)<-1
+      rwv<-apply(gc,1,sum)
+      rwv<-rwv/sum(rwv)
+      cong<-apply(d*aperm(array(sapply(rwv,rep,n^2),dim=c(n,n,m)),c(3,2,1)),c(2,3),sum)
+   #Perform a single reweighting using first component loadings
+   }else if(method=="PCA.reweight"){
+      gc<-gcor(d)
+      gc[is.na(gc)]<-0
+      diag(gc)<-1
+      rwv<-eigen(gc)$vector[,1]
+      cong<-apply(d*aperm(array(sapply(rwv,rep,n^2),dim=c(n,n,m)),c(3,2,1)),c(2,3),sum)
+   }
+   #Finish off and return the consensus graph
+   if(mode=="graph")
+      cong[upper.tri(cong)]<-t(cong)[upper.tri(cong)]
+   if(!diag)
+      diag(cong)<-0
+   cong
+}
+
+
+#sedist - Find a matrix of distances between positions based on structural equivalence
+
+sedist<-function(dat,g=c(1:dim(dat)[1]),method="hamming",joint.analysis=FALSE,mode="digraph",diag=FALSE,code.diss=FALSE){
+   #First, prepare the data
+   if(length(dim(dat))>2){
+      n<-dim(dat)[2]
+      m<-length(g)
+      d<-dat[g,,]
+   }else{
+      n<-dim(dat)[2]
+      m<-1
+      d<-array(dim=c(m,n,n))
+      d[1,,]<-dat
+   }
+   if(mode=="graph")
+      d<-upper.tri.remove(d)
+   if(!diag)
+      d<-diag.remove(d)
+   #Are we conducting a joint analysis?
+   if(joint.analysis){
+      o<-array(dim=c(1,n,n))
+      #Build the data matrix
+      v<-vector()
+      for(i in 1:n)
+         v<-cbind(v,c(as.vector(d[,i,]),as.vector(d[,,i])))
+      #Proceed by method
+      if(method=="correlation"){
+         o[1,,]<-cor(v,use="pairwise")
+         #Reverse code?
+         if(code.diss)
+            o<--o
+      }else if(method=="euclidean"){
+         for(i in 1:n)
+            for(j in 1:n)
+               o[1,i,j]<-sqrt(sum((v[,i]-v[,j])^2,na.rm=TRUE))         
+      }else if(method=="hamming"){
+         for(i in 1:n)
+            for(j in 1:n)
+               o[1,i,j]<-sum(abs(v[,i]-v[,j]),na.rm=TRUE)
+      }else if(method=="gamma"){
+         for(i in 1:n)
+            for(j in 1:n){
+               concord<-sum(as.numeric(v[,i]==v[,j]),na.rm=TRUE)
+               discord<-sum(as.numeric(v[,i]!=v[,j]),na.rm=TRUE)
+               o[1,i,j]<-(concord-discord)/(concord+discord)
+            }                  
+         #Reverse code?
+         if(code.diss)
+            o<--o
+      }else if(method=="exact"){
+         for(i in 1:n)
+            for(j in 1:n)
+               o[1,i,j]<-as.numeric(any(v[!(is.na(v[,i])|is.na(v[,j])),i]!=v[!(is.na(v[,i])|is.na(v[,j])),j]))
+      }
+   }else{  #Analyze each graph seperately
+      o<-array(dim=c(m,n,n))
+      for(k in 1:m){
+         #Build the data matrix
+         v<-vector()
+         for(i in 1:n)
+            v<-cbind(v,c(as.vector(d[k,i,]),as.vector(d[k,,i])))
+         #Proceed by method
+         if(method=="correlation"){
+            o[k,,]<-cor(v,use="pairwise")
+            o[k,,][is.na(o[k,,])]<-0
+            #Reverse code?
+            if(code.diss)
+               o[k,,]<--o[k,,]
+         }else if(method=="euclidean"){
+            for(i in 1:n)
+               for(j in 1:n)
+                  o[k,i,j]<-sqrt(sum((v[,i]-v[,j])^2,na.rm=TRUE))         
+         }else if(method=="hamming"){
+            for(i in 1:n)
+               for(j in 1:n)
+                  o[k,i,j]<-sum(abs(v[,i]-v[,j]),na.rm=TRUE)
+         }else if(method=="gamma"){
+            for(i in 1:n)
+               for(j in 1:n){
+                  concord<-sum(as.numeric(v[,i]==v[,j]),na.rm=TRUE)
+                  discord<-sum(as.numeric(v[,i]!=v[,j]),na.rm=TRUE)
+                  o[k,i,j]<-(concord-discord)/(concord+discord)
+               }                  
+            #Reverse code?
+            if(code.diss)
+               o[k,,]<--o[k,,]
+         }else if(method=="exact"){
+            for(i in 1:n)
+               for(j in 1:n)
+                  o[k,i,j]<-as.numeric(any(v[!(is.na(v[,i])|is.na(v[,j])),i]!=v[!(is.na(v[,i])|is.na(v[,j])),j]))
+         }
+      }
+   }
+   #Dump the output
+   if(dim(o)[1]==1)
+      as.matrix(o[1,,])
+   else
+      o
+}
+
+
+#equiv.clust - Find clusters of positions based on an equivalence relation
+
+equiv.clust<-function(dat,g=c(1:dim(dat)[1]),equiv.fun="sedist",method="hamming",mode="digraph",diag=FALSE,cluster.method="complete",glabels=dimnames(dat)[[1]][g],plabels=dimnames(dat)[[2]],...){
+   #First, find the equivalence distances using the appropriate function and method
+   equiv.dist.fun<-match.fun(equiv.fun)
+   equiv.dist<-equiv.dist.fun(dat,g=g,method=method,joint.analysis=TRUE,mode=mode,diag=diag,code.diss=TRUE,...)
+   #Load the mva package, if it's not already loaded
+   require(mva)
+   #Generate the output object
+   o<-data.frame
+   #Produce the hierarchical clustering
+   o$cluster<-hclust(as.dist(equiv.dist),method=cluster.method)
+   #Set the output class and take care of other details
+   o$metric<-method
+   o$equiv.fun<-equiv.fun
+   o$cluster.method<-cluster.method
+   if((length(dim(dat))==1)&(length(glabels)>1))
+      o$glabels<-glabels[1]
+   else
+      o$glabels<-glabels
+   o$plabels<-plabels
+   class(o)<-"equiv.clust"
+   #Produce the output
+   o
+}
+
+
+#plot.equiv.clust - Plotting for equivalence clustering objects
+
+plot.equiv.clust<-function(ec,labels=ec$plabels,...){
+   if(is.null(labels))
+      plot.hclust(ec$cluster,...)
+   else
+      plot.hclust(ec$cluster,labels=labels,...)
+}
+
+
+#blockmodel - Generate blockmodels based on partitions of network positions
+
+blockmodel<-function(dat,ec,k=NULL,h=NULL,block.content="density",plabels=ec$plabels,glabels=ec$glabels,rlabels=NULL,mode="digraph",diag=FALSE){
+   require(mva)
+   #First, extract the blocks
+   b<-cutree(ec$cluster,k,h)
+   #Prepare the data
+   n<-dim(dat)[2]
+   if(length(dim(dat))>2)
+      d<-dat
+   else{
+      d<-array(dim=c(1,n,n))
+      d[1,,]<-dat
+   }
+   if(!diag)
+      d<-diag.remove(d)
+   #Now, construct a model
+   rn<-max(b)
+   rm<-dim(d)[1]
+   if(is.null(rlabels))      #Add labels for roles if needed
+      rlabels<-paste("Block",1:rn)
+   bm<-array(dim=c(rm,rn,rn))
+   for(i in 1:rm)
+      for(j in 1:rn)
+         for(k in 1:rn){
+            if(block.content=="density")
+               bm[i,j,k]<-mean(d[i,b==j,b==k,drop=FALSE],na.rm=TRUE)
+            else if(block.content=="meanrowsum"){
+               bm[i,j,k]<-mean(apply(d[i,b==j,b==k,drop=FALSE],2,sum,na.rm=TRUE))
+            }else if(block.content=="meancolsum"){
+               bm[i,j,k]<-mean(apply(d[i,b==j,b==k,drop=FALSE],3,sum,na.rm=TRUE))
+            }else if(block.content=="sum"){
+               bm[i,j,k]<-sum(d[i,b==j,b==k,drop=FALSE],na.rm=TRUE)
+            }else if(block.content=="median"){
+               bm[i,j,k]<-median(d[i,b==j,b==k,drop=FALSE],na.rm=TRUE)
+            }else if(block.content=="min"){
+               bm[i,j,k]<-min(d[i,b==j,b==k,drop=FALSE],na.rm=TRUE)
+            }else if(block.content=="max"){
+               bm[i,j,k]<-max(d[i,b==j,b==k,drop=FALSE],na.rm=TRUE)
+            }else if(block.content=="types"){
+               temp<-mean(d[i,b==j,b==k,drop=FALSE],na.rm=TRUE)
+               if(is.nan(temp))    #Is this a nan block (due to having only one actor)?
+                  bm[i,j,k]<-"NA"
+               else if(temp==0)    #Is this a null block?
+                  bm[i,j,k]<-"null"
+               else if(temp==1)   #How about a complete block?
+                  bm[i,j,k]<-"complete"
+               else if(all(apply(d[i,b==j,b==k,drop=FALSE],2,sum,na.rm=TRUE)>0,apply(d[i,b==j,b==k,drop=FALSE],3,sum,na.rm=TRUE)>0))
+                  bm[i,j,k]<-"1 covered"   #1 covered block
+               else if(all(apply(d[i,b==j,b==k,drop=FALSE],2,sum,na.rm=TRUE)>0))
+                  bm[i,j,k]<-"1 row-covered"   #1 row-covered block
+               else if(all(apply(d[i,b==j,b==k,drop=FALSE],3,sum,na.rm=TRUE)>0))
+                  bm[i,j,k]<-"1 col-covered"   #1 col-covered block
+               else
+                  bm[i,j,k]<-"other"   #other block
+            }
+         }
+   #Prepare the output object
+   o<-data.frame()
+   o$block.membership<-b[ec$cluster$order]
+   o$order.vector<-ec$cluster$order
+   o$block.content<-block.content
+   if(length(dim(dat))>2){
+      o$blocked.data<-dat[,ec$cluster$order,ec$cluster$order]
+      dimnames(o$blocked.data)<-list(glabels,plabels[ec$cluster$order],plabels[ec$cluster$order])
+   }else{
+      o$blocked.data<-dat[ec$cluster$order,ec$cluster$order]      
+      dimnames(o$blocked.data)<-list(plabels[ec$cluster$order],plabels[ec$cluster$order])
+   }
+   if(dim(bm)[1]==1){
+      o$block.model<-bm[1,,]
+      rownames(o$block.model)<-rlabels
+      colnames(o$block.model)<-rlabels
+   }else{
+      o$block.model<-bm
+      dimnames(o$block.model)<-list(glabels,rlabels,rlabels)
+   }
+   o$plabels<-plabels[ec$cluster$order]
+   o$glabels<-glabels
+   o$rlabels<-rlabels
+   o$cluster.method<-ec$cluster.method
+   o$equiv.fun<-ec$equiv.fun
+   o$equiv.metric<-ec$metric
+   class(o)<-"blockmodel"
+   o   
+}
+
+
+#print.blockmodel - Printing for blockmodel objects
+
+print.blockmodel<-function(b){
+   cat("\nBlockmodel by Equivalence Clustering:\n\n")
+   cat("Block membership:\n\n")
+   if(is.null(b$plabels))                    #Get position labels
+      plab<-(1:length(b$block.membership))[b$order.vector]
+   else
+      plab<-b$plabels
+   temp<-matrix(b$block.membership,nrow=1)
+   dimnames(temp)<-list("",plab)
+   print(temp[1,order(b$order.vector)])  #Print in original order
+   cat("\nReduced form blockmodel:\n\n")
+   if(length(dim(b$block.model))>2){
+      for(i in 1:dim(b$block.model)[1]){
+         temp<-b$block.model[i,,]
+         dimnames(temp)<-list(b$rlabels,b$rlabels)
+         cat("\t",b$glabels[i],"\n") 
+         print(temp)
+         cat("\n")
+      }
+   }else{
+         temp<-b$block.model
+         dimnames(temp)<-list(b$rlabels,b$rlabels)
+         cat("\t",b$glabels[i],"\n") 
+         print(temp)
+   }
+}
+
+
+#summary.blockmodel - Detailed printing for blockmodel objects
+
+summary.blockmodel<-function(b){
+   o<-b
+   class(o)<-"summary.blockmodel"
+   o
+}
+
+
+#print.summary.blockmodel - Printing for blockmodel summary objects
+
+print.summary.blockmodel<-function(b){
+   cat("\nBlockmodel by Equivalence Clustering:\n\n")
+
+   cat("\nGeneral information:\n\n")
+   cat("\tEquivalence function: ",b$equiv.fun,"\n")
+   cat("\tEquivalence metric: ",b$equiv.metric,"\n")
+   cat("\tClustering method: ",b$cluster.method,"\n")
+   cat("\tBlockmodel content: ",b$block.content,"\n")
+
+   cat("\n\nBlock membership by actor:\n\n")
+   if(is.null(b$plabels))                    #Get position labels
+      plab<-(1:length(b$block.membership))[b$order.vector]
+   else
+      plab<-b$plabels
+   temp<-matrix(b$block.membership,nrow=1)
+   dimnames(temp)<-list("",plab)
+   print(temp[1,order(b$order.vector)])  #Print in original order
+
+   cat("\n\nBlock membership by block:\n\n")
+   for(i in 1:max(b$block.membership))
+      cat("\t",b$rlabels[i],":",plab[b$block.membership==i],"\n")
+   
+   cat("\n\nReduced form blockmodel:\n\n")
+   if(length(dim(b$block.model))>2){
+      for(i in 1:dim(b$block.model)[1]){
+         temp<-b$block.model[i,,]
+         dimnames(temp)<-list(b$rlabels,b$rlabels)
+         cat("\t",b$glabels[i],"\n") 
+         print(temp)
+         cat("\n")
+      }
+   }else{
+         temp<-b$block.model
+         dimnames(temp)<-list(b$rlabels,b$rlabels)
+         cat("\t",b$glabels[i],"\n") 
+         print(temp)
+   }
+
+   cat("\n\nBlocked data:\n\n")
+   if(length(dim(b$block.model))>2){
+      for(i in 1:dim(b$block.model)[1]){
+         temp<-b$blocked.data[i,,]
+         dimnames(temp)<-list(plab,plab)
+         cat("\t",b$glabels[i],"\n") 
+         print(temp)
+         cat("\n")
+      }
+   }else{
+         temp<-b$blocked.data
+         dimnames(temp)<-list(plab,plab)
+         cat("\t",b$glabels[i],"\n") 
+         print(temp)
+   }
+
+}
+
+
+#plot.blockmodel - Plotting for blockmodel objects
+
+plot.blockmodel<-function(b){
+   #Save old settings
+   oldpar<-par()
+   #Get new settings from data
+   n<-dim(b$blocked.data)[2]
+   m<-stackcount(b$blocked.data)
+   if(!is.null(b$plabels))
+      plab<-b$plabels
+   else
+      plab<-(1:n)[b$order.vector]
+   if(!is.null(b$glabels))
+      glab<-b$glabels
+   else
+      glab<-1:m
+   print(glab)
+   #Now, plot the blocked data
+   par(mfrow=c(floor(sqrt(m)),ceiling(m/floor(sqrt(m)))))
+   if(m>1)
+      for(i in 1:m){
+         plot.matrix(b$blocked.data[i,,],labels=list(plab,plab),main=paste("Relation - ",glab[i]))
+         for(j in 2:n)
+            if(b$block.membership[j]!=b$block.membership[j-1])
+               abline(v=j-0.5,h=j-0.5,lty=3)
+      }
+   else{
+      plot.matrix(b$blocked.data,labels=list(plab,plab),main=paste("Relation - ",glab[1]))
+      for(j in 2:n)
+         if(b$block.membership[j]!=b$block.membership[j-1])
+            abline(v=j-0.5,h=j-0.5,lty=3)
+   }
+   #Fix the display settings
+   par(oldpar)
+}
+
+
+#blockmodel.expand - Generate a graph (or stack) from a given blockmodel using particular expansion rules
+
+blockmodel.expand<-function(b,ev,mode="digraph",diag=FALSE){
+   #First, get some useful parameters and such
+   en<-sum(ev)
+   el<-length(ev)
+   bn<-max(b$block.membership)
+   bm<-stackcount(b$block.model)
+   if(bm>1)
+      block.model<-b$block.model
+   else{
+      block.model<-array(dim=c(1,bn,bn))
+      block.model[1,,]<-b$block.model
+   }
+   #Now, perform the expansion)
+   expanded<-array(dim=c(bm,en,en))
+   for(i in 1:bm){
+      if(b$block.content=="density"){
+         tp<-matrix(nrow=en,ncol=en)
+         for(j in 1:el)
+            for(k in 1:el)
+               tp[(cumsum(ev)[j]-ev[j]+1):(cumsum(ev)[j]),(cumsum(ev)[k]-ev[k]+1):(cumsum(ev)[k])]<-block.model[i,j,k]
+         tp[is.na(tp)|is.nan(tp)]<-0   #Fill in any NA or NaN blocks with zero
+         expanded[i,,]<-rgraph(en,1,tprob=tp,mode=mode,diag=diag)
+      }else
+         stop(paste("\nContent type",b$block.content,"not supported yet.\n"))
+   }
+   #Return the output data
+   if(dim(expanded)[1]>1)
+      expanded
+   else
+      expanded[1,,]
+}
+
+
+#interval.graph - Construct one or more interval graphs (and exchangeability vectors) from a set of spells
+
+interval.graph<-function(slist,type="simple",diag=FALSE){
+   #Note that each slice of slist must have one spell per row, with col 1 containing the spell type,
+   #col 2 containing the spell onset, and col 3 containing the spell termination.  If there are multiple
+   #slices present, they must be indexed by the first dimension of the array.
+   #First, the preliminaries
+   o<-data.frame
+   m<-stackcount(slist)          #Get the number of stacks
+   if(m==1){
+      d<-array(dim=c(m,dim(slist)[1],dim(slist)[2]))
+      d[1,,]<-slist
+   }else
+      d<-slist
+   ns<-dim(d)[2]                     #Get the number of spells
+   o$exchange.list<-d[,,1]   #Exchange list is just the vector of spell types
+   #Now, for the graph itself...
+   o$graph<-array(dim=c(m,ns,ns))
+   for(i in 1:ns)
+      for(j in 1:ns)
+         o$graph[,i,j]<-switch(type,
+            simple=as.numeric((d[,i,2]<=d[,j,3])&(d[,i,3]>=d[,j,2])),  #"Start before the end, end after the beginning"
+            overlap=pmax(pmin(d[,i,3],d[,j,3])-pmax(d[,i,2],d[,j,2]),0),
+            fracxy=pmax(pmin(d[,i,3],d[,j,3])-pmax(d[,i,2],d[,j,2]),0)/(d[,i,3]-d[,i,2]),
+            fracyx=pmax(pmin(d[,i,3],d[,j,3])-pmax(d[,i,2],d[,j,2]),0)/(d[,j,3]-d[,j,2]),
+            jntfrac=2*pmax(pmin(d[,i,3],d[,j,3])-pmax(d[,i,2],d[,j,2]),0)/(d[,i,3]-d[,i,2]+d[,j,3]-d[,j,2])
+         )
+   #Patch up those loose ends.
+   if(m==1)
+      o$graph<-o$graph[1,,]
+   if(!diag)
+      o$graph<-diag.remove(o$graph,remove.val=0)
+   #Return the data structure
+   o
+}
+
+
+#mutuality - Find the number of mutual (i.e., reciprocated) edges in a graph
+mutuality<-function(dat,g=NULL){
+   n<-dim(dat)[2]
+   if(length(dim(dat))>2){     #Is this a stack?
+      if(!is.null(g)){                 #Were individual graphs selected?
+         gn<-length(g)
+         d<-dat[g,,]
+      }else{
+         d<-dat
+         gn<-dim(dat)[1]
+      }
+   }else{
+      d<-dat
+      gn<-1
+   }
+   if(gn==1){     #Only one graph - convert to stack format
+      temp<-array(dim=c(1,n,n))
+      temp[1,,]<-d
+      d<-temp
+   }
+   #Find numbers of mutuals
+   m<-apply(d,1,function(a){sum(a[upper.tri(a)]*t(a)[upper.tri(a)],na.rm=TRUE)})
+   m
+}
+
+
+
+#eval.edgeperturbation - Evaluate a function on a given graph with and without a given edge, returning
+#the difference between the results in each case.
+
+eval.edgeperturbation<-function(dat,i,j,FUN,...){
+   #Get the function in question
+   fun<-match.fun(FUN)
+   #Set up the perturbation matrices
+   present<-dat
+   present[i,j]<-1
+   absent<-dat
+   absent[i,j]<-0
+   #Evaluate the function across the perturbation and return the difference
+   fun(present,...)-fun(absent,...)
+}
+
+
+#pstar - Perform an approximate p* analysis using the logistic regression approximation.  Note that the
+#result of this is returned as a GLM object, and subsequent printing/summarizing/etc. should be treated
+#accordingly.
+
+pstar<-function(dat,effects=c("choice","mutuality","density","reciprocity","transitivity","outdegree","indegree","betweenness","closeness","degcentralization","betcentralization","clocentralization"),attr=NULL,memb=NULL,diag=FALSE,mode="digraph"){
+   #First, take care of various details
+   n<-dim(dat)[1]
+   m<-dim(dat)[2]
+   o<-data.frame()
+   #Next, add NAs as needed
+   d<-dat
+   if(!diag)
+      d<-diag.remove(d)
+   if(mode=="graph")
+      d<-upper.tri.remove(d)
+   #Make sure that attr and memb are well-behaved
+   if(is.vector(attr))
+      attr<-matrix(attr,ncol=1)
+   if(is.vector(memb))
+      memb<-matrix(memb,ncol=1)
+   #Now, evaluate each specified effect given each possible perturbation
+   tiedat<-vector()
+   for(i in 1:n)
+      for(j in 1:m)
+         if(!is.na(d[i,j])){
+            #Assess the effects
+            td<-vector()
+            if(!is.na(pmatch("choice",effects))){  #Compute a choice effect
+               td<-c(td,1)  #Always constant
+            }
+            if(!is.na(pmatch("mutuality",effects))){  #Compute a mutuality effect
+               td<-c(td,eval.edgeperturbation(d,i,j,"mutuality"))
+            }
+            if(!is.na(pmatch("density",effects))){  #Compute a density effect
+               td<-c(td,eval.edgeperturbation(d,i,j,"gden",mode=mode,diag=diag))
+            }
+            if(!is.na(pmatch("reciprocity",effects))){  #Compute a reciprocity effect
+               td<-c(td,eval.edgeperturbation(d,i,j,"grecip"))
+            }
+            if(!is.na(pmatch("transitivity",effects))){  #Compute a transitivity effect
+               td<-c(td,eval.edgeperturbation(d,i,j,"gtrans",mode=mode,diag=diag))
+            }
+            if(!is.na(pmatch("outdegree",effects))){  #Compute outdegree effects
+               td<-c(td,eval.edgeperturbation(d,i,j,"degree",cmode="outdegree",gmode=gmode,diag=diag))
+            }
+            if(!is.na(pmatch("indegree",effects))){  #Compute indegree effects
+               td<-c(td,eval.edgeperturbation(d,i,j,"degree",cmode="indegree",gmode=gmode,diag=diag))
+            }
+            if(!is.na(pmatch("betweenness",effects))){  #Compute betweenness effects
+               td<-c(td,eval.edgeperturbation(d,i,j,"betweenness",gmode=mode,diag=diag))
+            }
+            if(!is.na(pmatch("closeness",effects))){  #Compute closeness effects
+               td<-c(td,eval.edgeperturbation(d,i,j,"closeness",gmode=mode,diag=diag))
+            }
+            if(!is.na(pmatch("degcentralization",effects))){  #Compute degree centralization effects
+               td<-c(td,eval.edgeperturbation(d,i,j,"centralization","degree",mode=mode,diag=diag))
+            }
+            if(!is.na(pmatch("betcentralization",effects))){  #Compute betweenness centralization effects
+               td<-c(td,eval.edgeperturbation(d,i,j,"centralization","betweenness",mode=mode,diag=diag))
+            }
+            if(!is.na(pmatch("clocentralization",effects))){  #Compute closeness centralization effects
+               td<-c(td,eval.edgeperturbation(d,i,j,"centralization","closeness",mode=mode,diag=diag))
+            }
+            #Add attribute differences, if needed
+            if(!is.null(attr))
+               td<-c(td,abs(attr[i,]-attr[j,]))
+            #Add membership similarities, if needed
+            if(!is.null(memb))
+               td<-c(td,as.numeric(memb[i,]==memb[j,]))
+            #Add this data to the aggregated tie data
+            tiedat<-rbind(tiedat,c(d[i,j],td))
+         }
+         #Label the tie data matrix
+         tiedat.lab<-"EdgeVal"
+         if(!is.na(pmatch("choice",effects)))  #Label the choice effect
+            tiedat.lab<-c(tiedat.lab,"Choice")
+         if(!is.na(pmatch("mutuality",effects)))  #Label the mutuality effect
+            tiedat.lab<-c(tiedat.lab,"Mutuality")
+         if(!is.na(pmatch("density",effects)))  #Label the density effect
+            tiedat.lab<-c(tiedat.lab,"Density")
+         if(!is.na(pmatch("reciprocity",effects)))  #Label the reciprocity effect
+            tiedat.lab<-c(tiedat.lab,"Reciprocity")
+         if(!is.na(pmatch("transitivity",effects)))  #Label the transitivity effect
+            tiedat.lab<-c(tiedat.lab,"Transitivity")
+         if(!is.na(pmatch("outdegree",effects)))  #Label the outdegree effect
+            tiedat.lab<-c(tiedat.lab,paste("Outdegree",1:n))
+         if(!is.na(pmatch("indegree",effects)))  #Label the indegree effect
+            tiedat.lab<-c(tiedat.lab,paste("Indegree",1:n))
+         if(!is.na(pmatch("betweenness",effects)))  #Label the betweenness effect
+            tiedat.lab<-c(tiedat.lab,paste("Betweenness",1:n))
+         if(!is.na(pmatch("closeness",effects)))  #Label the closeness effect
+            tiedat.lab<-c(tiedat.lab,paste("Closeness",1:n))
+         if(!is.na(pmatch("degcent",effects)))  #Label the degree centralization effect
+            tiedat.lab<-c(tiedat.lab,"DegCentralization")
+         if(!is.na(pmatch("betcent",effects)))  #Label the betweenness centralization effect
+            tiedat.lab<-c(tiedat.lab,"BetCentralization")
+         if(!is.na(pmatch("clocent",effects)))  #Label the closeness centralization effect
+            tiedat.lab<-c(tiedat.lab,"CloCentralization")
+         if(!is.null(attr))
+            tiedat.lab<-c(tiedat.lab,colnames(attr))
+         if(!is.null(memb))
+            tiedat.lab<-c(tiedat.lab,colnames(memb))
+         colnames(tiedat)<-tiedat.lab
+   #Having had our fun, it's time to get serious.  Run a GLM on the resulting data.
+   o<-glm(tiedat[,1]~-1+tiedat[,2:dim(tiedat)[2]],family="binomial")
+   o$tiedata<-tiedat
+   #Return the result
+   o
+}
+
+
+#read.nos - Read an input file in Neo-OrgStat format.  At this time, only the graph stack is read; any 
+#coloring information is ignored.
+
+read.nos<-function(file){
+   #Get the formatting information
+   f<-sapply(readLines(file,n=2),strsplit," ")
+   #Parse the formatting information
+   m<-as.numeric((f[[1]])[1])
+   n<-as.numeric((f[[2]])[1])
+   o<-as.numeric((f[[2]])[2])
+   #Read the input data
+   dat<-scan(file,skip=3)
+   #Unpack the data in the proper order
+   gstack<-array(dim=c(m,n,o))
+   for(i in 1:m)
+      for(j in 1:n)
+         for(k in 1:o)
+            gstack[i,j,k]<-dat[(i-1)*n*o+(j-1)*o+k]   
+   #Return the stack
+   gstack
+}
+

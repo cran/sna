@@ -1,0 +1,31 @@
+\name{print.blockmodel}
+\alias{print.blockmodel}
+%- Also NEED an `\alias' for EACH other topic documented here.
+\title{ Printing for blockmodel Objects }
+\description{
+Prints a quick summary of a \code{\link{blockmodel}} object.
+}
+\usage{
+print.blockmodel(b)
+}
+%- maybe also `usage' for other objects documented here.
+\arguments{
+  \item{b}{ An object of class \code{blockmodel} }
+}
+%\details{
+%}
+\value{
+None
+}
+%\references{ }
+\author{ Carter T. Butts \email{ctb@andrew.cmu.edu} }
+%\note{  }
+
+% ~Make other sections like WARNING with \section{WARNING }{....} ~
+
+\seealso{ \code{\link{blockmodel}} }
+
+\examples{
+}
+\keyword{ print }%-- one or more ...
+\keyword{ network }
