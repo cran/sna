@@ -48,4 +48,4 @@ symmetrize(g,rule="strong")
 }
 \keyword{ manip }
 \keyword{ array }%-- one or more ...
-\keyword{ network }
+\keyword{ math }

@@ -39,4 +39,4 @@ g<-rgraph(10,2,tprob=c(0.2,0.5))
 gliop(g,gden,"-",1,2)
 }
 \keyword{ utilities }%-- one or more ...
-\keyword{ network }
+\keyword{ math }

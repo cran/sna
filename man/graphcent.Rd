@@ -41,4 +41,4 @@ g<-rgraph(10)     #Draw a random graph with 10 members
 graphcent(g)    #Compute centrality scores
 }
 \keyword{ univar }%-- one or more ...
-\keyword{ network }
+\keyword{ math }

@@ -46,4 +46,4 @@ g.e<-blockmodel.expand(b,rep(2,length(b$rlabels)))  #Two of each class
 g.e
 }
 \keyword{ manip }%-- one or more ...
-\keyword{ network}
+\keyword{ math }

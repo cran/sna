@@ -6,11 +6,12 @@
   Prints an object of class \code{summary.blockmodel}.
 }
 \usage{
-print.summary.blockmodel(b)
+print.summary.blockmodel(x, ...)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
-  \item{b}{ An object of class \code{summary.blockmodel} }
+  \item{x}{ An object of class \code{summary.blockmodel} }
+  \item{\dots}{ Further arguments passed to or from other methods }
 }
 %\details{
 %}
@@ -28,4 +29,3 @@ print.summary.blockmodel(b)
 
 }
 \keyword{ print }%-- one or more ...
-\keyword{ network }

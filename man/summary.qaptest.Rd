@@ -6,11 +6,12 @@
   Returns a \code{qaptest} summary object
 }
 \usage{
-summary.qaptest(q)
+summary.qaptest(object, ...)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
-  \item{q}{ An object of class \code{qaptest} }
+  \item{object}{ An object of class \code{qaptest} }
+  \item{\dots}{ Further arguments passed to or from other methods }
 }
 %\details{
 %  
@@ -29,4 +30,4 @@ summary.qaptest(q)
 \examples{
 
 }
-\keyword{ network }%-- one or more ...
+\keyword{ math }%-- one or more ...

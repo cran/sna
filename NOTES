@@ -1,0 +1,297 @@
+#
+# Various Useful Tools for Network Analysis in S
+#
+# By Carter Butts, ctb@andrew.cmu.edu
+#
+# Current Version: 0.41
+#
+# Last updated 3/24/02
+#
+#Contents:
+#
+#addisolates - Add isolates to a graph set
+#bbnam - Draw from Butts' (Hierarchical) Bayesian Network Accuracy Model
+#bbnam.bf - Bayes factors for Butts' (Hierarchical) Bayesian Network Accuracy
+#   Model
+#bbnam.probtie - Internal routine for finding tie likelihoods under bbnam
+#bbnam.jntlik - Internal routine for computing joint likelihoods under bbnam
+#bbnam.jntlik.slice - Internal routine for joint likelihood computation under 
+#   bbnam, by data slice
+#betweenness - Find the betweenness centralities of network positions
+#blockmodel - Generate blockmodels based on partitions of network positions
+#blockmodel.expand - Generate a graph from a given blockmodel using particular 
+#   expansion rules
+#bonpow - Find the Bonacich power centrality scores of network positions
+#centralgraph - Find the central graph of a graph stack
+#centralization - Generic centralization routine (uses centrality routines)
+#closeness - Find the closeness centralities of network positions
+#component.dist - Find the distribution of (maximal) component sizes within a 
+#   graph
+#components - Find the number of (maximal) components within a given graph
+#connectedness - Find the Krackhardt connectedness of a graph or graph stack
+#consensus - Find a consensus structure, using one of several algorithms
+#cugtest - Generic Conditional Uniform Graph (CUG) test for bigraphic statistics
+#degree - Computes the degree centralities of network positions
+#diag.remove - NAs the diagonals of graphs in a stack
+#dyad.census - Compute the Holland and Leinhardt MAN dyad census for a graph or 
+#   graph stack
+#efficiency - Find the Krackhardt efficiency of a graph or graph stack
+#equiv.clust - Find clusters of positions based on an equivalence relation
+#eval.edgeperturbation - Evaluate a function on a given graph with and without a
+#   given edge
+#evcent - Find the eigenvector centralities of network positions
+#event2dichot - Convert observed event matrices to dichotomous matrices
+#gclust.boxstats - Plot statistics associated with clusters
+#gclust.centralgraph - Get central graphs associated with clusters
+#gcor - Computes the correlation between graphs
+#gcov - Computes the covariance between graphs
+#gden - Computes the density of one or more graphs
+#gdist.plotdiff - Plot differences in graph-level statistics against inter-graph
+#   distances
+#gdist.plotstats - Plot statistics associated with graphs against (projected) 
+#   inter-graph distances
+#geodist - Finds geodesic distances and shortest paths within a graph
+#gliop - Return a binary operation on GLI values computed on two graphs (for 
+#   test routines)
+#gplot - Plots graphs using eigenvector projection, classical MDS, or custom 
+#   coords
+#graphcent - Find the graph centralities of network positions
+#grecip - Computes the reciprocity of one or more graphs
+#gtrans - Computes the transitivity of one or more graphs
+#gscor - Computes the structural correlation between graphs
+#gscov - Computes the structural covariance between graphs
+#gvectorize - Vectorization of adjacency matrices
+#hdist - Computes the Hamming distance between two labeled graphs
+#hierarchy - Find the hierarchy score of a graph or graph stack
+#infocent - Find the information centrality scores of network positions
+#interval.graph - Construct one or more interval graphs (and exchangeability 
+#   vectors) from a set of spells
+#is.isolate - Determines whether a particular vertex is isolated
+#isolates - Returns a list of isolates
+#lab.optimize - Optimize a bivariate graph statistic over a set of labelings
+#lower.tri.remove - NAs the lower triangles of graphs in graph stacks
+#lubness - Find Krackhardt's Least Upper Boundedness of a graph or graph stack
+#make.stochastic - Make a graph stack row, column, or row-column stochastic
+#mutuality - Find the number of mutual (i.e., reciprocated) edges in a graph
+#netcancor - Canonical correlations for network variables (requires mva)
+#netlm - Fits a network OLS regression model (w/CUG or QAP tests)
+#netlogit - Fits a network logit model (w/CUG or QAP tests)
+#npostpred - Take posterior predictive draws for functions of graphs
+#nties - Find the number of ties in a given graph
+#numperm - Get the nth permutation vector, using a periodic numbering scheme
+#plot.bbnam - Plotting for bbnam objects
+#plot.blockmodel - Plotting for blockmodel objects
+#plot.cugtest - Plotting for cugtest objects
+#plot.equiv.clust - Plotting for equivalence clustering objects
+#plot.matrix - Plotting of arbitrary matrices
+#plot.qaptest - Plotting for qaptest objects
+#potscalered.mcmc - Computes Gelman et al.'s potential scale reduction statistic
+#   for scalar estimands
+#prestige - Find actor prestige scores from one of several measures
+#print.bayes.factor - Printing for Bayes factor objects
+#print.bbnam - Printing for bbnam objects
+#print.blockmodel - Printing for blockmodel objects
+#print.cugtest - Printing for cugtest objects
+#print.netcancor - Printing for netcancor objects
+#print.netlm - Printing for netlm objects
+#print.netlogit - Printing for netlogit objects
+#print.qaptest - Printing for qaptest objects
+#print.summary.bayes.factor - Printing for Bayes factor summary objects 
+#print.summary.bbnam - Printing for bbnam summary objects
+#print.summary.blockmodel - Printing for blockmodel summary objects
+#print.summary.cugtest - Printing for cugtest summary objects
+#print.summary.netcancor - Printing for netcancor summary objects
+#print.summary.netlm - Printing for netlm summary objects
+#print.summary.netlogit - Printing for netlogit summary objects
+#print.summary.qaptest - Printing for qaptest summary objects
+#pstar - Fit a p* model using the logistic regression approximation.
+#qaptest - Generic QAP test for bigraphic statistics
+#reachability - Find the reachability matrix of a graph
+#read.nos - Import data files in Neo-OrgStat format
+#rgraph - Draws Bernoulli graphs
+#rmperm - Randomly permutes the rows and columns of a graph stack
+#rperm - Draw a random permutation vector with exchangability constraints
+#sdmat - Estimate the matrix of structural distances among unlabeled graphs
+#sedist - Find distances between positions based on structural equivalence
+#sr2css - Convert a row-wise self-report matrix to a CSS matrix with missing 
+#   observations
+#stackcount -Find the number of matrices in a graph stack (matrix or array data 
+#   acceptable)
+#stresscent - Find the stress centralities of network positions
+#structdist - Estimate the structural distance between unlabeled graphs
+#summary.bayes.factor - Detailed printing for Bayes factor objects
+#summary.bbnam - Detailed printing for bbnam objects
+#summary.blockmodel - Detailed printing for blockmodel objects
+#summary.cugtest - Detailed printing for qaptest objects
+#summary.netcancor - Detailed printing for netcancor objects
+#summary.netlm - Detailed printing for netlm objects
+#summary.netlogit - Detailed printing for netlogit objects
+#summary.qaptest - Detailed printing for qaptest objects
+#symmetrize - Symmetrize a graph or graph stack
+#triad.census - Conduct a Davis and Leinhardt triad census for a graph or graph 
+#   stack
+#triad.classify - Return the Davis and Leinhardt classification of a given triad
+#upper.tri.remove - NAs the upper triangles of graphs in graph stacks
+#
+#NOTES:
+#
+#License: This software is made available under the terms of the GNU Public 
+#License (GPL), version 2.0 or later.  Please visit the Free Software Foundation
+#(www.fsf.org) for more details.
+#
+#Lack of support: It must be noted that this code is provided AS IS, without 
+#support or warranty (express or implied).  The author will generally try to fix
+#bugs where possible, but the end user is generally on his/her own with respect 
+#to this software; the author apologizes for this fact, but would like to point 
+#out that he has numerous professional and other obligations which prevent his
+#working full-time on this project.
+#
+#Implementation: This code has been written for the R implementation of the S 
+#language, and is currently thought to work with version 1.2 and higher.  
+#Systematic testing, however, has been limited: caveat emptor. 
+#
+#A general note on data frames: Graphs are assumed to be n x n matrices (for 
+#single structures) or m x n x n arrays (for graph stacks).  By default, all 
+#network tools will expect this sort of data; this winds up being important for 
+#allowing things like general network hypothesis testing routines.
+#
+#
+#CHANGELOG:
+#
+#v0.41 - Updates, New Features, and Bug Fixes
+#   Updates:
+#      Deprecated function .Alias removed (was used in netlm, netlogit)
+#      Changed keyword "network" to "math" in all help pages [as requested
+#         by the Keepers of R]
+#      Various internal changes to plot/print/summary methods, in order
+#         to maintain consistency with their generic equivalents; these
+#         will (hopefully) have no visible effect
+#   New Features:
+#      component.dist now supports weak, unilateral, strong, and recursive
+#         component definitions
+#   Bug Fixes:
+#      component.dist was calculating recursively connected components for
+#         connected="strong", instead of strongly connected components
+#      pstar was dumping (internal) edge perturbation data to the screen,
+#         which was harmless but very annoying; names for pstar coefficients
+#         were not being recognized by glm
+#
+#v0.4 - New Features, Changes, and Fixes
+#   New Functions:
+#      connectedness - Find the Krackhardt connectedness of a graph or graph 
+#         stack
+#      dyad.census - Compute the Holland and Leinhardt MAN dyad census for a 
+#         graph or graph stack
+#      efficiency - Find the Krackhardt efficiency of a graph or graph stack
+#      hierarchy - Find the hierarchy score of a graph or graph stack.
+#      infocent - Find the information centrality scores of network positions
+#         [submitted by David Barron]
+#      lubness - Find Krackhardt's Least Upper Boundedness of a graph or graph 
+#         stack
+#      reachability - Find the reachability matrix of a graph.
+#      triad.census - Conduct a Davis and Leinhardt triad census for a graph or 
+#         graph stack
+#      triad.classify - Return the Davis and Leinhardt classification of a given
+#         triad
+#   New Features:
+#      gplot now adjusts line width for valued graphs, via the edge.lwd 
+#         parameter, and allows users to set the vertex point type (using
+#         vertex.pch.  gmode=="graph" now sets usearrows<-FALSE, and new
+#         gmode "twomode" automagically plots two-mode data.  New display modes
+#         have also been added: geodist (MDS of proximities); adj (MDS with 
+#         adjacency as similarity); and seham (MDS of SE dist using Hamming 
+#         method).
+#      grecip now supports a "measure" option, which allows the user to choose
+#         between "dyadic" reciprocity (aRb iff bRa) and "edgewise" reciprocity
+#         (aRb if bRa).  The old version (and default) is the "dyadic" option,
+#         which (as the above implies) takes null dyads into account; the 
+#         "edgewise" definition omits null dyads from the calculation.
+#      gtrans now supports a "measure" option, which allows the user to choose
+#         between "weak" transitivity (aRc if aRb & bRc) and "strong" 
+#         transitivity (aRc iff aRb & bRc).  The old version was strong-only, 
+#         but much of the field prefers the weak version.  Each of these options
+#         has a respective census variant ("weakcensus", "strongcensus") which 
+#         returns a count of legal triads rather than a rate.
+#      pstar now supports separate options for strong/weak transitivity scores,
+#         and for strong/weak transitive triad counts.
+#   Bug Fixes:
+#      Labeling optimizers were not pre-sorting to guard against
+#         mixed-up exchange lists (these are now checked, too).
+#      Various centrality measures were not returning the correct
+#         absolute maximum deviation with tmaxdev==TRUE.
+#      gtrans was ignoring settings and counting diagonal entries [submitted by
+#         David Barron]
+#      pstar behaved badly when external predictors were unnamed [submitted by
+#         Gindo Tampubolon]
+#   Changes:
+#      Comparable labelings are now _enforced_ where applicable.
+#      lab.optimize.gumbel now just tries to scare you off, rather
+#         than refusing you altogether.
+#      Path-based indices (betweenness, closeness, stresscent,
+#         graphcent, etc.) now automatically assume 
+#         cmode=="undirected" whenever gmode="graph".
+#      The default mode for gtrans is now "weak", to match the usage of W&F
+#
+#v0.3 - New Features, Changes, and Fixes
+#   General:
+#      All standard functions are now documented
+#      R package format is now supported
+#   New Functions:
+#      component.dist - Find the distribution of (maximal) component sizes 
+#         within a graph
+#      components - Find the number of (maximal) components within a given graph
+#      eval.edgeperturbation - Evaluate a function on a given graph with and 
+#         without a given edge, returning the difference between the results in 
+#         each case.
+#      interval.graph - Construct one or more interval graphs (and 
+#         exchangeability vectors) from a set of spells
+#      mutuality - Find the number of mutual (i.e., reciprocated) edges in a 
+#         graph
+#      gscor - Computes the structural correlation between graphs
+#      gscov - Computes the structural covariance between graphs
+#      gtrans - Compute the transitivity of an input graph or graph stack.
+#      lab.optimize - Optimize a bivariate graph statistic over a set of 
+#         labelings
+#      pstar - Fits a p* model using the logistic regression approximation 
+#      read.nos - Reads input files in Neo-OrgStat format
+#      rperm - Draw a random permutation vector with exchangability constraints
+#   Features and Modifications:
+#      diag.remove, upper.tri.remove, and lower.tri.remove now allow replacement
+#         with any value
+#      gplot now provides a slew of new parameters to change color, size, etc. 
+#         of vertices, edges, and labels
+#      gscor and gscov now delegate to lab.optimize
+#      gscor, gscov, structdist now support exchange lists (via lab.optimize)
+#
+#v0.2 - New Features and Some Bug Fixes
+#   New Functions:
+#      blockmodel - Generate blockmodels based on partitions of network 
+#         positions
+#      blockmodel.expand - Generate a graph from a given blockmodel using 
+#         particular expansion rules
+#      bonpow - Find the Bonacich power centrality scores of network positions
+#      equiv.clust - Find clusters of positions based on an equivalence relation
+#      evcent - Find the eigenvector centralities of network positions
+#      gdist.plotdiff - Plot differences in graph-level statistics against 
+#         inter-graph distances
+#      gdist.plotstats - Plot statistics associated with graphs against 
+#         (projected) inter-graph distances
+#      make.stochastic - Make a graph stack row, column, or row-column 
+#         stochastic
+#      plot.blockmodel - Plotting for blockmodel objects
+#      plot.equiv.clust - Plotting for equivalence clustering objects
+#      prestige - Find actor prestige scores from one of several measures
+#      print.blockmodel - Printing for blockmodel objects
+#      print.summary.blockmodel - Printing for blockmodel summary objects
+#      sedist - Find distances between positions based on structural equivalence
+#      stackcount -Find the number of matrices in a graph stack (matrix or array
+#         data acceptable)
+#      summary.blockmodel - Detailed printing for blockmodel objects
+#   Features and Modifications:
+#      All centrality routines can now be rescaled (division by maximum realized
+#         value); default is always FALSE   
+#   Bug Fixes:
+#      Various centrality routines once again return values for the selected 
+#         graph and vertices
+#      
+#

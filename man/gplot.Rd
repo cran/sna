@@ -55,5 +55,4 @@ None.
 \examples{
 gplot(rgraph(5))  #Plot a random graph
 }
-\keyword{ network}
 \keyword{ hplot }%-- one or more ...

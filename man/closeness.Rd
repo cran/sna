@@ -47,4 +47,4 @@ closeness(g)      #Compute closeness scores
 
 }
 \keyword{univar }%-- one or more ...
-\keyword{ network}
+\keyword{ math }

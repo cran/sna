@@ -6,11 +6,12 @@
   Prints an object of class \code{summary.netlm}.
 }
 \usage{
-print.summary.netlm(n)
+print.summary.netlm(x, ...)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
-  \item{n}{ An object of class \code{summary.netlm} }
+  \item{x}{ An object of class \code{summary.netlm} }
+  \item{\dots}{ Further arguments passed to or from other methods }
 }
 %\details{
 %}
@@ -28,4 +29,3 @@ print.summary.netlm(n)
 
 }
 \keyword{ print }%-- one or more ...
-\keyword{ network }

@@ -45,6 +45,5 @@ g<-rgraph(10,6,tprob=c(0.2,0.2,0.5,0.5,0.8,0.8))
 #Examine the covariance matrix
 gcov(g)
 }
-\keyword{ network }
 \keyword{ univar }
 \keyword{ multivariate }%-- one or more ...

@@ -36,4 +36,3 @@ rmperm(g)
 }
 \keyword{ array }
 \keyword{ distribution }%-- one or more ...
-\keyword{ network }

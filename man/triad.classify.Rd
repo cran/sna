@@ -62,5 +62,4 @@ triad.classify(g,tri=c(1,2,3))
 gplot(g[1:3,1:3])
 gplot(g[2:4,2:4])
 }
-\keyword{ network }% at least one, from doc/KEYWORDS
 \keyword{ math }% __ONLY ONE__ keyword per line

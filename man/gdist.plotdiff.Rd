@@ -48,4 +48,3 @@ g.h<-hdist(g)
 gdist.plotdiff(g.h,gden(g),lm.line=TRUE)
 }
 \keyword{ hplot }%-- one or more ...
-\keyword{ network }

@@ -35,4 +35,4 @@ g<-lower.tri.remove(g)
 
 }
 \keyword{ manip }%-- one or more ...
-\keyword{ network }
+\keyword{ math }

@@ -6,11 +6,12 @@
   Returns a \code{cugtest} summary object
 }
 \usage{
-summary.cugtest(c)
+summary.cugtest(object, ...)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
-  \item{c}{ An object of class \code{cugtest} }
+  \item{object}{ An object of class \code{cugtest} }
+  \item{\dots}{ Further arguments passed to or from other methods }
 }
 %\details{
 %
@@ -29,4 +30,4 @@ An object of class \code{summary.cugtest}
 \examples{
 
 }
-\keyword{ network }%-- one or more ...
+\keyword{ math }%-- one or more ...

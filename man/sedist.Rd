@@ -62,4 +62,4 @@ plot(cmdscale(as.dist(g.se)))
 }
 \keyword{ classif }
 \keyword{ cluster }%-- one or more ...
-\keyword{ network }
+\keyword{ math }

@@ -48,4 +48,3 @@ make.stochastic(g,mode="rowcol")
 \keyword{ manip }
 \keyword{ array }
 \keyword{ algebra }%-- one or more ...
-\keyword{ network }

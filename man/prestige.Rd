@@ -64,4 +64,4 @@ g<-rgraph(10)                 #Draw a random graph with 10 members
 prestige(g,cmode="domain")    #Compute domain prestige scores
 }
 \keyword{univar}
-\keyword{ network }
+\keyword{ math }

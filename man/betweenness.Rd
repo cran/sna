@@ -48,4 +48,4 @@ betweenness(g)    #Compute betweenness scores
 }
 
 \keyword{univar}
-\keyword{ network}
+\keyword{ math }

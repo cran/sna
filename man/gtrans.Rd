@@ -40,5 +40,4 @@ g<-rgraph(5,10)
 #Find transitivity scores
 gtrans(g)
 }
-\keyword{ network}
 \keyword{ algebra }%-- one or more ...

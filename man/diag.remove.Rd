@@ -32,4 +32,4 @@ g<-rgraph(3,5)
 g<-diag.remove(g)
 }
 \keyword{ manip }%-- one or more ...
-\keyword{ network}
+\keyword{ math }

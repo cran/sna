@@ -6,11 +6,12 @@
   Prints a quick summary of objects produced by \code{\link{cugtest}}.
 }
 \usage{
-print.cugtest(c)
+print.cugtest(x, ...)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
-  \item{c}{ An object of class \code{cugtest} }
+  \item{x}{ An object of class \code{cugtest} }
+  \item{\dots}{ Further arguments passed to or from other methods }
 }
 %\details{
 %}
@@ -28,4 +29,3 @@ None.
 \examples{
 }
 \keyword{ print }%-- one or more ...
-\keyword{ network }

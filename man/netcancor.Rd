@@ -108,4 +108,4 @@ nc<-netcancor(y,x,reps=100)
 summary(nc)
 }
 \keyword{ multivariate }%-- one or more ...
-\keyword{ network }
+\keyword{ math }

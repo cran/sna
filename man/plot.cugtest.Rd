@@ -6,11 +6,11 @@
   Plots the distribution of a CUG test statistic.
 }
 \usage{
-plot.cugtest(c, mode="density", ...)
+plot.cugtest(x, mode="density", ...)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
-  \item{c}{ A \code{\link{cugtest}} object }
+  \item{x}{ A \code{\link{cugtest}} object }
   \item{mode}{ ``density'' for kernel density estimation, ``hist'' for histogram }
   \item{\dots}{ Additional arguments to \code{\link{plot}} }
 }
@@ -43,4 +43,3 @@ cug<-cugtest(dat,gcor)
 plot(cug)
 }
 \keyword{ hplot }%-- one or more ...
-\keyword{ network }

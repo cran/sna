@@ -6,11 +6,12 @@
   Prints an object of class \code{summary.netcancor}.
 }
 \usage{
-print.summary.netcancor(n)
+print.summary.netcancor(x, ...)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
-  \item{n}{ An object of class \code{summary.netcancor}}
+  \item{x}{ An object of class \code{summary.netcancor}}
+  \item{\dots}{ Further arguments passed to or from other methods }
 }
 %\details{
 %}
@@ -28,4 +29,3 @@ print.summary.netcancor(n)
 
 }
 \keyword{ print }%-- one or more ...
-\keyword{ network }

@@ -3,36 +3,42 @@
 #
 # By Carter Butts, ctb@andrew.cmu.edu
 #
-# Current Version: 0.4
+# Current Version: 0.41
 #
-# Last updated 10/26/01
+# Last updated 3/24/02
 #
 #Contents:
 #
 #addisolates - Add isolates to a graph set
 #bbnam - Draw from Butts' (Hierarchical) Bayesian Network Accuracy Model
-#bbnam.bf - Bayes factors for Butts' (Hierarchical) Bayesian Network Accuracy Model
+#bbnam.bf - Bayes factors for Butts' (Hierarchical) Bayesian Network Accuracy
+#   Model
 #bbnam.probtie - Internal routine for finding tie likelihoods under bbnam
 #bbnam.jntlik - Internal routine for computing joint likelihoods under bbnam
-#bbnam.jntlik.slice - Internal routine for joint likelihood computation under bbnam, by data slice
+#bbnam.jntlik.slice - Internal routine for joint likelihood computation under 
+#   bbnam, by data slice
 #betweenness - Find the betweenness centralities of network positions
 #blockmodel - Generate blockmodels based on partitions of network positions
-#blockmodel.expand - Generate a graph from a given blockmodel using particular expansion rules
+#blockmodel.expand - Generate a graph from a given blockmodel using particular 
+#   expansion rules
 #bonpow - Find the Bonacich power centrality scores of network positions
 #centralgraph - Find the central graph of a graph stack
 #centralization - Generic centralization routine (uses centrality routines)
 #closeness - Find the closeness centralities of network positions
-#component.dist - Find the distribution of (maximal) component sizes within a graph
+#component.dist - Find the distribution of (maximal) component sizes within a 
+#   graph
 #components - Find the number of (maximal) components within a given graph
 #connectedness - Find the Krackhardt connectedness of a graph or graph stack
 #consensus - Find a consensus structure, using one of several algorithms
 #cugtest - Generic Conditional Uniform Graph (CUG) test for bigraphic statistics
 #degree - Computes the degree centralities of network positions
 #diag.remove - NAs the diagonals of graphs in a stack
-#dyad.census - Compute the Holland and Leinhardt MAN dyad census for a graph or graph stack
+#dyad.census - Compute the Holland and Leinhardt MAN dyad census for a graph or 
+#   graph stack
 #efficiency - Find the Krackhardt efficiency of a graph or graph stack
 #equiv.clust - Find clusters of positions based on an equivalence relation
-#eval.edgeperturbation - Evaluate a function on a given graph with and without a given edge
+#eval.edgeperturbation - Evaluate a function on a given graph with and without a
+#   given edge
 #evcent - Find the eigenvector centralities of network positions
 #event2dichot - Convert observed event matrices to dichotomous matrices
 #gclust.boxstats - Plot statistics associated with clusters
@@ -40,11 +46,15 @@
 #gcor - Computes the correlation between graphs
 #gcov - Computes the covariance between graphs
 #gden - Computes the density of one or more graphs
-#gdist.plotdiff - Plot differences in graph-level statistics against inter-graph distances
-#gdist.plotstats - Plot statistics associated with graphs against (projected) inter-graph distances
+#gdist.plotdiff - Plot differences in graph-level statistics against inter-graph
+#   distances
+#gdist.plotstats - Plot statistics associated with graphs against (projected) 
+#   inter-graph distances
 #geodist - Finds geodesic distances and shortest paths within a graph
-#gliop - Return a binary operation on GLI values computed on two graphs (for test routines)
-#gplot - Plots graphs using eigenvector projection, classical MDS, or custom coords
+#gliop - Return a binary operation on GLI values computed on two graphs (for 
+#   test routines)
+#gplot - Plots graphs using eigenvector projection, classical MDS, or custom 
+#   coords
 #graphcent - Find the graph centralities of network positions
 #grecip - Computes the reciprocity of one or more graphs
 #gtrans - Computes the transitivity of one or more graphs
@@ -54,7 +64,8 @@
 #hdist - Computes the Hamming distance between two labeled graphs
 #hierarchy - Find the hierarchy score of a graph or graph stack
 #infocent - Find the information centrality scores of network positions
-#interval.graph - Construct one or more interval graphs (and exchangeability vectors) from a set of spells
+#interval.graph - Construct one or more interval graphs (and exchangeability 
+#   vectors) from a set of spells
 #is.isolate - Determines whether a particular vertex is isolated
 #isolates - Returns a list of isolates
 #lab.optimize - Optimize a bivariate graph statistic over a set of labelings
@@ -74,7 +85,8 @@
 #plot.equiv.clust - Plotting for equivalence clustering objects
 #plot.matrix - Plotting of arbitrary matrices
 #plot.qaptest - Plotting for qaptest objects
-#potscalered.mcmc - Computes Gelman et al.'s potential scale reduction statistic for scalar estimands
+#potscalered.mcmc - Computes Gelman et al.'s potential scale reduction statistic
+#   for scalar estimands
 #prestige - Find actor prestige scores from one of several measures
 #print.bayes.factor - Printing for Bayes factor objects
 #print.bbnam - Printing for bbnam objects
@@ -101,8 +113,10 @@
 #rperm - Draw a random permutation vector with exchangability constraints
 #sdmat - Estimate the matrix of structural distances among unlabeled graphs
 #sedist - Find distances between positions based on structural equivalence
-#sr2css - Convert a row-wise self-report matrix to a CSS matrix with missing observations
-#stackcount -Find the number of matrices in a graph stack (matrix or array data acceptable)
+#sr2css - Convert a row-wise self-report matrix to a CSS matrix with missing 
+#   observations
+#stackcount -Find the number of matrices in a graph stack (matrix or array data 
+#   acceptable)
 #stresscent - Find the stress centralities of network positions
 #structdist - Estimate the structural distance between unlabeled graphs
 #summary.bayes.factor - Detailed printing for Bayes factor objects
@@ -114,37 +128,60 @@
 #summary.netlogit - Detailed printing for netlogit objects
 #summary.qaptest - Detailed printing for qaptest objects
 #symmetrize - Symmetrize a graph or graph stack
-#triad.census - Conduct a Davis and Leinhardt triad census for a graph or graph stack
+#triad.census - Conduct a Davis and Leinhardt triad census for a graph or graph 
+#   stack
 #triad.classify - Return the Davis and Leinhardt classification of a given triad
 #upper.tri.remove - NAs the upper triangles of graphs in graph stacks
 #
 #NOTES:
 #
-#License: This software is made available under the terms of the GNU Public License (GPL), version
-#2.0 or later.  Please visit the Free Software Foundation (www.fsf.org) for more details.
+#License: This software is made available under the terms of the GNU Public 
+#License (GPL), version 2.0 or later.  Please visit the Free Software Foundation
+#(www.fsf.org) for more details.
 #
-#Lack of support: It must be noted that this code is provided AS IS, without support or warranty
-#(express or implied).  The author will generally try to fix bugs where possible, but the end user is
-#generally on his/her own with respect to this software; the author apologizes for this fact, but
-#would like to point out that he has numerous professional and other obligations which prevent his
+#Lack of support: It must be noted that this code is provided AS IS, without 
+#support or warranty (express or implied).  The author will generally try to fix
+#bugs where possible, but the end user is generally on his/her own with respect 
+#to this software; the author apologizes for this fact, but would like to point 
+#out that he has numerous professional and other obligations which prevent his
 #working full-time on this project.
 #
-#Implementation: This code has been written for the R implementation of the S language, and is
-#currently thought to work with version 1.2 and higher.  Systematic testing, however, has been
-#limited: caveat emptor. 
+#Implementation: This code has been written for the R implementation of the S 
+#language, and is currently thought to work with version 1.2 and higher.  
+#Systematic testing, however, has been limited: caveat emptor. 
 #
-#A general note on data frames: Graphs are assumed to be n x n matrices (for single structures)
-#or m x n x n arrays (for graph stacks).  By default, all network tools will expect this sort of data;
-#this winds up being important for allowing things like general network hypothesis testing routines.
+#A general note on data frames: Graphs are assumed to be n x n matrices (for 
+#single structures) or m x n x n arrays (for graph stacks).  By default, all 
+#network tools will expect this sort of data; this winds up being important for 
+#allowing things like general network hypothesis testing routines.
 #
 #
 #CHANGELOG:
 #
+#v0.41 - Updates, New Features, and Bug Fixes
+#   Updates:
+#      Deprecated function .Alias removed (was used in netlm, netlogit)
+#      Changed keyword "network" to "math" in all help pages [as requested
+#         by the Keepers of R]
+#      Various internal changes to plot/print/summary methods, in order
+#         to maintain consistency with their generic equivalents; these
+#         will (hopefully) have no visible effect
+#   New Features:
+#      component.dist now supports weak, unilateral, strong, and recursive
+#         component definitions
+#   Bug Fixes:
+#      component.dist was calculating recursively connected components for
+#         connected="strong", instead of strongly connected components
+#      pstar was dumping (internal) edge perturbation data to the screen,
+#         which was harmless but very annoying; names for pstar coefficients
+#         were not being recognized by glm
+#
 #v0.4 - New Features, Changes, and Fixes
 #   New Functions:
-#      connectedness - Find the Krackhardt connectedness of a graph or graph stack
-#      dyad.census - Compute the Holland and Leinhardt MAN dyad census for a graph
-#         or graph stack
+#      connectedness - Find the Krackhardt connectedness of a graph or graph 
+#         stack
+#      dyad.census - Compute the Holland and Leinhardt MAN dyad census for a 
+#         graph or graph stack
 #      efficiency - Find the Krackhardt efficiency of a graph or graph stack
 #      hierarchy - Find the hierarchy score of a graph or graph stack.
 #      infocent - Find the information centrality scores of network positions
@@ -154,7 +191,7 @@
 #      reachability - Find the reachability matrix of a graph.
 #      triad.census - Conduct a Davis and Leinhardt triad census for a graph or 
 #         graph stack
-#      triad.classify - Return the Davis and Leinhardt classification of a given 
+#      triad.classify - Return the Davis and Leinhardt classification of a given
 #         triad
 #   New Features:
 #      gplot now adjusts line width for valued graphs, via the edge.lwd 
@@ -170,11 +207,11 @@
 #         which (as the above implies) takes null dyads into account; the 
 #         "edgewise" definition omits null dyads from the calculation.
 #      gtrans now supports a "measure" option, which allows the user to choose
-#         between "weak" transitivity (aRc if aRb & bRc) and "strong" transitivity
-#         (aRc iff aRb & bRc).  The old version was strong-only, but much of the
-#         field prefers the weak version.  Each of these options has a respective
-#         census variant ("weakcensus", "strongcensus") which returns a count of
-#         legal triads rather than a rate.
+#         between "weak" transitivity (aRc if aRb & bRc) and "strong" 
+#         transitivity (aRc iff aRb & bRc).  The old version was strong-only, 
+#         but much of the field prefers the weak version.  Each of these options
+#         has a respective census variant ("weakcensus", "strongcensus") which 
+#         returns a count of legal triads rather than a rate.
 #      pstar now supports separate options for strong/weak transitivity scores,
 #         and for strong/weak transitive triad counts.
 #   Bug Fixes:
@@ -200,47 +237,62 @@
 #      All standard functions are now documented
 #      R package format is now supported
 #   New Functions:
-#      component.dist - Find the distribution of (maximal) component sizes within a graph
+#      component.dist - Find the distribution of (maximal) component sizes 
+#         within a graph
 #      components - Find the number of (maximal) components within a given graph
-#      eval.edgeperturbation - Evaluate a function on a given graph with and without a given edge, returning
-#      the difference between the results in each case.
-#      interval.graph - Construct one or more interval graphs (and exchangeability vectors) from a set of spells
-#      mutuality - Find the number of mutual (i.e., reciprocated) edges in a graph
+#      eval.edgeperturbation - Evaluate a function on a given graph with and 
+#         without a given edge, returning the difference between the results in 
+#         each case.
+#      interval.graph - Construct one or more interval graphs (and 
+#         exchangeability vectors) from a set of spells
+#      mutuality - Find the number of mutual (i.e., reciprocated) edges in a 
+#         graph
 #      gscor - Computes the structural correlation between graphs
 #      gscov - Computes the structural covariance between graphs
 #      gtrans - Compute the transitivity of an input graph or graph stack.
-#      lab.optimize - Optimize a bivariate graph statistic over a set of labelings
+#      lab.optimize - Optimize a bivariate graph statistic over a set of 
+#         labelings
 #      pstar - Fits a p* model using the logistic regression approximation 
 #      read.nos - Reads input files in Neo-OrgStat format
 #      rperm - Draw a random permutation vector with exchangability constraints
 #   Features and Modifications:
-#      diag.remove, upper.tri.remove, and lower.tri.remove now allow replacement with any value
-#      gplot now provides a slew of new parameters to change color, size, etc. of vertices, edges, and labels
+#      diag.remove, upper.tri.remove, and lower.tri.remove now allow replacement
+#         with any value
+#      gplot now provides a slew of new parameters to change color, size, etc. 
+#         of vertices, edges, and labels
 #      gscor and gscov now delegate to lab.optimize
 #      gscor, gscov, structdist now support exchange lists (via lab.optimize)
 #
 #v0.2 - New Features and Some Bug Fixes
 #   New Functions:
-#      blockmodel - Generate blockmodels based on partitions of network positions
-#      blockmodel.expand - Generate a graph from a given blockmodel using particular expansion rules
+#      blockmodel - Generate blockmodels based on partitions of network 
+#         positions
+#      blockmodel.expand - Generate a graph from a given blockmodel using 
+#         particular expansion rules
 #      bonpow - Find the Bonacich power centrality scores of network positions
 #      equiv.clust - Find clusters of positions based on an equivalence relation
 #      evcent - Find the eigenvector centralities of network positions
-#      gdist.plotdiff - Plot differences in graph-level statistics against inter-graph distances
-#      gdist.plotstats - Plot statistics associated with graphs against (projected) inter-graph distances
-#      make.stochastic - Make a graph stack row, column, or row-column stochastic
+#      gdist.plotdiff - Plot differences in graph-level statistics against 
+#         inter-graph distances
+#      gdist.plotstats - Plot statistics associated with graphs against 
+#         (projected) inter-graph distances
+#      make.stochastic - Make a graph stack row, column, or row-column 
+#         stochastic
 #      plot.blockmodel - Plotting for blockmodel objects
 #      plot.equiv.clust - Plotting for equivalence clustering objects
 #      prestige - Find actor prestige scores from one of several measures
 #      print.blockmodel - Printing for blockmodel objects
 #      print.summary.blockmodel - Printing for blockmodel summary objects
 #      sedist - Find distances between positions based on structural equivalence
-#      stackcount -Find the number of matrices in a graph stack (matrix or array data acceptable)
+#      stackcount -Find the number of matrices in a graph stack (matrix or array
+#         data acceptable)
 #      summary.blockmodel - Detailed printing for blockmodel objects
 #   Features and Modifications:
-#      All centrality routines can now be rescaled (division by maximum realized value); default is always FALSE   
+#      All centrality routines can now be rescaled (division by maximum realized
+#         value); default is always FALSE   
 #   Bug Fixes:
-#      Various centrality routines once again return values for the selected graph and vertices
+#      Various centrality routines once again return values for the selected 
+#         graph and vertices
 #      
 #
 
@@ -833,44 +885,44 @@ qaptest<-function(dat,FUN,reps=1000,...){
    out
 }
 
-summary.qaptest<-function(q){
-   out<-q
+summary.qaptest<-function(object, ...){
+   out<-object
    class(out)<-c("summary.qaptest",class(out))
    out
 }
 
-print.summary.qaptest<-function(q){
+print.summary.qaptest<-function(x,...){
    cat("\nQAP Test Results\n\n")
    cat("Estimated p-values:\n")
-   cat("\tp(f(perm) >= f(d)):",q$pgreq,"\n")
-   cat("\tp(f(perm) <= f(d)):",q$pleeq,"\n")
+   cat("\tp(f(perm) >= f(d)):",x$pgreq,"\n")
+   cat("\tp(f(perm) <= f(d)):",x$pleeq,"\n")
    cat("\nTest Diagnostics:\n")
-   cat("\tTest Value (f(d)):",q$testval,"\n")
-   cat("\tReplications:",length(q$dist),"\n")
+   cat("\tTest Value (f(d)):",x$testval,"\n")
+   cat("\tReplications:",length(x$dist),"\n")
    cat("\tDistribution Summary:\n")
-   cat("\t\tMin:\t",quantile(q$dist,probs=0,names=FALSE),"\n")
-   cat("\t\t1stQ:\t",quantile(q$dist,probs=0.25,names=FALSE),"\n")
-   cat("\t\tMed:\t",quantile(q$dist,probs=0.5,names=FALSE),"\n")
-   cat("\t\tMean:\t",mean(q$dist),"\n")
-   cat("\t\t3rdQ:\t",quantile(q$dist,probs=0.75,names=FALSE),"\n")
-   cat("\t\tMax:\t",quantile(q$dist,probs=1,names=FALSE),"\n")
+   cat("\t\tMin:\t",quantile(x$dist,probs=0,names=FALSE),"\n")
+   cat("\t\t1stQ:\t",quantile(x$dist,probs=0.25,names=FALSE),"\n")
+   cat("\t\tMed:\t",quantile(x$dist,probs=0.5,names=FALSE),"\n")
+   cat("\t\tMean:\t",mean(x$dist),"\n")
+   cat("\t\t3rdQ:\t",quantile(x$dist,probs=0.75,names=FALSE),"\n")
+   cat("\t\tMax:\t",quantile(x$dist,probs=1,names=FALSE),"\n")
    cat("\n")
 }
 
-print.qaptest<-function(q){
+print.qaptest<-function(x,...){
    cat("\nQAP Test Results\n\n")
    cat("Estimated p-values:\n")
-   cat("\tp(f(perm) >= f(d)):",q$pgreq,"\n")
-   cat("\tp(f(perm) <= f(d)):",q$pleeq,"\n\n")      
+   cat("\tp(f(perm) >= f(d)):",x$pgreq,"\n")
+   cat("\tp(f(perm) <= f(d)):",x$pleeq,"\n\n")      
 }
 
-plot.qaptest<-function(q,mode="density",...){
+plot.qaptest<-function(x,mode="density",...){
    if(mode=="density"){
-      plot(density(q$dist),main="Estimated Density of QAP Replications",xlab="Test Statistic",...)
+      plot(density(x$dist),main="Estimated Density of QAP Replications",xlab="Test Statistic",...)
    }else{
-      hist(q$dist,main="Histogram of QAP Replications",xlab="Test Statistic",...)
+      hist(x$dist,main="Histogram of QAP Replications",xlab="Test Statistic",...)
    }
-   abline(v=q$testval,lty=2)
+   abline(v=x$testval,lty=2)
 }
 
 
@@ -1778,44 +1830,44 @@ cugtest<-function(dat,FUN,reps=1000,gmode="digraph",cmode="density",diag=FALSE,g
    out
 }
 
-summary.cugtest<-function(c){
-   out<-c
+summary.cugtest<-function(object, ...){
+   out<-object
    class(out)<-c("summary.cugtest",class(out))
    out
 }
 
-print.summary.cugtest<-function(c){
+print.summary.cugtest<-function(x,...){
    cat("\nCUG Test Results\n\n")
    cat("Estimated p-values:\n")
-   cat("\tp(f(rnd) >= f(d)):",c$pgreq,"\n")
-   cat("\tp(f(rnd) <= f(d)):",c$pleeq,"\n")
+   cat("\tp(f(rnd) >= f(d)):",x$pgreq,"\n")
+   cat("\tp(f(rnd) <= f(d)):",x$pleeq,"\n")
    cat("\nTest Diagnostics:\n")
-   cat("\tTest Value (f(d)):",c$testval,"\n")
-   cat("\tReplications:",length(c$dist),"\n")
+   cat("\tTest Value (f(d)):",x$testval,"\n")
+   cat("\tReplications:",length(x$dist),"\n")
    cat("\tDistribution Summary:\n")
-   cat("\t\tMin:\t",quantile(c$dist,probs=0,names=FALSE),"\n")
-   cat("\t\t1stQ:\t",quantile(c$dist,probs=0.25,names=FALSE),"\n")
-   cat("\t\tMed:\t",quantile(c$dist,probs=0.5,names=FALSE),"\n")
-   cat("\t\tMean:\t",mean(c$dist),"\n")
-   cat("\t\t3rdQ:\t",quantile(c$dist,probs=0.75,names=FALSE),"\n")
-   cat("\t\tMax:\t",quantile(c$dist,probs=1,names=FALSE),"\n")
+   cat("\t\tMin:\t",quantile(x$dist,probs=0,names=FALSE),"\n")
+   cat("\t\t1stQ:\t",quantile(x$dist,probs=0.25,names=FALSE),"\n")
+   cat("\t\tMed:\t",quantile(x$dist,probs=0.5,names=FALSE),"\n")
+   cat("\t\tMean:\t",mean(x$dist),"\n")
+   cat("\t\t3rdQ:\t",quantile(x$dist,probs=0.75,names=FALSE),"\n")
+   cat("\t\tMax:\t",quantile(x$dist,probs=1,names=FALSE),"\n")
    cat("\n")
 }
 
-print.cugtest<-function(c){
+print.cugtest<-function(x,...){
    cat("\nCUG Test Results\n\n")
    cat("Estimated p-values:\n")
-   cat("\tp(f(rnd) >= f(d)):",c$pgreq,"\n")
-   cat("\tp(f(rnd) <= f(d)):",c$pleeq,"\n\n")      
+   cat("\tp(f(rnd) >= f(d)):",x$pgreq,"\n")
+   cat("\tp(f(rnd) <= f(d)):",x$pleeq,"\n\n")      
 }
 
-plot.cugtest<-function(c,mode="density",...){
+plot.cugtest<-function(x,mode="density",...){
    if(mode=="density"){
-      plot(density(c$dist),main="Estimated Density of CUG Replications",xlab="Test Statistic",...)
+      plot(density(x$dist),main="Estimated Density of CUG Replications",xlab="Test Statistic",...)
    }else{
-      hist(c$dist,main="Histogram of CUG Replications",xlab="Test Statistic",...)
+      hist(x$dist,main="Histogram of CUG Replications",xlab="Test Statistic",...)
    }
-   abline(v=c$testval,lty=2)
+   abline(v=x$testval,lty=2)
 }
 
 #geodist - Find the numbers and lengths of geodesics among nodes in a graph using a BFS, a la
@@ -1823,11 +1875,9 @@ plot.cugtest<-function(c,mode="density",...){
 
 geodist<-function(dat,inf.replace=dim(dat)[2]){
    n<-dim(dat)[2]
-   sigma<-matrix(nrow=n,ncol=n)
-   gd<-matrix(nrow=n,ncol=n)
    #Initialize the matrices
-   sigma[,]<-0
-   gd[,]<-inf.replace    #Use the infinite replace value
+   sigma<-matrix(0,nrow=n,ncol=n)
+   gd<-matrix(inf.replace,nrow=n,ncol=n)  #Use the infinite replace value
    #Cycle through each node, performing a BFS
    for(v in 1:n){
       visited<-rep(0,n)   #No nodes have been visited
@@ -1838,25 +1888,22 @@ geodist<-function(dat,inf.replace=dim(dat)[2]){
       #cat("\nBeginning trace for node",v,"\n")
       while(any(visited==1)){
          while(any(visited==1)){
-            i<-match(1,visited)[1]   #Increment to the next visitable node 
+            i<-match(1,visited)   #Increment to the next visitable node 
             #cat(i,"->")
             visited[i]<-3     #Mark this node as visited
-            for(j in 1:n){
-               if(((visited[j]==0)|(visited[j]==2))&(dat[i,j])){     #Walk through the unvisited neighborhood
-                  #cat(j)
-                  if(visited[j]==0)                #If we've never seen this node, we'll visit it next time
-                     visited[j]<-2
-                  gd[v,j]<-gd[v,i]+1          #Geodesic distance is this node's+1
-                  sigma[v,j]<-sigma[v,j]+sigma[v,i]     #Add the accumulated paths to the total path count
-               }
+            for(j in (1:n)[((visited==0)|(visited==2))&dat[i,]]){
+               #Walk through the unvisited neighborhood
+               #cat(j)
+               if(visited[j]==0)                #If we've never seen this node, we'll visit it next time
+                  visited[j]<-2
+               gd[v,j]<-gd[v,i]+1          #Geodesic distance is this node's+1
+               sigma[v,j]<-sigma[v,j]+sigma[v,i]     #Add the accumulated paths to the total path count
             }
             #cat("\n")
             if(any(visited==1))
-               i<-match(1,visited)[1]   #Increment to the next visitable node 
+               i<-match(1,visited)   #Increment to the next visitable node 
          }   #Continue until we run out of nodes at this level
-         for(j in 1:n)
-            if(visited[j]==2)       #Mark the to-be-visited nodes as visitable
-               visited[j]<-1
+         visited[visited==2]<-1     #Mark the to-be-visited nodes as visitable
       }   #Keep going until there's no one left at all
    }
    #Return the results
@@ -1885,10 +1932,20 @@ reachability<-function(dat,geodist.precomp=NULL){
 #membership.  Component strength is determined by the rule which is used to symmetrize the matrix;
 #this controlled by the eponymous parameter given to the symmetrize command.
 
-component.dist<-function(dat,connected="strong"){
+component.dist<-function(dat,connected=c("strong","weak","unilateral","recursive")){
    n<-dim(dat)[2]
    #Symmetrize dat based on the connectedness rule
-   dat<-symmetrize(dat,rule=connected)
+   if(any(dat!=t(dat)))  #Don't bother with this unless we need to do so
+      dat<-switch(match.arg(connected),
+         "weak"=symmetrize(dat,rule="weak"),
+         "unilateral"=reachability(dat),
+         "strong"=symmetrize(reachability(dat),rule="strong"),
+         "recursive"=symmetrize(dat,rule="strong")
+      )
+   #Warn of non-uniqueness in the unilateral case, if need be
+   if(match.arg(connected)=="unilateral")
+      if(any(dat!=t(dat)))
+         warning("Nonunique unilateral component partition detected in component.dist.  Problem vertices will be arbitrarily assigned to one of their components.\n")
    #Perform initial setup
    membership<-rep(0,n)
    #Cycle through each node, performing a BFS
@@ -1902,26 +1959,16 @@ component.dist<-function(dat,connected="strong"){
          #cat("\nBeginning trace for node",v,"\n")
          while(any(visited==1)){
             while(any(visited==1)){
-               i<-match(1,visited)[1]   #Increment to the next visitable node 
+               i<-match(1,visited)   #Increment to the next visitable node 
                #cat(i,"->")
                visited[i]<-3     #Mark this node as visited
                membership[i]<-comp  #Set membership to current component
-               for(j in 1:n){
-                  if(((visited[j]==0)|(visited[j]==2))&(dat[i,j])){     #Walk through the unvisited neighborhood
-                     #cat(j)
-                     if(visited[j]==0)                #If we've never seen this node, we'll visit it next time
-                        visited[j]<-2
-                  }
-               }
-               #cat("\n")
-               if(any(visited==1))
-                  i<-match(1,visited)[1]   #Increment to the next visitable node 
-            }   #Continue until we run out of nodes at this level
-            for(j in 1:n)
-               if(visited[j]==2)       #Mark the to-be-visited nodes as visitable
-                  visited[j]<-1
-         }   #Keep going until there's no one left at all
-      }
+               visited[(visited==0)&dat[i,]]<-2  #We'll visit these next time
+            }  #Continue until we run out of nodes at this level
+            #cat("\n")
+            visited[visited==2]<-1  #Mark the to-be-visited nodes as visitable
+         }  #Keep going until there's no one left at all   
+      }   
    #Return the results
    o<-data.frame()
    o$membership<-membership          #Copy memberships
@@ -2300,15 +2347,15 @@ infocent <- function(dat,g=1,nodes=c(1:dim(dat)[2]),gmode="digraph",diag=FALSE,c
       m[1,2]<-1
       m[2,1]<-1
       IC<-infocent(m,1,rescale=rescale)  #Get ICs for dyad
-      cent<-sum(max(IC)-IC,na.rm=T)      #Return the theoretical max deviation 
+      cent<-sum(max(IC)-IC,na.rm=TRUE)    #Return the theoretical max deviation 
    }else{
       #First, prepare the data
       if(length(dim(dat))>2)
          m<-dat[g,,]
       else
          m<-dat
-      if(sum(m != t(m),na.rm=T) > 0)   # test to see if directed
-         m <- symmetrize(m,rule=cmode)  #if not, we have to symmetrize...
+      if(sum(m != t(m),na.rm=TRUE) > 0)   #test to see if directed
+         m <- symmetrize(m,rule=cmode)    #if not, we have to symmetrize...
       n <- dim(m)[1]
       if(!diag) 
          diag(m)<-NA   # if diag=F set diagonal to NA
@@ -2683,64 +2730,64 @@ netlogit<-function(y,x,mode="digraph",diag=FALSE,nullhyp="cugtie",reps=1000){
    out
 }
 
-summary.netlogit<-function(n){
-   out<-n
+summary.netlogit<-function(object, ...){
+   out<-object
    class(out)<-c("summary.netlogit",class(out))
    out
 }
 
-print.summary.netlogit<-function(n){
+print.summary.netlogit<-function(x,...){
    cat("\nNetwork Logit Model\n\n")
    cat("Coefficients:\n\n")
-   cmat <- as.vector(format(as.numeric(n$coefficients)))
-   cmat <- cbind(cmat, as.vector(format(exp(as.numeric(n$coefficients)))))
-   cmat <- cbind(cmat, as.vector(format(n$pgreq)))
-   cmat <- cbind(cmat, as.vector(format(n$pleeq)))
+   cmat <- as.vector(format(as.numeric(x$coefficients)))
+   cmat <- cbind(cmat, as.vector(format(exp(as.numeric(x$coefficients)))))
+   cmat <- cbind(cmat, as.vector(format(x$pgreq)))
+   cmat <- cbind(cmat, as.vector(format(x$pleeq)))
    colnames(cmat) <- c("Estimate", "Exp(b)", "Pr(>=b)", "Pr(<=b)")
-   rownames(cmat)<- as.vector(n$names)
+   rownames(cmat)<- as.vector(x$names)
    print.table(cmat)
    cat("\nGoodness of Fit Statistics:\n")
-   cat("\nNull deviance (-2*Ln(L)):",n$null.deviance,"on",n$df.null,"degrees of freedom\n")
-   cat("Residual deviance (-2*Ln(L)):",n$deviance,"on",n$df.residual,"degrees of freedom\n")
-   cat("Chi-Squared test of fit improvement:\n\t",n$null.deviance-n$deviance,"on",n$df.null-n$df.residual,"degrees of freedom, p-value",1-pchisq(n$null.deviance-n$deviance,df=n$df.null-n$df.residual),"\n") 
-   cat("AIC:",n$aic,"\tBIC:",n$deviance+log(n$df.null+1)*(n$df.null-n$df.residual),"\nPseudo-R^2 Measures:\n\t(Dn-Dr)/(Dn-Dr+dfn):",(n$null.deviance-n$deviance)/(n$null.deviance-n$deviance+n$df.null),"\n\t(Dn-Dr)/Dn:",1-n$deviance/n$null.deviance,"\n")
+   cat("\nNull deviance (-2*Ln(L)):",x$null.deviance,"on",x$df.null,"degrees of freedom\n")
+   cat("Residual deviance (-2*Ln(L)):",x$deviance,"on",x$df.residual,"degrees of freedom\n")
+   cat("Chi-Squared test of fit improvement:\n\t",x$null.deviance-x$deviance,"on",x$df.null-x$df.residual,"degrees of freedom, p-value",1-pchisq(x$null.deviance-x$deviance,df=x$df.null-x$df.residual),"\n") 
+   cat("AIC:",x$aic,"\tBIC:",x$deviance+log(x$df.null+1)*(x$df.null-x$df.residual),"\nPseudo-R^2 Measures:\n\t(Dn-Dr)/(Dn-Dr+dfn):",(x$null.deviance-x$deviance)/(x$null.deviance-x$deviance+x$df.null),"\n\t(Dn-Dr)/Dn:",1-x$deviance/x$null.deviance,"\n")
    cat("Contingency Table (predicted (rows) x actual (cols)):\n\n")
-   print.table(n$ctable,print.gap=3)
-   cat("\n\tTotal Fraction Correct:",(n$ctable[1,1]+n$ctable[2,2])/sum(n$ctable),"\n\tFraction 1s Correct:",n$ctable[2,2]/sum(n$ctable[2,]),"\n\tFraction 0s Correct:",n$ctable[1,1]/sum(n$ctable[1,]),"\n")
+   print.table(x$ctable,print.gap=3)
+   cat("\n\tTotal Fraction Correct:",(x$ctable[1,1]+x$ctable[2,2])/sum(x$ctable),"\n\tFraction 1s Correct:",x$ctable[2,2]/sum(x$ctable[2,]),"\n\tFraction 0s Correct:",x$ctable[1,1]/sum(x$ctable[1,]),"\n")
    cat("\nTest Diagnostics:\n\n")
    cat("\tNull Hypothesis:")
-   if(n$nullhyp=="qap")
+   if(x$nullhyp=="qap")
       cat(" QAP\n")
    else
       cat(" CUG\n")
-   cat("\tReplications:",dim(n$dist)[1],"\n")
+   cat("\tReplications:",dim(x$dist)[1],"\n")
    cat("\tDistribution Summary:\n\n")
-   dmat<-apply(n$dist,2,min,na.rm=TRUE)
-   dmat<-rbind(dmat,apply(n$dist,2,quantile,probs=0.25,names=FALSE,na.rm=TRUE))
-   dmat<-rbind(dmat,apply(n$dist,2,quantile,probs=0.5,names=FALSE,na.rm=TRUE))
-   dmat<-rbind(dmat,apply(n$dist,2,mean,na.rm=TRUE))
-   dmat<-rbind(dmat,apply(n$dist,2,quantile,probs=0.75,names=FALSE,na.rm=TRUE))
-   dmat<-rbind(dmat,apply(n$dist,2,max,na.rm=TRUE))
-   colnames(dmat)<-as.vector(n$names)
+   dmat<-apply(x$dist,2,min,na.rm=TRUE)
+   dmat<-rbind(dmat,apply(x$dist,2,quantile,probs=0.25,names=FALSE,na.rm=TRUE))
+   dmat<-rbind(dmat,apply(x$dist,2,quantile,probs=0.5,names=FALSE,na.rm=TRUE))
+   dmat<-rbind(dmat,apply(x$dist,2,mean,na.rm=TRUE))
+   dmat<-rbind(dmat,apply(x$dist,2,quantile,probs=0.75,names=FALSE,na.rm=TRUE))
+   dmat<-rbind(dmat,apply(x$dist,2,max,na.rm=TRUE))
+   colnames(dmat)<-as.vector(x$names)
    rownames(dmat)<-c("Min","1stQ","Median","Mean","3rdQ","Max")
    print.table(dmat,digits=4)
    cat("\n")
 }
 
-print.netlogit<-function(n){
+print.netlogit<-function(x,...){
    cat("\nNetwork Logit Model\n\n")
    cat("Coefficients:\n\n")
-   cmat <- as.vector(format(as.numeric(n$coefficients)))
-   cmat <- cbind(cmat, as.vector(format(n$pgreq)))
-   cmat <- cbind(cmat, as.vector(format(n$pleeq)))
+   cmat <- as.vector(format(as.numeric(x$coefficients)))
+   cmat <- cbind(cmat, as.vector(format(x$pgreq)))
+   cmat <- cbind(cmat, as.vector(format(x$pleeq)))
    colnames(cmat) <- c("Estimate", "Pr(>=b)", "Pr(<=b)")
-   rownames(cmat)<- as.vector(n$names)
+   rownames(cmat)<- as.vector(x$names)
    print.table(cmat)
    cat("\nGoodness of Fit Statistics:\n")
-   cat("\nNull deviance (-2*Ln(L)):",n$null.deviance,"on",n$df.null,"degrees of freedom\n")
-   cat("Residual deviance (-2*Ln(L)):",n$deviance,"on",n$df.residual,"degrees of freedom\n")
-   cat("Chi-Squared test of fit improvement:\n\t",n$null.deviance-n$deviance,"on",n$df.null-n$df.residual,"degrees of freedom, p-value",1-pchisq(n$null.deviance-n$deviance,df=n$df.null-n$df.residual),"\n") 
-   cat("AIC:",n$aic,"\tBIC:",n$deviance+log(n$df.null+1)*(n$df.null-n$df.residual),"\nPseudo-R^2 Measures:\n\t(Dn-Dr)/(Dn-Dr+dfn):",(n$null.deviance-n$deviance)/(n$null.deviance-n$deviance+n$df.null),"\n\t(Dn-Dr)/Dn:",1-n$deviance/n$null.deviance,"\n")
+   cat("\nNull deviance (-2*Ln(L)):",x$null.deviance,"on",x$df.null,"degrees of freedom\n")
+   cat("Residual deviance (-2*Ln(L)):",x$deviance,"on",x$df.residual,"degrees of freedom\n")
+   cat("Chi-Squared test of fit improvement:\n\t",x$null.deviance-x$deviance,"on",x$df.null-x$df.residual,"degrees of freedom, p-value",1-pchisq(x$null.deviance-x$deviance,df=x$df.null-x$df.residual),"\n") 
+   cat("AIC:",x$aic,"\tBIC:",x$deviance+log(x$df.null+1)*(x$df.null-x$df.residual),"\nPseudo-R^2 Measures:\n\t(Dn-Dr)/(Dn-Dr+dfn):",(x$null.deviance-x$deviance)/(x$null.deviance-x$deviance+x$df.null),"\n\t(Dn-Dr)/Dn:",1-x$deviance/x$null.deviance,"\n")
    cat("\n")
 }
 
@@ -2828,14 +2875,12 @@ netlm<-function(y,x,mode="digraph",diag=FALSE,nullhyp="cugtie",reps=1000){
       #Gather the coefficients for use later...
       out$dist[i,]<-as.numeric(coef(tm))
       #Also grab R^2, sigma, and adjusted R^2s
-      z<-.Alias(tm)
-      Qr<-.Alias(tm$qr)
       mss<-if(attr(tm$terms,"intercept"))
-         sum((fitted(z)-mean(fitted(z)))^2)
+         sum((fitted(tm)-mean(fitted(tm)))^2)
       else
-         sum(fitted(z)^2)
-      rss<-sum(resid(z)^2)
-      qn<-NROW(Qr$qr)
+         sum(fitted(tm)^2)
+      rss<-sum(resid(tm)^2)
+      qn<-NROW(tm$qr$qr)
       df.int<-if(attr(tm$terms,"intercept")) 1
          else 0
       rdf<-qn-tm$rank
@@ -2865,35 +2910,33 @@ netlm<-function(y,x,mode="digraph",diag=FALSE,nullhyp="cugtie",reps=1000){
    out
 }
 
-summary.netlm<-function(n){
-   out<-n
+summary.netlm<-function(object, ...){
+   out<-object
    class(out)<-c("summary.netlm",class(out))
    out
 }
 
-print.summary.netlm<-function(n){
+print.summary.netlm<-function(x,...){
    cat("\nOLS Network Model\n\n")
    cat("Coefficients:\n\n")
-   cmat <- as.vector(format(as.numeric(n$coefficients)))
-   cmat <- cbind(cmat, as.vector(format(n$pgreq)))
-   cmat <- cbind(cmat, as.vector(format(n$pleeq)))
+   cmat <- as.vector(format(as.numeric(x$coefficients)))
+   cmat <- cbind(cmat, as.vector(format(x$pgreq)))
+   cmat <- cbind(cmat, as.vector(format(x$pleeq)))
    colnames(cmat) <- c("Estimate", "Pr(>=b)", "Pr(<=b)")
-   rownames(cmat)<- as.vector(n$names)
+   rownames(cmat)<- as.vector(x$names)
    print.table(cmat)
    #Goodness of fit measures
-   z<-.Alias(n)
-   Qr<-.Alias(n$qr)
-   mss<-if(attr(n$terms,"intercept"))
-      sum((fitted(z)-mean(fitted(z)))^2)
+   mss<-if(attr(x$terms,"intercept"))
+      sum((fitted(x)-mean(fitted(x)))^2)
    else
-      sum(fitted(z)^2)
-   rss<-sum(resid(z)^2)
-   qn<-NROW(Qr$qr)
-   df.int<-if(attr(n$terms,"intercept")) 1
+      sum(fitted(x)^2)
+   rss<-sum(resid(x)^2)
+   qn<-NROW(x$qr$qr)
+   df.int<-if(attr(x$terms,"intercept")) 1
       else 0
-   rdf<-qn-n$rank
+   rdf<-qn-x$rank
    resvar<-rss/rdf
-   fstatistic<-c(value=(mss/(n$rank-df.int))/resvar,numdf=n$rank-df.int,dendf=rdf)
+   fstatistic<-c(value=(mss/(x$rank-df.int))/resvar,numdf=x$rank-df.int,dendf=rdf)
    r.squared<-mss/(mss+rss)
    adj.r.squared<-1-(1-r.squared)*((qn-df.int)/rdf)
    sigma<-sqrt(resvar)
@@ -2904,13 +2947,13 @@ print.summary.netlm<-function(n){
    #Test diagnostics
    cat("\n\nTest Diagnostics:\n\n")
    cat("\tNull Hypothesis:")
-   if(n$nullhyp=="qap")
+   if(x$nullhyp=="qap")
       cat(" QAP\n")
    else
       cat(" CUG\n")
-   cat("\tReplications:",dim(n$dist)[1],"\n")
+   cat("\tReplications:",dim(x$dist)[1],"\n")
    cat("\tGoodness of Fit Distribution Summary:\n\n")
-   gof<-cbind(n$sigma.dist,n$r.squared.dist,n$adj.r.squared.dist)
+   gof<-cbind(x$sigma.dist,x$r.squared.dist,x$adj.r.squared.dist)
    dmat<-apply(gof,2,min,na.rm=TRUE)
    dmat<-rbind(dmat,apply(gof,2,quantile,probs=0.25,names=FALSE,na.rm=TRUE))
    dmat<-rbind(dmat,apply(gof,2,quantile,probs=0.5,names=FALSE,na.rm=TRUE))
@@ -2922,41 +2965,39 @@ print.summary.netlm<-function(n){
    print.table(dmat,digits=4)
    cat("\n")
    cat("\tCoefficient Distribution Summary:\n\n")
-   dmat<-apply(n$dist,2,min,na.rm=TRUE)
-   dmat<-rbind(dmat,apply(n$dist,2,quantile,probs=0.25,names=FALSE,na.rm=TRUE))
-   dmat<-rbind(dmat,apply(n$dist,2,quantile,probs=0.5,names=FALSE,na.rm=TRUE))
-   dmat<-rbind(dmat,apply(n$dist,2,mean,na.rm=TRUE))
-   dmat<-rbind(dmat,apply(n$dist,2,quantile,probs=0.75,names=FALSE,na.rm=TRUE))
-   dmat<-rbind(dmat,apply(n$dist,2,max,na.rm=TRUE))
-   colnames(dmat)<-as.vector(n$names)
+   dmat<-apply(x$dist,2,min,na.rm=TRUE)
+   dmat<-rbind(dmat,apply(x$dist,2,quantile,probs=0.25,names=FALSE,na.rm=TRUE))
+   dmat<-rbind(dmat,apply(x$dist,2,quantile,probs=0.5,names=FALSE,na.rm=TRUE))
+   dmat<-rbind(dmat,apply(x$dist,2,mean,na.rm=TRUE))
+   dmat<-rbind(dmat,apply(x$dist,2,quantile,probs=0.75,names=FALSE,na.rm=TRUE))
+   dmat<-rbind(dmat,apply(x$dist,2,max,na.rm=TRUE))
+   colnames(dmat)<-as.vector(x$names)
    rownames(dmat)<-c("Min","1stQ","Median","Mean","3rdQ","Max")
    print.table(dmat,digits=4)
    cat("\n")
 }
 
-print.netlm<-function(n){
+print.netlm<-function(x,...){
    cat("\nOLS Network Model\n\n")
    cat("Coefficients:\n\n")
-   cmat <- as.vector(format(as.numeric(n$coefficients)))
-   cmat <- cbind(cmat, as.vector(format(n$pgreq)))
-   cmat <- cbind(cmat, as.vector(format(n$pleeq)))
+   cmat <- as.vector(format(as.numeric(x$coefficients)))
+   cmat <- cbind(cmat, as.vector(format(x$pgreq)))
+   cmat <- cbind(cmat, as.vector(format(x$pleeq)))
    colnames(cmat) <- c("Estimate", "Pr(>=b)", "Pr(<=b)")
-   rownames(cmat)<- as.vector(n$names)
+   rownames(cmat)<- as.vector(x$names)
    print.table(cmat)
    #Goodness of fit measures
-   z<-.Alias(n)
-   Qr<-.Alias(n$qr)
-   mss<-if(attr(n$terms,"intercept"))
-      sum((fitted(z)-mean(fitted(z)))^2)
+   mss<-if(attr(x$terms,"intercept"))
+      sum((fitted(x)-mean(fitted(x)))^2)
    else
-      sum(fitted(z)^2)
-   rss<-sum(resid(z)^2)
-   qn<-NROW(Qr$qr)
-   df.int<-if(attr(n$terms,"intercept")) 1
+      sum(fitted(x)^2)
+   rss<-sum(resid(x)^2)
+   qn<-NROW(x$qr$qr)
+   df.int<-if(attr(x$terms,"intercept")) 1
       else 0
-   rdf<-qn-n$rank
+   rdf<-qn-x$rank
    resvar<-rss/rdf
-   fstatistic<-c(value=(mss/(n$rank-df.int))/resvar,numdf=n$rank-df.int,dendf=rdf)
+   fstatistic<-c(value=(mss/(x$rank-df.int))/resvar,numdf=x$rank-df.int,dendf=rdf)
    r.squared<-mss/(mss+rss)
    adj.r.squared<-1-(1-r.squared)*((qn-df.int)/rdf)
    sigma<-sqrt(resvar)
@@ -3097,149 +3138,149 @@ netcancor<-function(y,x,mode="digraph",diag=FALSE,nullhyp="cugtie",reps=1000){
    out
 }
 
-print.netcancor<-function(n){
+print.netcancor<-function(x,...){
    cat("\nCanonical Network Correlation\n\n")
 
    cat("Canonical Correlations:\n\n")
-   cmat<-matrix(data=n$cor,ncol=length(n$cor),nrow=1)
+   cmat<-matrix(data=x$cor,ncol=length(x$cor),nrow=1)
    rownames(cmat)<-""
-   colnames(cmat)<-as.vector(n$cnames)
+   colnames(cmat)<-as.vector(x$cnames)
    print.table(cmat)
    cat("\n")
    cat("Pr(>=cor):\n\n")
-   cmat <- matrix(data=format(n$cpgreq),ncol=length(n$cpgreq),nrow=1)
-   colnames(cmat) <- as.vector(n$cnames)
+   cmat <- matrix(data=format(x$cpgreq),ncol=length(x$cpgreq),nrow=1)
+   colnames(cmat) <- as.vector(x$cnames)
    rownames(cmat)<- ""
    print.table(cmat)
    cat("\n")
    cat("Pr(<=cor):\n\n")
-   cmat <- matrix(data=format(n$cpleeq),ncol=length(n$cpleeq),nrow=1)
-   colnames(cmat) <- as.vector(n$cnames)
+   cmat <- matrix(data=format(x$cpleeq),ncol=length(x$cpleeq),nrow=1)
+   colnames(cmat) <- as.vector(x$cnames)
    rownames(cmat)<- ""
    print.table(cmat)
    cat("\n")
 
    cat("X Coefficients:\n\n")
-   cmat <- format(n$xcoef)
-   colnames(cmat) <- as.vector(n$xnames)
-   rownames(cmat)<- as.vector(n$xnames)
+   cmat <- format(x$xcoef)
+   colnames(cmat) <- as.vector(x$xnames)
+   rownames(cmat)<- as.vector(x$xnames)
    print.table(cmat)
    cat("\n")
    cat("Pr(>=xcoef):\n\n")
-   cmat <- format(n$xpgreq)
-   colnames(cmat) <- as.vector(n$xnames)
-   rownames(cmat)<- as.vector(n$xnames)
+   cmat <- format(x$xpgreq)
+   colnames(cmat) <- as.vector(x$xnames)
+   rownames(cmat)<- as.vector(x$xnames)
    print.table(cmat)
    cat("\n")
    cat("Pr(<=xcoef):\n\n")
-   cmat <- format(n$xpleeq)
-   colnames(cmat) <- as.vector(n$xnames)
-   rownames(cmat)<- as.vector(n$xnames)
+   cmat <- format(x$xpleeq)
+   colnames(cmat) <- as.vector(x$xnames)
+   rownames(cmat)<- as.vector(x$xnames)
    print.table(cmat)
    cat("\n")
 
    cat("Y Coefficients:\n\n")
-   cmat <- format(n$ycoef)
-   colnames(cmat) <- as.vector(n$ynames)
-   rownames(cmat)<- as.vector(n$ynames)
+   cmat <- format(x$ycoef)
+   colnames(cmat) <- as.vector(x$ynames)
+   rownames(cmat)<- as.vector(x$ynames)
    print.table(cmat)
    cat("\n")
    cat("Pr(>=ycoef):\n\n")
-   cmat <- format(n$ypgreq)
-   colnames(cmat) <- as.vector(n$ynames)
-   rownames(cmat)<- as.vector(n$ynames)
+   cmat <- format(x$ypgreq)
+   colnames(cmat) <- as.vector(x$ynames)
+   rownames(cmat)<- as.vector(x$ynames)
    print.table(cmat)
    cat("\n")
    cat("Pr(<=ycoef):\n\n")
-   cmat <- format(n$ypleeq)
-   colnames(cmat) <- as.vector(n$ynames)
-   rownames(cmat)<- as.vector(n$ynames)
+   cmat <- format(x$ypleeq)
+   colnames(cmat) <- as.vector(x$ynames)
+   rownames(cmat)<- as.vector(x$ynames)
    print.table(cmat)
    cat("\n")
 }
 
-summary.netcancor<-function(n){
-   out<-n
+summary.netcancor<-function(object, ...){
+   out<-object
    class(out)<-c("summary.netcancor",class(out))
    out
 }
 
-print.summary.netcancor<-function(n){
+print.summary.netcancor<-function(x,...){
    cat("\nCanonical Network Correlation\n\n")
 
    cat("Canonical Correlations:\n\n")
-   cmat<-as.vector(n$cor)
-   cmat<-rbind(cmat,as.vector((n$cor)^2))
+   cmat<-as.vector(x$cor)
+   cmat<-rbind(cmat,as.vector((x$cor)^2))
    rownames(cmat)<-c("Correlation","Coef. of Det.")
-   colnames(cmat)<-as.vector(n$cnames)
+   colnames(cmat)<-as.vector(x$cnames)
    print.table(cmat)
    cat("\n")
    cat("Pr(>=cor):\n\n")
-   cmat <- matrix(data=format(n$cpgreq),ncol=length(n$cpgreq),nrow=1)
-   colnames(cmat) <- as.vector(n$cnames)
+   cmat <- matrix(data=format(x$cpgreq),ncol=length(x$cpgreq),nrow=1)
+   colnames(cmat) <- as.vector(x$cnames)
    rownames(cmat)<- ""
    print.table(cmat)
    cat("\n")
    cat("Pr(<=cor):\n\n")
-   cmat <- matrix(data=format(n$cpleeq),ncol=length(n$cpleeq),nrow=1)
-   colnames(cmat) <- as.vector(n$cnames)
+   cmat <- matrix(data=format(x$cpleeq),ncol=length(x$cpleeq),nrow=1)
+   colnames(cmat) <- as.vector(x$cnames)
    rownames(cmat)<- ""
    print.table(cmat)
    cat("\n")
 
    cat("X Coefficients:\n\n")
-   cmat <- format(n$xcoef)
-   colnames(cmat) <- as.vector(n$xnames)
-   rownames(cmat)<- as.vector(n$xnames)
+   cmat <- format(x$xcoef)
+   colnames(cmat) <- as.vector(x$xnames)
+   rownames(cmat)<- as.vector(x$xnames)
    print.table(cmat)
    cat("\n")
    cat("Pr(>=xcoef):\n\n")
-   cmat <- format(n$xpgreq)
-   colnames(cmat) <- as.vector(n$xnames)
-   rownames(cmat)<- as.vector(n$xnames)
+   cmat <- format(x$xpgreq)
+   colnames(cmat) <- as.vector(x$xnames)
+   rownames(cmat)<- as.vector(x$xnames)
    print.table(cmat)
    cat("\n")
    cat("Pr(<=xcoef):\n\n")
-   cmat <- format(n$xpleeq)
-   colnames(cmat) <- as.vector(n$xnames)
-   rownames(cmat)<- as.vector(n$xnames)
+   cmat <- format(x$xpleeq)
+   colnames(cmat) <- as.vector(x$xnames)
+   rownames(cmat)<- as.vector(x$xnames)
    print.table(cmat)
    cat("\n")
 
    cat("Y Coefficients:\n\n")
-   cmat <- format(n$ycoef)
-   colnames(cmat) <- as.vector(n$ynames)
-   rownames(cmat)<- as.vector(n$ynames)
+   cmat <- format(x$ycoef)
+   colnames(cmat) <- as.vector(x$ynames)
+   rownames(cmat)<- as.vector(x$ynames)
    print.table(cmat)
    cat("\n")
    cat("Pr(>=ycoef):\n\n")
-   cmat <- format(n$ypgreq)
-   colnames(cmat) <- as.vector(n$ynames)
-   rownames(cmat)<- as.vector(n$ynames)
+   cmat <- format(x$ypgreq)
+   colnames(cmat) <- as.vector(x$ynames)
+   rownames(cmat)<- as.vector(x$ynames)
    print.table(cmat)
    cat("\n")
    cat("Pr(<=ycoef):\n\n")
-   cmat <- format(n$ypleeq)
-   colnames(cmat) <- as.vector(n$ynames)
-   rownames(cmat)<- as.vector(n$ynames)
+   cmat <- format(x$ypleeq)
+   colnames(cmat) <- as.vector(x$ynames)
+   rownames(cmat)<- as.vector(x$ynames)
    print.table(cmat)
    cat("\n")
 
    cat("Test Diagnostics:\n\n")
    cat("\tNull Hypothesis:")
-   if(n$nullhyp=="qap")
+   if(x$nullhyp=="qap")
       cat(" QAP\n")
    else
       cat(" CUG\n")
-   cat("\tReplications:",dim(n$cdist)[1],"\n")
+   cat("\tReplications:",dim(x$cdist)[1],"\n")
    cat("\tDistribution Summary for Correlations:\n\n")
-   dmat<-apply(n$cdist,2,min,na.rm=TRUE)
-   dmat<-rbind(dmat,apply(n$cdist,2,quantile,probs=0.25,names=FALSE,na.rm=TRUE))
-   dmat<-rbind(dmat,apply(n$cdist,2,quantile,probs=0.5,names=FALSE,na.rm=TRUE))
-   dmat<-rbind(dmat,apply(n$cdist,2,mean,na.rm=TRUE))
-   dmat<-rbind(dmat,apply(n$cdist,2,quantile,probs=0.75,names=FALSE,na.rm=TRUE))
-   dmat<-rbind(dmat,apply(n$cdist,2,max,na.rm=TRUE))
-   colnames(dmat)<-as.vector(n$cnames)
+   dmat<-apply(x$cdist,2,min,na.rm=TRUE)
+   dmat<-rbind(dmat,apply(x$cdist,2,quantile,probs=0.25,names=FALSE,na.rm=TRUE))
+   dmat<-rbind(dmat,apply(x$cdist,2,quantile,probs=0.5,names=FALSE,na.rm=TRUE))
+   dmat<-rbind(dmat,apply(x$cdist,2,mean,na.rm=TRUE))
+   dmat<-rbind(dmat,apply(x$cdist,2,quantile,probs=0.75,names=FALSE,na.rm=TRUE))
+   dmat<-rbind(dmat,apply(x$cdist,2,max,na.rm=TRUE))
+   colnames(dmat)<-as.vector(x$cnames)
    rownames(dmat)<-c("Min","1stQ","Median","Mean","3rdQ","Max")
    print.table(dmat,digits=4)
    cat("\n")
@@ -3265,10 +3306,10 @@ centralgraph<-function(dat,normalize=FALSE){
 #plot.matrix - An odd sort of plotting routine; plots a matrix (e.g., a Bernoulli graph density, or a set of
 #adjacencies) as an image.  Very handy for visualizing large valued matrices...
 
-plot.matrix<-function(m,labels=list(seq(1:dim(m)[1]),seq(1:dim(m)[2])),drawlab=TRUE,diaglab=TRUE,...){       
-   n<-dim(m)[1]
-   o<-dim(m)[2]
-   d<-1-(m-min(m))/(max(m)-min(m))
+plot.matrix<-function(x,labels=list(seq(1:dim(x)[1]),seq(1:dim(x)[2])),drawlab=TRUE,diaglab=TRUE,...){       
+   n<-dim(x)[1]
+   o<-dim(x)[2]
+   d<-1-(x-min(x))/(max(x)-min(x))
    plot(1,1,xlim=c(0,o+1),ylim=c(n+1,0),type="n",axes=FALSE,...)
    for(i in 1:n)
       for(j in 1:o)
@@ -3356,10 +3397,10 @@ bbnam.bf<-function(dat,nprior=matrix(rep(0.5,dim(dat)[1]^2),nrow=dim(dat)[1],nco
 
 #print.bayes.factor - A fairly generic routine for printing bayes factors, here used for the bbnam routine.
 
-print.bayes.factor<-function(bf){
-   tab<-bf$int.lik
-   rownames(tab)<-bf$model.names
-   colnames(tab)<-bf$model.names
+print.bayes.factor<-function(x,...){
+   tab<-x$int.lik
+   rownames(tab)<-x$model.names
+   colnames(tab)<-x$model.names
    cat("Bayes Factors by Model:\n\n(Diagonals indicate raw integrated likelihood estimates.)\n\n")
    print(tab)
    cat("\n")   
@@ -3369,8 +3410,8 @@ print.bayes.factor<-function(bf){
 #summary.bayes.factor - A fairly generic summary routine for bayes factors.  Clearly, this belongs in
 #some other library than sna, but for the moment this will have to do...
 
-summary.bayes.factor<-function(bf){
-   o<-bf
+summary.bayes.factor<-function(object, ...){
+   o<-object
    rownames(o$int.lik)<-o$model.names
    colnames(o$int.lik)<-o$model.names
    o$inv.bf<-1/o$int.lik
@@ -3383,18 +3424,18 @@ summary.bayes.factor<-function(bf){
 
 #print.summary.bayes.factor - Printing for bayes factor summary objects
 
-print.summary.bayes.factor<-function(sbf){
+print.summary.bayes.factor<-function(x,...){
    cat("Bayes Factors by Model:\n\n(Diagonals indicate raw integrated likelihood estimates.)\n\n")
-   print(sbf$int.lik)
-   stdtab<-matrix(sbf$int.lik.std,nrow=1)
-   colnames(stdtab)<-sbf$model.names
+   print(x$int.lik)
+   stdtab<-matrix(x$int.lik.std,nrow=1)
+   colnames(stdtab)<-x$model.names
    cat("\n\nInverse Bayes Factors:\n\n(Diagonals indicate posterior probability of model under within-set choice constraints and uniform model priors.\n\n")
-   print(sbf$inv.bf)
-   cat("\n\nDiagnostics:\n\nReplications - ",sbf$reps,"\n\nStd deviations of integrated likelihood estimates:\n\n")
-   print(sbf$int.lik.std)
+   print(x$inv.bf)
+   cat("\n\nDiagnostics:\n\nReplications - ",x$reps,"\n\nStd deviations of integrated likelihood estimates:\n\n")
+   print(x$int.lik.std)
    cat("\n\nVector of hyperprior parameters:\n\n")
-   priortab<-matrix(sbf$prior.param,nrow=1,ncol=length(sbf$prior.param))
-   colnames(priortab)<-sbf$prior.param.names
+   priortab<-matrix(x$prior.param,nrow=1,ncol=length(x$prior.param))
+   colnames(priortab)<-x$prior.param.names
    print(priortab)
    cat("\n\n")   
 }
@@ -3702,168 +3743,168 @@ bbnam.actor<-function(dat,nprior=matrix(rep(0.5,dim(dat)[2]*dim(dat)[3]),nrow=di
    out
 }
 
-print.bbnam<-function(b){
-   UseMethod("print",b)
+print.bbnam<-function(x,...){
+   UseMethod("print",x)
 }
 
-print.bbnam.fixed<-function(b){
+print.bbnam.fixed<-function(x,...){
    cat("\nButts' Hierarchical Bayes Model for Network Estimation/Informant Accuracy\n\n")
    cat("Fixed Error Probability Model\n\n")
    #Dump marginal posterior network
    cat("Marginal Posterior Network Distribution:\n\n")
-   d<-apply(b$net,c(2,3),mean)
-   rownames(d)<-as.vector(b$anames)
-   colnames(d)<-as.vector(b$anames)
+   d<-apply(x$net,c(2,3),mean)
+   rownames(d)<-as.vector(x$anames)
+   colnames(d)<-as.vector(x$anames)
    print.table(d,digits=2)
    cat("\n")
 }
 
-print.bbnam.pooled<-function(b){
+print.bbnam.pooled<-function(x,...){
    cat("\nButts' Hierarchical Bayes Model for Network Estimation/Informant Accuracy\n\n")
    cat("Pooled Error Probability Model\n\n")
    #Dump marginal posterior network
    cat("Marginal Posterior Network Distribution:\n\n")
-   d<-apply(b$net,c(2,3),mean)
-   rownames(d)<-as.vector(b$anames)
-   colnames(d)<-as.vector(b$anames)
+   d<-apply(x$net,c(2,3),mean)
+   rownames(d)<-as.vector(x$anames)
+   colnames(d)<-as.vector(x$anames)
    print.table(d,digits=2)
    cat("\n")
    #Dump summary of error probabilities
    cat("Marginal Posterior Global Error Distribution:\n\n")
    d<-matrix(ncol=2,nrow=6)
-   d[1:3,1]<-quantile(b$em,c(0,0.25,0.5),names=FALSE,na.rm=TRUE)
-   d[4,1]<-mean(b$em,na.rm=TRUE)
-   d[5:6,1]<-quantile(b$em,c(0.75,1.0),names=FALSE,na.rm=TRUE)
-   d[1:3,2]<-quantile(b$ep,c(0,0.25,0.5),names=FALSE,na.rm=TRUE)
-   d[4,2]<-mean(b$ep,na.rm=TRUE)
-   d[5:6,2]<-quantile(b$ep,c(0.75,1.0),names=FALSE,na.rm=TRUE)
+   d[1:3,1]<-quantile(x$em,c(0,0.25,0.5),names=FALSE,na.rm=TRUE)
+   d[4,1]<-mean(x$em,na.rm=TRUE)
+   d[5:6,1]<-quantile(x$em,c(0.75,1.0),names=FALSE,na.rm=TRUE)
+   d[1:3,2]<-quantile(x$ep,c(0,0.25,0.5),names=FALSE,na.rm=TRUE)
+   d[4,2]<-mean(x$ep,na.rm=TRUE)
+   d[5:6,2]<-quantile(x$ep,c(0.75,1.0),names=FALSE,na.rm=TRUE)
    colnames(d)<-c("e^-","e^+")
    rownames(d)<-c("Min","1stQ","Median","Mean","3rdQ","Max")
    print.table(d,digits=4)
    cat("\n")
 }
 
-print.bbnam.actor<-function(b){
+print.bbnam.actor<-function(x,...){
    cat("\nButts' Hierarchical Bayes Model for Network Estimation/Informant Accuracy\n\n")
    cat("Multiple Error Probability Model\n\n")
    #Dump marginal posterior network
    cat("Marginal Posterior Network Distribution:\n\n")
-   d<-apply(b$net,c(2,3),mean)
-   rownames(d)<-as.vector(b$anames)
-   colnames(d)<-as.vector(b$anames)
+   d<-apply(x$net,c(2,3),mean)
+   rownames(d)<-as.vector(x$anames)
+   colnames(d)<-as.vector(x$anames)
    print.table(d,digits=2)
    cat("\n")
    #Dump summary of error probabilities
    cat("Marginal Posterior Global Error Distribution:\n\n")
    d<-matrix(ncol=2,nrow=6)
-   d[1:3,1]<-quantile(b$em,c(0,0.25,0.5),names=FALSE,na.rm=TRUE)
-   d[4,1]<-mean(b$em,na.rm=TRUE)
-   d[5:6,1]<-quantile(b$em,c(0.75,1.0),names=FALSE,na.rm=TRUE)
-   d[1:3,2]<-quantile(b$ep,c(0,0.25,0.5),names=FALSE,na.rm=TRUE)
-   d[4,2]<-mean(b$ep,na.rm=TRUE)
-   d[5:6,2]<-quantile(b$ep,c(0.75,1.0),names=FALSE,na.rm=TRUE)
+   d[1:3,1]<-quantile(x$em,c(0,0.25,0.5),names=FALSE,na.rm=TRUE)
+   d[4,1]<-mean(x$em,na.rm=TRUE)
+   d[5:6,1]<-quantile(x$em,c(0.75,1.0),names=FALSE,na.rm=TRUE)
+   d[1:3,2]<-quantile(x$ep,c(0,0.25,0.5),names=FALSE,na.rm=TRUE)
+   d[4,2]<-mean(x$ep,na.rm=TRUE)
+   d[5:6,2]<-quantile(x$ep,c(0.75,1.0),names=FALSE,na.rm=TRUE)
    colnames(d)<-c("e^-","e^+")
    rownames(d)<-c("Min","1stQ","Median","Mean","3rdQ","Max")
    print.table(d,digits=4)
    cat("\n")
 }
 
-summary.bbnam<-function(b){
-   out<-b
+summary.bbnam<-function(object, ...){
+   out<-object
    class(out)<-c("summary.bbnam",class(out))
    out
 }
 
-summary.bbnam.fixed<-function(b){
-   out<-b
+summary.bbnam.fixed<-function(object, ...){
+   out<-object
    class(out)<-c("summary.bbnam.fixed",class(out))
    out
 }
 
-summary.bbnam.pooled<-function(b){
-   out<-b
+summary.bbnam.pooled<-function(object, ...){
+   out<-object
    class(out)<-c("summary.bbnam.pooled",class(out))
    out
 }
 
-summary.bbnam.actor<-function(b){
-   out<-b
+summary.bbnam.actor<-function(object, ...){
+   out<-object
    class(out)<-c("summary.bbnam.actor",class(out))
    out
 }
 
-print.summary.bbnam<-function(b){
-   UseMethod("print",b)
+print.summary.bbnam<-function(x,...){
+   UseMethod("print",x)
 }
 
-print.summary.bbnam.fixed<-function(b){
+print.summary.bbnam.fixed<-function(x,...){
    cat("\nButts' Hierarchical Bayes Model for Network Estimation/Informant Accuracy\n\n")
    cat("Fixed Error Probability Model\n\n")
    #Dump marginal posterior network
    cat("Marginal Posterior Network Distribution:\n\n")
-   d<-apply(b$net,c(2,3),mean)
-   rownames(d)<-as.vector(b$anames)
-   colnames(d)<-as.vector(b$anames)
+   d<-apply(x$net,c(2,3),mean)
+   rownames(d)<-as.vector(x$anames)
+   colnames(d)<-as.vector(x$anames)
    print.table(d,digits=2)
    cat("\n")
    #Dump model diagnostics
    cat("Model Diagnostics:\n\n")
-   cat("\tTotal Draws:",b$draws,"\n\t(Note: Draws taken directly from network posterior.)")
+   cat("\tTotal Draws:",x$draws,"\n\t(Note: Draws taken directly from network posterior.)")
    cat("\n")
 }
 
-print.summary.bbnam.pooled<-function(b){
+print.summary.bbnam.pooled<-function(x,...){
    cat("\nButts' Hierarchical Bayes Model for Network Estimation/Informant Accuracy\n\n")
    cat("Pooled Error Probability Model\n\n")
    #Dump marginal posterior network
    cat("Marginal Posterior Network Distribution:\n\n")
-   d<-apply(b$net,c(2,3),mean)
-   rownames(d)<-as.vector(b$anames)
-   colnames(d)<-as.vector(b$anames)
+   d<-apply(x$net,c(2,3),mean)
+   rownames(d)<-as.vector(x$anames)
+   colnames(d)<-as.vector(x$anames)
    print.table(d,digits=2)
    cat("\n")
    #Dump summary of error probabilities
    cat("Marginal Posterior Error Distribution:\n\n")
    d<-matrix(ncol=2,nrow=6)
-   d[1:3,1]<-quantile(b$em,c(0,0.25,0.5),names=FALSE,na.rm=TRUE)
-   d[4,1]<-mean(b$em,na.rm=TRUE)
-   d[5:6,1]<-quantile(b$em,c(0.75,1.0),names=FALSE,na.rm=TRUE)
-   d[1:3,2]<-quantile(b$ep,c(0,0.25,0.5),names=FALSE,na.rm=TRUE)
-   d[4,2]<-mean(b$ep,na.rm=TRUE)
-   d[5:6,2]<-quantile(b$ep,c(0.75,1.0),names=FALSE,na.rm=TRUE)
+   d[1:3,1]<-quantile(x$em,c(0,0.25,0.5),names=FALSE,na.rm=TRUE)
+   d[4,1]<-mean(x$em,na.rm=TRUE)
+   d[5:6,1]<-quantile(x$em,c(0.75,1.0),names=FALSE,na.rm=TRUE)
+   d[1:3,2]<-quantile(x$ep,c(0,0.25,0.5),names=FALSE,na.rm=TRUE)
+   d[4,2]<-mean(x$ep,na.rm=TRUE)
+   d[5:6,2]<-quantile(x$ep,c(0.75,1.0),names=FALSE,na.rm=TRUE)
    colnames(d)<-c("e^-","e^+")
    rownames(d)<-c("Min","1stQ","Median","Mean","3rdQ","Max")
    print.table(d,digits=4)
    cat("\n")
    #Dump MCMC diagnostics
    cat("MCMC Diagnostics:\n\n")
-   cat("\tReplicate Chains:",b$reps,"\n")
-   cat("\tBurn Time:",b$burntime,"\n")
-   cat("\tDraws per Chain:",b$draws/b$reps,"Total Draws:",b$draws,"\n")
-   if("sqrtrhat" %in% names(b))
-      cat("\tPotential Scale Reduction (G&R's sqrt(Rhat)):\n \t\tMax:",max(b$sqrtrhat[!is.nan(b$sqrtrhat)]),"\n\t\tMed:",median(b$sqrtrhat[!is.nan(b$sqrtrhat)]),"\n\t\tIQR:",IQR(b$sqrtrhat[!is.nan(b$sqrtrhat)]),"\n")
+   cat("\tReplicate Chains:",x$reps,"\n")
+   cat("\tBurn Time:",x$burntime,"\n")
+   cat("\tDraws per Chain:",x$draws/x$reps,"Total Draws:",x$draws,"\n")
+   if("sqrtrhat" %in% names(x))
+      cat("\tPotential Scale Reduction (G&R's sqrt(Rhat)):\n \t\tMax:",max(x$sqrtrhat[!is.nan(x$sqrtrhat)]),"\n\t\tMed:",median(x$sqrtrhat[!is.nan(x$sqrtrhat)]),"\n\t\tIQR:",IQR(x$sqrtrhat[!is.nan(x$sqrtrhat)]),"\n")
    cat("\n")
 }
 
-print.summary.bbnam.actor<-function(b){
+print.summary.bbnam.actor<-function(x,...){
    cat("\nButts' Hierarchical Bayes Model for Network Estimation/Informant Accuracy\n\n")
    cat("Multiple Error Probability Model\n\n")
    #Dump marginal posterior network
    cat("Marginal Posterior Network Distribution:\n\n")
-   d<-apply(b$net,c(2,3),mean)
-   rownames(d)<-as.vector(b$anames)
-   colnames(d)<-as.vector(b$anames)
+   d<-apply(x$net,c(2,3),mean)
+   rownames(d)<-as.vector(x$anames)
+   colnames(d)<-as.vector(x$anames)
    print.table(d,digits=2)
    cat("\n")
    #Dump summary of error probabilities
    cat("Marginal Posterior Global Error Distribution:\n\n")
    d<-matrix(ncol=2,nrow=6)
-   d[1:3,1]<-quantile(b$em,c(0,0.25,0.5),names=FALSE,na.rm=TRUE)
-   d[4,1]<-mean(b$em,na.rm=TRUE)
-   d[5:6,1]<-quantile(b$em,c(0.75,1.0),names=FALSE,na.rm=TRUE)
-   d[1:3,2]<-quantile(b$ep,c(0,0.25,0.5),names=FALSE,na.rm=TRUE)
-   d[4,2]<-mean(b$ep,na.rm=TRUE)
-   d[5:6,2]<-quantile(b$ep,c(0.75,1.0),names=FALSE,na.rm=TRUE)
+   d[1:3,1]<-quantile(x$em,c(0,0.25,0.5),names=FALSE,na.rm=TRUE)
+   d[4,1]<-mean(x$em,na.rm=TRUE)
+   d[5:6,1]<-quantile(x$em,c(0.75,1.0),names=FALSE,na.rm=TRUE)
+   d[1:3,2]<-quantile(x$ep,c(0,0.25,0.5),names=FALSE,na.rm=TRUE)
+   d[4,2]<-mean(x$ep,na.rm=TRUE)
+   d[5:6,2]<-quantile(x$ep,c(0.75,1.0),names=FALSE,na.rm=TRUE)
    colnames(d)<-c("e^-","e^+")
    rownames(d)<-c("Min","1stQ","Median","Mean","3rdQ","Max")
    print.table(d,digits=4)
@@ -3872,51 +3913,51 @@ print.summary.bbnam.actor<-function(b){
    cat("Marginal Posterior Error Distribution (by observer):\n\n")
    cat("Probability of False Negatives (e^-):\n\n")
    d<-matrix(ncol=6)
-   for(i in 1:b$nobservers){
-      dv<-matrix(c(quantile(b$em[,i],c(0,0.25,0.5),names=FALSE,na.rm=TRUE),mean(b$em[,i],na.rm=TRUE),quantile(b$em[,i],c(0.75,1.0),names=FALSE,na.rm=TRUE)),nrow=1,ncol=6)
+   for(i in 1:x$nobservers){
+      dv<-matrix(c(quantile(x$em[,i],c(0,0.25,0.5),names=FALSE,na.rm=TRUE),mean(x$em[,i],na.rm=TRUE),quantile(x$em[,i],c(0.75,1.0),names=FALSE,na.rm=TRUE)),nrow=1,ncol=6)
       d<-rbind(d,dv)
    }
-   d<-d[2:(b$nobservers+1),]
-   rownames(d)<-as.vector(b$onames)
+   d<-d[2:(x$nobservers+1),]
+   rownames(d)<-as.vector(x$onames)
    colnames(d)<-c("Min","1stQ","Median","Mean","3rdQ","Max")
    print.table(d,digits=4)
    cat("\n")
    cat("Probability of False Positives (e^+):\n\n")
    d<-matrix(ncol=6)
-   for(i in 1:b$nobservers){
-      dv<-matrix(c(quantile(b$ep[,i],c(0,0.25,0.5),names=FALSE,na.rm=TRUE),mean(b$ep[,i],na.rm=TRUE),quantile(b$ep[,i],c(0.75,1.0),names=FALSE,na.rm=TRUE)),nrow=1,ncol=6)
+   for(i in 1:x$nobservers){
+      dv<-matrix(c(quantile(x$ep[,i],c(0,0.25,0.5),names=FALSE,na.rm=TRUE),mean(x$ep[,i],na.rm=TRUE),quantile(x$ep[,i],c(0.75,1.0),names=FALSE,na.rm=TRUE)),nrow=1,ncol=6)
       d<-rbind(d,dv)
    }
-   d<-d[2:(b$nobservers+1),]
-   rownames(d)<-as.vector(b$onames)
+   d<-d[2:(x$nobservers+1),]
+   rownames(d)<-as.vector(x$onames)
    colnames(d)<-c("Min","1stQ","Median","Mean","3rdQ","Max")
    print.table(d,digits=4)
    cat("\n")
    #Dump MCMC diagnostics
    cat("MCMC Diagnostics:\n\n")
-   cat("\tReplicate Chains:",b$reps,"\n")
-   cat("\tBurn Time:",b$burntime,"\n")
-   cat("\tDraws per Chain:",b$draws/b$reps,"Total Draws:",b$draws,"\n")
-   if("sqrtrhat" %in% names(b))
-      cat("\tPotential Scale Reduction (G&R's sqrt(Rhat)):\n \t\tMax:",max(b$sqrtrhat[!is.nan(b$sqrtrhat)]),"\n\t\tMed:",median(b$sqrtrhat[!is.nan(b$sqrtrhat)]),"\n\t\tIQR:",IQR(b$sqrtrhat[!is.nan(b$sqrtrhat)]),"\n")
+   cat("\tReplicate Chains:",x$reps,"\n")
+   cat("\tBurn Time:",x$burntime,"\n")
+   cat("\tDraws per Chain:",x$draws/x$reps,"Total Draws:",x$draws,"\n")
+   if("sqrtrhat" %in% names(x))
+      cat("\tPotential Scale Reduction (G&R's sqrt(Rhat)):\n \t\tMax:",max(x$sqrtrhat[!is.nan(x$sqrtrhat)]),"\n\t\tMed:",median(x$sqrtrhat[!is.nan(x$sqrtrhat)]),"\n\t\tIQR:",IQR(x$sqrtrhat[!is.nan(x$sqrtrhat)]),"\n")
    cat("\n")
 }
 
-plot.bbnam<-function(b,mode="density",intlines=TRUE,...){
-   UseMethod("plot",b)
+plot.bbnam<-function(x,mode="density",intlines=TRUE,...){
+   UseMethod("plot",x)
 }
 
-plot.bbnam.fixed<-function(b,mode="density",intlines=TRUE,...){
+plot.bbnam.fixed<-function(x,mode="density",intlines=TRUE,...){
    #Get the initial graphical settings, so we can restore them later
    oldpar<-par()
    #Perform matrix plot of tie probabilities
    par(mfrow=c(1,1))
-   plot.matrix(apply(b$net,c(2,3),mean),labels=list(b$anames,b$anames),main="Marginal Posterior Tie Probability Distribution")
+   plot.matrix(apply(x$net,c(2,3),mean),labels=list(x$anames,x$anames),main="Marginal Posterior Tie Probability Distribution")
    #Clean up
    par(oldpar)
 }
 
-plot.bbnam.pooled<-function(b,mode="density",intlines=TRUE,...){
+plot.bbnam.pooled<-function(x,mode="density",intlines=TRUE,...){
    #Get the initial graphical settings, so we can restore them later
    oldpar<-par()
    #Change plotting params
@@ -3925,35 +3966,35 @@ plot.bbnam.pooled<-function(b,mode="density",intlines=TRUE,...){
    par(mfrow=c(2,1))
    if(mode=="density"){   #Approximate the pdf using kernel density estimation
       #Plot marginal population (i.e. across actors) density of p(false negative)
-      plot(density(b$em),main=paste("Estimated Marginal Posterior Density of",expression(e^"-"),",",b$draws,"Draws"),xlab=expression({e^{"-"}}),xlim=c(0,1),...)
+      plot(density(x$em),main=paste("Estimated Marginal Posterior Density of",expression(e^"-"),",",x$draws,"Draws"),xlab=expression({e^{"-"}}),xlim=c(0,1),...)
       #Plot interval lines if required.
       if(intlines)
-         abline(v=quantile(b$em,c(0.05,0.5,0.95)),lty=c(3,2,3))
+         abline(v=quantile(x$em,c(0.05,0.5,0.95)),lty=c(3,2,3))
       #Plot marginal population (i.e. across actors) density of p(false positive)
-      plot(density(b$ep),main=paste("Estimated Marginal Posterior Density of",expression(e^"+"),",",b$draws,"Draws"),xlab=expression({e^{"+"}}),xlim=c(0,1),...)
+      plot(density(x$ep),main=paste("Estimated Marginal Posterior Density of",expression(e^"+"),",",x$draws,"Draws"),xlab=expression({e^{"+"}}),xlim=c(0,1),...)
       #Plot interval lines if required.
       if(intlines)
-         abline(v=quantile(b$ep,c(0.05,0.5,0.95)),lty=c(3,2,3))
+         abline(v=quantile(x$ep,c(0.05,0.5,0.95)),lty=c(3,2,3))
    }else{     #Use histograms to plot the estimated density
       #Plot marginal population (i.e. across actors) density of p(false negative)
-      hist(b$em,main=paste("Histogram of",expression(e^"-"),",",b$draws,"Draws"),xlab=expression({e^{"-"}}),xlim=c(0,1),...)
+      hist(x$em,main=paste("Histogram of",expression(e^"-"),",",x$draws,"Draws"),xlab=expression({e^{"-"}}),xlim=c(0,1),...)
       #Plot interval lines if required.
       if(intlines)
-         abline(v=quantile(b$em,c(0.05,0.5,0.95)),lty=c(3,2,3))
+         abline(v=quantile(x$em,c(0.05,0.5,0.95)),lty=c(3,2,3))
       #Plot marginal population (i.e. across actors) density of p(false positive)
-      hist(b$ep,main=paste("Histogram of",expression(e^"+"),",",b$draws,"Draws"),xlab=expression({e^{"+"}}),xlim=c(0,1),...)
+      hist(x$ep,main=paste("Histogram of",expression(e^"+"),",",x$draws,"Draws"),xlab=expression({e^{"+"}}),xlim=c(0,1),...)
       #Plot interval lines if required.
       if(intlines)
-         abline(v=quantile(b$ep,c(0.05,0.5,0.95)),lty=c(3,2,3))
+         abline(v=quantile(x$ep,c(0.05,0.5,0.95)),lty=c(3,2,3))
    }
    #Finally, try to plot histograms of tie probabilities
    par(mfrow=c(1,1))
-   plot.matrix(apply(b$net,c(2,3),mean),labels=list(b$anames,b$anames),main="Marginal Posterior Tie Probability Distribution")
+   plot.matrix(apply(x$net,c(2,3),mean),labels=list(x$anames,x$anames),main="Marginal Posterior Tie Probability Distribution")
    #Clean up
    par(oldpar)
 }
 
-plot.bbnam.actor<-function(b,mode="density",intlines=TRUE,...){
+plot.bbnam.actor<-function(x,mode="density",intlines=TRUE,...){
    #Get the initial graphical settings, so we can restore them later
    oldpar<-par()
    #Change plotting params
@@ -3962,60 +4003,60 @@ plot.bbnam.actor<-function(b,mode="density",intlines=TRUE,...){
    par(mfrow=c(2,1))
    if(mode=="density"){   #Approximate the pdf using kernel density estimation
       #Plot marginal population (i.e. across actors) density of p(false negative)
-      plot(density(b$em),main=paste("Estimated Marginal Population Density of",expression(e^"-"),",",b$draws,"Draws"),xlab=expression({e^{"-"}}),xlim=c(0,1),...)
+      plot(density(x$em),main=paste("Estimated Marginal Population Density of",expression(e^"-"),",",x$draws,"Draws"),xlab=expression({e^{"-"}}),xlim=c(0,1),...)
       #Plot interval lines if required.
       if(intlines)
-         abline(v=quantile(b$em,c(0.05,0.5,0.95)),lty=c(3,2,3))
+         abline(v=quantile(x$em,c(0.05,0.5,0.95)),lty=c(3,2,3))
       #Plot marginal population (i.e. across actors) density of p(false positive)
-      plot(density(b$ep),main=paste("Estimated Marginal Population Density of",expression(e^"+"),",",b$draws,"Draws"),xlab=expression({e^{"+"}}),xlim=c(0,1),...)
+      plot(density(x$ep),main=paste("Estimated Marginal Population Density of",expression(e^"+"),",",x$draws,"Draws"),xlab=expression({e^{"+"}}),xlim=c(0,1),...)
       #Plot interval lines if required.
       if(intlines)
-         abline(v=quantile(b$ep,c(0.05,0.5,0.95)),lty=c(3,2,3))
+         abline(v=quantile(x$ep,c(0.05,0.5,0.95)),lty=c(3,2,3))
    }else{     #Use histograms to plot the estimated density
       #Plot marginal population (i.e. across actors) density of p(false negative)
-      hist(b$em,main=paste("Histogram of",expression(e^"-"),",",b$draws,"Draws"),xlab=expression({e^{"-"}}),xlim=c(0,1),...)
+      hist(x$em,main=paste("Histogram of",expression(e^"-"),",",x$draws,"Draws"),xlab=expression({e^{"-"}}),xlim=c(0,1),...)
       #Plot interval lines if required.
       if(intlines)
-         abline(v=quantile(b$em,c(0.05,0.5,0.95)),lty=c(3,2,3))
+         abline(v=quantile(x$em,c(0.05,0.5,0.95)),lty=c(3,2,3))
       #Plot marginal population (i.e. across actors) density of p(false positive)
-      hist(b$ep,main=paste("Histogram of",expression(e^"+"),",",b$draws,"Draws"),xlab=expression({e^{"+"}}),xlim=c(0,1),...)
+      hist(x$ep,main=paste("Histogram of",expression(e^"+"),",",x$draws,"Draws"),xlab=expression({e^{"+"}}),xlim=c(0,1),...)
       #Plot interval lines if required.
       if(intlines)
-         abline(v=quantile(b$ep,c(0.05,0.5,0.95)),lty=c(3,2,3))
+         abline(v=quantile(x$ep,c(0.05,0.5,0.95)),lty=c(3,2,3))
    }
    #Plot e- next
-   par(mfrow=c(floor(sqrt(b$nobservers)),ceiling(sqrt(b$nobservers))))
-   for(i in 1:b$nobservers){
+   par(mfrow=c(floor(sqrt(x$nobservers)),ceiling(sqrt(x$nobservers))))
+   for(i in 1:x$nobservers){
       if(mode=="density"){
-         plot(density(b$em[,i]),main=paste("Estimated Density of",expression(e^"-"[i]),",",b$draws,"Draws"),xlab=expression({e^{"-"}}[i]),xlim=c(0,1),...)
+         plot(density(x$em[,i]),main=paste("Estimated Density of",expression(e^"-"[i]),",",x$draws,"Draws"),xlab=expression({e^{"-"}}[i]),xlim=c(0,1),...)
          #Plot interval lines if required.
          if(intlines)
-            abline(v=quantile(b$em[,i],c(0.05,0.5,0.95)),lty=c(3,2,3))
+            abline(v=quantile(x$em[,i],c(0.05,0.5,0.95)),lty=c(3,2,3))
       }else{
-         hist(b$em[,i],main=paste("Histogram of",expression(e^"-"[i]),",",b$draws,"Draws"),xlab=expression({e^{"-"}}[i]),xlim=c(0,1),...)
+         hist(x$em[,i],main=paste("Histogram of",expression(e^"-"[i]),",",x$draws,"Draws"),xlab=expression({e^{"-"}}[i]),xlim=c(0,1),...)
          #Plot interval lines if required.
          if(intlines)
-            abline(v=quantile(b$em[,i],c(0.05,0.5,0.95)),lty=c(3,2,3))
+            abline(v=quantile(x$em[,i],c(0.05,0.5,0.95)),lty=c(3,2,3))
       }
    }
    #Now plot e+
-   par(mfrow=c(floor(sqrt(b$nobservers)),ceiling(sqrt(b$nobservers))))
-   for(i in 1:b$nobservers){
+   par(mfrow=c(floor(sqrt(x$nobservers)),ceiling(sqrt(x$nobservers))))
+   for(i in 1:x$nobservers){
       if(mode=="density"){
-         plot(density(b$ep[,i]),main=paste("Estimated Density of",expression(e^"+"[i]),",",b$draws,"Draws"),xlab=expression({e^{"+"}}[i]),xlim=c(0,1),...)
+         plot(density(x$ep[,i]),main=paste("Estimated Density of",expression(e^"+"[i]),",",x$draws,"Draws"),xlab=expression({e^{"+"}}[i]),xlim=c(0,1),...)
          #Plot interval lines if required.
          if(intlines)
-            abline(v=quantile(b$ep[,i],c(0.05,0.5,0.95)),lty=c(3,2,3))
+            abline(v=quantile(x$ep[,i],c(0.05,0.5,0.95)),lty=c(3,2,3))
       }else{
-         hist(b$ep[,i],main=paste("Histogram of",expression(e^"+"[i]),",",b$draws,"Draws"),xlab=expression({e^{"+"}}[i]),xlim=c(0,1),...)
+         hist(x$ep[,i],main=paste("Histogram of",expression(e^"+"[i]),",",x$draws,"Draws"),xlab=expression({e^{"+"}}[i]),xlim=c(0,1),...)
          #Plot interval lines if required.
          if(intlines)
-            abline(v=quantile(b$ep[,i],c(0.05,0.5,0.95)),lty=c(3,2,3))
+            abline(v=quantile(x$ep[,i],c(0.05,0.5,0.95)),lty=c(3,2,3))
       }
    }
    #Finally, try to plot histograms of tie probabilities
    par(mfrow=c(1,1))
-   plot.matrix(apply(b$net,c(2,3),mean),labels=list(b$anames,b$anames),main="Marginal Posterior Tie Probability Distribution")
+   plot.matrix(apply(x$net,c(2,3),mean),labels=list(x$anames,x$anames),main="Marginal Posterior Tie Probability Distribution")
    #Clean up
    par(oldpar)
 }
@@ -4345,11 +4386,11 @@ equiv.clust<-function(dat,g=c(1:dim(dat)[1]),equiv.fun="sedist",method="hamming"
 
 #plot.equiv.clust - Plotting for equivalence clustering objects
 
-plot.equiv.clust<-function(ec,labels=ec$plabels,...){
+plot.equiv.clust<-function(x,labels=x$plabels,...){
    if(is.null(labels))
-      plot.hclust(ec$cluster,...)
+      plot.hclust(x$cluster,...)
    else
-      plot.hclust(ec$cluster,labels=labels,...)
+      plot.hclust(x$cluster,labels=labels,...)
 }
 
 
@@ -4443,29 +4484,29 @@ blockmodel<-function(dat,ec,k=NULL,h=NULL,block.content="density",plabels=ec$pla
 
 #print.blockmodel - Printing for blockmodel objects
 
-print.blockmodel<-function(b){
+print.blockmodel<-function(x,...){
    cat("\nBlockmodel by Equivalence Clustering:\n\n")
    cat("Block membership:\n\n")
-   if(is.null(b$plabels))                    #Get position labels
-      plab<-(1:length(b$block.membership))[b$order.vector]
+   if(is.null(x$plabels))                    #Get position labels
+      plab<-(1:length(x$block.membership))[x$order.vector]
    else
-      plab<-b$plabels
-   temp<-matrix(b$block.membership,nrow=1)
+      plab<-x$plabels
+   temp<-matrix(x$block.membership,nrow=1)
    dimnames(temp)<-list("",plab)
-   print(temp[1,order(b$order.vector)])  #Print in original order
+   print(temp[1,order(x$order.vector)])  #Print in original order
    cat("\nReduced form blockmodel:\n\n")
-   if(length(dim(b$block.model))>2){
-      for(i in 1:dim(b$block.model)[1]){
-         temp<-b$block.model[i,,]
-         dimnames(temp)<-list(b$rlabels,b$rlabels)
-         cat("\t",b$glabels[i],"\n") 
+   if(length(dim(x$block.model))>2){
+      for(i in 1:dim(x$block.model)[1]){
+         temp<-x$block.model[i,,]
+         dimnames(temp)<-list(x$rlabels,x$rlabels)
+         cat("\t",x$glabels[i],"\n") 
          print(temp)
          cat("\n")
       }
    }else{
-         temp<-b$block.model
-         dimnames(temp)<-list(b$rlabels,b$rlabels)
-         cat("\t",b$glabels[i],"\n") 
+         temp<-x$block.model
+         dimnames(temp)<-list(x$rlabels,x$rlabels)
+         cat("\t",x$glabels[i],"\n") 
          print(temp)
    }
 }
@@ -4473,8 +4514,8 @@ print.blockmodel<-function(b){
 
 #summary.blockmodel - Detailed printing for blockmodel objects
 
-summary.blockmodel<-function(b){
-   o<-b
+summary.blockmodel<-function(object, ...){
+   o<-object
    class(o)<-"summary.blockmodel"
    o
 }
@@ -4482,57 +4523,57 @@ summary.blockmodel<-function(b){
 
 #print.summary.blockmodel - Printing for blockmodel summary objects
 
-print.summary.blockmodel<-function(b){
+print.summary.blockmodel<-function(x,...){
    cat("\nBlockmodel by Equivalence Clustering:\n\n")
 
    cat("\nGeneral information:\n\n")
-   cat("\tEquivalence function: ",b$equiv.fun,"\n")
-   cat("\tEquivalence metric: ",b$equiv.metric,"\n")
-   cat("\tClustering method: ",b$cluster.method,"\n")
-   cat("\tBlockmodel content: ",b$block.content,"\n")
+   cat("\tEquivalence function: ",x$equiv.fun,"\n")
+   cat("\tEquivalence metric: ",x$equiv.metric,"\n")
+   cat("\tClustering method: ",x$cluster.method,"\n")
+   cat("\tBlockmodel content: ",x$block.content,"\n")
 
    cat("\n\nBlock membership by actor:\n\n")
-   if(is.null(b$plabels))                    #Get position labels
-      plab<-(1:length(b$block.membership))[b$order.vector]
+   if(is.null(x$plabels))                    #Get position labels
+      plab<-(1:length(x$block.membership))[x$order.vector]
    else
-      plab<-b$plabels
-   temp<-matrix(b$block.membership,nrow=1)
+      plab<-x$plabels
+   temp<-matrix(x$block.membership,nrow=1)
    dimnames(temp)<-list("",plab)
-   print(temp[1,order(b$order.vector)])  #Print in original order
+   print(temp[1,order(x$order.vector)])  #Print in original order
 
    cat("\n\nBlock membership by block:\n\n")
-   for(i in 1:max(b$block.membership))
-      cat("\t",b$rlabels[i],":",plab[b$block.membership==i],"\n")
+   for(i in 1:max(x$block.membership))
+      cat("\t",x$rlabels[i],":",plab[x$block.membership==i],"\n")
    
    cat("\n\nReduced form blockmodel:\n\n")
-   if(length(dim(b$block.model))>2){
-      for(i in 1:dim(b$block.model)[1]){
-         temp<-b$block.model[i,,]
-         dimnames(temp)<-list(b$rlabels,b$rlabels)
-         cat("\t",b$glabels[i],"\n") 
+   if(length(dim(x$block.model))>2){
+      for(i in 1:dim(x$block.model)[1]){
+         temp<-x$block.model[i,,]
+         dimnames(temp)<-list(x$rlabels,x$rlabels)
+         cat("\t",x$glabels[i],"\n") 
          print(temp)
          cat("\n")
       }
    }else{
-         temp<-b$block.model
-         dimnames(temp)<-list(b$rlabels,b$rlabels)
-         cat("\t",b$glabels[i],"\n") 
+         temp<-x$block.model
+         dimnames(temp)<-list(x$rlabels,x$rlabels)
+         cat("\t",x$glabels[i],"\n") 
          print(temp)
    }
 
    cat("\n\nBlocked data:\n\n")
-   if(length(dim(b$block.model))>2){
-      for(i in 1:dim(b$block.model)[1]){
-         temp<-b$blocked.data[i,,]
+   if(length(dim(x$block.model))>2){
+      for(i in 1:dim(x$block.model)[1]){
+         temp<-x$blocked.data[i,,]
          dimnames(temp)<-list(plab,plab)
-         cat("\t",b$glabels[i],"\n") 
+         cat("\t",x$glabels[i],"\n") 
          print(temp)
          cat("\n")
       }
    }else{
-         temp<-b$blocked.data
+         temp<-x$blocked.data
          dimnames(temp)<-list(plab,plab)
-         cat("\t",b$glabels[i],"\n") 
+         cat("\t",x$glabels[i],"\n") 
          print(temp)
    }
 
@@ -4541,18 +4582,18 @@ print.summary.blockmodel<-function(b){
 
 #plot.blockmodel - Plotting for blockmodel objects
 
-plot.blockmodel<-function(b){
+plot.blockmodel<-function(x,...){
    #Save old settings
    oldpar<-par()
    #Get new settings from data
-   n<-dim(b$blocked.data)[2]
-   m<-stackcount(b$blocked.data)
-   if(!is.null(b$plabels))
-      plab<-b$plabels
+   n<-dim(x$blocked.data)[2]
+   m<-stackcount(x$blocked.data)
+   if(!is.null(x$plabels))
+      plab<-x$plabels
    else
-      plab<-(1:n)[b$order.vector]
-   if(!is.null(b$glabels))
-      glab<-b$glabels
+      plab<-(1:n)[x$order.vector]
+   if(!is.null(x$glabels))
+      glab<-x$glabels
    else
       glab<-1:m
    print(glab)
@@ -4560,15 +4601,15 @@ plot.blockmodel<-function(b){
    par(mfrow=c(floor(sqrt(m)),ceiling(m/floor(sqrt(m)))))
    if(m>1)
       for(i in 1:m){
-         plot.matrix(b$blocked.data[i,,],labels=list(plab,plab),main=paste("Relation - ",glab[i]))
+         plot.matrix(x$blocked.data[i,,],labels=list(plab,plab),main=paste("Relation - ",glab[i]))
          for(j in 2:n)
-            if(b$block.membership[j]!=b$block.membership[j-1])
+            if(x$block.membership[j]!=x$block.membership[j-1])
                abline(v=j-0.5,h=j-0.5,lty=3)
       }
    else{
-      plot.matrix(b$blocked.data,labels=list(plab,plab),main=paste("Relation - ",glab[1]))
+      plot.matrix(x$blocked.data,labels=list(plab,plab),main=paste("Relation - ",glab[1]))
       for(j in 2:n)
-         if(b$block.membership[j]!=b$block.membership[j-1])
+         if(x$block.membership[j]!=x$block.membership[j-1])
             abline(v=j-0.5,h=j-0.5,lty=3)
    }
    #Fix the display settings
@@ -4810,13 +4851,13 @@ pstar<-function(dat,effects=c("choice","mutuality","density","reciprocity","stra
    if(!is.na(pmatch("wtranstri",effects)))  #Label the wtranstri effect
       tiedat.lab<-c(tiedat.lab,"WTransTriads")
    if(!is.na(pmatch("outdegree",effects)))  #Label the outdegree effect
-      tiedat.lab<-c(tiedat.lab,paste("Outdegree",1:n))
+      tiedat.lab<-c(tiedat.lab,paste("Outdegree",1:n,sep="."))
    if(!is.na(pmatch("indegree",effects)))  #Label the indegree effect
-      tiedat.lab<-c(tiedat.lab,paste("Indegree",1:n))
+      tiedat.lab<-c(tiedat.lab,paste("Indegree",1:n,sep="."))
    if(!is.na(pmatch("betweenness",effects)))  #Label the betweenness effect
-      tiedat.lab<-c(tiedat.lab,paste("Betweenness",1:n))
+      tiedat.lab<-c(tiedat.lab,paste("Betweenness",1:n,sep="."))
    if(!is.na(pmatch("closeness",effects)))  #Label the closeness effect
-      tiedat.lab<-c(tiedat.lab,paste("Closeness",1:n))
+      tiedat.lab<-c(tiedat.lab,paste("Closeness",1:n,sep="."))
    if(!is.na(pmatch("degcent",effects)))  #Label the degree centralization effect
       tiedat.lab<-c(tiedat.lab,"DegCentralization")
    if(!is.na(pmatch("betcent",effects)))  #Label the betweenness centralization effect
@@ -4836,9 +4877,9 @@ pstar<-function(dat,effects=c("choice","mutuality","density","reciprocity","stra
    if(!is.null(memb))
       tiedat.lab<-c(tiedat.lab,colnames(memb))
    colnames(tiedat)<-tiedat.lab
-   print(tiedat)
    #Having had our fun, it's time to get serious.  Run a GLM on the resulting data.
-   o<-glm(tiedat[,1]~-1+tiedat[,2:dim(tiedat)[2]],family="binomial")
+   fmla<-as.formula(paste("EdgeVal ~ -1 + ",paste(colnames(tiedat)[2:dim(tiedat)[2]],collapse=" + ")))
+   o<-glm(fmla,family="binomial",data=as.data.frame(tiedat))
    o$tiedata<-tiedat
    #Return the result
    o

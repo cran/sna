@@ -48,4 +48,4 @@ centralization(dat,g=3,degree,cmode="indegree")
 centralization(dat,g=3,degree)
 }
 \keyword{ univar }%-- one or more ...
-\keyword{ network}
+\keyword{ math }

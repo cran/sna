@@ -55,4 +55,3 @@ gcor(g)
 }
 \keyword{ univar }
 \keyword{ multivariate }%-- one or more ...
-\keyword{ network }

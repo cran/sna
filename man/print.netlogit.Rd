@@ -6,11 +6,12 @@
   Prints a quick summary of objects produced by \code{\link{netlogit}}.
 }
 \usage{
-print.netlogit(n)
+print.netlogit(x, ...)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
-  \item{n}{ An object of class \code{netlogit} }
+  \item{x}{ An object of class \code{netlogit} }
+  \item{\dots}{ Further arguments passed to or from other methods }
 }
 %\details{
 %}
@@ -27,4 +28,3 @@ print.netlogit(n)
 \examples{
 }
 \keyword{ print }%-- one or more ...
-\keyword{ network }

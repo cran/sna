@@ -6,11 +6,12 @@
   Returns a \code{netlm} summary object
 }
 \usage{
-summary.netlm(n)
+summary.netlm(object, ...)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
-  \item{n}{ An object of class \code{netlm} }
+  \item{object}{ An object of class \code{netlm} }
+  \item{\dots}{ Further arguments passed to or from other methods }
 }
 %\details{
 %  
@@ -29,4 +30,4 @@ summary.netlm(n)
 \examples{
 
 }
-\keyword{ network }%-- one or more ...
+\keyword{ math }%-- one or more ...

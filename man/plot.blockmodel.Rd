@@ -6,11 +6,12 @@
   Displays a plot of the blocked data matrix, given a blockmodel object.
 }
 \usage{
-plot.blockmodel(b)
+plot.blockmodel(x, ...)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
-  \item{b}{ An object of class \code{blockmodel} }
+  \item{x}{ An object of class \code{blockmodel} }
+  \item{\dots}{ Further arguments passed to or from other methods }
 }
 \details{
 Plots of the blocked data matrix (i.e., the data matrix with rows and columns permuted to match block membership) can be useful in assessing the strength of the block solution (particularly for clique detection and/or regular equivalence).
@@ -43,4 +44,3 @@ b<-blockmodel(g,eq,h=10)
 plot(b)                            #Plot it
 }
 \keyword{ hplot }%-- one or more ...
-\keyword{ network }

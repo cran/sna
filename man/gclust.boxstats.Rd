@@ -46,4 +46,3 @@ g.c<-hclust(as.dist(g.h))
 gclust.boxstats(g.c,2,gden(g))
 }
 \keyword{ hplot }%-- one or more ...
-\keyword{ network }

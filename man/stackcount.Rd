@@ -29,4 +29,4 @@ The number of graphs in \code{d}
 stackcount(rgraph(4,8))==8
 }
 \keyword{ utilities }%-- one or more ...
-\keyword{ network }
+\keyword{ math }

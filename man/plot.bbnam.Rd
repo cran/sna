@@ -9,11 +9,11 @@
   Generates various plots of posterior draws from the \code{\link{bbnam}} model.
 }
 \usage{
-plot.bbnam(b, mode="density", intlines=TRUE, ...)
+plot.bbnam(x, mode="density", intlines=TRUE, ...)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
-  \item{b}{ A \code{bbnam} object }
+  \item{x}{ A \code{bbnam} object }
   \item{mode}{ ``density'' for kernel density estimators of posterior marginals; otherwise, histograms are used }
   \item{intlines}{ Plot lines for the 0.9 central posterior probability intervals? }
   \item{\dots}{ Additional arguments to \code{\link{plot}} }
@@ -58,4 +58,3 @@ summary(b)
 plot(b)
 }
 \keyword{ hplot}%-- one or more ...
-\keyword{ network }

@@ -65,4 +65,4 @@ event2dichot(n,"quantile",0.95)
 
 }
 \keyword{ manip }%-- one or more ...
-\keyword{ network }
+\keyword{ math }

@@ -33,4 +33,4 @@ The number of possible edges, or a vector of the same
 nties(rgraph(15),diag=FALSE)
 }
 \keyword{ univar }%-- one or more ...
-\keyword{ network }
+\keyword{ math }

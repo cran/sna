@@ -37,4 +37,4 @@ g<-rgraph(10,2)
 gvectorize(g)
 }
 \keyword{ manip }%-- one or more ...
-\keyword{ network }
+\keyword{ math }

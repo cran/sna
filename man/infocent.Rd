@@ -58,5 +58,5 @@ dat<-rgraph(10,mode="graph")
 #Compute information centrality scores
 infocent(dat)
 }
-\keyword{ network }% at least one, from doc/KEYWORDS
+\keyword{ math }% at least one, from doc/KEYWORDS
 \keyword{ univar }% __ONLY ONE__ keyword per line

@@ -58,4 +58,3 @@ g.h<-hdist(g)
 gdist.plotstats(g.h,cbind(gden(g),grecip(g)))
 }
 \keyword{ hplot }%-- one or more ...
-\keyword{ network }

@@ -9,11 +9,12 @@
   Returns a \code{bbnam} summary object
 }
 \usage{
-summary.bbnam(b)
+summary.bbnam(object, ...)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
-  \item{b}{ An object of class \code{bbnam} }
+  \item{object}{ An object of class \code{bbnam} }
+  \item{\dots}{ Further arguments passed to or from other methods }
 }
 %\details{
 %}
@@ -31,4 +32,4 @@ An object of class \code{summary.bbnam}
 \examples{
 
 }
-\keyword{ network }%-- one or more ...
+\keyword{ math }%-- one or more ...

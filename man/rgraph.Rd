@@ -54,4 +54,4 @@ g.p<-matrix(runif(25,0,1),nrow=5)
 g<-rgraph(5,2,tprob=g.p)
 }
 \keyword{ distribution }%-- one or more ...
-\keyword{ network }
+\keyword{ math }

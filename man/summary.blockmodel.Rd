@@ -6,11 +6,12 @@
   Returns a \code{blockmodel} summary object.
 }
 \usage{
-summary.blockmodel(b)
+summary.blockmodel(object, ...)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
-  \item{b}{ An object of class \code{blockmodel} }
+  \item{object}{ An object of class \code{blockmodel} }
+  \item{\dots}{ Further arguments passed to or from other methods }
 }
 %\details{
 %
@@ -29,4 +30,4 @@ An object of class \code{summary.blockmodel}
 \examples{
 
 }
-\keyword{ network }%-- one or more ...
+\keyword{ math }%-- one or more ...

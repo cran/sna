@@ -42,5 +42,4 @@ rg
 #Compare to the output of geodist
 all(rg==(geodist(g)$counts>0))
 }
-\keyword{ network }% at least one, from doc/KEYWORDS
 \keyword{ algebra }% __ONLY ONE__ keyword per line

@@ -6,11 +6,12 @@
   Prints an object of class \code{summary.netlogit}.
 }
 \usage{
-print.summary.netlogit(n)
+print.summary.netlogit(x, ...)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
-  \item{n}{ An object of class \code{summary.netlogit}~ }
+  \item{x}{ An object of class \code{summary.netlogit}~ }
+  \item{\dots}{ Further arguments passed to or from other methods }
 }
 %\details{
 %}
@@ -28,4 +29,3 @@ print.summary.netlogit(n)
 
 }
 \keyword{ print }%-- one or more ...
-\keyword{ network }

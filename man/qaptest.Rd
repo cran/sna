@@ -73,4 +73,4 @@ summary(q.13)
 plot(q.13)
 }
 \keyword{ htest }%-- one or more ...
-\keyword{ network }
+\keyword{ math }

@@ -6,11 +6,12 @@
   Prints a quick summary of objects produced by \code{\link{netcancor}}.
 }
 \usage{
-print.netcancor(n)
+print.netcancor(x, ...)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
-  \item{n}{ An object of class \code{netcancor}}
+  \item{x}{ An object of class \code{netcancor}}
+  \item{\dots}{ Further arguments passed to or from other methods }
 }
 %\details{
 %}
@@ -27,4 +28,3 @@ print.netcancor(n)
 \examples{
 }
 \keyword{ print }%-- one or more ...
-\keyword{ network }

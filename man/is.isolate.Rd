@@ -43,4 +43,3 @@ is.isolate(g,2)  #2 is almost surely not an isolate
 is.isolate(g,4)  #4 is, by construction
 }
 \keyword{ logic }%-- one or more ...
-\keyword{ network }

@@ -35,4 +35,4 @@ g<-upper.tri.remove(g)
 }
 \keyword{ manip }
 \keyword{ array }%-- one or more ...
-\keyword{ network }
+\keyword{ math }

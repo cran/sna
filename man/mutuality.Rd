@@ -36,4 +36,4 @@ mutuality(g)
 grecip(g)         #Compare with mutuality
 }
 \keyword{ univar }%-- one or more ...
-\keyword{ network }
+\keyword{ math }

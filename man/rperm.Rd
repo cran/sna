@@ -34,4 +34,3 @@ rperm(c("a",4,"x",2))  #Fix all elements (the identity permutation)
 }
 \keyword{ distribution }
 \keyword{ array }%-- one or more ...
-\keyword{ network }

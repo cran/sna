@@ -36,4 +36,4 @@ dat<-rgraph(10,3)
 gden(dat)
 }
 \keyword{ univar }%-- one or more ...
-\keyword{ network }
+\keyword{ math }

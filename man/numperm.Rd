@@ -40,4 +40,4 @@ g[p.2,p.2]
 g[p.3,p.3]
 }
 \keyword{ array }%-- one or more ...
-\keyword{ network }
+\keyword{ math }

@@ -34,4 +34,4 @@ g<-rgraph(10)
 c<-sr2css(g)
 }
 \keyword{ manip }%-- one or more ...
-\keyword{ network }
+\keyword{ math }

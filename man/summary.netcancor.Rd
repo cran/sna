@@ -6,11 +6,12 @@
   Returns a \code{netcancor} summary object
 }
 \usage{
-summary.netcancor(n)
+summary.netcancor(object, ...)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
-  \item{n}{ An object of class \code{netcancor} }
+  \item{object}{ An object of class \code{netcancor} }
+  \item{\dots}{ Further arguments passed to or from other methods }
 }
 %\details{
 %  
@@ -29,4 +30,4 @@ summary.netcancor(n)
 \examples{
 
 }
-\keyword{ network }%-- one or more ...
+\keyword{ math }%-- one or more ...

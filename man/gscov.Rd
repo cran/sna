@@ -72,4 +72,3 @@ gscov(g.2,g.3)
 }
 \keyword{ univar }
 \keyword{ multivariate }%-- one or more ...
-\keyword{ network }

@@ -51,5 +51,5 @@ b<-bbnam(dat,model="actor",nprior=pnet,emprior=pem,epprior=pep,
 #Plot a summary of the posterior predictive of reciprocity
 hist(npostpred(b,grecip))
 }
-\keyword{ model }%-- one or more ...
-\keyword{ network }
+\keyword{ models }%-- one or more ...
+\keyword{ math }

@@ -46,4 +46,4 @@ dat<-rgraph(10,mode="graph")
 evcent(dat)
 }
 \keyword{ univar }%-- one or more ...
-\keyword{ network }
+\keyword{ math }

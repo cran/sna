@@ -63,4 +63,4 @@ sdmat(g,method="anneal", prob.init=0.9, prob.decay=0.85,
 }
 \keyword{ univar }
 \keyword{ multivariate }%-- one or more ...
-\keyword{ network }
+\keyword{ math }

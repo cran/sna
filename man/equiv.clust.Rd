@@ -56,4 +56,4 @@ eq<-equiv.clust(g)
 plot(eq)
 }
 \keyword{ cluster }%-- one or more ...
-\keyword{ network}
+\keyword{ math }

@@ -58,4 +58,4 @@ nl<-netlm(y,x,reps=100)
 summary(nl)
 }
 \keyword{ regression }%-- one or more ...
-\keyword{ network }
+\keyword{ math }

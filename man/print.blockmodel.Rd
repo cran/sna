@@ -6,11 +6,12 @@
 Prints a quick summary of a \code{\link{blockmodel}} object.
 }
 \usage{
-print.blockmodel(b)
+print.blockmodel(x, ...)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
-  \item{b}{ An object of class \code{blockmodel} }
+  \item{x}{ An object of class \code{blockmodel} }
+  \item{\dots}{ Further arguments passed to or from other methods }
 }
 %\details{
 %}
@@ -28,4 +29,3 @@ None
 \examples{
 }
 \keyword{ print }%-- one or more ...
-\keyword{ network }

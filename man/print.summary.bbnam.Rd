@@ -9,11 +9,12 @@
   Prints an object of class \code{summary.bbnam}.
 }
 \usage{
-print.summary.bbnam(b)
+print.summary.bbnam(x, ...)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
-  \item{b}{ An object of class \code{summary.bbnam} }
+  \item{x}{ An object of class \code{summary.bbnam} }
+  \item{\dots}{ Further arguments passed to or from other methods }
 }
 %\details{
 %}
@@ -31,4 +32,3 @@ print.summary.bbnam(b)
 
 }
 \keyword{ print }%-- one or more ...
-\keyword{ network }

@@ -6,11 +6,12 @@
   Returns a \code{netlogit} summary object~
 }
 \usage{
-summary.netlogit(n)
+summary.netlogit(object, ...)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
-  \item{n}{  An object of class \code{netlogit}  }
+  \item{object}{  An object of class \code{netlogit}  }
+  \item{\dots}{ Further arguments passed to or from other methods }
 }
 %\details{
 %}
@@ -28,4 +29,4 @@ summary.netlogit(n)
 \examples{
 
 }
-\keyword{ network }%-- one or more ...
+\keyword{ math }%-- one or more ...

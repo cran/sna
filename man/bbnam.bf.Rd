@@ -47,4 +47,4 @@ Robert, C.  (1994).  \emph{The Bayesian Choice: A Decision-Theoretic Motivation.
 }
 
 \keyword{models}
-\keyword{ network}
+\keyword{ math }

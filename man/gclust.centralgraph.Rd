@@ -48,4 +48,4 @@ gplot(g.cg[1,,])
 gplot(g.cg[2,,])
 }
 \keyword{ cluster }%-- one or more ...
-\keyword{ network }
+\keyword{ math }

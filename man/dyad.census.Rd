@@ -30,5 +30,4 @@ Wasserman, S., and Faust, K.  (1994).  ``Social Network Analysis: Methods and Ap
 #Generate a dyad census of random data with varying densities
 dyad.census(rgraph(15,5,tprob=c(0.1,0.25,0.5,0.75,0.9)))
 }
-\keyword{ network }% at least one, from doc/KEYWORDS
 \keyword{ math }% __ONLY ONE__ keyword per line

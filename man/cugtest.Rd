@@ -64,4 +64,4 @@ cug<-cugtest(dat,gcor)
 summary(cug)
 }
 \keyword{htest}
-\keyword{ network}
+\keyword{ math }

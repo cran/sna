@@ -6,11 +6,11 @@
   Plots the Distribution of a QAP Test Statistic.
 }
 \usage{
-plot.qaptest(q, mode="density", ...)
+plot.qaptest(x, mode="density", ...)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
-  \item{q}{ A \code{\link{qaptest}} object }
+  \item{x}{ A \code{\link{qaptest}} object }
   \item{mode}{ ``density'' for kernel density estimation, ``hist'' for histogram }
   \item{\dots}{ Additional arguments to \code{\link{plot}} }
 }
@@ -52,4 +52,3 @@ summary(q.13)
 plot(q.13)
 }
 \keyword{ hplot }%-- one or more ...
-\keyword{ network }

@@ -73,4 +73,4 @@ b<-blockmodel(g,eq,h=10)
 plot(b)                            #Plot it
 }
 \keyword{ classif }%-- one or more ...
-\keyword{ network}
+\keyword{ math }

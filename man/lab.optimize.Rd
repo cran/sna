@@ -103,4 +103,4 @@ lab.optimize(g,g2,gcor,seek="max",opt.method="mc",draws=1000)
 
 }
 \keyword{ optimize }%-- one or more ...
-\keyword{ network }
+\keyword{ math }

@@ -6,11 +6,12 @@
   Prints an object of class \code{summary.qaptest}.
 }
 \usage{
-print.summary.qaptest(q)
+print.summary.qaptest(x, ...)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
-  \item{q}{ An object of class \code{summary.qaptest} }
+  \item{x}{ An object of class \code{summary.qaptest} }
+  \item{\dots}{ Further arguments passed to or from other methods }
 }
 %\details{
 %}
@@ -28,4 +29,3 @@ print.summary.qaptest(q)
 
 }
 \keyword{ print }%-- one or more ...
-\keyword{ network }

@@ -6,11 +6,12 @@
   Prints an object of class \code{summary.cugtest}.
 }
 \usage{
-print.summary.cugtest(c)
+print.summary.cugtest(x, ...)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
-  \item{c}{ An object of class \code{summary.cugtest} }
+  \item{x}{ An object of class \code{summary.cugtest} }
+  \item{\dots}{ Further arguments passed to or from other methods }
 }
 %\details{
 %}
@@ -28,4 +29,3 @@ print.summary.cugtest(c)
 
 }
 \keyword{ print }%-- one or more ...
-\keyword{ network }

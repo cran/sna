@@ -6,11 +6,12 @@
   Prints a quick summary of a Bayes Factor object.
 }
 \usage{
-print.bayes.factor(bf)
+print.bayes.factor(x, ...)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
-  \item{bf}{ An object of class \code{bayes.factor} }
+  \item{x}{ An object of class \code{bayes.factor} }
+  \item{\dots}{ Further arguments passed to or from other methods }
 }
 %\details{
 %}
@@ -28,4 +29,3 @@ None
 \examples{
 }
 \keyword{ print }%-- one or more ...
-\keyword{ network }

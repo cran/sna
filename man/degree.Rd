@@ -41,4 +41,4 @@ degree(dat,cmode="outdegree")
 degree(dat)
 }
 \keyword{univar}
-\keyword{ network}
+\keyword{ math }

@@ -51,4 +51,4 @@ West, D.B.  (1996).  \emph{Introduction to Graph Theory}.  Upper Saddle River, N
 \examples{
 }
 \keyword{ manip }%-- one or more ...
-\keyword{ network }
+\keyword{ math }

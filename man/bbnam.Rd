@@ -31,6 +31,7 @@ bbnam.actor(dat, nprior=matrix(rep(0.5,dim(dat)[2]*dim(dat)[3]),
 \arguments{
   \item{dat}{ Data array to be analyzed.  This array must be of dimension n x n x n, where n is |V(G)|, the first dimension indexes the observer, the second indexes the sender of the relation, and the third dimension indexes the recipient of the relation.  (E.g., \code{dat[i,j,k]==1} implies that i observed j sending the relation in question to k.)  Note that only dichotomous data is supported at present, and missing values are permitted; the data collection pattern, however, is assumed to be ignorable, and hence the posterior draws are implicitly conditional on the observation pattern. }
   \item{model}{ String containing the error model to use; options are ``actor,'' ``pooled,'' and ``fixed'' }
+  \item{...}{Arguments to be passed by \code{bbnam} to the particular model method}
   \item{nprior}{ Network prior matrix.  This must be a matrix of dimension n x n, containing the arc/edge priors for the criterion network.  (E.g., \code{nprior[i,j]} gives the prior probability of i sending the relation to j in the criterion graph.)  If no network prior is provided, an uninformative prior on the space of networks will be assumed (i.e., p(i->j)=0.5).  Missing values are not allowed. }
   \item{em}{ Probability of a false negative; this may be in the form of a single number, one number per observation slice, one number per (directed) dyad, or one number per dyadic observation (fixed model only) }
   \item{ep}{ Probability of a false positive; this may be in the form of a single number, one number per observation slice, one number per (directed) dyad, or one number per dyadic observation (fixed model only) }
@@ -128,5 +129,5 @@ summary(b)
 }
 
 \keyword{ models}
-\keyword{ network}
+\keyword{ math }
 

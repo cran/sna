@@ -111,4 +111,4 @@ extractAIC(p3)
 \keyword{ models }
 \keyword{ multivariate }
 \keyword{ regression }%-- one or more ...
-\keyword{ network }
+\keyword{ math }

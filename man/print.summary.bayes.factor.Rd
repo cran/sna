@@ -6,11 +6,12 @@
   Prints an object of class \code{summary.bayes.factor}.
 }
 \usage{
-print.summary.bayes.factor(sbf)
+print.summary.bayes.factor(x, ...)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
-  \item{sbf}{ An object of class \code{summary.bayes.factor} }
+  \item{x}{ An object of class \code{summary.bayes.factor} }
+  \item{\dots}{ Further arguments passed to or from other methods }
 }
 %\details{
 %}
@@ -27,4 +28,3 @@ print.summary.bayes.factor(sbf)
 \examples{
 }
 \keyword{ print }%-- one or more ...
-\keyword{ network }

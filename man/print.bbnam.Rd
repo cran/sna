@@ -9,11 +9,12 @@
 Prints a quick summary of posterior draws from \code{\link{bbnam}}.
 }
 \usage{
-print.bbnam(b)
+print.bbnam(x, ...)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
-  \item{b}{ A \code{\link{bbnam}} object }
+  \item{x}{ A \code{\link{bbnam}} object }
+  \item{\dots}{ Further arguments passed to or from other methods }
 }
 %\details{
 %}
@@ -31,4 +32,3 @@ None
 \examples{
 }
 \keyword{ print }%-- one or more ...
-\keyword{ network }

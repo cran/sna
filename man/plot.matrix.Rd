@@ -6,12 +6,12 @@
   Plots a matrix, \code{m}, associating the magnitude of the i,jth cell of \code{m} with the color of the i,jth cell of an \code{nrow(m)} by \code{ncol(m)} grid.
 }
 \usage{
-plot.matrix(m, labels=list(seq(1:dim(m)[1]), seq(1:dim(m)[2])), 
+plot.matrix(x, labels=list(seq(1:dim(x)[1]), seq(1:dim(x)[2])), 
     drawlab=TRUE, diaglab=TRUE, ...)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
-  \item{m}{ An input matrix }
+  \item{x}{ An input matrix }
   \item{labels}{ A list containing the vectors of row and column labels (respectively) }
   \item{drawlab}{ Add labels to the plot? }
   \item{diaglab}{ Label the diagonal? }
@@ -36,7 +36,6 @@ None
 plot.matrix(rgraph(5))
 
 #Plot a much larger one
-plot.matrix(rgraph(100),drawlab=F,diaglab=F)
+plot.matrix(rgraph(100),drawlab=FALSE,diaglab=FALSE)
 }
 \keyword{ hplot }%-- one or more ...
-\keyword{ network }

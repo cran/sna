@@ -48,4 +48,4 @@ bonpow(dat,exponent=1,tol=1e-20)
 bonpow(dat,exponent=-1,tol=1e-20)
 }
 \keyword{ univar }%-- one or more ...
-\keyword{ network}
+\keyword{ math }

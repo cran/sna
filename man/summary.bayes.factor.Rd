@@ -6,11 +6,12 @@
 Returns a \code{bayes.factor} summary object.
 }
 \usage{
-summary.bayes.factor(bf)
+summary.bayes.factor(object, ...)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
-  \item{bf}{ An object of class \code{bayes.factor} }
+  \item{object}{ An object of class \code{bayes.factor} }
+  \item{\dots}{ Further arguments passed to or from other methods }
 }
 %\details{
 %}
@@ -27,4 +28,4 @@ An object of class \code{summary.bayes.factor}
 
 \examples{
 }
-\keyword{ network }%-- one or more ...
+\keyword{ math }%-- one or more ...
