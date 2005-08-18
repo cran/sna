@@ -10,15 +10,15 @@ components(dat, connected="strong", comp.dist.precomp=NULL)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
-  \item{dat}{ An nxn adjacency matrix }
-  \item{connected}{ The symmetrizing rule to be used by \code{\link{symmetrize}} before components are extracted }
-  \item{comp.dist.precomp}{ A component size distribution object from \code{\link{component.dist}} (optional) }
+  \item{dat}{ one or more input graphs. }
+  \item{connected}{ the symmetrizing rule to be used by \code{\link{symmetrize}} before components are extracted }
+  \item{comp.dist.precomp}{ a component size distribution object from \code{\link{component.dist}} (optional) }
 }
 \details{
   The \code{connected} parameter corresponds to the \code{rule} parameter of \code{\link{component.dist}}.  By default, \code{components} returns the number of strong components, but weak components can be returned if so desired.  For symmetric matrices, this is obviously a moot point.
 }
 \value{
-  The number of components of \code{dat}
+  A vector containing the number of components for each graph in \code{dat}
 }
 \references{ West, D.B.  (1996).  \emph{Introduction to Graph Theory}.  Upper Saddle River, NJ: Prentice Hall. }
 \author{ Carter T. Butts \email{buttsc@uci.edu} }
@@ -36,3 +36,4 @@ components(g,connected="strong")
 
 }
 \keyword{ math }%-- one or more ...
+\keyword{ graphs }

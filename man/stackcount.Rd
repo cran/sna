@@ -10,7 +10,7 @@ stackcount(d)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
-  \item{d}{ A graph or graph stack }
+  \item{d}{ a graph or graph stack. }
 }
 \details{
 }

@@ -3,7 +3,7 @@
 # permutation.R
 #
 # copyright (c) 2004, Carter T. Butts <buttsc@uci.edu>
-# Last Modified 11/25/04
+# Last Modified 4/23/05
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/sna package
@@ -44,6 +44,12 @@ lab.optimize<-function(d1,d2,FUN,exchange.list=0,seek="min",opt.method=c("anneal
 
 #lab.optimize.anneal - Annealing method for lab.optimize
 lab.optimize.anneal<-function(d1,d2,FUN,exchange.list=0,seek="min",prob.init=1,prob.decay=0.99,freeze.time=1000,full.neighborhood=TRUE,...){
+   #Pre-process the raw input data
+   d1<-as.sociomatrix.sna(d1)
+   d2<-as.sociomatrix.sna(d2)
+   if(is.list(d1)||is.list(d2)||(dim(d1)[2]!=dim(d2)[2]))
+     stop("lab.optimize routines require input graphs to be of identical order.")
+   #End pre-processing
    #Find the data set size
    n<-dim(d1)[2]
    #If exchange list is a single number or vector, expand it via replication in a reasonable manner
@@ -199,6 +205,12 @@ lab.optimize.anneal<-function(d1,d2,FUN,exchange.list=0,seek="min",prob.init=1,p
 
 #lab.optimize.exhaustive - Exhaustive search method for lab.optimize
 lab.optimize.exhaustive<-function(d1,d2,FUN,exchange.list=0,seek="min",...){
+   #Pre-process the raw input data
+   d1<-as.sociomatrix.sna(d1)
+   d2<-as.sociomatrix.sna(d2)
+   if(is.list(d1)||is.list(d2)||(dim(d1)[2]!=dim(d2)[2]))
+     stop("lab.optimize routines require input graphs to be of identical order.")
+   #End pre-processing
    #Find the data set size
    n<-dim(d1)[2]
    #If exchange list is a single number or vector, expand it via replication in a reasonable manner
@@ -237,6 +249,12 @@ lab.optimize.exhaustive<-function(d1,d2,FUN,exchange.list=0,seek="min",...){
 
 #lab.optimize.gumbel - Extreme value method for lab.optimize
 lab.optimize.gumbel<-function(d1,d2,FUN,exchange.list=0,seek="min",draws=500,tol=1e-5,estimator="median",...){
+   #Pre-process the raw input data
+   d1<-as.sociomatrix.sna(d1)
+   d2<-as.sociomatrix.sna(d2)
+   if(is.list(d1)||is.list(d2)||(dim(d1)[2]!=dim(d2)[2]))
+     stop("lab.optimize routines require input graphs to be of identical order.")
+   #End pre-processing
    #Find the data set size
    n<-dim(d1)[2]
    #If exchange list is a single number or vector, expand it via replication in a reasonable manner
@@ -291,6 +309,12 @@ lab.optimize.gumbel<-function(d1,d2,FUN,exchange.list=0,seek="min",draws=500,tol
 
 #lab.optimize.hillclimb - Hill-climbing method for lab.optimize
 lab.optimize.hillclimb<-function(d1,d2,FUN,exchange.list=0,seek="min",...){
+   #Pre-process the raw input data
+   d1<-as.sociomatrix.sna(d1)
+   d2<-as.sociomatrix.sna(d2)
+   if(is.list(d1)||is.list(d2)||(dim(d1)[2]!=dim(d2)[2]))
+     stop("lab.optimize routines require input graphs to be of identical order.")
+   #End pre-processing
    #Find the data set size
    n<-dim(d1)[2]
    #If exchange list is a single number or vector, expand it via replication in a reasonable manner
@@ -361,6 +385,12 @@ lab.optimize.hillclimb<-function(d1,d2,FUN,exchange.list=0,seek="min",...){
 
 #lab.optimize.mc - Monte Carlo method for lab.optimize
 lab.optimize.mc<-function(d1,d2,FUN,exchange.list=0,seek="min",draws=1000,...){
+   #Pre-process the raw input data
+   d1<-as.sociomatrix.sna(d1)
+   d2<-as.sociomatrix.sna(d2)
+   if(is.list(d1)||is.list(d2)||(dim(d1)[2]!=dim(d2)[2]))
+     stop("lab.optimize routines require input graphs to be of identical order.")
+   #End pre-processing
    #Find the data set size
    n<-dim(d1)[2]
    #If exchange list is a single number or vector, expand it via replication in a reasonable manner
@@ -426,6 +456,11 @@ numperm<-function(olength,permnum){
 
 #rmperm - Randomly permutes the rows and columns of an input matrix.
 rmperm<-function(m){
+   #Pre-process the raw input
+   m<-as.sociomatrix.sna(m)
+   if(is.list(m))
+     return(lapply(m,rmperm))
+   #End pre-processing
    if(length(dim(m))==2){
       #Only a single matrix is included
       o<-sample(1:dim(m)[1])

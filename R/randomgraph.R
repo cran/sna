@@ -3,7 +3,7 @@
 # randomgraph.R
 #
 # copyright (c) 2004, Carter T. Butts <buttsc@uci.edu>
-# Last Modified 12/27/04
+# Last Modified 8/8/05
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/sna package
@@ -14,6 +14,7 @@
 # Contents:
 #   rewire.ud
 #   rewire.ws
+#   rgbn
 #   rgmn
 #   rgraph
 #   rguman
@@ -24,6 +25,11 @@
 
 #rewire.ud - Perform a uniform dyadic rewiring of a graph or graph stack
 rewire.ud<-function(g,p){
+  #Pre-process the raw input
+  g<-as.sociomatrix.sna(g)
+  if(is.list(g))
+    return(lapply(g,rewire.ud,p=p))
+  #End pre-processing
   #Coerce g to an array
   if(length(dim(g))==2)
     g<-array(g,dim=c(1,NROW(g),NCOL(g)))
@@ -37,6 +43,11 @@ rewire.ud<-function(g,p){
 
 #rewire.ws - Perform a Watts-Strogatz rewiring of a graph or graph stack
 rewire.ws<-function(g,p){
+  #Pre-process the raw input
+  g<-as.sociomatrix.sna(g)
+  if(is.list(g))
+    return(lapply(g,rewire.ud,p=p))
+  #End pre-processing
   #Coerce g to an array
   if(length(dim(g))==2)
     gi<-array(g,dim=c(1,NROW(g),NCOL(g)))
@@ -46,6 +57,30 @@ rewire.ws<-function(g,p){
   #Perform the rewiring, and return the result
   rewired<-.C("wsrewire_R",as.double(gi),go=as.double(go),as.double(n), as.double(nv),as.double(p),PACKAGE="sna")
   array(rewired$go,dim=c(n,nv,nv))
+}
+
+
+#rgbn - Draw from a biased net model
+rgbn<-function(n,nv,param=list(pi=0,sigma=0,rho=0,d=0.5),burn=nv*nv*1e3,thin=nv){
+  #Allocate memory for the graphs
+  g<-array(0,dim=c(n,nv,nv))
+  #Get the parameter vector
+  p<-rep(0,4)
+  if(!is.null(param$pi))
+    p[1]<-param$pi
+  if(!is.null(param$sigma))
+    p[2]<-param$sigma
+  if(!is.null(param$rho))
+    p[3]<-param$rho
+  if(!is.null(param$d))
+    p[4]<-param$d
+  #Take the draws
+  g<-array(.C("bn_mcmc_R",g=as.integer(g),as.double(nv),as.double(n), as.double(burn),as.integer(thin),as.double(p[1]),as.double(p[2]),as.double(p[3]),as.double(p[4]), PACKAGE="sna")$g,dim=c(n,nv,nv))
+  #Return the result
+  if(dim(g)[1]==1)
+    g[1,,]
+  else
+    g
 }
 
 

@@ -7,15 +7,15 @@
 }
 \usage{
 consensus(dat, mode="digraph", diag=FALSE, method="central.graph", 
-    tol=0.01)
+    tol=1e-06)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
-  \item{dat}{ An m x n x n graph stack}
-  \item{mode}{ \code{"digraph"} for directed data, else \code{"graph"} }
-  \item{diag}{ A boolean indicating whether the diagonals (loops) should be treated as data }
-  \item{method}{ One of \code{"central.graph"}, \code{"single.reweight"}, \code{"PCA.reweight"}, \code{"LAS.intersection"}, \code{"LAS.union"}, \code{"OR.row"}, or \code{"OR.col"}  }
-  \item{tol}{ Tolerance for the iterative reweighting algorithm (not currently supported)}
+  \item{dat}{ a set of input graphs (must have same order). }
+  \item{mode}{ \code{"digraph"} for directed data, else \code{"graph"}. }
+  \item{diag}{ a boolean indicating whether the diagonals (loops) should be treated as data. }
+  \item{method}{ one of \code{"central.graph"}, \code{"single.reweight"}, \code{"iterative.reweight"} \code{"PCA.reweight"}, \code{"LAS.intersection"}, \code{"LAS.union"}, \code{"OR.row"}, or \code{"OR.col"}.  }
+  \item{tol}{ tolerance for the iterative reweighting algorithm.}
 }
 \details{
 
@@ -24,6 +24,7 @@ The term ``consensus structure'' is used by a number of authors to reflect a not
 \enumerate{
 \item \code{central.graph}: Estimate the consensus structure using the central graph.  This correponds to a ``median response'' notion of consensus.
 \item \code{single.reweight}: Estimate the consensus structure using subject responses, reweighted by mean graph correlation.  This corresponds to an ``expertise-weighted vote'' notion of consensus.
+\item \code{iterative.reweight}: Similar to \code{single.reweight}, but fits a Romney-Batchelder informant accuracy model using IPF.  The implementation employed here uses both bias and competency parameters.
 \item \code{PCA.reweight}: Estimate the consensus using the (scores on the) first component of a network PCA.  This corresponds to a ``shared theme'' or ``common element'' notion of consensus.
 \item \code{LAS.intersection}: Estimate the concensus structure using the locally aggregated structure (intersection rule).  In this model, an i->j edge exists iff i \emph{and} j agree that it exists.
 \item \code{LAS.union}: Estimate the concensus structure using the locally aggregated structure (union rule).  In this model, an i->j edge exists iff i \emph{or} j agree that it exists.
@@ -31,9 +32,9 @@ The term ``consensus structure'' is used by a number of authors to reflect a not
 \item \code{OR.col}: Estimate the consensus structure using own report.  Here, we take each informant's incoming tie reports to be correct.
 }
 
-Note that the reweighted algorithms are not dichotomized by default; since these return valued graphs, dichotomization may be desirable prior to use.
+Note that the reweighted algorithms are not dichotomized by default; since some of these return valued graphs, dichotomization may be desirable prior to use.
 
-It should be noted that a model for estimating an underlying criterion structure from multiple informant reports is provided in \code{\link{bbnam}}; if your goal is to reconstruct an ``objective'' network from informant reports, this may prove more useful.
+It should be noted that a model for estimating an underlying criterion structure from multiple informant reports is provided in \code{\link{bbnam}}; if your goal is to reconstruct an ``objective'' network from informant reports, this (or the R-B model of \code{iterative.reweight}) may prove more useful than the ad-hoc solutions.
 }
 \value{
 An adjacency matrix representing the consensus structure
@@ -44,11 +45,13 @@ Banks, D.L., and Carley, K.M.  (1994).  ``Metric Inference for Social Networks.'
 Butts, C.T., and Carley, K.M.  (2001).  ``Multivariate Methods for Inter-Structural Analysis.''  CASOS Working Paper, Carnegie Mellon University.
 
 Krackhardt, D.  (1987).  ``Cognitive Social Structures.'' \emph{Social Networks,} 9, 109-134. 
+
+Romney, A.K.; Weller, S.C.; and Batchelder, W.H.  (1986).  ``Culture as Consensus: A Theory of Culture and Informant Accuracy.''  \emph{American Anthropologist,} 88(2), 313-38.
 }
 \author{ Carter T. Butts \email{buttsc@uci.edu} }
 
-\note{ Eventually, this routine will also support the (excellent) consensus methods of Romney and Batchelder; since these are similar in many respects to the \code{\link{bbnam}} model, users may wish to try this alternative for now. 
-}
+%\note{ Eventually, this routine will also support the (excellent) consensus methods of Romney and Batchelder; since these are similar in many respects to the \code{\link{bbnam}} model, users may wish to try this alternative for now. 
+%}
 
 \seealso{ \code{\link{bbnam}}, \code{\link{centralgraph}} }
 

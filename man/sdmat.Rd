@@ -1,25 +1,24 @@
 \name{sdmat}
 \alias{sdmat}
 %- Also NEED an `\alias' for EACH other topic documented here.
-\title{ Estimate the Structural Distance Matrix for a Graph Set}
+\title{ Estimate the Structural Distance Matrix for a Graph Stack}
 \description{
   Estimates the structural distances among all elements of \code{dat} using the method specified in \code{method}.
 }
 \usage{
 sdmat(dat, normalize=FALSE, diag=FALSE, mode="digraph", 
-    output="matrix", method="mc", exchange.list=rep(0, 
-    dim(dat)[2]), ...)
+    output="matrix", method="mc", exchange.list=NULL, ...)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
-  \item{dat}{ Data array to be analyzed.  By assumption, the first dimension of the array indexes the graph, with the next two indexing the actors.  This data need not be dichotomous, and missing values are allowed. }
-  \item{normalize}{ Divide by the number of available dyads? }
-  \item{diag}{ Boolean indicating whether or not the diagonal should be treated as valid data.  Set this true if and only if the data can contain loops.  \code{diag} is \code{FALSE} by default. }
-  \item{mode}{ String indicating the type of graph being evaluated.  \code{?digraph"} indicates that edges should be interpreted as directed; \code{"graph"} indicates that edges are undirected.  \code{mode} is set to \code{"digraph"} by default. }
+  \item{dat}{ graph set to be analyzed.  }
+  \item{normalize}{ divide by the number of available dyads? }
+  \item{diag}{ boolean indicating whether or not the diagonal should be treated as valid data.  Set this true if and only if the data can contain loops.  \code{diag} is \code{FALSE} by default. }
+  \item{mode}{ string indicating the type of graph being evaluated.  \code{"digraph"} indicates that edges should be interpreted as directed; \code{"graph"} indicates that edges are undirected.  \code{mode} is set to \code{"digraph"} by default. }
   \item{output}{ \code{"matrix"} for matrix output, \code{"dist"} for a \code{\link{dist}} object. }
-  \item{method}{ Method to be used to search the space of accessible permutations; must be one of \code{"none"}, \code{"exhaustive"}, \code{"anneal"}, \code{"hillclimb"}, or \code{"mc"}. }
-  \item{exchange.list}{ Information on which vertices are exchangeable (see below); this must be a single number, a vector of length n, or a nx2 matrix. }
-  \item{\dots}{ Additional arguments to \code{\link{lab.optimize}}}
+  \item{method}{ method to be used to search the space of accessible permutations; must be one of \code{"none"}, \code{"exhaustive"}, \code{"anneal"}, \code{"hillclimb"}, or \code{"mc"}. }
+  \item{exchange.list}{ information on which vertices are exchangeable (see below); this must be a single number, a vector of length n, or a nx2 matrix. }
+  \item{\dots}{ additional arguments to \code{\link{lab.optimize}}.}
 }
 \details{
   The structural distance between two graphs G and H is defined as
@@ -64,3 +63,4 @@ sdmat(g,method="anneal", prob.init=0.9, prob.decay=0.85,
 \keyword{ univar }
 \keyword{ multivariate }%-- one or more ...
 \keyword{ math }
+\keyword{ graphs }

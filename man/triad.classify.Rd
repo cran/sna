@@ -6,13 +6,15 @@
   \code{triad.classify} returns the Davis and Leinhardt classification of the triad indicated by \code{tri} in the \code{g}th graph of stack \code{dat}.
 }
 \usage{
-triad.classify(dat, g=1, tri=c(1, 2, 3))
+triad.classify(dat, g=1, tri=c(1, 2, 3), mode=c("digraph", 
+    "graph"))
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
-  \item{dat}{ A graph or graph stack }
-  \item{g}{ The index of the graph to be analyzed }
-  \item{tri}{ A triple containing the indices of the triad to be classified}
+  \item{dat}{ a graph or graph stack. }
+  \item{g}{ the index of the graph to be analyzed. }
+  \item{tri}{ a triple containing the indices of the triad to be classified.}
+  \item{mode}{string indicating the directedness of edges; \code{"digraph"} implies a directed structure, whereas \code{"graph"} implies an undirected structure.}
 }
 \details{
 Every unoriented directed triad may occupy one of 16 distinct states.  These states were used by Davis and Leinhardt as a basis for classifying triads within a larger structure; the distribution of triads within a graph (see \code{\link{triad.census}}), for instance, is linked to a range of substantive hypotheses (e.g., concerning structural balance).  The Davis and Leinhardt classification scheme describes each triad by a string of four elements: the number of mutual (complete) dyads within the triad; the number of asymmetric dyads within the triad; the number of null (empty) dyads within the triad; and a configuration code for the triads which are not uniquely distinguished by the first three distinctions.  The complete list of classes is as follows.
@@ -36,7 +38,7 @@ Every unoriented directed triad may occupy one of 16 distinct states.  These sta
 \item{\code{300}}{ \eqn{a \leftrightarrow b \leftrightarrow c, a \leftrightarrow c}{a<-->b<-->c, a<-->c}}
 }
 
-These codes are returned by \code{triad.classify} as strings.
+These codes are returned by \code{triad.classify} as strings.  In the undirected case, only four triad states are possible (corresponding to the number of edges in the triad).  These are evaluated for \code{mode=="graph"}, with the return value being the number of edges.
 }
 \value{
 A string containing the triad classification, or \code{NA} if one or more edges were missing
@@ -65,3 +67,4 @@ gplot(g[1:3,1:3])
 gplot(g[2:4,2:4])
 }
 \keyword{ math }% __ONLY ONE__ keyword per line
+\keyword{ graphs }

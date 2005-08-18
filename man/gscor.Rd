@@ -6,26 +6,26 @@
   \code{gscor} finds the product-moment structural correlation between the adjacency matrices of graphs indicated by \code{g1} and \code{g2} in stack \code{dat} (or possibly \code{dat2}) given exchangeability list \code{exchange.list}.  Missing values are permitted. 
 }
 \usage{
-gscor(dat, dat2=NULL, g1=c(1:dim(dat)[1]), g2=c(1:dim(dat)[1]), 
-    diag=FALSE, mode="digraph", method="anneal", reps=1000, 
-    prob.init=0.9, prob.decay=0.85, freeze.time=25, 
-    full.neighborhood=TRUE, exchange.list=rep(0, dim(dat)[2]))
+gscor(dat, dat2=NULL, g1=NULL, g2=NULL,  diag=FALSE, 
+    mode="digraph", method="anneal", reps=1000, prob.init=0.9,
+    prob.decay=0.85, freeze.time=25, full.neighborhood=TRUE, 
+    exchange.list=0)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
-  \item{dat}{ A graph stack }
-  \item{dat2}{ Optionally, a second graph stack }
-  \item{g1}{ The indices of \code{dat} reflecting the first set of graphs to be compared; by default, all members of \code{dat} are included }
-  \item{g2}{ The indices or \code{dat} (or \code{dat2}, if applicable) reflecting the second set of graphs to be compared; by default, all members of \code{dat} are included. }
-  \item{diag}{ Boolean indicating whether or not the diagonal should be treated as valid data.  Set this true if and only if the data can contain loops.  \code{diag} is \code{FALSE} by default. }
-  \item{mode}{ String indicating the type of graph being evaluated.  "digraph" indicates that edges should be interpreted as directed; "graph" indicates that edges are undirected.  \code{mode} is set to "digraph" by default. }
-  \item{method}{ Method to be used to search the space of accessible permutations; must be one of ``none'', ``exhaustive'', ``anneal'', ``hillclimb'', or ``mc''.  }
-  \item{reps}{ Number of iterations for monte carlo method. }
-  \item{prob.init}{ Initial acceptance probability for the annealing routine. }
-  \item{prob.decay}{ Cooling multiplier for the annealing routine. }
-  \item{freeze.time}{ Freeze time for the annealing routine. }
-  \item{full.neighborhood}{ Should the annealer evaluate the full neighborhood of pair exchanges at each iteration? }
-  \item{exchange.list}{ Information on which vertices are exchangeable (see below); this must be a single number, a vector of length n, or a nx2 matrix. }
+  \item{dat}{ a stack of input graphs. }
+  \item{dat2}{ optionally, a second graph stack. }
+  \item{g1}{ the indices of \code{dat} reflecting the first set of graphs to be compared; by default, all members of \code{dat} are included. }
+  \item{g2}{ the indices or \code{dat} (or \code{dat2}, if applicable) reflecting the second set of graphs to be compared; by default, all members of \code{dat} are included. }
+  \item{diag}{ boolean indicating whether or not the diagonal should be treated as valid data.  Set this true if and only if the data can contain loops.  \code{diag} is \code{FALSE} by default. }
+  \item{mode}{ string indicating the type of graph being evaluated.  \code{"digraph"} indicates that edges should be interpreted as directed; \code{"graph"} indicates that edges are undirected.  \code{mode} is set to \code{"digraph"} by default. }
+  \item{method}{ method to be used to search the space of accessible permutations; must be one of \code{"none"}, \code{"exhaustive"}, \code{"anneal"}, \code{"hillclimb"}, or \code{"mc"}.  }
+  \item{reps}{ number of iterations for Monte Carlo method. }
+  \item{prob.init}{ initial acceptance probability for the annealing routine. }
+  \item{prob.decay}{ cooling multiplier for the annealing routine. }
+  \item{freeze.time}{ freeze time for the annealing routine. }
+  \item{full.neighborhood}{ should the annealer evaluate the full neighborhood of pair exchanges at each iteration? }
+  \item{exchange.list}{ information on which vertices are exchangeable (see below); this must be a single number, a vector of length n, or a nx2 matrix. }
 }
 \details{
 
@@ -73,3 +73,4 @@ gscor(g.2,g.3)
 }
 \keyword{ univar }
 \keyword{ multivariate }%-- one or more ...
+\keyword{ graphs }

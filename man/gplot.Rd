@@ -3,7 +3,7 @@
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{ Two-Dimensional Visualization of Graphs }
 \description{
-  \code{gplot} produces a two-dimensional plot of graph \code{g} in stack \code{dat}.  A variety of options are available to control vertex placement, display details, color, etc.
+  \code{gplot} produces a two-dimensional plot of graph \code{g} in collection \code{dat}.  A variety of options are available to control vertex placement, display details, color, etc.
 }
 \usage{
 gplot(dat, g = 1, gmode = "digraph", diag = FALSE, 
@@ -24,7 +24,7 @@ gplot(dat, g = 1, gmode = "digraph", diag = FALSE,
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{dat}{ a graph or graph stack.  This data may be valued. }
+  \item{dat}{ a graph or set thereof.  This data may be valued. }
   \item{g}{ integer indicating the index of the graph which is to be plotted.  By default, \code{g==1}. }
   \item{gmode}{ String indicating the type of graph being evaluated.  \code{"digraph"} indicates that edges should be interpreted as directed; \code{"graph"} indicates that edges are undirected; \code{"twomode"} indicates that data should be interpreted as bimodal (i.e., rows and columns are distinct vertex sets).  \code{gmode} is set to \code{"digraph"} by default. }
   \item{diag}{ boolean indicating whether or not the diagonal should be treated as valid data.  Set this true if and only if the data can contain loops.  \code{diag} is \code{FALSE} by default. }

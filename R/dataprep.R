@@ -3,7 +3,7 @@
 # dataprep.R
 #
 # copyright (c) 2004, Carter T. Butts <buttsc@uci.edu>
-# Last Modified 11/25/04
+# Last Modified 8/17/05
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/sna package
@@ -13,8 +13,9 @@
 #
 # Contents:
 #
+#   addisolates (defunct)
 #   add.isolates
-#   addisolates (deprecated)
+#   as.sociomatrix.sna
 #   diag.remove
 #   event2dichot
 #   gvectorize
@@ -30,14 +31,19 @@
 ######################################################################
 
 
-#addisolates - Add isolates to one or more graphs (deprecated
-addisolates<-function(dat, n){
-  .Deprecated("add.isolates")
+#addisolates (Defunct, as of 1.0)
+addisolates<-function(dat,n){
+  .Defunct("add.isolates","sna")
 }
 
 
 #add.isolates - Add isolates to one or more graphs
 add.isolates<-function(dat,n){
+   #Pre-process the raw input
+   dat<-as.sociomatrix.sna(dat)
+   if(is.list(dat))
+     return(lapply(dat,add.isolates,n=n))
+   #End pre-processing
    if(length(dim(dat))>2){
       d<-array(dim=c(dim(dat)[1],dim(dat)[2]+n,dim(dat)[3]+n))
       d[,,]<-0
@@ -53,8 +59,85 @@ add.isolates<-function(dat,n){
 }
 
 
+#Force the input into sociomatrix form.  This function includes an sna
+#wrapper to the network function as.sociomatrix, for global happiness.
+as.sociomatrix.sna<-function(x, attrname=NULL, simplify=TRUE){
+  #Check for the network library
+  if("network"%in%(.packages()))
+    return(as.sociomatrix(x, attrname=NULL, simplify=TRUE))
+  #Otherwise, proceed apace
+  if((class(x)=="network")||(is.list(x)&&any(sapply(x,class)=="network"))){
+    require("network")  #Must have network library to process network objects
+    return(as.sociomatrix(x, attrname=NULL, simplify=TRUE))
+  }
+  #Coerce to adjacency matrix form -- by now, no network class involved
+  if(is.matrix(x)||is.array(x)){ #If an array/matrix, use as-is
+    g<-x
+  }else if(is.list(x)){  #If a list, recurse on list elements
+    g<-lapply(x,as.sociomatrix.sna,attrname=attrname,simplify=simplify)
+#    g<-x
+  }else{
+    stop("as.sociomatrix.sna input must be an adjacency matrix/array, network, or list.")
+  }
+  #Convert into the appropriate return format
+  if(is.list(g)){   #Collapse if needed
+    if(length(g)==1){
+      g<-g[[1]]
+      if((!simplify)&&(length(dim(g))==3)){  #Coerce to a list of matrices?
+        out<-list()
+        for(i in 1:dim(g)[1])
+          out[[i]]<-g[i,,]
+      }else{
+        out<-g
+      }
+    }else{
+      #Coerce to array form?
+      if(simplify){
+        dims<-sapply(g,dim)
+        if(is.list(dims)){      #Dims must not be of equal length
+          mats<-sapply(dims,length)
+          mats[mats==1]<-0
+          mats[mats==2]<-1
+          mats[mats==3]<-sapply(dims[mats==3],"[[",1)
+          mats<-cumsum(mats)
+          dims<-sapply(dims,"[",2)
+        }else{                  #Dims are of equal length
+          if(NROW(dims)==3)      #Determine number of matrices per entry
+            mats<-cumsum(dims[1,])
+          else
+            mats<-1:NCOL(dims)
+          dims<-dims[2,]         #Get ncols
+        }
+        if((!any(is.null(dims)))&&(length(unique(dims))==1)&&(all(mats>0))){
+          out<-array(dim=c(mats[length(mats)],dims[1],dims[1]))
+          for(i in 1:length(mats))
+            out[(c(0,mats)[i]+1):(mats[i]),,]<-g[[i]]
+        }else
+          out<-g
+      }else
+        out<-g
+    }
+  }else{
+    if((!simplify)&&(length(dim(g))==3)){  #Coerce to a list of matrices?
+      out<-list()
+      for(i in 1:dim(g)[1])
+        out[[i]]<-g[i,,]
+    }else
+      out<-g
+  }
+  #Return the result
+  out
+}
+
+
+
 #diag.remove - NA the diagonals of adjacency matrices in a graph stack
 diag.remove<-function(dat,remove.val=NA){
+   #Pre-process the raw input
+   dat<-as.sociomatrix.sna(dat)
+   if(is.list(dat))
+     return(lapply(dat,diag.remove,remove.val=remove.val))
+   #End pre-processing
    if(length(dim(dat))>2){
       d<-dat
       for(i in 1:dim(dat)[1])
@@ -73,6 +156,11 @@ diag.remove<-function(dat,remove.val=NA){
 #rrank, and crank.  Thresh specifies the cutoff, in terms of whatever method is 
 #used (if applicable).
 event2dichot<-function(m,method="quantile",thresh=0.5,leq=FALSE){
+   #Pre-process the raw input
+   m<-as.sociomatrix.sna(m)
+   if(is.list(m))
+     return(lapply(m,event2dichot,method=method,thresh=thresh,leq=leq))
+   #End pre-processing
    if(method=="quantile"){
       q<-quantile(m,thresh,na.rm=TRUE, names=FALSE)
       out<-as.numeric(m>q)
@@ -140,6 +228,11 @@ event2dichot<-function(m,method="quantile",thresh=0.5,leq=FALSE){
 
 #gvectorize - Vectorization of adjacency matrices
 gvectorize<-function(mats,mode="digraph",diag=FALSE,censor.as.na=TRUE){
+   #Pre-process the raw input
+   mats<-as.sociomatrix.sna(mats)
+   if(is.list(mats))
+     return(lapply(mats,gvectorize,mode=mode,diag=diag, censor.as.na=censor.as.na))
+   #End pre-processing
    #Build the input data structures
    if(length(dim(mats))>2){
       m<-dim(mats)[1]
@@ -212,6 +305,11 @@ interval.graph<-function(slist,type="simple",diag=FALSE){
 #lower.tri.remove - NA the lower triangles of adjacency matrices in a graph 
 #stack
 lower.tri.remove<-function(dat,remove.val=NA){
+   #Pre-process the raw input
+   dat<-as.sociomatrix.sna(dat)
+   if(is.list(dat))
+     return(lapply(dat,lower.tri.remove,val=remove.val))
+   #End pre-processing
    if(length(dim(dat))>2){
       d<-dat
       for(i in 1:dim(dat)[1]){
@@ -230,6 +328,11 @@ lower.tri.remove<-function(dat,remove.val=NA){
 
 #make.stochastic - Make a graph stack row, column, or row-column stochastic
 make.stochastic<-function(dat,mode="rowcol",tol=0.005,maxiter=prod(dim(dat))*100,anneal.decay=0.01,errpow=1){
+   #Pre-process the raw input
+   dat<-as.sociomatrix.sna(dat)
+   if(is.list(dat))
+     return(lapply(dat,make.stochastic,mode=mode,tol=tol,maxiter=maxiter, anneal.decay=anneal.decay,errpow=errpow))
+   #End pre-processing
    #Organize the data
    m<-stackcount(dat)
    if(m==1){
@@ -289,6 +392,11 @@ make.stochastic<-function(dat,mode="rowcol",tol=0.005,maxiter=prod(dim(dat))*100
 
 #nties - Find the number of ties in a given graph or stack
 nties<- function(dat,mode="digraph",diag=FALSE){
+   #Pre-process the raw input
+   dat<-as.sociomatrix.sna(dat)
+   if(is.list(dat))
+     return(lapply(dat,nties,mode=mode,diag=diag))
+   #End pre-processing
    #Did someone send us a stack?
    if(length(dim(dat))>2)
       shiftit<-1
@@ -320,6 +428,11 @@ nties<- function(dat,mode="digraph",diag=FALSE){
 #sr2css - Convert a row-wise self-report matrix to a CSS matrix with missing 
 #observations.
 sr2css<-function(net){
+   #Pre-process the raw input
+   dat<-as.sociomatrix.sna(net)
+   if(is.list(net))
+     return(lapply(net))
+   #End pre-processing
    n<-dim(net)[1]
    css<-array(dim=c(n,n,n))
    for(i in 1:n){
@@ -332,6 +445,11 @@ sr2css<-function(net){
 
 #stackcount -How many matrices in a given stack?
 stackcount<-function(d){
+   #Pre-process the raw input
+   d<-as.sociomatrix.sna(d)
+   if(is.list(d))
+     return(sum(sapply(d,stackcount)))
+   #End pre-processing
    if(length(dim(d))>2)
       dim(d)[1]
    else
@@ -343,6 +461,11 @@ stackcount<-function(d){
 #for symmetrizing include "upper" and "lower" diagonals, "weak" connectedness 
 #rule, and a "strong" connectedness rule.
 symmetrize<-function(mats,rule="weak"){
+   #Pre-process the raw input
+   mats<-as.sociomatrix.sna(mats)
+   if(is.list(mats))
+     return(lapply(mats,symmetrize,rule=rule))
+   #End pre-processing
    #Build the input data structures
    if(length(dim(mats))>2){
       m<-dim(mats)[1]
@@ -386,6 +509,11 @@ symmetrize<-function(mats,rule="weak"){
 #upper.tri.remove - NA the upper triangles of adjacency matrices in a graph 
 #stack
 upper.tri.remove<-function(dat,remove.val=NA){
+   #Pre-process the raw input
+   dat<-as.sociomatrix.sna(dat)
+   if(is.list(dat))
+     return(lapply(dat,upper.tri.remove,remove.val=remove.val))
+   #End pre-processing
    if(length(dim(dat))>2){
       d<-dat
       for(i in 1:dim(dat)[1]){

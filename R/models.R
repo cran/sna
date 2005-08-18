@@ -3,7 +3,7 @@
 # models.R
 #
 # copyright (c) 2004, Carter T. Butts <buttsc@uci.edu>
-# Last Modified 1/05/05
+# Last Modified 8/17/05
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/sna package
@@ -18,6 +18,12 @@
 #   bbnam.jntlik
 #   bbnam.jntlik.slice
 #   bbnam.pooled
+#   bn
+#   bn.nlpl.dyad
+#   bn.nlpl.edge
+#   bn.nlpl.triad
+#   bn.nltl
+#   coef.bn
 #   coef.lnam
 #   consensus
 #   eval.edgeperturbation
@@ -27,10 +33,17 @@
 #   netlogit
 #   npostpred
 #   potscalered.mcmc
+#   plot.bbnam
+#   plot.bbnam.actor
+#   plot.bbnam.fixed
+#   plot.bbnam.pooled
+#   plot.bn
+#   plot.lnam
 #   print.bbnam
 #   print.bbnam.actor
 #   print.bbnam.fixed
 #   print.bbnam.pooled
+#   print.bn
 #   print.lnam
 #   print.netcancor
 #   print.netlm
@@ -39,6 +52,7 @@
 #   print.summary.bbnam.actor
 #   print.summary.bbnam.fixed
 #   print.summary.bbnam.pooled
+#   print.summary.bn
 #   print.summary.lnam
 #   print.summary.netcancor
 #   print.summary.netlm
@@ -49,6 +63,7 @@
 #   summary.bbnam.actor
 #   summary.bbnam.fixed
 #   summary.bbnam.pooled
+#   summary.bn
 #   summary.lnam
 #   summary.netcancor
 #   summary.netlm
@@ -415,6 +430,164 @@ bbnam.probtie<-function(dat,i,j,npriorij,em,ep){
 }
 
 
+#bn - Fit a biased net model
+bn<-function(dat,method=c("mple.triad","mple.dyad","mple.edge","mtle"),param.seed=NULL,param.fixed=NULL,optim.method="BFGS",optim.control=list(),epsilon=1e-5){
+  dat<-as.sociomatrix.sna(dat)
+  n<-NROW(dat)
+  #Make sure dat is appropriate
+  if(!is.matrix(dat))
+    stop("Adjacency matrix required in bn.")
+  dat<-dat>0
+  #Choose the objective function to use
+  nll<-switch(match.arg(method),
+    mple.edge=match.fun("bn.nlpl.edge"),
+    mple.dyad=match.fun("bn.nlpl.dyad"),
+    mple.triad=match.fun("bn.nlpl.triad"),
+    mtle=match.fun("bn.nltl")
+  )
+  #Extract the necessary sufficient statistics
+  if(match.arg(method)%in%c("mple.edge","mple.dyad")){  #Use dyad census stats
+    stats<-matrix(0,nr=n-1,nc=4)
+    stats<-matrix(.C("bn_dyadstats_R",as.integer(dat),as.double(n), stats=as.double(stats),PACKAGE="sna")$stats,nc=4)
+    stats<-stats[apply(stats[,2:4],1,sum)>0,]  #Strip uneeded rows
+  }else if(match.arg(method)=="mple.triad"){          #Use full dyad stats
+    stats<-matrix(0,nr=n,nc=n)
+    stats<-matrix(.C("bn_triadstats_R",as.integer(dat),as.double(n), stats=as.double(stats),PACKAGE="sna")$stats,nr=n,nc=n)
+  }else if(match.arg(method)=="mtle"){                #Use triad census stats
+    stats<-as.vector(triad.census(dat))  #Obtain triad census
+  }
+  #Initialize parameters (using crudely reasonable values)
+  if(is.null(param.seed))
+    param<-c(gden(dat),grecip(dat,measure="edgewise"),gtrans(dat),gtrans(dat))
+  else{
+    param<-c(gden(dat),grecip(dat,measure="edgewise"),gtrans(dat),gtrans(dat))
+    if(!is.null(param.seed$pi))
+      param[1]<-param.seed$pi
+    if(!is.null(param.seed$sigma))
+      param[2]<-param.seed$sigma
+    if(!is.null(param.seed$rho))
+      param[3]<-param.seed$rho
+    if(!is.null(param.seed$d))
+      param[4]<-param.seed$d
+  }
+  if(is.null(param.fixed))   #Do we need to fix certain parameter values?
+    fixed<-rep(NA,4)
+  else{
+    fixed<-rep(NA,4)
+    if(!is.null(param.fixed$pi))
+      fixed[1]<-param.fixed$pi
+    if(!is.null(param.fixed$sigma))
+      fixed[2]<-param.fixed$sigma
+    if(!is.null(param.fixed$rho))
+      fixed[3]<-param.fixed$rho
+    if(!is.null(param.fixed$d))
+      fixed[4]<-param.fixed$d
+  }
+  param<-pmax(pmin(param,1-epsilon),epsilon)  #Ensure interior starting vals
+  param<-log(param/(1-param))  #Transform to logit scale
+  #Fit the model
+  fit<-optim(param,nll,method=optim.method,control=optim.control,stats=stats, fixed=fixed,dat=dat)
+  fit$par<-1/(1+exp(-fit$par))                 #Untransform
+  fit$par[!is.na(fixed)]<-fixed[!is.na(fixed)] #Fix
+  #Prepare the results
+  out<-list(d=fit$par[4],pi=fit$par[1],sigma=fit$par[2],rho=fit$par[3], method=match.arg(method),G.square=2*fit$value,epsilon=epsilon)
+  #Add GOF for triads
+  if(match.arg(method)=="mtle")
+    out$triads<-stats
+  else
+    out$triads<-as.vector(triad.census(dat))
+  out$triads.pred<-.C("bn_ptriad_R", as.double(out$pi),as.double(out$sigma),as.double(out$rho), as.double(out$d),pt=as.double(rep(0,16)),PACKAGE="sna")$pt
+  names(out$triads.pred)<-c("003", "012", "102", "021D", "021U", "021C", "111D", "111U", "030T", "030C", "201", "120D", "120U", "120C", "210", "300")
+  names(out$triads)<-names(out$triads.pred)
+  #Add GOF for dyads, using triad distribution
+  if(match.arg(method)%in%c("mple.edge","mple.dyad"))
+    out$dyads<-apply(stats[,-1],2,sum)
+  else
+    out$dyads<-as.vector(dyad.census(dat))
+  out$dyads.pred<-c(sum(out$triads.pred*c(0,0,1,0,0,0,1,1,0,0,2,1,1,1,2,3)), sum(out$triads.pred*c(0,1,0,2,2,2,1,1,3,3,0,2,2,2,1,0)), sum(out$triads.pred*c(3,2,2,1,1,1,1,1,0,0,1,0,0,0,0,0)))*choose(n,3)/choose(n,2)/(n-2)
+  names(out$dyads.pred)<-c("Mut","Asym","Null")
+  names(out$dyads)<-names(out$dyads.pred)
+  #Add GOF for edges, using dyad distribution
+  out$edges<-c(2*out$dyads[1]+out$dyads[2],2*out$dyads[3]+out$dyads[2])
+  out$edges.pred<-c(2*out$dyads.pred[1]+out$dyads.pred[2], 2*out$dyads.pred[3]+out$dyads.pred[2])/2
+  names(out$edges.pred)<-c("Present","Absent")
+  names(out$edges)<-names(out$edges.pred)
+  #Add predicted structure statistics (crude)
+  a<-out$d*(n-1)
+  out$ss.pred<-c(1/n,(1-1/n)*(1-exp(-a/n)))
+  for(i in 2:(n-1))
+    out$ss.pred<-c(out$ss.pred,(1-sum(out$ss.pred[1:i])) * (1-exp(-(a-out$pi-out$sigma*(a-1))*out$ss.pred[i])))
+  out$ss.pred<-cumsum(out$ss.pred)
+  names(out$ss.pred)<-0:(n-1)
+  out$ss<-structure.statistics(dat)
+  #Return the result
+  class(out)<-"bn"
+  out
+}
+
+
+#bn.nlpl.dyad - Compute the dyadic -log pseudolikelihood for a biased net model
+bn.nlpl.dyad<-function(p,stats,fixed=rep(NA,4),...){
+  p<-1/(1+exp(-p))
+  #Correct for any fixed parameters
+  p[!is.na(fixed)]<-fixed[!is.na(fixed)]
+  #Calculate the pseudolikelihood
+  lpl<-0
+  lpl<-.C("bn_lpl_dyad_R",as.double(stats),as.double(NROW(stats)), as.double(p[1]),as.double(p[2]),as.double(p[3]),as.double(p[4]), lpl=as.double(lpl),PACKAGE="sna")$lpl
+  -lpl
+}
+
+
+#bn.nlpl.edge - Compute the -log pseudolikelihood for a biased net model,
+#using the directed edge pseudolikelihood.  Not sure why you'd want to
+#do this, except as a check on the other results....
+bn.nlpl.edge<-function(p,stats,fixed=rep(NA,4),...){
+  p<-1/(1+exp(-p))
+  #Correct for any fixed parameters
+  p[!is.na(fixed)]<-fixed[!is.na(fixed)]
+  #Calculate the pseudolikelihood
+  lp<-cbind(1-(1-p[1])*((1-p[3])^stats[,1])*((1-p[2])^stats[,1])*(1-p[4]),
+    1-((1-p[2])^stats[,1])*(1-p[4]))
+  lp<-log(cbind(lp,1-lp))
+  lpl<-cbind(2*stats[,2]*lp[,1],stats[,3]*lp[,2],stats[,3]*lp[,3], 2*stats[,4]*lp[,4])
+  lpl[is.nan(lpl)]<-0  #Treat 0 * -Inf as 0
+  -sum(lpl)
+}
+
+
+#bn.nlpl.triad - Compute the triadic -log pseudolikelihood for a biased net
+#model, using the Skvoretz (2003) working paper method
+bn.nlpl.triad<-function(p,dat,stats,fixed=rep(NA,4),...){
+  p<-1/(1+exp(-p))
+  #Correct for any fixed parameters
+  p[!is.na(fixed)]<-fixed[!is.na(fixed)]
+  #Calculate the pseudolikelihood
+  lpl<-0
+  lpl<-.C("bn_lpl_triad_R",as.integer(dat),as.double(stats), as.double(NROW(stats)),as.double(p[1]),as.double(p[2]),as.double(p[3]), as.double(p[4]), lpl=as.double(lpl),PACKAGE="sna")$lpl
+  -lpl
+}
+
+
+#bn.nltl - Compute the -log triad likelihood for a biased net model
+bn.nltl<-function(p,stats,fixed=rep(NA,4),...){
+  p<-1/(1+exp(-p))
+  #Correct for any fixed parameters
+  p[!is.na(fixed)]<-fixed[!is.na(fixed)]
+  #Calculate the triad likelihood
+  pt<-rep(0,16)
+  triprob<-.C("bn_ptriad_R", as.double(p[1]),as.double(p[2]),as.double(p[3]), as.double(p[4]),pt=as.double(pt),PACKAGE="sna")$pt
+  -sum(stats*log(triprob))
+}
+
+
+#coef.bn - Coefficient method for bn
+coef.bn<-function(object, ...){
+  coef<-c(object$d,object$pi,object$sigma,object$rho)
+  names(coef)<-c("d","pi","sigma","rho")
+  coef
+}
+
+
 #coef.lnam - Coefficient method for lnam
 coef.lnam<-function(object, ...){
    coefs<-vector()
@@ -439,10 +612,16 @@ coef.lnam<-function(object, ...){
 #consensus - Find a consensus structure, using one of several algorithms.  Note 
 #that this is currently experimental, and that the routines are not guaranteed 
 #to produce meaningful output
-consensus<-function(dat,mode="digraph",diag=FALSE,method="central.graph",tol=0.01){
-   n<-dim(dat)[2]
-   m<-dim(dat)[1]
+consensus<-function(dat,mode="digraph",diag=FALSE,method="central.graph",tol=1e-6){
    #First, prepare the data
+   dat<-as.sociomatrix.sna(dat)
+   if(is.list(dat))
+     stop("consensus requires graphs of identical order.")
+   if(is.matrix(dat))
+     m<-1
+   else
+   m<-dim(dat)[1]
+   n<-dim(dat)[2]
    if(m==1)
      dat<-array(dat,dim=c(1,n,n))
    if(mode=="graph")
@@ -457,18 +636,25 @@ consensus<-function(dat,mode="digraph",diag=FALSE,method="central.graph",tol=0.0
       cong<-centralgraph(d)
    #Try the iterative reweighting algorithm....
    }else if(method=="iterative.reweight"){
-      stop("Sorry, but iterative rewieghting is not currently supported.\n")
-      oldrwv<-rep(1/m,m)
-      gc<-gcor(d)
-      gc[is.na(gc)]<-0
-      diag(gc)<-1
-      rwv<-apply(gc,1,sum)/sum(gc)
-      while(sum(abs(rwv-oldrwv))>tol){
-         cong<-apply(d*aperm(array(sapply(rwv,rep,n^2),dim=c(n,n,m)),c(3,2,1)),c(2,3),sum)
-         oldrwv<-rwv
-         rwv<-gcor(cong,d)
-         rwv<-rwv/sum(rwv)
+      cong<-centralgraph(d)
+      ans<-sweep(d,c(2,3),cong,"==")
+      comp<-pmax(apply(ans,1,mean,na.rm=TRUE),0.5)
+      bias<-apply(sweep(d,c(2,3),!ans,"*"),1,mean,na.rm=TRUE)
+      cdiff<-1+tol
+      while(cdiff>tol){
+        ll1<-apply(sweep(d,1,log(comp+(1-comp)*bias),"*") + sweep(1-d,1,log((1-comp)*(1-bias)),"*"), c(2,3), sum, na.rm=TRUE)
+        ll0<-apply(sweep(1-d,1,log(comp+(1-comp)*(1-bias)),"*") + sweep(d,1,log((1-comp)*bias),"*"), c(2,3), sum, na.rm=TRUE)
+        cong<-ll1>ll0
+        ans<-sweep(d,c(2,3),cong,"==")
+        ocomp<-comp
+        comp<-pmax(apply(ans,1,mean,na.rm=TRUE),0.5)
+        bias<-apply(sweep(d,c(2,3),!ans,"*"),1,mean,na.rm=TRUE)
+        cdiff<-sum(abs(ocomp-comp))
       }
+      cat("Estimated competency scores:\n")
+      print(comp)
+      cat("Estimated bias parameters:\n")
+      print(bias)
    #Perform a single reweighting using mean correlation
    }else if(method=="single.reweight"){
       gc<-gcor(d)
@@ -482,8 +668,8 @@ consensus<-function(dat,mode="digraph",diag=FALSE,method="central.graph",tol=0.0
       gc<-gcor(d)
       gc[is.na(gc)]<-0
       diag(gc)<-1
-      rwv<-eigen(gc)$vector[,1]
-      cong<-apply(d*aperm(array(sapply(rwv,rep,n^2),dim=c(n,n,m)),c(3,2,1)),c(2,3),sum)
+      rwv<-abs(eigen(gc)$vector[,1])
+      cong<-apply(d*aperm(array(sapply(rwv,rep,n^2),dim=c(n,n,m)), c(3,2,1)),c(2,3),sum)
    #Use the Locally Aggregated Structure
    }else if(method=="LAS.intersection"){
       cong<-matrix(0,n,n)
@@ -764,12 +950,14 @@ lnam<-function(y,x=NULL,W1=NULL,W2=NULL,theta.seed=NULL,null.model=c("meanstd","
       "110"=NULL,
       "111"=sqrt(diag(o$acvm)[4:m])
    ))
-   if(!is.null(colnames(x))){
-      names(o$beta)<-colnames(x)
-      names(o$beta.se)<-colnames(x)
-   }else{
-      names(o$beta)<-paste("X",1:dim(x)[2],sep="")
-      names(o$beta.se)<-paste("X",1:dim(x)[2],sep="")
+   if(!is.null(o$beta)){
+     if(!is.null(colnames(x))){
+        names(o$beta)<-colnames(x)
+        names(o$beta.se)<-colnames(x)
+     }else{
+        names(o$beta)<-paste("X",1:dim(x)[2],sep="")
+        names(o$beta.se)<-paste("X",1:dim(x)[2],sep="")
+     }
    }
    o$disturbances<-as.vector(switch(comp.mode,  #The estimated disturbances
       "1"=y-x%*%o$beta,
@@ -801,6 +989,10 @@ lnam<-function(y,x=NULL,W1=NULL,W2=NULL,theta.seed=NULL,null.model=c("meanstd","
 netcancor<-function(y,x,mode="digraph",diag=FALSE,nullhyp="cugtie",reps=1000){
    if(R.version$major<2)  #Only invoke mva if we're using an old R version
       require(mva)
+   y<-as.sociomatrix.sna(y)
+   x<-as.sociomatrix.sna(x)
+   if(is.list(x)|is.list(y))
+     stop("netcancor requires graphs of identical order.")
    if(length(dim(y))>2){
       iy<-matrix(nrow=dim(y)[1],ncol=dim(y)[2]*dim(y)[3])
    }else{
@@ -927,32 +1119,8 @@ netcancor<-function(y,x,mode="digraph",diag=FALSE,nullhyp="cugtie",reps=1000){
 }
 
 
-#netlm - OLS network regression routine using a QAP/CUG null hypotheses.  This routine is
-#frighteningly slow, since it's essentially a front end to the builtin lm routine with a bunch of
-#network hypothesis testing stuff thrown in for good measure.
-#netlm2<-function(y,x,intercept=TRUE,mode="digraph",diag=FALSE,nullhyp="cugtie",reps=1000){
-#  #Create the output list
-#  out<-list()
-#  out$r.squared.dist<-vector(length=reps)
-#  out$adj.r.squared.dist<-vector(length=reps)
-#  out$sigma.dist<-vector(length=reps)
-#  #Perform the initial vectorization
-#  vy<-as.vector(gvectorize(y,mode=mode,diag=diag))
-#  vx<-gvectorize(x,mode=mode,diag=diag)
-#  #Add an intercept, if needed
-#  if(intercept)
-#    vx<-cbind(rep(1,dim(vx)[1]),vx)
-#  #Get some initial stats
-#  n<-dim(y)[1]
-#  p<-dim(vx)[2]
-#  #Perform the initial model fit
-#  xnam<-paste("vx[,",1:p,"]",sep="")
-#  fmstr<-paste("vy ~ ",paste(xnam,collapse="+"))
-#  fmla<-as.formula(fmstr)
-#  nm<-lm(fmla,na.action=na.omit,singular.ok=TRUE)
-#  #Now, repeat everything to test the appropriate null hypothesis
-#  if(match.arg(nullhyp)=="qap"){ 
-#  #QAP semi-partialling "plus"
+#netlm - OLS network regrssion routine (w/many null hypotheses)
+#  #QAP semi-partialling "plus" (Dekker et al.)
 #  #For Y ~ b0 + b1 X1 + b2 X2 + ... + bp Xp
 #  #for(i in 1:p)
 #  #  Fit Xi ~ b0* + b1* X1 + ... + bp* Xp (omit Xi)
@@ -961,146 +1129,166 @@ netcancor<-function(y,x,mode="digraph",diag=FALSE,nullhyp="cugtie",reps=1000){
 #  #    eij = rmperm (ei)
 #  #    Fit Y ~ b0** + b1** X1 + ... + bi** eij + ... + bp** Xp
 #  #Use resulting permutation distributions to test coefficients
-#    #Identify rows without missing data (w/out permutations)
-#    nona<-apply(!is.na(cbind(vy,vx)),1,all)
-#    #Walk through the predictors
-#    for(i in 1:p){
-#      #Regress the appropriate X on its peers
-#      xm<-lm.fit(vx[nona,-i,drop=FALSE],vx[nona,i])
-#      #Convert the residuals of this regression back into matrix form
-#      ex<-nona
-#      ex[!nona]<-NA
-#      ex[nona]<-xm$residuals
-#      ex<-matrix(ex,n,n)
-#      if(mode=="graph")   #If the matrix is symmetric, restore it
-#        ex[upper.tri(ex)]<-t(ex)[upper.tri(ex)]
-#      #Perform the QAP replications
-#      for(j in 1:reps){
-#        #Set up the new predictors
-#	tx<-vx
-#        tx[,i]<-gvectorize(rmperm(ex),mode=mode,diag=diag)
-#        rnona<-apply(!is.na(cbind(vy,tx)),1,all)
-#	#Fit the test model
-#	tm<-lm.fit(vy[rnona],tx[rnona,])
-#	#Gather the coefficient, for later use
-#	out$dist[j,i]<-tm$coefficients[i]
-#      }
-#    }
-#  }else{
-#  }
-#}
-netlm<-function(y,x,mode="digraph",diag=FALSE,nullhyp="cugtie",reps=1000){
-   out<-list()
-   out$r.squared.dist<-vector(length=reps)
-   out$adj.r.squared.dist<-vector(length=reps)
-   out$sigma.dist<-vector(length=reps)
-   iy<-vector()
-   if(length(dim(x))>2){
-      ix<-matrix(nrow=dim(x)[1],ncol=dim(x)[2]*dim(x)[3])
-   }else{
-      ix<-matrix(nrow=1,ncol=dim(x)[1]*dim(x)[2])
-      temp<-x
-      x<-array(dim=c(1,dim(temp)[1],dim(temp)[2]))
-      x[1,,]<-temp
-   }
-   n<-dim(y)[1]
-   m<-dim(x)[1]
-   out$dist<-matrix(nrow=reps,ncol=m+1)
-   #Convert the response first.
-   d<-y
-   if(!diag){
-      diag(d)<-NA
-   }
-   if(mode!="digraph")
-      d[lower.tri(d)]<-NA
-   iy<-as.vector(d)
-   #Now for the independent variables.
-   for(i in 1:m){
-      d<-x[i,,]
-      if(!diag){
-         diag(d)<-NA
+netlm<-function(y,x,intercept=TRUE,mode="digraph",diag=FALSE,nullhyp=c("qap", "qapspp","qapy","qapx","qapallx","cugtie","cugden","cuguman","classical"),tol=1e-7, reps=1000){
+  #Define an internal routine to quickly fit linear models to graphs
+  gfit<-function(glist,mode,diag,tol,rety){
+    y<-gvectorize(glist[[1]],mode=mode,diag=diag,censor.as.na=TRUE)
+    x<-vector()
+    for(i in 2:length(glist))
+      x<-cbind(x,gvectorize(glist[[i]],mode=mode,diag=diag,censor.as.na=TRUE))
+    if(!is.matrix(x))
+      x<-matrix(x,nc=1)
+    mis<-is.na(y)|apply(is.na(x),1,any)
+    if(!rety)
+      qr.solve(x[!mis,],y[!mis],tol=tol)
+    else
+      list(qr(x[!mis,],tol=tol),y[!mis])
+  }
+  #Get the data in order
+  y<-as.sociomatrix.sna(y)
+  x<-as.sociomatrix.sna(x)
+  if(is.list(y)||((length(dim(y))>2)&&(dim(y)[1]>1))) 
+    stop("y must be a single graph in netlm.")
+  if(length(dim(y))>2)
+    y<-y[1,,]
+  if(is.list(x)||(dim(x)[2]!=dim(y)[2]))
+    stop("Homogeneous graph orders required in netlm.")
+  nx<-stackcount(x)+intercept    #Get number of predictors
+  n<-dim(y)[2]                   #Get graph order
+  g<-list(y)                     #Put graphs into a list
+  if(intercept)
+    g[[2]]<-matrix(1,n,n)
+  if(nx-intercept==1)
+    g[[2+intercept]]<-x
+  else
+    for(i in 1:(nx-intercept))
+      g[[i+1+intercept]]<-x[i,,]
+  if(any(sapply(lapply(g,is.na),any)))
+    warning("Missing data supplied to netlm; this may pose problems for certain null hypotheses.  Hope you know what you're doing....")
+  #Fit the initial baseline model
+  fit.base<-gfit(g,mode=mode,diag=diag,tol=tol,rety=TRUE)
+  fit<-list()  #Initialize output
+  fit$coefficients<-qr.coef(fit.base[[1]],fit.base[[2]])
+  fit$fitted.values<-qr.fitted(fit.base[[1]],fit.base[[2]])
+  fit$residuals<-qr.resid(fit.base[[1]],fit.base[[2]])
+  fit$qr<-fit.base[[1]]
+  fit$rank<-fit.base[[1]]$rank
+  fit$n<-length(fit.base[[2]])
+  fit$df.residual<-fit$n-fit$rank
+  #Proceed based on selected null hypothesis
+  nullhyp<-match.arg(nullhyp)
+  if((nullhyp%in%c("qap","qapspp"))&&(nx==1))  #No partialling w/one predictor
+    nullhyp<-"qapy"
+  if(nullhyp=="classical"){
+    resvar<-sum(fit$residuals^2)/fit$df.residual
+    cvm<-chol2inv(fit$qr$qr)
+    se<-sqrt(diag(cvm)*resvar)
+    tval<-fit$coefficients/se
+    #Prepare output
+    fit$dist<-NULL
+    fit$pleeq<-pt(tval,fit$df.residual)
+    fit$pgreq<-pt(tval,fit$df.residual,lower.tail=FALSE)
+    fit$pgreqabs<-2*pt(abs(tval),fit$df.residual,lower.tail=FALSE)
+  }else if(nullhyp%in%c("cugtie","cugden","cuguman")){
+    #Generate replicates for each predictor
+    repdist<-matrix(0,reps,nx)
+    for(i in 1:nx){
+      gr<-g
+      for(j in 1:reps){
+        #Modify the focal x
+        gr[[i+1]]<-switch(nullhyp,
+          cugtie<-rgraph(n,mode=mode,diag=diag,replace=FALSE,tielist=g[[i+1]]),
+          cugden<-rgraph(n,tp=gden(g[[i+1]],mode=mode,diag=diag),mode=mode, diag=diag),
+          cuguman<-(function(dc,n){rguman(1,n,mut=x[1],asym=x[2],null=x[3], method="exact")})(dyad.census(g[[i+1]]),n)
+        )
+        #Fit model with modified x
+        repdist[j,i]<-gfit(gr,mode=mode,diag=diag,tol=tol,rety=FALSE)[i]
       }
-      if(mode!="digraph")
-         d[lower.tri(d)]<-NA
-      ix[i,]<-as.vector(d)
-   }   
-   #Run the initial model fit
-   xnam <- paste("ix[", 1:m, ",]", sep="")
-   fmla <- as.formula(paste("iy ~ ", paste(xnam, collapse= "+")))
-   nm<-lm(fmla,na.action=na.omit,singular.ok=TRUE)
-   #Now, repeat the whole thing an ungodly number of times.
-   for(i in 1:reps){
-      #Clear out the internal structures
-      iy<-vector()
-      ix<-matrix(nrow=dim(x)[1],ncol=dim(x)[2]*dim(x)[3])
-      #Convert (and mutate) the response first.
-      d<-switch(nullhyp,
-         qap = rmperm(y),
-         cug = rgraph(n,1,mode=mode,diag=diag),
-         cugden = rgraph(n,1,tprob=gden(y,mode=mode,diag=diag),mode=mode,diag=diag),
-         cugtie = rgraph(n,1,mode=mode,diag=diag,tielist=y)
-      )
-      if(!diag){
-         diag(d)<-NA
+    }
+    #Prepare output
+    fit$dist<-repdist
+    fit$pleeq<-apply(sweep(fit$dist,2,fit$coefficients,"<="),2,mean)
+    fit$pgreq<-apply(sweep(fit$dist,2,fit$coefficients,">="),2,mean)
+    fit$pgreqabs<-apply(sweep(abs(fit$dist),2,abs(fit$coefficients),">="),2, mean)
+  }else if(nullhyp=="qapy"){
+    #Generate replicates for each predictor
+    repdist<-matrix(0,reps,nx)
+    gr<-g
+    for(i in 1:reps){
+      gr[[1]]<-rmperm(g[[1]])  #Permute y
+      #Fit the model under replication
+      repdist[i,]<-gfit(gr,mode=mode,diag=diag,tol=tol,rety=FALSE)
+    }
+    #Prepare output
+    fit$dist<-repdist
+    fit$pleeq<-apply(sweep(fit$dist,2,fit$coefficients,"<="),2,mean)
+    fit$pgreq<-apply(sweep(fit$dist,2,fit$coefficients,">="),2,mean)
+    fit$pgreqabs<-apply(sweep(abs(fit$dist),2,abs(fit$coefficients),">="),2, mean)
+  }else if(nullhyp=="qapx"){
+    #Generate replicates for each predictor
+    repdist<-matrix(0,reps,nx)
+    for(i in 1:nx){
+      gr<-g
+      for(j in 1:reps){
+        gr[[i+1]]<-rmperm(gr[[i+1]]) #Modify the focal x
+        #Fit model with modified x
+        repdist[j,i]<-gfit(gr,mode=mode,diag=diag,tol=tol,rety=FALSE)[i]
       }
-      if(mode!="digraph")
-         d[lower.tri(d)]<-NA
-      iy<-as.vector(d)
-      #Now for the independent variables.
-      for(j in 1:m){
-         d<-switch(nullhyp,
-            qap = rmperm(x[j,,]),
-            cug = rgraph(n,1,mode=mode,diag=diag),
-            cugden = rgraph(n,1,tprob=gden(x[j,,],mode=mode,diag=diag),mode=mode,diag=diag),
-            cugtie = rgraph(n,1,mode=mode,diag=diag,tielist=x[j,,])
-         )
-         if(!diag){
-            diag(d)<-NA
-         }
-         if(mode!="digraph")
-            d[lower.tri(d)]<-NA
-         ix[j,]<-as.vector(d)
-      }   
-      #Finally, fit the test model
-      xnam <- paste("ix[", 1:m, ",]", sep="")
-      fmla <- as.formula(paste("iy ~ ", paste(xnam, collapse= "+")))
-      tm<-lm(fmla,na.action=na.omit,singular.ok=TRUE)
-      #Gather the coefficients for use later...
-      out$dist[i,]<-as.numeric(coef(tm))
-      #Also grab R^2, sigma, and adjusted R^2s
-      mss<-if(attr(tm$terms,"intercept"))
-         sum((fitted(tm)-mean(fitted(tm)))^2)
-      else
-         sum(fitted(tm)^2)
-      rss<-sum(resid(tm)^2)
-      qn<-NROW(tm$qr$qr)
-      df.int<-if(attr(tm$terms,"intercept")) 1
-         else 0
-      rdf<-qn-tm$rank
-      out$r.squared.dist[i]<-mss/(mss+rss)
-      out$adj.r.squared.dist[i]<-1-(1-out$r.squared.dist[i])*((qn-df.int)/rdf)
-      out$sigma.dist[i]<-sqrt(rss/rdf)
-   }
-   #Find the p-values for our monte carlo null hypothesis tests
-   out$coefficients<-nm$coefficients
-   out$pgreq<-vector(length=m+1)
-   out$pleeq<-vector(length=m+1)
-   for(i in 1:(m+1)){
-      out$pgreq[i]<-mean(out$dist[,i]>=out$coefficients[i],na.rm=TRUE)
-      out$pleeq[i]<-mean(out$dist[,i]<=out$coefficients[i],na.rm=TRUE)
-   }
-   #Having completed the model fit and MC tests, we gather useful information for
-   #the end user.  This is a combination of GLM output and our own stuff.
-   out$names<-as.vector(c("(intercept)",paste("x",1:m,sep="")))
-   out$nullhyp<-nullhyp
-   out$residuals<-nm$residuals
-   out$qr<-nm$qr
-   out$fitted.values<-nm$fitted.values
-   out$rank<-nm$rank
-   out$terms<-nm$terms
-   out$df.residual<-nm$df.residual
-   class(out)<-c("netlm")
-   out
+    }
+    #Prepare output
+    fit$dist<-repdist
+    fit$pleeq<-apply(sweep(fit$dist,2,fit$coefficients,"<="),2,mean)
+    fit$pgreq<-apply(sweep(fit$dist,2,fit$coefficients,">="),2,mean)
+    fit$pgreqabs<-apply(sweep(abs(fit$dist),2,abs(fit$coefficients),">="),2, mean)
+  }else if(nullhyp=="qapallx"){
+    #Generate replicates for each predictor
+    repdist<-matrix(0,reps,nx)
+    gr<-g
+    for(i in 1:reps){
+      for(j in 1:nx)
+        gr[[1+j]]<-rmperm(g[[1+j]])  #Permute each x
+      #Fit the model under replication
+      repdist[i,]<-gfit(gr,mode=mode,diag=diag,tol=tol,rety=FALSE)
+    }
+    #Prepare output
+    fit$dist<-repdist
+    fit$pleeq<-apply(sweep(fit$dist,2,fit$coefficients,"<="),2,mean)
+    fit$pgreq<-apply(sweep(fit$dist,2,fit$coefficients,">="),2,mean)
+    fit$pgreqabs<-apply(sweep(abs(fit$dist),2,abs(fit$coefficients),">="),2, mean)
+  }else if((nullhyp=="qap")||(nullhyp=="qapspp")){
+    xsel<-matrix(TRUE,n,n)
+    if(!diag)
+      diag(xsel)<-FALSE
+    if(mode=="graph")
+      xsel[upper.tri(xsel)]<-FALSE
+    #Generate replicates for each predictor
+    repdist<-matrix(0,reps,nx)
+    for(i in 1:nx){
+      #Regress x_i on other x's
+      xfit<-gfit(g[1+c(i,(1:nx)[-i])],mode=mode,diag=diag,tol=tol,rety=TRUE)
+      xres<-g[[1+i]]
+      xres[xsel]<-qr.resid(xfit[[1]],xfit[[2]])  #Get residuals of x_i
+      if(mode=="graph")
+        xres[upper.tri(xres)]<-t(xres)[upper.tri(xres)]
+      #Draw replicate coefs using permuted x residuals
+      for(j in 1:reps)
+        repdist[j,i]<-gfit(c(g[-(1+i)],list(rmperm(xres))),mode=mode,diag=diag, tol=tol,rety=FALSE)[nx]
+    }
+    #Prepare output
+    fit$dist<-repdist
+    fit$pleeq<-apply(sweep(fit$dist,2,fit$coefficients,"<="),2,mean)
+    fit$pgreq<-apply(sweep(fit$dist,2,fit$coefficients,">="),2,mean)
+    fit$pgreqabs<-apply(sweep(abs(fit$dist),2,abs(fit$coefficients),">="),2, mean)
+  }
+  #Finalize the results
+  fit$nullhyp<-nullhyp
+  fit$names<-paste("x",1:(nx-intercept),sep="")
+  if(intercept)
+    fit$names<-c("(intercept)",fit$names)
+  fit$intercept<-intercept
+  class(fit)<-"netlm"
+  #Return the result
+  fit
 }
 
 
@@ -1108,103 +1296,188 @@ netlm<-function(y,x,mode="digraph",diag=FALSE,nullhyp="cugtie",reps=1000){
 #binomial/logit GLM.  It's also frighteningly slow, since it's essentially a 
 #front end to the builtin GLM routine with a bunch of network hypothesis testing
 #stuff thrown in for good measure.
-netlogit<-function(y,x,mode="digraph",diag=FALSE,nullhyp="cugtie",reps=1000){
-   out<-list()
-   out$dist<-matrix(nrow=reps,ncol=dim(x)[1]+1)
-   iy<-vector()
-   if(length(dim(x))>2){
-      ix<-matrix(nrow=dim(x)[1],ncol=dim(x)[2]*dim(x)[3])
-   }else{
-      ix<-matrix(nrow=1,ncol=dim(x)[1]*dim(x)[2])
-      temp<-x
-      x<-array(dim=c(1,dim(temp)[1],dim(temp)[2]))
-      x[1,,]<-temp
-   }
-   n<-dim(y)[1]
-   m<-dim(x)[1]
-   out$dist<-matrix(nrow=reps,ncol=m+1)
-   #Convert the response first.
-   d<-y
-   if(!diag){
-      diag(d)<-NA
-   }
-   if(mode!="digraph")
-      d[lower.tri(d)]<-NA
-   iy<-as.vector(d)
-   #Now for the independent variables.
-   for(i in 1:m){
-      d<-x[i,,]
-      if(!diag){
-         diag(d)<-NA
+netlogit<-function(y,x,intercept=TRUE,mode="digraph",diag=FALSE,nullhyp=c("qap", "qapspp","qapy","qapx","qapallx","cugtie","cugden","cuguman","classical"), tol=1e-7,reps=1000){
+  #Define an internal routine to quickly fit logit models to graphs
+  gfit<-function(glist,mode,diag){
+    y<-gvectorize(glist[[1]],mode=mode,diag=diag,censor.as.na=TRUE)
+    x<-vector()
+    for(i in 2:length(glist))
+      x<-cbind(x,gvectorize(glist[[i]],mode=mode,diag=diag,censor.as.na=TRUE))
+    if(!is.matrix(x))
+      x<-matrix(x,nc=1)
+    mis<-is.na(y)|apply(is.na(x),1,any)
+    glm.fit(x[!mis,],y[!mis],family=binomial(),intercept=FALSE)
+  }
+  #Repeat the above, for strictly linear models
+  gfitlm<-function(glist,mode,diag,tol){
+    y<-gvectorize(glist[[1]],mode=mode,diag=diag,censor.as.na=TRUE)
+    x<-vector()
+    for(i in 2:length(glist))
+      x<-cbind(x,gvectorize(glist[[i]],mode=mode,diag=diag,censor.as.na=TRUE))
+    if(!is.matrix(x))
+      x<-matrix(x,nc=1)
+    mis<-is.na(y)|apply(is.na(x),1,any)
+    list(qr(x[!mis,],tol=tol),y[!mis])
+  }
+  #Get the data in order
+  y<-as.sociomatrix.sna(y)
+  x<-as.sociomatrix.sna(x)
+  if(is.list(y)||((length(dim(y))>2)&&(dim(y)[1]>1))) 
+    stop("y must be a single graph in netlogit.")
+  if(length(dim(y))>2)
+    y<-y[1,,]
+  if(is.list(x)||(dim(x)[2]!=dim(y)[2]))
+    stop("Homogeneous graph orders required in netlogit.")
+  nx<-stackcount(x)+intercept    #Get number of predictors
+  n<-dim(y)[2]                   #Get graph order
+  g<-list(y)                     #Put graphs into a list
+  if(intercept)
+    g[[2]]<-matrix(1,n,n)
+  if(nx-intercept==1)
+    g[[2+intercept]]<-x
+  else
+    for(i in 1:(nx-intercept))
+      g[[i+1+intercept]]<-x[i,,]
+  if(any(sapply(lapply(g,is.na),any)))
+    warning("Missing data supplied to netlogit; this may pose problems for certain null hypotheses.  Hope you know what you're doing....")
+  #Fit the initial baseline model
+  fit.base<-gfit(g,mode=mode,diag=diag)
+  fit<-list()  #Initialize output
+  fit$coefficients<-fit.base$coefficients
+  fit$fitted.values<-fit.base$fitted.values
+  fit$residuals<-fit.base$residuals
+  fit$linear.predictors<-fit.base$linear.predictors
+  fit$n<-length(fit.base$y)
+  fit$df.model<-fit.base$rank
+  fit$df.residual<-fit.base$df.residual
+  fit$deviance<-fit.base$deviance
+  fit$null.deviance<-fit.base$null.deviance
+  fit$df.null<-fit.base$df.null
+  fit$aic<-fit.base$aic
+  fit$bic<-fit$deviance+fit$df.model*log(fit$n)
+  fit$qr<-fit.base$qr
+  fit$ctable<-table(as.numeric(fit$fitted.values>=0.5),fit.base$y, dnn=c("Predicted","Actual"))  #Get the contingency table 
+  if(NROW(fit$ctable)==1){
+    if(rownames(fit$ctable)=="0")
+      fit$ctable<-rbind(fit$ctable,c(0,0))
+    else
+      fit$ctable<-rbind(c(0,0),fit$ctable)
+    rownames(fit$ctable)<-c("0","1")
+  }
+
+  #Proceed based on selected null hypothesis
+  nullhyp<-match.arg(nullhyp)
+  if((nullhyp%in%c("qap","qapspp"))&&(nx==1))  #No partialling w/one predictor
+    nullhyp<-"qapy"
+  if(nullhyp=="classical"){
+    cvm<-chol2inv(fit$qr$qr)
+    se<-sqrt(diag(cvm))
+    tval<-fit$coefficients/se
+    #Prepare output
+    fit$dist<-NULL
+    fit$pleeq<-pt(tval,fit$df.residual)
+    fit$pgreq<-pt(tval,fit$df.residual,lower.tail=FALSE)
+    fit$pgreqabs<-2*pt(abs(tval),fit$df.residual,lower.tail=FALSE)
+  }else if(nullhyp%in%c("cugtie","cugden","cuguman")){
+    #Generate replicates for each predictor
+    repdist<-matrix(0,reps,nx)
+    for(i in 1:nx){
+      gr<-g
+      for(j in 1:reps){
+        #Modify the focal x
+        gr[[i+1]]<-switch(nullhyp,
+          cugtie<-rgraph(n,mode=mode,diag=diag,replace=FALSE,tielist=g[[i+1]]),
+          cugden<-rgraph(n,tp=gden(g[[i+1]],mode=mode,diag=diag),mode=mode, diag=diag),
+          cuguman<-(function(dc,n){rguman(1,n,mut=x[1],asym=x[2],null=x[3], method="exact")})(dyad.census(g[[i+1]]),n)
+        )
+        #Fit model with modified x
+        repdist[j,i]<-gfit(gr,mode=mode,diag=diag)$coef[i]
       }
-      if(mode!="digraph")
-         d[lower.tri(d)]<-NA
-      ix[i,]<-as.vector(d)
-   }   
-   #Run the initial model fit
-   xnam <- paste("ix[", 1:m, ",]", sep="")
-   fmla <- as.formula(paste("iy ~ ", paste(xnam, collapse= "+")))
-   nm<-glm(fmla,family=binomial,na.action=na.omit)
-   out$ctable<-table(as.numeric(fitted.values(nm)>=0.5),iy[!is.na(iy)],dnn=c("Predicted","Actual"))  #Get the contingency table 
-   #Now, repeat the whole thing an ungodly number of times.
-   for(i in 1:reps){
-      #Clear out the internal structures
-      iy<-vector()
-      ix<-matrix(nrow=dim(x)[1],ncol=dim(x)[2]*dim(x)[3])
-      #Convert (and mutate) the response first.
-      d<-switch(nullhyp,
-         qap = rmperm(y),
-         cug = rgraph(n,1,mode=mode,diag=diag),
-         cugden = rgraph(n,1,tprob=gden(y,mode=mode,diag=diag),mode=mode,diag=diag),
-         cugtie = rgraph(n,1,mode=mode,diag=diag,tielist=y)
-      )
-      if(!diag){
-         diag(d)<-NA
+    }
+    #Prepare output
+    fit$dist<-repdist
+    fit$pleeq<-apply(sweep(fit$dist,2,fit$coefficients,"<="),2,mean)
+    fit$pgreq<-apply(sweep(fit$dist,2,fit$coefficients,">="),2,mean)
+    fit$pgreqabs<-apply(sweep(abs(fit$dist),2,abs(fit$coefficients),">="),2, mean)
+  }else if(nullhyp=="qapy"){
+    #Generate replicates for each predictor
+    repdist<-matrix(0,reps,nx)
+    gr<-g
+    for(i in 1:reps){
+      gr[[1]]<-rmperm(g[[1]])  #Permute y
+      #Fit the model under replication
+      repdist[i,]<-gfit(gr,mode=mode,diag=diag)$coef
+    }
+    #Prepare output
+    fit$dist<-repdist
+    fit$pleeq<-apply(sweep(fit$dist,2,fit$coefficients,"<="),2,mean)
+    fit$pgreq<-apply(sweep(fit$dist,2,fit$coefficients,">="),2,mean)
+    fit$pgreqabs<-apply(sweep(abs(fit$dist),2,abs(fit$coefficients),">="),2, mean)
+  }else if(nullhyp=="qapx"){
+    #Generate replicates for each predictor
+    repdist<-matrix(0,reps,nx)
+    for(i in 1:nx){
+      gr<-g
+      for(j in 1:reps){
+        gr[[i+1]]<-rmperm(gr[[i+1]]) #Modify the focal x
+        #Fit model with modified x
+        repdist[j,i]<-gfit(gr,mode=mode,diag=diag)$coef[i]
       }
-      if(mode!="digraph")
-         d[lower.tri(d)]<-NA
-      iy<-as.vector(d)
-      #Now for the independent variables.
-      for(j in 1:m){
-         d<-switch(nullhyp,
-            qap = rmperm(x[j,,]),
-            cug = rgraph(n,1,mode=mode,diag=diag),
-            cugden = rgraph(n,1,tprob=gden(x[j,,],mode=mode,diag=diag),mode=mode,diag=diag),
-            cugtie = rgraph(n,1,mode=mode,diag=diag,tielist=x[j,,])
-         )
-         if(!diag){
-            diag(d)<-NA
-         }
-         if(mode!="digraph")
-            d[lower.tri(d)]<-NA
-         ix[j,]<-as.vector(d)
-      }   
-      #Finally, fit the test model
-      xnam <- paste("ix[", 1:m, ",]", sep="")
-      fmla <- as.formula(paste("iy ~ ", paste(xnam, collapse= "+")))
-      tm<-glm(fmla,family=binomial,na.action=na.omit)
-      #Gather the coefficients for use later...
-      out$dist[i,]<-as.numeric(coef(tm))
-   }
-   #Find the p-values for our monte carlo null hypothesis tests
-   out$coefficients<-nm$coefficients
-   out$pgreq<-vector(length=m+1)
-   out$pleeq<-vector(length=m+1)
-   for(i in 1:(m+1)){
-      out$pgreq[i]<-mean(out$dist[,i]>=out$coefficients[i],na.rm=TRUE)
-      out$pleeq[i]<-mean(out$dist[,i]<=out$coefficients[i],na.rm=TRUE)
-   }
-   #Having completed the model fit and MC tests, we gather useful information for
-   #the end user.  This is a combination of GLM output and our own stuff.
-   out$names<-as.vector(c("(intercept)",paste("x",1:m,sep="")))
-   out$nullhyp<-nullhyp
-   out$deviance<-nm$deviance
-   out$df.residual<-nm$df.residual
-   out$df.null<-nm$df.null
-   out$aic<-nm$aic
-   out$null.deviance<-nm$null.deviance
-   class(out)<-c("netlogit","netglm","netlm")
-   out
+    }
+    #Prepare output
+    fit$dist<-repdist
+    fit$pleeq<-apply(sweep(fit$dist,2,fit$coefficients,"<="),2,mean)
+    fit$pgreq<-apply(sweep(fit$dist,2,fit$coefficients,">="),2,mean)
+    fit$pgreqabs<-apply(sweep(abs(fit$dist),2,abs(fit$coefficients),">="),2, mean)
+  }else if(nullhyp=="qapallx"){
+    #Generate replicates for each predictor
+    repdist<-matrix(0,reps,nx)
+    gr<-g
+    for(i in 1:reps){
+      for(j in 1:nx)
+        gr[[1+j]]<-rmperm(g[[1+j]])  #Permute each x
+      #Fit the model under replication
+      repdist[i,]<-gfit(gr,mode=mode,diag=diag)$coef
+    }
+    #Prepare output
+    fit$dist<-repdist
+    fit$pleeq<-apply(sweep(fit$dist,2,fit$coefficients,"<="),2,mean)
+    fit$pgreq<-apply(sweep(fit$dist,2,fit$coefficients,">="),2,mean)
+    fit$pgreqabs<-apply(sweep(abs(fit$dist),2,abs(fit$coefficients),">="),2, mean)
+  }else if((nullhyp=="qap")||(nullhyp=="qapspp")){
+    xsel<-matrix(TRUE,n,n)
+    if(!diag)
+      diag(xsel)<-FALSE
+    if(mode=="graph")
+      xsel[upper.tri(xsel)]<-FALSE
+    #Generate replicates for each predictor
+    repdist<-matrix(0,reps,nx)
+    for(i in 1:nx){
+      #Regress x_i on other x's
+      xfit<-gfitlm(g[1+c(i,(1:nx)[-i])],mode=mode,diag=diag,tol=tol)
+      xres<-g[[1+i]]
+      xres[xsel]<-qr.resid(xfit[[1]],xfit[[2]])  #Get residuals of x_i
+      if(mode=="graph")
+        xres[upper.tri(xres)]<-t(xres)[upper.tri(xres)]
+      #Draw replicate coefs using permuted x residuals
+      for(j in 1:reps)
+        repdist[j,i]<-gfit(c(g[-(1+i)],list(rmperm(xres))),mode=mode, diag=diag)$coef[nx]
+    }
+    #Prepare output
+    fit$dist<-repdist
+    fit$pleeq<-apply(sweep(fit$dist,2,fit$coefficients,"<="),2,mean)
+    fit$pgreq<-apply(sweep(fit$dist,2,fit$coefficients,">="),2,mean)
+    fit$pgreqabs<-apply(sweep(abs(fit$dist),2,abs(fit$coefficients),">="),2, mean)
+  }
+  #Finalize the results
+  fit$nullhyp<-nullhyp
+  fit$names<-paste("x",1:(nx-intercept),sep="")
+  if(intercept)
+    fit$names<-c("(intercept)",fit$names)
+  fit$intercept<-intercept
+  class(fit)<-"netlogit"
+  #Return the result
+  fit
 }
 
 
@@ -1227,30 +1500,30 @@ plot.bbnam<-function(x,mode="density",intlines=TRUE,...){
 #plot.bbnam.actor - Plot method for bbnam.actor
 plot.bbnam.actor<-function(x,mode="density",intlines=TRUE,...){
    #Get the initial graphical settings, so we can restore them later
-   oldpar<-par()
+   oldpar<-par(no.readonly=TRUE)
    #Change plotting params
    par(ask=TRUE)
    #Initial plot: global error distribution
    par(mfrow=c(2,1))
    if(mode=="density"){   #Approximate the pdf using kernel density estimation
       #Plot marginal population (i.e. across actors) density of p(false negative)
-      plot(density(x$em),main=paste("Estimated Marginal Population Density of",expression(e^"-"),",",x$draws,"Draws"),xlab=expression({e^{"-"}}),xlim=c(0,1),...)
+      plot(density(x$em),main=substitute(paste("Estimated Marginal Population Density of ",{e^{"-"}},", ",draws," Draws"),list(draws=x$draws)),xlab=expression({e^{"-"}}),xlim=c(0,1),...)
       #Plot interval lines if required.
       if(intlines)
          abline(v=quantile(x$em,c(0.05,0.5,0.95)),lty=c(3,2,3))
       #Plot marginal population (i.e. across actors) density of p(false positive)
-      plot(density(x$ep),main=paste("Estimated Marginal Population Density of",expression(e^"+"),",",x$draws,"Draws"),xlab=expression({e^{"+"}}),xlim=c(0,1),...)
+      plot(density(x$ep),main=substitute(paste("Estimated Marginal Population Density of ",{e^{"+"}},", ",draws," Draws"),list(draws=x$draws)),xlab=expression({e^{"+"}}),xlim=c(0,1),...)
       #Plot interval lines if required.
       if(intlines)
          abline(v=quantile(x$ep,c(0.05,0.5,0.95)),lty=c(3,2,3))
    }else{     #Use histograms to plot the estimated density
       #Plot marginal population (i.e. across actors) density of p(false negative)
-      hist(x$em,main=paste("Histogram of",expression(e^"-"),",",x$draws,"Draws"),xlab=expression({e^{"-"}}),xlim=c(0,1),...)
+      hist(x$em,main=substitute(paste("Histogram of ",{e^{"-"}},", ",draws," Draws"),list(draws=x$draws)),xlab=expression({e^{"-"}}),xlim=c(0,1),...)
       #Plot interval lines if required.
       if(intlines)
          abline(v=quantile(x$em,c(0.05,0.5,0.95)),lty=c(3,2,3))
       #Plot marginal population (i.e. across actors) density of p(false positive)
-      hist(x$ep,main=paste("Histogram of",expression(e^"+"),",",x$draws,"Draws"),xlab=expression({e^{"+"}}),xlim=c(0,1),...)
+      hist(x$ep,main=substitute(paste("Histogram of ",{e^{"+"}},", ",draws," Draws"),list(draws=x$draws)),xlab=expression({e^{"+"}}),xlim=c(0,1),...)
       #Plot interval lines if required.
       if(intlines)
          abline(v=quantile(x$ep,c(0.05,0.5,0.95)),lty=c(3,2,3))
@@ -1259,12 +1532,12 @@ plot.bbnam.actor<-function(x,mode="density",intlines=TRUE,...){
    par(mfrow=c(floor(sqrt(x$nobservers)),ceiling(sqrt(x$nobservers))))
    for(i in 1:x$nobservers){
       if(mode=="density"){
-         plot(density(x$em[,i]),main=paste("Estimated Density of",expression(e^"-"[i]),",",x$draws,"Draws"),xlab=expression({e^{"-"}}[i]),xlim=c(0,1),...)
+         plot(density(x$em[,i]),main=substitute({e^{"-"}}[it],list(it=i)), xlab=substitute({e^{"-"}}[it],list(it=i)),xlim=c(0,1),...)
          #Plot interval lines if required.
          if(intlines)
             abline(v=quantile(x$em[,i],c(0.05,0.5,0.95)),lty=c(3,2,3))
       }else{
-         hist(x$em[,i],main=paste("Histogram of",expression(e^"-"[i]),",",x$draws,"Draws"),xlab=expression({e^{"-"}}[i]),xlim=c(0,1),...)
+         hist(x$em[,i],main=substitute({e^{"-"}}[it],list(it=i)), xlab=substitute({e^{"-"}}[it],list(it=i)),xlim=c(0,1),...)
          #Plot interval lines if required.
          if(intlines)
             abline(v=quantile(x$em[,i],c(0.05,0.5,0.95)),lty=c(3,2,3))
@@ -1274,12 +1547,12 @@ plot.bbnam.actor<-function(x,mode="density",intlines=TRUE,...){
    par(mfrow=c(floor(sqrt(x$nobservers)),ceiling(sqrt(x$nobservers))))
    for(i in 1:x$nobservers){
       if(mode=="density"){
-         plot(density(x$ep[,i]),main=paste("Estimated Density of",expression(e^"+"[i]),",",x$draws,"Draws"),xlab=expression({e^{"+"}}[i]),xlim=c(0,1),...)
+         plot(density(x$ep[,i]),main=substitute({e^{"+"}}[it],list(it=i)), xlab=substitute({e^{"+"}}[it],list(it=i)),xlim=c(0,1),...)
          #Plot interval lines if required.
          if(intlines)
             abline(v=quantile(x$ep[,i],c(0.05,0.5,0.95)),lty=c(3,2,3))
       }else{
-         hist(x$ep[,i],main=paste("Histogram of",expression(e^"+"[i]),",",x$draws,"Draws"),xlab=expression({e^{"+"}}[i]),xlim=c(0,1),...)
+         hist(x$ep[,i],main=substitute({e^{"+"}}[it],list(it=i)), xlab=substitute({e^{"+"}}[it],list(it=i)),xlim=c(0,1),...)
          #Plot interval lines if required.
          if(intlines)
             abline(v=quantile(x$ep[,i],c(0.05,0.5,0.95)),lty=c(3,2,3))
@@ -1315,23 +1588,23 @@ plot.bbnam.pooled<-function(x,mode="density",intlines=TRUE,...){
    par(mfrow=c(2,1))
    if(mode=="density"){   #Approximate the pdf using kernel density estimation
       #Plot marginal population (i.e. across actors) density of p(false negative)
-      plot(density(x$em),main=paste("Estimated Marginal Posterior Density of",expression(e^"-"),",",x$draws,"Draws"),xlab=expression({e^{"-"}}),xlim=c(0,1),...)
+      plot(density(x$em),main=substitute(paste("Estimated Marginal Posterior Density of ",{e^{"-"}},", ",draws," Draws"),list(draws=x$draws)),xlab=expression({e^{"-"}}),xlim=c(0,1),...)
       #Plot interval lines if required.
       if(intlines)
          abline(v=quantile(x$em,c(0.05,0.5,0.95)),lty=c(3,2,3))
       #Plot marginal population (i.e. across actors) density of p(false positive)
-      plot(density(x$ep),main=paste("Estimated Marginal Posterior Density of",expression(e^"+"),",",x$draws,"Draws"),xlab=expression({e^{"+"}}),xlim=c(0,1),...)
+      plot(density(x$ep),main=substitute(paste("Estimated Marginal Posterior Density of ",{e^{"+"}},", ",draws," Draws"),list(draws=x$draws)),xlab=expression({e^{"+"}}),xlim=c(0,1),...)
       #Plot interval lines if required.
       if(intlines)
          abline(v=quantile(x$ep,c(0.05,0.5,0.95)),lty=c(3,2,3))
    }else{     #Use histograms to plot the estimated density
       #Plot marginal population (i.e. across actors) density of p(false negative)
-      hist(x$em,main=paste("Histogram of",expression(e^"-"),",",x$draws,"Draws"),xlab=expression({e^{"-"}}),xlim=c(0,1),...)
+      hist(x$em,main=substitute(paste("Histogram of ",{e^{"-"}},", ",draws," Draws"),list(draws=x$draws)),xlab=expression({e^{"-"}}),xlim=c(0,1),...)
       #Plot interval lines if required.
       if(intlines)
          abline(v=quantile(x$em,c(0.05,0.5,0.95)),lty=c(3,2,3))
       #Plot marginal population (i.e. across actors) density of p(false positive)
-      hist(x$ep,main=paste("Histogram of",expression(e^"+"),",",x$draws,"Draws"),xlab=expression({e^{"+"}}),xlim=c(0,1),...)
+      hist(x$ep,main=substitute(paste("Histogram of ",{e^{"+"}},", ",draws," Draws"),list(draws=x$draws)),xlab=expression({e^{"+"}}),xlim=c(0,1),...)
       #Plot interval lines if required.
       if(intlines)
          abline(v=quantile(x$ep,c(0.05,0.5,0.95)),lty=c(3,2,3))
@@ -1341,6 +1614,50 @@ plot.bbnam.pooled<-function(x,mode="density",intlines=TRUE,...){
    plot.sociomatrix(apply(x$net,c(2,3),mean),labels=list(x$anames,x$anames),main="Marginal Posterior Tie Probability Distribution")
    #Clean up
    par(oldpar)
+}
+
+
+#plot.bn - Plot method for bn
+plot.bn<-function(x,...){
+  op<-par(no.readonly=TRUE) #Store old plotting params
+  on.exit(par(op))          #Reset when finished
+  par(mfrow=c(2,2))
+  #Dyad plot
+  dc<-sum(x$dyads)          #Get # dyads
+  dp<-x$dyads.pred          #Get dyad probs
+  dpm<-x$dyads.pred*dc      #Get pred marginals
+  dpsd<-sqrt(dp*(1-dp)*dc)  #Get pred SD
+  dr<-range(c(x$dyads,dpm+1.96*dpsd,dpm-1.96*dpsd))  #Get range
+  if(all(x$dyads>0)&&(all(dpm>0)))
+    plot(1:3,dpm,axes=FALSE,ylim=dr,main="Predicted Dyad Census", xlab="Dyad Type",ylab="Count",log="y",col=2,xlim=c(0.5,3.5))
+  else
+    plot(1:3,dpm,axes=FALSE,ylim=dr,main="Predicted Dyad Census", xlab="Dyad Type",ylab="Count",col=2,xlim=c(0.5,3.5))
+  segments(1:3,dpm-1.96*dpsd,1:3,dpm+1.96*dpsd,col=2)
+  segments(1:3-0.3,dpm-1.96*dpsd,1:3+0.3,dpm-1.96*dpsd,col=2)
+  segments(1:3-0.3,dpm+1.96*dpsd,1:3+0.3,dpm+1.96*dpsd,col=2)
+  points(1:3,x$dyads,pch=19)
+  axis(2)
+  axis(1,at=1:3,labels=names(x$dyads),las=3)
+  #Triad plot
+  tc<-sum(x$triads)          #Get # triads
+  tp<-x$triads.pred          #Get triad probs
+  tpm<-x$triads.pred*tc      #Get pred marginals
+  tpsd<-sqrt(tp*(1-tp)*tc)   #Get pred SD
+  tr<-range(c(x$triads,tpm+1.96*tpsd,tpm-1.96*tpsd))  #Get range
+  if(all(x$triads>0)&&(all(tpm>0)))
+    plot(1:16,tpm,axes=FALSE,ylim=tr,main="Predicted Triad Census", xlab="Triad Type",ylab="Count",log="y",col=2)
+  else
+    plot(1:16,tpm,axes=FALSE,ylim=tr,main="Predicted Triad Census", xlab="Triad Type",ylab="Count",col=2)
+  segments(1:16,tpm-1.96*tpsd,1:16,tpm+1.96*tpsd,col=2)
+  segments(1:16-0.3,tpm-1.96*tpsd,1:16+0.3,tpm-1.96*tpsd,col=2)
+  segments(1:16-0.3,tpm+1.96*tpsd,1:16+0.3,tpm+1.96*tpsd,col=2)
+  points(1:16,x$triads,pch=19)
+  axis(2)
+  axis(1,at=1:16,labels=names(x$triads),las=3)
+  #Structure statistics
+  ssr<-range(c(x$ss,x$ss.pred))
+  plot(0:(length(x$ss)-1),x$ss,type="b",xlab="Distance",ylab="Proportion Reached", main="Predicted Structure Statistics",ylim=ssr)
+  lines(0:(length(x$ss)-1),x$ss.pred,col=2,lty=2)
 }
 
 
@@ -1495,6 +1812,18 @@ print.bbnam.pooled<-function(x,...){
 }
 
 
+#print.bn - Print method for summary.bn
+print.bn<-function(x, digits=max(4,getOption("digits")-3), ...){
+  cat("\nBiased Net Model\n\n")
+  cat("Parameters:\n\n")
+  cmat<-matrix(c(x$d,x$pi,x$sigma,x$rho),nc=1)
+  colnames(cmat)<-"Estimate"
+  rownames(cmat)<-c("d","pi","sigma","rho")
+  printCoefmat(cmat,digits=digits,...)
+  cat("\n")
+}
+
+
 #print.lnam - Print method for lnam
 print.lnam<-function(x, digits = max(3, getOption("digits") - 3), ...){
    cat("\nCall:\n", deparse(x$call), "\n\n", sep = "")
@@ -1570,32 +1899,32 @@ print.netcancor<-function(x,...){
 #print.netlm - Print method for netlm
 print.netlm<-function(x,...){
    cat("\nOLS Network Model\n\n")
-   cat("Coefficients:\n\n")
+   cat("Coefficients:\n")
    cmat <- as.vector(format(as.numeric(x$coefficients)))
-   cmat <- cbind(cmat, as.vector(format(x$pgreq)))
    cmat <- cbind(cmat, as.vector(format(x$pleeq)))
-   colnames(cmat) <- c("Estimate", "Pr(>=b)", "Pr(<=b)")
+   cmat <- cbind(cmat, as.vector(format(x$pgreq)))
+   cmat <- cbind(cmat, as.vector(format(x$pgreqabs)))
+   colnames(cmat) <- c("Estimate", "Pr(<=b)", "Pr(>=b)","Pr(>=|b|)")
    rownames(cmat)<- as.vector(x$names)
    print.table(cmat)
    #Goodness of fit measures
-   mss<-if(attr(x$terms,"intercept"))
+   mss<-if(x$intercept)
       sum((fitted(x)-mean(fitted(x)))^2)
    else
       sum(fitted(x)^2)
    rss<-sum(resid(x)^2)
    qn<-NROW(x$qr$qr)
-   df.int<-if(attr(x$terms,"intercept")) 1
-      else 0
+   df.int<-x$intercept
    rdf<-qn-x$rank
    resvar<-rss/rdf
-   fstatistic<-c(value=(mss/(x$rank-df.int))/resvar,numdf=x$rank-df.int,dendf=rdf)
+   fstatistic<-c(value=(mss/(x$rank-df.int))/resvar,numdf=x$rank-df.int, dendf=rdf)
    r.squared<-mss/(mss+rss)
    adj.r.squared<-1-(1-r.squared)*((qn-df.int)/rdf)
    sigma<-sqrt(resvar)
    cat("\nResidual standard error:",format(sigma,digits=4),"on",rdf,"degrees of freedom\n")
-   cat("F-statistic:",formatC(fstatistic[1],digits=4),"on",fstatistic[2],"and",fstatistic[3],"degrees of freedom, \tp-value:",formatC(1-pf(fstatistic[1],fstatistic[2],fstatistic[3]),dig=4),"\n")
-   cat("Multiple R^2:",format(r.squared,digits=4),"\n")
-   cat("Adjusted R^2:",format(adj.r.squared,digits=4),"\n")
+   cat("F-statistic:",formatC(fstatistic[1],digits=4),"on",fstatistic[2],"and", fstatistic[3],"degrees of freedom, p-value:",formatC(1-pf(fstatistic[1],fstatistic[2],fstatistic[3]),dig=4),"\n")
+   cat("Multiple R-squared:",format(r.squared,digits=4),"\t")
+   cat("Adjusted R-squared:",format(adj.r.squared,digits=4),"\n")
    cat("\n")
 }
 
@@ -1603,18 +1932,20 @@ print.netlm<-function(x,...){
 #print.netlogit - Print method for netlogit
 print.netlogit<-function(x,...){
    cat("\nNetwork Logit Model\n\n")
-   cat("Coefficients:\n\n")
+   cat("Coefficients:\n")
    cmat <- as.vector(format(as.numeric(x$coefficients)))
-   cmat <- cbind(cmat, as.vector(format(x$pgreq)))
+   cmat <- cbind(cmat, as.vector(format(exp(as.numeric(x$coefficients)))))
    cmat <- cbind(cmat, as.vector(format(x$pleeq)))
-   colnames(cmat) <- c("Estimate", "Pr(>=b)", "Pr(<=b)")
+   cmat <- cbind(cmat, as.vector(format(x$pgreq)))
+   cmat <- cbind(cmat, as.vector(format(x$pgreqabs)))
+   colnames(cmat) <- c("Estimate", "Exp(b)", "Pr(<=b)", "Pr(>=b)", "Pr(>=|b|)")
    rownames(cmat)<- as.vector(x$names)
    print.table(cmat)
    cat("\nGoodness of Fit Statistics:\n")
-   cat("\nNull deviance (-2*Ln(L)):",x$null.deviance,"on",x$df.null,"degrees of freedom\n")
-   cat("Residual deviance (-2*Ln(L)):",x$deviance,"on",x$df.residual,"degrees of freedom\n")
+   cat("\nNull deviance:",x$null.deviance,"on",x$df.null,"degrees of freedom\n")
+   cat("Residual deviance:",x$deviance,"on",x$df.residual,"degrees of freedom\n")
    cat("Chi-Squared test of fit improvement:\n\t",x$null.deviance-x$deviance,"on",x$df.null-x$df.residual,"degrees of freedom, p-value",1-pchisq(x$null.deviance-x$deviance,df=x$df.null-x$df.residual),"\n") 
-   cat("AIC:",x$aic,"\tBIC:",x$deviance+log(x$df.null+1)*(x$df.null-x$df.residual),"\nPseudo-R^2 Measures:\n\t(Dn-Dr)/(Dn-Dr+dfn):",(x$null.deviance-x$deviance)/(x$null.deviance-x$deviance+x$df.null),"\n\t(Dn-Dr)/Dn:",1-x$deviance/x$null.deviance,"\n")
+   cat("AIC:",x$aic,"\tBIC:",x$bic,"\nPseudo-R^2 Measures:\n\t(Dn-Dr)/(Dn-Dr+dfn):",(x$null.deviance-x$deviance)/(x$null.deviance-x$deviance+x$df.null),"\n\t(Dn-Dr)/Dn:",1-x$deviance/x$null.deviance,"\n")
    cat("\n")
 }
 
@@ -1755,6 +2086,51 @@ print.summary.bbnam.pooled<-function(x,...){
 }
 
 
+#print.summary.bn - Print method for summary.bn
+print.summary.bn<-function(x, digits=max(4,getOption("digits")-3), signif.stars=getOption("show.signif.stars"), ...){
+  cat("\nBiased Net Model\n\n")
+  cat("\nParameters:\n\n")
+  cmat<-matrix(c(x$d,x$pi,x$sigma,x$rho),nc=1)
+  colnames(cmat)<-"Estimate"
+  rownames(cmat)<-c("d","pi","sigma","rho")
+  printCoefmat(cmat,digits=digits,...)
+  #Diagnostics
+  cat("\nDiagnostics:\n\n")
+  cat("\tFit method:",x$method,"\n")
+  cat("\tPseudolikelihood G^2:",x$G.square,"\n")
+  #Plot edge census
+  cat("\n\tEdge census comparison:\n\n")
+  ec<-sum(x$edges)
+  cmat<-cbind(x$edges,x$edges.pred*ec)
+  cmat<-cbind(cmat,(cmat[,1]-cmat[,2])/sqrt(x$edges.pred*(1-x$edges.pred)*ec))
+  cmat<-cbind(cmat,2*(1-pnorm(abs(cmat[,3]))))
+  colnames(cmat)<-c("Observed","Predicted","Z Value","Pr(>|z|)")
+  printCoefmat(cmat,digits=digits,signif.stars=signif.stars,...)
+  chisq<-sum((cmat[,1]-cmat[,2])^2/cmat[,2])
+  cat("\tChi-Square:",chisq,"on 1 degrees of freedom.  p-value:",1-pchisq(chisq,1),"\n\n")
+  #Plot dyad census
+  cat("\n\tDyad census comparison:\n\n")
+  dc<-sum(x$dyads)
+  cmat<-cbind(x$dyads,x$dyads.pred*dc)
+  cmat<-cbind(cmat,(cmat[,1]-cmat[,2])/sqrt(x$dyads.pred*(1-x$dyads.pred)*dc))
+  cmat<-cbind(cmat,2*(1-pnorm(abs(cmat[,3]))))
+  colnames(cmat)<-c("Observed","Predicted","Z Value","Pr(>|z|)")
+  printCoefmat(cmat,digits=digits,signif.stars=signif.stars,...)
+  chisq<-sum((cmat[,1]-cmat[,2])^2/cmat[,2])
+  cat("\tChi-Square:",chisq,"on 2 degrees of freedom.  p-value:",1-pchisq(chisq,2),"\n\n")
+  #Plot triad census
+  cat("\n\tTriad census comparison:\n\n")
+  tc<-sum(x$triads)
+  cmat<-cbind(x$triads,x$triads.pred*tc)
+  cmat<-cbind(cmat,(cmat[,1]-cmat[,2])/sqrt(x$triads.pred*(1-x$triads.pred)*tc))
+  cmat<-cbind(cmat,2*(1-pnorm(abs(cmat[,3]))))
+  colnames(cmat)<-c("Observed","Predicted","Z Value","Pr(>|z|)")
+  printCoefmat(cmat,digits=digits,signif.stars=signif.stars,...)
+  chisq<-sum((cmat[,1]-cmat[,2])^2/cmat[,2])
+  cat("\tChi-Square:",chisq,"on 15 degrees of freedom.  p-value:",1-pchisq(chisq,15),"\n\n")
+}
+
+
 #print.summary.lnam - Print method for summary.lnam
 print.summary.lnam<-function(x, digits = max(3, getOption("digits") - 3), signif.stars = getOption("show.signif.stars"), ...){
    cat("\nCall:\n")
@@ -1878,103 +2254,94 @@ print.summary.netcancor<-function(x,...){
 #print.summary.netlm - Print method for summary.netlm
 print.summary.netlm<-function(x,...){
    cat("\nOLS Network Model\n\n")
-   cat("Coefficients:\n\n")
+   #Residuals
+   cat("Residuals:\n")
+   print.table(format(quantile(x$residuals)))
+   #Coefficients
+   cat("\nCoefficients:\n")
    cmat <- as.vector(format(as.numeric(x$coefficients)))
-   cmat <- cbind(cmat, as.vector(format(x$pgreq)))
    cmat <- cbind(cmat, as.vector(format(x$pleeq)))
-   colnames(cmat) <- c("Estimate", "Pr(>=b)", "Pr(<=b)")
+   cmat <- cbind(cmat, as.vector(format(x$pgreq)))
+   cmat <- cbind(cmat, as.vector(format(x$pgreqabs)))
+   colnames(cmat) <- c("Estimate", "Pr(<=b)", "Pr(>=b)", "Pr(>=|b|)")
    rownames(cmat)<- as.vector(x$names)
    print.table(cmat)
    #Goodness of fit measures
-   mss<-if(attr(x$terms,"intercept"))
+   mss<-if(x$intercept)
       sum((fitted(x)-mean(fitted(x)))^2)
    else
       sum(fitted(x)^2)
    rss<-sum(resid(x)^2)
    qn<-NROW(x$qr$qr)
-   df.int<-if(attr(x$terms,"intercept")) 1
-      else 0
+   df.int<-x$intercept
    rdf<-qn-x$rank
    resvar<-rss/rdf
-   fstatistic<-c(value=(mss/(x$rank-df.int))/resvar,numdf=x$rank-df.int,dendf=rdf)
+   fstatistic<-c(value=(mss/(x$rank-df.int))/resvar,numdf=x$rank-df.int, dendf=rdf)
    r.squared<-mss/(mss+rss)
    adj.r.squared<-1-(1-r.squared)*((qn-df.int)/rdf)
    sigma<-sqrt(resvar)
    cat("\nResidual standard error:",format(sigma,digits=4),"on",rdf,"degrees of freedom\n")
-   cat("F-statistic:",formatC(fstatistic[1],digits=4),"on",fstatistic[2],"and",fstatistic[3],"degrees of freedom, \tp-value:",formatC(1-pf(fstatistic[1],fstatistic[2],fstatistic[3]),dig=4),"\n")
-   cat("Multiple R^2:",format(r.squared,digits=4),"\n")
-   cat("Adjusted R^2:",format(adj.r.squared,digits=4),"\n")
+   cat("Multiple R-squared:",format(r.squared,digits=4),"\t")
+   cat("Adjusted R-squared:",format(adj.r.squared,digits=4),"\n")
+   cat("F-statistic:",formatC(fstatistic[1],digits=4),"on",fstatistic[2],"and", fstatistic[3],"degrees of freedom, p-value:",formatC(1-pf(fstatistic[1],fstatistic[2],fstatistic[3]),dig=4),"\n")
    #Test diagnostics
    cat("\n\nTest Diagnostics:\n\n")
-   cat("\tNull Hypothesis:")
-   if(x$nullhyp=="qap")
-      cat(" QAP\n")
-   else
-      cat(" CUG\n")
-   cat("\tReplications:",dim(x$dist)[1],"\n")
-   cat("\tGoodness of Fit Distribution Summary:\n\n")
-   gof<-cbind(x$sigma.dist,x$r.squared.dist,x$adj.r.squared.dist)
-   dmat<-apply(gof,2,min,na.rm=TRUE)
-   dmat<-rbind(dmat,apply(gof,2,quantile,probs=0.25,names=FALSE,na.rm=TRUE))
-   dmat<-rbind(dmat,apply(gof,2,quantile,probs=0.5,names=FALSE,na.rm=TRUE))
-   dmat<-rbind(dmat,apply(gof,2,mean,na.rm=TRUE))
-   dmat<-rbind(dmat,apply(gof,2,quantile,probs=0.75,names=FALSE,na.rm=TRUE))
-   dmat<-rbind(dmat,apply(gof,2,max,na.rm=TRUE))
-   colnames(dmat)<-c("Sigma","R^2","Adj. R^2")
-   rownames(dmat)<-c("Min","1stQ","Median","Mean","3rdQ","Max")
-   print.table(dmat,digits=4)
-   cat("\n")
-   cat("\tCoefficient Distribution Summary:\n\n")
-   dmat<-apply(x$dist,2,min,na.rm=TRUE)
-   dmat<-rbind(dmat,apply(x$dist,2,quantile,probs=0.25,names=FALSE,na.rm=TRUE))
-   dmat<-rbind(dmat,apply(x$dist,2,quantile,probs=0.5,names=FALSE,na.rm=TRUE))
-   dmat<-rbind(dmat,apply(x$dist,2,mean,na.rm=TRUE))
-   dmat<-rbind(dmat,apply(x$dist,2,quantile,probs=0.75,names=FALSE,na.rm=TRUE))
-   dmat<-rbind(dmat,apply(x$dist,2,max,na.rm=TRUE))
-   colnames(dmat)<-as.vector(x$names)
-   rownames(dmat)<-c("Min","1stQ","Median","Mean","3rdQ","Max")
-   print.table(dmat,digits=4)
-   cat("\n")
+   cat("\tNull Hypothesis:",x$nullhyp,"\n")
+   if(!is.null(x$dist)){
+     cat("\tReplications:",dim(x$dist)[1],"\n")
+     cat("\tCoefficient Distribution Summary:\n\n")
+     dmat<-apply(x$dist,2,min,na.rm=TRUE)
+     dmat<-rbind(dmat,apply(x$dist,2,quantile,probs=0.25,names=FALSE, na.rm=TRUE))
+     dmat<-rbind(dmat,apply(x$dist,2,quantile,probs=0.5,names=FALSE,na.rm=TRUE))
+     dmat<-rbind(dmat,apply(x$dist,2,mean,na.rm=TRUE))
+     dmat<-rbind(dmat,apply(x$dist,2,quantile,probs=0.75,names=FALSE, na.rm=TRUE))
+     dmat<-rbind(dmat,apply(x$dist,2,max,na.rm=TRUE))
+     colnames(dmat)<-as.vector(x$names)
+     rownames(dmat)<-c("Min","1stQ","Median","Mean","3rdQ","Max")
+     print.table(dmat,digits=4)
+     cat("\n")
+  }
 }
 
 
 #print.summary.netlogit - Print method for summary.netlogit
 print.summary.netlogit<-function(x,...){
    cat("\nNetwork Logit Model\n\n")
-   cat("Coefficients:\n\n")
+   cat("Coefficients:\n")
    cmat <- as.vector(format(as.numeric(x$coefficients)))
    cmat <- cbind(cmat, as.vector(format(exp(as.numeric(x$coefficients)))))
-   cmat <- cbind(cmat, as.vector(format(x$pgreq)))
    cmat <- cbind(cmat, as.vector(format(x$pleeq)))
-   colnames(cmat) <- c("Estimate", "Exp(b)", "Pr(>=b)", "Pr(<=b)")
+   cmat <- cbind(cmat, as.vector(format(x$pgreq)))
+   cmat <- cbind(cmat, as.vector(format(x$pgreqabs)))
+   colnames(cmat) <- c("Estimate", "Exp(b)", "Pr(<=b)", "Pr(>=b)", "Pr(>=|b|)")
    rownames(cmat)<- as.vector(x$names)
    print.table(cmat)
    cat("\nGoodness of Fit Statistics:\n")
-   cat("\nNull deviance (-2*Ln(L)):",x$null.deviance,"on",x$df.null,"degrees of freedom\n")
-   cat("Residual deviance (-2*Ln(L)):",x$deviance,"on",x$df.residual,"degrees of freedom\n")
+   cat("\nNull deviance:",x$null.deviance,"on",x$df.null,"degrees of freedom\n")
+   cat("Residual deviance:",x$deviance,"on",x$df.residual,"degrees of freedom\n")
    cat("Chi-Squared test of fit improvement:\n\t",x$null.deviance-x$deviance,"on",x$df.null-x$df.residual,"degrees of freedom, p-value",1-pchisq(x$null.deviance-x$deviance,df=x$df.null-x$df.residual),"\n") 
-   cat("AIC:",x$aic,"\tBIC:",x$deviance+log(x$df.null+1)*(x$df.null-x$df.residual),"\nPseudo-R^2 Measures:\n\t(Dn-Dr)/(Dn-Dr+dfn):",(x$null.deviance-x$deviance)/(x$null.deviance-x$deviance+x$df.null),"\n\t(Dn-Dr)/Dn:",1-x$deviance/x$null.deviance,"\n")
+   cat("AIC:",x$aic,"\tBIC:",x$bic,"\nPseudo-R^2 Measures:\n\t(Dn-Dr)/(Dn-Dr+dfn):",(x$null.deviance-x$deviance)/(x$null.deviance-x$deviance+x$df.null),"\n\t(Dn-Dr)/Dn:",1-x$deviance/x$null.deviance,"\n")
    cat("Contingency Table (predicted (rows) x actual (cols)):\n\n")
    print.table(x$ctable,print.gap=3)
-   cat("\n\tTotal Fraction Correct:",(x$ctable[1,1]+x$ctable[2,2])/sum(x$ctable),"\n\tFraction 1s Correct:",x$ctable[2,2]/sum(x$ctable[2,]),"\n\tFraction 0s Correct:",x$ctable[1,1]/sum(x$ctable[1,]),"\n")
+   cat("\n\tTotal Fraction Correct:",(x$ctable[1,1]+x$ctable[2,2])/sum(x$ctable),"\n\tFraction Predicted 1s Correct:",x$ctable[2,2]/sum(x$ctable[2,]),"\n\tFraction Predicted 0s Correct:",x$ctable[1,1]/sum(x$ctable[1,]),"\n")
+   cat("\tFalse Negative Rate:",x$ctable[1,2]/sum(x$ctable[,2]),"\n")
+   cat("\tFalse Positive Rate:",x$ctable[2,1]/sum(x$ctable[,1]),"\n")
    cat("\nTest Diagnostics:\n\n")
-   cat("\tNull Hypothesis:")
-   if(x$nullhyp=="qap")
-      cat(" QAP\n")
-   else
-      cat(" CUG\n")
-   cat("\tReplications:",dim(x$dist)[1],"\n")
-   cat("\tDistribution Summary:\n\n")
-   dmat<-apply(x$dist,2,min,na.rm=TRUE)
-   dmat<-rbind(dmat,apply(x$dist,2,quantile,probs=0.25,names=FALSE,na.rm=TRUE))
-   dmat<-rbind(dmat,apply(x$dist,2,quantile,probs=0.5,names=FALSE,na.rm=TRUE))
-   dmat<-rbind(dmat,apply(x$dist,2,mean,na.rm=TRUE))
-   dmat<-rbind(dmat,apply(x$dist,2,quantile,probs=0.75,names=FALSE,na.rm=TRUE))
-   dmat<-rbind(dmat,apply(x$dist,2,max,na.rm=TRUE))
-   colnames(dmat)<-as.vector(x$names)
-   rownames(dmat)<-c("Min","1stQ","Median","Mean","3rdQ","Max")
-   print.table(dmat,digits=4)
-   cat("\n")
+   cat("\tNull Hypothesis:",x$nullhyp,"\n")
+   if(!is.null(x$dist)){
+     cat("\tReplications:",dim(x$dist)[1],"\n")
+     cat("\tDistribution Summary:\n\n")
+     dmat<-apply(x$dist,2,min,na.rm=TRUE)
+     dmat<-rbind(dmat,apply(x$dist,2,quantile,probs=0.25,names=FALSE, na.rm=TRUE))
+     dmat<-rbind(dmat,apply(x$dist,2,quantile,probs=0.5,names=FALSE,na.rm=TRUE))
+     dmat<-rbind(dmat,apply(x$dist,2,mean,na.rm=TRUE))
+     dmat<-rbind(dmat,apply(x$dist,2,quantile,probs=0.75,names=FALSE, na.rm=TRUE))
+     dmat<-rbind(dmat,apply(x$dist,2,max,na.rm=TRUE))
+     colnames(dmat)<-as.vector(x$names)
+     rownames(dmat)<-c("Min","1stQ","Median","Mean","3rdQ","Max")
+     print.table(dmat,digits=4)
+     cat("\n")
+   }
 }
 
 
@@ -1983,6 +2350,9 @@ print.summary.netlogit<-function(x,...){
 #subsequent printing/summarizing/etc. should be treated accordingly.
 pstar<-function(dat,effects=c("choice","mutuality","density","reciprocity","stransitivity","wtransitivity","stranstri","wtranstri","outdegree","indegree","betweenness","closeness","degcentralization","betcentralization","clocentralization","connectedness","hierarchy","lubness","efficiency"),attr=NULL,memb=NULL,diag=FALSE,mode="digraph"){
    #First, take care of various details
+   dat<-as.sociomatrix.sna(dat)
+   if(is.list(dat)||(is.array(dat)&&(length(dim(dat))>2)))
+     stop("Single graphs required in pstar.")
    n<-dim(dat)[1]
    m<-dim(dat)[2]
    o<-list()
@@ -1997,13 +2367,13 @@ pstar<-function(dat,effects=c("choice","mutuality","density","reciprocity","stra
       if(is.vector(attr))
          attr<-matrix(attr,ncol=1)
       if(is.null(colnames(attr)))
-         colnames(attr)<-paste("Attribute",1:dim(attr)[2])
+         colnames(attr)<-paste("Attribute",1:dim(attr)[2],sep=".")
    }
    if(!is.null(memb)){
       if(is.vector(memb))
          memb<-matrix(memb,ncol=1)
       if(is.null(colnames(memb)))
-         colnames(memb)<-paste("Membership",1:dim(memb)[2])
+         colnames(memb)<-paste("Membership",1:dim(memb)[2],sep=".")
    }
    #Now, evaluate each specified effect given each possible perturbation
    tiedat<-vector()
@@ -2197,6 +2567,14 @@ summary.bbnam.pooled<-function(object, ...){
    out<-object
    class(out)<-c("summary.bbnam.pooled",class(out))
    out
+}
+
+
+#summary.bn - Summary method for bn
+summary.bn<-function(object, ...){
+  out<-object
+  class(out)<-c("summary.bn",class(out))
+  out
 }
 
 

@@ -10,11 +10,11 @@ gliop(dat, GFUN, OP="-", g1=1, g2=2, ...)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
-  \item{dat}{ A graph stack }
-  \item{GFUN}{ A function taking single graphs as input }
-  \item{OP}{ The operator to use on the output of \code{GFUN} }
-  \item{g1}{ The index of the first input graph }
-  \item{g2}{ The index of the second input graph }
+  \item{dat}{ a collection of graphs. }
+  \item{GFUN}{ a function taking single graphs as input. }
+  \item{OP}{ the operator to use on the output of \code{GFUN}. }
+  \item{g1}{ the index of the first input graph. }
+  \item{g2}{ the index of the second input graph. }
   \item{\dots}{ Additional arguments to \code{GFUN} }
 }
 \details{
@@ -40,3 +40,4 @@ gliop(g,gden,"-",1,2)
 }
 \keyword{ utilities }%-- one or more ...
 \keyword{ math }
+\keyword{ graphs }

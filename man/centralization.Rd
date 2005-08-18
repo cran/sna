@@ -11,7 +11,7 @@ centralization(dat, FUN, g=1, mode="digraph", diag=FALSE,
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
-  \item{dat}{ Data array to be analyzed.  By assumption, the first dimension of the array indexes the graph, with the next two indexing the actors.  Provided that \code{FUN} is well-behaved, this can be an n x n matrix if only one graph is involved. }
+  \item{dat}{ one or more input graphs. }
   \item{FUN}{ Function to return nodal centrality scores.}
   \item{g}{ Integer indicating the index of the graph for which centralization should be computed.  By default, \code{g}=1. }
   \item{mode}{ String indicating the type of graph being evaluated.  "digraph" indicates that edges should be interpreted as directed; "graph" indicates that edges are undirected.  \code{mode} is set to "digraph" by default. }
@@ -49,3 +49,4 @@ centralization(dat,g=3,degree)
 }
 \keyword{ univar }%-- one or more ...
 \keyword{ math }
+\keyword{ graphs }

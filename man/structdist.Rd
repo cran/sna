@@ -6,30 +6,29 @@
   \code{structdist} returns the structural distance between the labeled graphs \code{g1} and \code{g2} in stack \code{dat} based on Hamming distance for dichotomous data, or else the absolute (manhattan) distance.  If \code{normalize} is true, this distance is divided by its dichotomous theoretical maximum (conditional on |V(G)|).
 }
 \usage{
-structdist(dat, g1=c(1:dim(dat)[1]), g2=c(1:dim(dat)[1]), 
-    normalize=FALSE, diag=FALSE, mode="digraph", method="anneal", 
-    reps=1000, prob.init=0.9, prob.decay=0.85, freeze.time=25, 
-    full.neighborhood=TRUE, mut=0.05, pop=20, trials=5, 
-    exchange.list=rep(0, dim(dat)[2]))
+structdist(dat, g1=NULL, g2=NULL, normalize=FALSE, diag=FALSE,
+    mode="digraph", method="anneal",  reps=1000, prob.init=0.9,
+    prob.decay=0.85, freeze.time=25, full.neighborhood=TRUE,
+    mut=0.05, pop=20, trials=5, exchange.list=NULL)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
-  \item{dat}{ Data array to be analyzed.  By assumption, the first dimension of the array indexes the graph, with the next two indexing the actors.  This data need not be dichotomous, and missing values are allowed. }
-  \item{g1}{ A vector indicating which graphs to compare (by default, all elements of \code{dat}  }
-  \item{g2}{ A vector indicating against which the graphs of \code{g1} should be compared (by default, all graphs) }
-  \item{normalize}{ Divide by the number of available dyads? }
-  \item{diag}{ Boolean indicating whether or not the diagonal should be treated as valid data.  Set this true if and only if the data can contain loops.  \code{diag} is \code{FALSE} by default. }
-  \item{mode}{ String indicating the type of graph being evaluated.  \code{"digraph"} indicates that edges should be interpreted as directed; \code{"graph"} indicates that edges are undirected.  \code{mode} is set to \code{"digraph"} by default.}
-  \item{method}{ Method to be used to search the space of accessible permutations; must be one of \code{?none?}, \code{?exhaustive?}, \code{?anneal?}, \code{?hillclimb?}, or \code{?mc?}. }
-  \item{reps}{ Number of iterations for monte carlo method.}
-  \item{prob.init}{ Initial acceptance probability for the annealing routine. }
-  \item{prob.decay}{ Cooling multiplier for the annealing routine. }
-  \item{freeze.time}{ Freeze time for the annealing routine. }
-  \item{full.neighborhood}{ Should the annealer evaluate the full neighborhood of pair exchanges at each iteration? }
-  \item{mut}{ GA Mutation rate (currently ignored) }
-  \item{pop}{ GA population (currently ignored) }
-  \item{trials}{ Number of GA populations (currently ignored) }
-  \item{exchange.list}{ Information on which vertices are exchangeable (see below); this must be a single number, a vector of length n, or a nx2 matrix. }
+  \item{dat}{ one or more input graphs. }
+  \item{g1}{ a vector indicating which graphs to compare (by default, all elements of \code{dat}).  }
+  \item{g2}{ a vector indicating against which the graphs of \code{g1} should be compared (by default, all graphs). }
+  \item{normalize}{ divide by the number of available dyads? }
+  \item{diag}{ boolean indicating whether or not the diagonal should be treated as valid data.  Set this true if and only if the data can contain loops.  \code{diag} is \code{FALSE} by default. }
+  \item{mode}{ string indicating the type of graph being evaluated.  \code{"digraph"} indicates that edges should be interpreted as directed; \code{"graph"} indicates that edges are undirected.  \code{mode} is set to \code{"digraph"} by default.}
+  \item{method}{ method to be used to search the space of accessible permutations; must be one of \code{"none"}, \code{"exhaustive"}, \code{"anneal"}, \code{"hillclimb"}, or \code{"mc"}. }
+  \item{reps}{ number of iterations for Monte Carlo method.}
+  \item{prob.init}{ initial acceptance probability for the annealing routine. }
+  \item{prob.decay}{ cooling multiplier for the annealing routine. }
+  \item{freeze.time}{ freeze time for the annealing routine. }
+  \item{full.neighborhood}{ should the annealer evaluate the full neighborhood of pair exchanges at each iteration? }
+  \item{mut}{ GA Mutation rate (currently ignored). }
+  \item{pop}{ GA population (currently ignored). }
+  \item{trials}{ number of GA populations (currently ignored). }
+  \item{exchange.list}{ information on which vertices are exchangeable (see below); this must be a single number, a vector of length n, or a nx2 matrix. }
 }
 \details{
 The structural distance between two graphs G and H is defined as
@@ -74,3 +73,4 @@ structdist(g,method="anneal", prob.init=0.9, prob.decay=0.85,
 \keyword{ univar }
 \keyword{ multivariate }%-- one or more ...
 \keyword{ math }
+\keyword{ graphs }

@@ -4,7 +4,7 @@
 # triads.c
 #
 # copyright (c) 2004, Carter T. Butts <buttsc@uci.edu>
-# Last Modified 11/13/04
+# Last Modified 4/24/05
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/sna package
@@ -20,16 +20,21 @@
 #include <R.h>
 #include "triads.h"
 
-int triad_classify(int *g, int gn, int i, int j, int k)
+int triad_classify(int *g, int gn, int i, int j, int k, int gm)
 /*
-Compute a Holland and Leinhardt classification for the {i,j,k} triad in graph 
-g.  Note that this routine assumes dichotomized data.
+If gm=1, compute a Holland and Leinhardt classification for the {i,j,k} triad
+in graph g; otherwise, compute the four-state undirected classification.  Note
+that this routine assumes dichotomized data.
 
 This routine is not intended to be called from R.
 */
 {
   int m,a,n,di,dj,dk;
   
+  /*If we are in the undirected case, take the easy way out*/
+  if(!gm)
+    return g[i+j*gn]+g[j+k*gn]+g[i+k*gn];
+      
   /*Get MAN information*/
   m=g[i+j*gn]*g[j+i*gn]+g[i+k*gn]*g[k+i*gn]+g[j+k*gn]*g[k+j*gn];
   n=(1-g[i+j*gn])*(1-g[j+i*gn])+(1-g[i+k*gn])*(1-g[k+i*gn])+(1-g[j+k*gn])*(1-g[k+j*gn]);
@@ -107,7 +112,7 @@ This routine is not intended to be called from R.
 }
 
 
-void triad_classify_R(int *g, int *tt)
+void triad_classify_R(int *g, int *tt, int *gm)
 /*
 Given a triadic adjacency matrix, classify the triad in question.  Note that this routine assumes dichotomized data.  (This is a wrapper for triad_classify.)
 
@@ -116,11 +121,11 @@ This routine may be called from R using .C.
 {
 
 /*Perform the classification*/
-*tt=triad_classify(g,3,0,1,2);
+*tt=triad_classify(g,3,0,1,2,*gm);
 }
 
 
-void triad_census_R(int *g, int *n, double *t)
+void triad_census_R(int *g, int *n, double *t, int *gm)
 /*
 Compute a Holland and Leinhardt triad census for the graph with adjacency
 matrix g.  Note that this routine assumes dichotomized data.
@@ -131,11 +136,11 @@ This routine may be called from R using .C.
   int i,j,k;
 
   /*Clear out triad structure*/
-  for(i=0;i<16;i++)
+  for(i=0;i<4+(*gm)*12;i++)     /*Vector length depends on gm*/
     t[i]=0.0;
   /*Get the triad counts*/
   for(i=0;i<*n;i++)
     for(j=i+1;j<*n;j++)
       for(k=j+1;k<*n;k++)
-        t[triad_classify(g,*n,i,j,k)]++;
+        t[triad_classify(g,*n,i,j,k,*gm)]++;
 }

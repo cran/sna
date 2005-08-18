@@ -3,21 +3,21 @@
 %- Also NEED an `\alias' for EACH other topic documented here.
 \title{ Remove the Diagonals of Adjacency Matrices in a Graph Stack }
 \description{
-  Returns the input graph stack, with the diagonal entries removed/replaced as indicated.
+  Returns the input graphs, with the diagonal entries removed/replaced as indicated.
 }
 \usage{
 diag.remove(dat, remove.val=NA)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
-  \item{dat}{ A graph stack }
-  \item{remove.val}{ The value with which to replace the existing diagonals }
+  \item{dat}{ one or more graphs. }
+  \item{remove.val}{ the value with which to replace the existing diagonals }
 }
 \details{
-  \code{diag.remove} is simply a convenient way to apply \code{\link{diag}} to an entire stack of adjacency matrices at once.
+  \code{diag.remove} is simply a convenient way to apply \code{\link{diag}} to an entire collection of adjacency matrices/\code{network} objects at once.
 }
 \value{
-The updated graph stack
+  The updated graphs.
 }
 
 \author{ Carter T. Butts \email{buttsc@uci.edu} }
@@ -33,3 +33,4 @@ g<-diag.remove(g)
 }
 \keyword{ manip }%-- one or more ...
 \keyword{ math }
+\keword{ graphs }

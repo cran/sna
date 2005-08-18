@@ -1,6 +1,4 @@
 add.isolates            Add Isolates to a Graph
-addisolates-deprecated
-                        Add Isolates to a Graph (Deprecated)
 bbnam                   Butts' (Hierarchical) Bayesian Network
                         Accuracy Model
 bbnam.bf                Estimate Bayes Factors for the bbnam
@@ -10,9 +8,11 @@ blockmodel              Generate Blockmodels Based on Partitions of
                         Network Positions
 blockmodel.expand       Generate a Graph (or Stack) from a Given
                         Blockmodel Using Particular Expansion Rules
+bn                      Fit a Biased Net Model
 bonpow                  Find Bonacich Power Centrality Scores of
                         Network Positions
-centralgraph            Find the Central Graph of a Labeled Graph Set
+centralgraph            Find the Central Graph of a Labeled Graph
+                        Stack
 centralization          Find the Centralization of a Given Network,
                         for Some Measure of Centrality
 closeness               Compute the Closeness Centrality Scores of
@@ -103,7 +103,7 @@ netlogit                Logistic Regression for Network Data
 npostpred               Take Posterior Predictive Draws for Functions
                         of Networks
 nties                   Find the Number of Possible Ties in a Given
-                        Graph or Stack
+                        Graph or Graph Stack
 numperm                 Get the nth Permutation Vector by Periodic
                         Placement
 plot.bbnam              Plotting for bbnam Objects
@@ -145,6 +145,7 @@ qaptest                 Perform Quadratic Assignment Procedure (QAP)
                         Hypothesis Tests for Graph-Level Statistics
 reachability            Find the Reachability Matrix of a Graph
 read.nos                Read (N)eo-(O)rg(S)tat Input Files
+rgbn                    Draw from a Skvoretz-Fararo Biased Net Process
 rgnm                    Draw Density-Conditioned Random Graphs
 rgraph                  Generate Bernoulli Random Graphs
 rguman                  Draw Dyad Census-Conditioned Random Graphs
@@ -154,9 +155,10 @@ rmperm                  Randomly Permute the Rows and Columns of an
 rperm                   Draw a Random Permutation Vector with
                         Exchangeability Constraints
 sdmat                   Estimate the Structural Distance Matrix for a
-                        Graph Set
+                        Graph Stack
 sedist                  Find a Matrix of Distances Between Positions
                         Based on Structural Equivalence
+sna                     Tools for Social Network Analysis
 sna-deprecated          Deprecated Functions in sna Package
 sna.operators           Graphical Operators
 sr2css                  Convert a Row-wise Self-Report Matrix to a CSS
@@ -166,6 +168,7 @@ stresscent              Compute the Stress Centrality Scores of
                         Network Positions
 structdist              Find the Structural Distances Between Two or
                         More Graphs
+structure.statistics    Compute Network Structure Statistics
 summary.bayes.factor    Detailed Summaries of Bayes Factor Objects
 summary.bbnam           Detailed Summaries of bbnam Objects
 summary.blockmodel      Detailed Summaries of blockmodel Objects
@@ -181,3 +184,6 @@ triad.classify          Compute the Davis and Leinhardt Classification
                         of a Given Triad
 upper.tri.remove        Remove the Upper Triangles of Adjacency
                         Matrices in a Graph Stack
+write.dl                Write Output Graphs in DL Format
+write.nos               Write Output Graphs in (N)eo-(O)rg(S)tat
+                        Format

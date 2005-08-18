@@ -3,7 +3,7 @@
 # visualization.R
 #
 # copyright (c) 2004, Carter T. Butts <buttsc@uci.edu>
-# Last Modified 1/09/05
+# Last Modified 8/18/05
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/sna package
@@ -63,7 +63,10 @@ gplot<-function(dat,g=1,gmode="digraph",diag=FALSE,label=c(1:dim(dat)[2]),coord=
    #Create a useful interval inclusion operator
    "%iin%"<-function(x,int) (x>=int[1])&(x<=int[2])
    #Extract the graph to be displayed
-   if(length(dim(dat))>2)
+   dat<-as.sociomatrix.sna(dat)
+   if(is.list(dat))
+     dat<-dat[[g]]
+   else if(length(dim(dat))>2)
       d<-dat[g,,]
    else
       d<-dat
@@ -997,7 +1000,10 @@ gplot3d<-function(dat,g=1,gmode="digraph",diag=FALSE,label=c(1:dim(dat)[2]),coor
    #Require that rgl be loaded
    require(rgl)
    #Extract the graph to be displayed
-   if(length(dim(dat))>2)
+   dat<-as.sociomatrix.sna(dat)
+   if(is.list(dat))
+     dat<-dat[[g]]
+   else if(length(dim(dat))>2)
       d<-dat[g,,]
    else
       d<-dat
@@ -1026,7 +1032,7 @@ gplot3d<-function(dat,g=1,gmode="digraph",diag=FALSE,label=c(1:dim(dat)[2]),coor
       y<-coord[,2]
       z<-coord[,3]
    }else{   #Otherwise, use the specified layout function
-     layout.fun<-try(match.fun(paste("gplot3d.layout.",mode,sep="")),silent=TRUE)
+     layout.fun<-try(match.fun(paste("gplot3d.layout.",mode,sep="")), silent=TRUE)
      if(class(layout.fun)=="try-error")
        stop("Error in gplot3d: no layout function for mode ",mode)
      temp<-layout.fun(d,layout.par)
@@ -1066,10 +1072,10 @@ gplot3d<-function(dat,g=1,gmode="digraph",diag=FALSE,label=c(1:dim(dat)[2]),coor
      vertex.radius<-rep(vertex.radius,length=n)
    else
      vertex.radius<-rep(vertex.radius*baserad,length=n)
-   if(length(vertex.col)==1)
-     vertex.col<-rep(vertex.col,n)
+   vertex.col<-rep(vertex.col,length=n)
+   vertex.alpha<-rep(vertex.alpha,length=n)
    if(!all(use==FALSE))
-     rgl.spheres(x[use],y[use],z[use],radius=vertex.radius,color=vertex.col, alpha=vertex.alpha)
+     rgl.spheres(x[use],y[use],z[use],radius=vertex.radius[use], color=vertex.col[use], alpha=vertex.alpha[use])
    #Generate the edges and their attributes
    pt<-vector()   #Create position vectors (tail, head)
    ph<-vector()
@@ -1168,7 +1174,7 @@ gplot3d.arrow<-function(a,b,radius,color="white",alpha=1){
   for(i in 1:n)
     coord<-rbind(coord,make.coords(a[i,],b[i,],radius[i]))
   #Draw the triangles
-  rgl.triangles(coord[,1],coord[,2],coord[,3],color=color,alpha=alpha)    
+  rgl.triangles(coord[,1],coord[,2],coord[,3],color=rep(color,each=24), alpha=rep(alpha,each=24))
 }
 
 
@@ -1517,26 +1523,49 @@ gplot3d.loop<-function(a,radius,color="white",alpha=1){
   for(i in 1:n)
     coord<-rbind(coord,make.coords(a[i,],radius[i]))
   #Plot the triangles
-  rgl.triangles(coord[,1],coord[,2],coord[,3],color=color,alpha=alpha)
+  rgl.triangles(coord[,1],coord[,2],coord[,3],color=rep(color,each=24), alpha=rep(alpha,each=24))
 }
 
 
 #plot.sociomatrix - An odd sort of plotting routine; plots a matrix (e.g., a 
 #Bernoulli graph density, or a set of adjacencies) as an image.  Very handy for 
 #visualizing large valued matrices...
-plot.sociomatrix<-function(x,labels=list(seq(1:dim(x)[1]),seq(1:dim(x)[2])),drawlab=TRUE,diaglab=TRUE,...){       
+plot.sociomatrix<-function(x,labels=NULL,drawlab=TRUE,diaglab=TRUE,drawlines=TRUE,xlab=NULL,ylab=NULL,cex.lab=1,...){       
+   #Begin preprocessing
+   if(class(x)=="network")
+     x<-as.sociomatrix.sna(x)
+   #End preprocessing
    n<-dim(x)[1]
    o<-dim(x)[2]
-   d<-1-(x-min(x))/(max(x)-min(x))
-   plot(1,1,xlim=c(0,o+1),ylim=c(n+1,0),type="n",axes=FALSE,...)
+   if(is.null(labels))
+     labels<-list(NULL,NULL)
+   if(is.null(labels[[1]])){  #Set labels, if needed
+     if(is.null(rownames(x)))
+       labels[[1]]<-1:dim(x)[1]
+     else
+       labels[[1]]<-rownames(x)
+   }
+   if(is.null(labels[[2]])){ 
+     if(is.null(colnames(x)))
+       labels[[2]]<-1:dim(x)[2]
+     else
+       labels[[2]]<-colnames(x)
+   }
+   d<-1-(x-min(x,na.rm=TRUE))/(max(x,na.rm=TRUE)-min(x,na.rm=TRUE))
+   if(is.null(xlab))
+     xlab<-""
+   if(is.null(ylab))
+     ylab<-""
+   plot(1,1,xlim=c(0,o+1),ylim=c(n+1,0),type="n",axes=FALSE,xlab=xlab,ylab=ylab, ...)
    for(i in 1:n)
       for(j in 1:o)
-         rect(j-0.5,i+0.5,j+0.5,i-0.5,col=gray(d[i,j]),xpd=TRUE)
+         rect(j-0.5,i+0.5,j+0.5,i-0.5,col=gray(d[i,j]),xpd=TRUE, border=drawlines)
+   rect(0.5,0.5,o+0.5,n+0.5,col=NA,xpd=TRUE)
    if(drawlab){
-      text(rep(0,n),1:n,labels[[1]])
-      text(1:o,rep(0,o),labels[[2]])
+      text(rep(0,n),1:n,labels[[1]],cex=cex.lab)
+      text(1:o,rep(0,o),labels[[2]],cex=cex.lab)
    }
    if((n==o)&(drawlab)&(diaglab))
-      if(labels[[1]]==labels[[2]])
-         text(1:o,1:n,labels[[1]])
+      if(all(labels[[1]]==labels[[2]]))
+         text(1:o,1:n,labels[[1]],cex=cex.lab)
 }

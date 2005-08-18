@@ -3,7 +3,7 @@
 # sna-operators.R
 #
 # copyright (c) 2004, Carter T. Butts <buttsc@uci.edu>
-# Last Modified 11/25/04
+# Last Modified 4/23/05
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/sna package
@@ -19,12 +19,26 @@
 
 
 #%c% - Composition of two adjacancy matrices
-"%c%"<-function(x,y)
+"%c%"<-function(x,y){
+  #Pre-process the raw input
+  x<-as.sociomatrix.sna(x)
+  y<-as.sociomatrix.sna(y)
+  if(!(is.matrix(x)&&is.matrix(y)))
+    stop("Single graphs required for composition.")
+  #End pre-processing
   round((x%*%y)>0)
-
+}
 
 #gapply - Apply a function to vertex neighborhoods within a graph
 gapply<-function(X,MARGIN,STATS,FUN,...,mode="digraph",diag=FALSE,distance=1,thresh=0,simplify=TRUE){
+  #Pre-process the raw input
+  X<-as.sociomatrix.sna(X)
+  if(is.list(X))
+    return(lapply(X,gapply,MARGIN,STATS,FUN,...,mode=mode, diag=diag,distance=distance,thresh=thresh,simplify=simplify))
+  else if(length(dim(X))>2){
+    return(apply(X,1,gapply,MARGIN,STATS,FUN,...,mode=mode, diag=diag,distance=distance,thresh=thresh,simplify=simplify))
+  }
+  #End pre-processing
   #Match the input function
   fun<-match.fun(FUN)
   #Dichotomize, if needed
@@ -60,7 +74,15 @@ gapply<-function(X,MARGIN,STATS,FUN,...,mode="digraph",diag=FALSE,distance=1,thr
 #gliop - Return a binary operation on GLI values computed on two graphs (for 
 #test routines).
 gliop<-function(dat,GFUN,OP="-",g1=1,g2=2,...){
+   #Pre-process the raw input
+   dat<-as.sociomatrix.sna(dat)
+   if((!is.list(dat))&&(length(dim(dat))==2))
+     dat<-array(dat,dim=c(1,dim(dat)))
+   #End pre-processing
    fun<-match.fun(GFUN)
    op<-match.fun(OP)
-   op(fun(dat[g1,,],...),fun(dat[g2,,],...))
+   if(is.list(dat))
+     op(fun(dat[[g1]],...),fun(dat[[g2]],...))
+   else
+     op(fun(dat[g1,,],...),fun(dat[g2,,],...))
 }

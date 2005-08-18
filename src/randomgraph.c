@@ -4,7 +4,7 @@
 # randomgraph.c
 #
 # copyright (c) 2004, Carter T. Butts <buttsc@uci.edu>
-# Last Modified 12/27/04
+# Last Modified 3/12/05
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/sna package
@@ -19,6 +19,110 @@
 #include <stdlib.h>
 #include <R.h>
 #include "randomgraph.h"
+
+void bn_mcmc_R(int *g, double *pn, double *pdraws, double *pburn, int *pthin, double *pi, double *sigma, double *rho, double *d)
+{
+  long int n,i,j,k,x,draws,burn,bc,*parents;
+  double lne,lnpar,lnsib,lndblr,ep;
+  int thin,tc;
+  
+  /*Initialize various things*/
+  n=(long int)*pn;
+  draws=(long int)*pdraws;
+  burn=(long int)*pburn;
+  thin=(int)*pthin;
+  GetRNGstate();
+  parents=(long int *)R_alloc(n*n,sizeof(long int));
+  for(i=0;i<n;i++){
+    for(j=0;j<n;j++){
+      g[i*draws+j*n*draws]=0;
+      parents[i+j*n]=0;  /*Eventually fix symmetry condition*/
+    }    
+  }  
+  lne=log(1.0-*d);
+  lnpar=log(1.0-*pi);
+  lnsib=log(1.0-*sigma);
+  lndblr=log(1.0-*rho);
+
+  /*Run the MCMC loop*/
+  bc=0;
+  tc=0;
+  for(i=1;i<draws;i++){
+    /*
+    if(bc<burn)
+      Rprintf("Burn-in Iteration %ld\n",bc);
+    else
+      Rprintf("Iteration %ld\n",i);
+    Rprintf("\tCopying old state\n");
+    */
+    /*Copy our old state into the next iteration slot*/
+    for(j=0;j<n;j++)
+      for(k=0;k<n;k++)
+        g[i+j*draws+k*n*draws]=g[i-1+j*draws+k*n*draws];
+    /*Rprintf("\tEdge selection\n");*/
+    /*Select an edge to redraw*/
+    j=(long int)floor(runif(0.0,1.0)*n);
+    do{
+      k=(long int)floor(runif(0.0,1.0)*n);
+    }while(j==k);
+    /*Rprintf("\tDrawing and updating\n");*/
+    /*Redraw the edge from the full conditional*/
+    ep=1.0-exp(lne+g[i+k*draws+j*n*draws]*lnpar+parents[j+k*n]*lnsib+ g[i+k*draws+j*n*draws]*parents[j+k*n]*lndblr);
+    if(runif(0.0,1.0)<=ep){
+      g[i+j*draws+k*n*draws]=1;    /*Set the edge*/
+      /*If something has changed update the parent count*/
+      if(g[i-1+j*draws+k*n*draws]==0){
+        /*Rprintf("\tAdded edge update\n");*/
+        for(x=0;x<n;x++)
+          if((g[i+j*draws+x*n*draws])&&(j!=x)&&(x!=k)){
+            parents[k+x*n]++;
+            parents[x+k*n]++;
+            /*
+            if(parents[k+x*n]>n-2)
+              Rprintf("Parent overflow: iter=%ld j=%ld k=%ld x=%ld",i,j,k,x);
+            */
+          }
+      }
+    }else{
+      g[i+j*draws+k*n*draws]=0;   /*Unset the edge*/
+      /*If something has changed update the parent count*/
+      if(g[i-1+j*draws+k*n*draws]==1){
+        /*Rprintf("\tDeleted edge update\n");*/
+        for(x=0;x<n;x++)
+          if((g[i+j*draws+x*n*draws])&&(j!=x)&&(x!=k)){
+            parents[k+x*n]--;
+            parents[x+k*n]--;
+            /*
+            if(parents[k+x*n]<0)
+              Rprintf("Parent underflow: iter=%ld j=%ld k=%ld x=%ld",i,j,k,x);
+            */
+          }
+      }
+    }
+    /*Burn-in check*/
+    if(bc<burn){
+      /*Save the state*/
+      for(j=0;j<n;j++)
+        for(k=0;k<n;k++)
+          g[i-1+j*draws+k*n*draws]=g[i+j*draws+k*n*draws];
+      i--;   
+      bc++;
+    }else{ 
+      /*Rprintf("\tThinning?\n");*/
+      if(tc%thin!=0){
+        /*Rprintf("\tThinning\n");*/
+        /*Save the state*/
+        for(j=0;j<n;j++)
+          for(k=0;k<n;k++)
+            g[i-1+j*draws+k*n*draws]=g[i+j*draws+k*n*draws];
+        i--;   
+      }
+      tc++;
+    }
+  }
+  /*Save the RNG state*/
+  PutRNGstate();
+}
 
 void udrewire_R(double *g, double *pn, double *pnv, double *pp)
 /*Perform a uniform rewiring process on the adjacency array pointed

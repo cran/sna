@@ -14,21 +14,21 @@ gplot.target(dat, x, circ.rad = (1:10)/10, circ.col = "blue",
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{dat}{ A graph adjacency matrix }
-  \item{x}{ A vector of vertex properties to be plotted (must match the dimensions of \code{dat}) }
-  \item{circ.rad}{ Radii at which to draw reference circles }
-  \item{circ.col}{ Reference circle color }
-  \item{circ.lwd}{ Reference circle line width }
-  \item{circ.lty}{ Reference circle line type }
-  \item{circ.lab}{ Boolean; should circle labels be displayed? }
-  \item{circ.lab.cex}{ Expansion factor for circle labels }
-  \item{circ.lab.theta}{ Angle at which to draw circle labels }
-  \item{circ.lab.col}{ Color for circle labels }
-  \item{circ.lab.digits}{ Digits to display for circle labels }
-  \item{circ.lab.offset}{ Offset for circle labels }
-  \item{periph.outside}{ Boolean; should "peripheral" vertices be drawn together beyond the normal vertex radius? }
-  \item{periph.outside.offset}{ Radius at which "peripheral" vertices should be drawn if \code{periph.outside==TRUE} }
-  \item{\dots}{ Additional arguments to \code{\link{gplot}} }
+  \item{dat}{ an input graph. }
+  \item{x}{ a vector of vertex properties to be plotted (must match the dimensions of \code{dat}). }
+  \item{circ.rad}{ radii at which to draw reference circles. }
+  \item{circ.col}{ reference circle color. }
+  \item{circ.lwd}{ reference circle line width. }
+  \item{circ.lty}{ reference circle line type. }
+  \item{circ.lab}{ boolean; should circle labels be displayed? }
+  \item{circ.lab.cex}{ expansion factor for circle labels. }
+  \item{circ.lab.theta}{ angle at which to draw circle labels. }
+  \item{circ.lab.col}{ color for circle labels. }
+  \item{circ.lab.digits}{ digits to display for circle labels. }
+  \item{circ.lab.offset}{ offset for circle labels. }
+  \item{periph.outside}{ boolean; should "peripheral" vertices be drawn together beyond the normal vertex radius? }
+  \item{periph.outside.offset}{ radius at which "peripheral" vertices should be drawn if \code{periph.outside==TRUE}. }
+  \item{\dots}{ additional arguments to \code{\link{gplot}}. }
 }
 \details{
   \code{\link{gplot.target}} is a front-end to \code{\link{gplot}} which implements the target diagram layout of Brandes et al. (2003).  This layout seeks to optimize various aesthetic criteria, given the constraint that all vertices lie at fixed radii from the origin (set by \code{x}).  One important feature of this algorithm is that vertices which belong to mutual dyads (described by Brandes et al. as ``core'' vertices) are treated differently from vertices which do not (``peripheral'' vertices).  Layout is optimized for core vertices prior to placing peripheral vertices; thus, the result may be misleading if mutuality is not a salient characteristic of the data.

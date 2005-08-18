@@ -10,7 +10,7 @@ rmperm(m)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
-  \item{m}{ A matrix, or stack thereof }
+  \item{m}{ a matrix, or stack thereof (or a graph set, for that matter). }
 }
 \details{
 Random matrix permutations are the essence of the QAP test; see \code{\link{qaptest}} for details.

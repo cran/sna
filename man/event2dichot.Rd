@@ -3,17 +3,17 @@
 %- Also NEED an `\alias' for EACH other topic documented here.
 \title{ Convert an Observed Event Matrix to a Dichotomous matrix }
 \description{
-  Given a valued adjacency matrix (possibly derived from observed interaction ``events''), \code{event2dichot} returns a dichotomous adjacency matrix.
+  Given one or more valued adjacency matrices (possibly derived from observed interaction ``events''), \code{event2dichot} returns dichotomized equivalents.
 }
 \usage{
 event2dichot(m, method="quantile", thresh=0.5, leq=FALSE)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
-  \item{m}{ An adjacency matrix }
-  \item{method}{ One of ``quantile,'' ``rquantile,'' ``cquantile,'' ``mean,'' ``rmean,'' ``cmean,'' ``absolute,'' ``rank,'' ``rrank,'' or ``crank''  }
-  \item{thresh}{ Dichotomization thresholds for ranks or quantiles }
-  \item{leq}{ Boolean indicating whether values less than or equal to the threshold should be taken as existing edges; the alternative is to use values strictly greater than the threshold }
+  \item{m}{ one or more (valued) input graphs. }
+  \item{method}{ one of ``quantile,'' ``rquantile,'' ``cquantile,'' ``mean,'' ``rmean,'' ``cmean,'' ``absolute,'' ``rank,'' ``rrank,'' or ``crank''.  }
+  \item{thresh}{ dichotomization thresholds for ranks or quantiles. }
+  \item{leq}{ boolean indicating whether values less than or equal to the threshold should be taken as existing edges; the alternative is to use values strictly greater than the threshold. }
 }
 \details{
 The methods used for choosing dichotomization thresholds are as follows:
@@ -43,7 +43,7 @@ The methods used for choosing dichotomization thresholds are as follows:
 Note that when a quantile, rank, or value is said to be ``specified,'' this refers to the value of \code{thresh}.  
 }
 \value{
-The dichotomized data matrix
+The dichotomized data matrix (or matrices)
 }
 \references{
 Wasserman, S. and Faust, K.  (1994).  \emph{Social Network Analysis: Methods and Applications.}  Cambridge: Cambridge University Press.

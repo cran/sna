@@ -1,6 +1,5 @@
 \name{sna-deprecated}
 \alias{sna-deprecated}
-\alias{addisolates}
 %- Also NEED an `\alias' for EACH other topic documented here.
 \title{ Deprecated Functions in sna Package}
 \description{
@@ -18,7 +17,7 @@
 The following \code{sna} functions are currently deprecated:
 
 \begin{describe}
-\item \code{addisolates}  
+\item None.
 \end{describe}
 
 The original help pages for these functions can be found at \code{help("oldName-deprecated")}.  Please avoid using them, since they will disappear....

@@ -3,7 +3,7 @@
 # gli.R
 #
 # copyright (c) 2004, Carter T. Butts <buttsc@uci.edu>
-# Last Modified 1/09/04
+# Last Modified 8/8/05
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/sna package
@@ -48,13 +48,21 @@ centralization<-function(dat,FUN,g=1,mode="digraph",diag=FALSE,normalize=TRUE,..
 
 
 #connectedness - Find the Krackhardt connectedness of a graph or graph stack
-connectedness<-function(dat,g=1:stackcount(dat)){
-   d<-array(dim=c(length(g),dim(dat)[2],dim(dat)[2]))
+connectedness<-function(dat,g=NULL){
+   #Pre-process the raw input
+   dat<-as.sociomatrix.sna(dat)
+   if(is.list(dat)){
+     if(is.null(g))
+       g<-1:length(dat)
+     return(sapply(dat[g],connectedness))
+   }
+   #End pre-processing
+   if((!is.null(g))&&(length(dim(dat))>2))
+     dat<-dat[g,,]
    if(length(dim(dat))>2)
-      d<-dat[g,,,drop=FALSE]
+     con<-apply(dat,1,function(x){r<-reachability(symmetrize(x,rule="weak")); gden(r,diag=FALSE)})
    else
-      d[1,,]<-dat
-   con<-apply(d,1,function(x){r<-reachability(symmetrize(x,rule="weak")); gden(r,diag=FALSE)})
+     con<-gden(reachability(symmetrize(dat,rule="weak")),diag=FALSE)
    #Return the result
    con
 }
@@ -62,7 +70,7 @@ connectedness<-function(dat,g=1:stackcount(dat)){
 
 #dyad.census - Return the Holland and Leinhardt MAN dyad census for a given 
 #graph or graph stack
-dyad.census<-function(dat,g=1:stackcount(dat)){
+dyad.census<-function(dat,g=NULL){
    #Define an internal function
    intcalc<-function(m,meas){
       switch(meas,
@@ -72,14 +80,20 @@ dyad.census<-function(dat,g=1:stackcount(dat)){
       )
    }
    #Organize the data
-   if(length(dim(dat))>2)
-      d<-dat[g,,,drop=FALSE]
-   else{
-      d<-array(dim=c(1,dim(dat)[1],dim(dat)[2]))
-      d[1,,]<-dat
-   }
+   dat<-as.sociomatrix.sna(dat)
    #Perform the census
-   man<-cbind(apply(d,1,intcalc,"mut"),apply(d,1,intcalc,"asym"),apply(d,1,intcalc,"null"))
+   if(is.list(dat)){
+     if(is.null(g))
+       g<-1:length(dat)
+     man<-cbind(sapply(dat,intcalc,"mut"),sapply(dat,intcalc,"asym"), sapply(dat,intcalc,"null"))
+   }else if(length(dim(dat))>2){
+     if(is.null(g))
+       g<-1:dim(dat)[1]
+     dat<-dat[g,,,drop=FALSE]
+     man<-cbind(apply(dat,1,intcalc,"mut"),apply(dat,1,intcalc,"asym"), apply(dat,1,intcalc,"null"))
+   }else{
+     man<-cbind(intcalc(dat,"mut"),intcalc(dat,"asym"),intcalc(dat,"null"))
+   }
    colnames(man)<-c("Mut","Asym","Null")
    #Return the result
    man
@@ -87,7 +101,15 @@ dyad.census<-function(dat,g=1:stackcount(dat)){
 
 
 #efficiency - Find the Krackhardt efficiency of a graph or graph stack
-efficiency<-function(dat,g=1:stackcount(dat),diag=FALSE){
+efficiency<-function(dat,g=NULL,diag=FALSE){
+   #Pre-process the raw input
+   dat<-as.sociomatrix.sna(dat)
+   if(is.list(dat)){
+     if(is.null(g))
+       g<-1:length(dat)
+     return(sapply(dat[g],efficiency,diag=diag))
+   }
+   #End pre-processing
    #Define an internal function, for convenience
    inteff<-function(g,diag){
       comsz<-component.dist(g,connected="weak")$csize
@@ -99,12 +121,12 @@ efficiency<-function(dat,g=1:stackcount(dat),diag=FALSE){
       1-(edgec-reqedge)/maxv
    }
    #Perform the actual calculation
-   d<-array(dim=c(length(g),dim(dat)[2],dim(dat)[2]))
-   if(length(dim(dat))>2)
-      d<-dat[g,,,drop=FALSE]
-   else
-      d[1,,]<-dat
-   eff<-apply(d,1,inteff,diag=diag)
+   if(length(dim(dat))>2){
+      if(is.null(g))
+        g<-1:dim(dat)[1]
+      eff<-apply(dat[g,,,drop=FALSE],1,inteff,diag=diag)
+   }else
+      eff<-inteff(dat,diag=diag)
    #Return the result
    eff
 }
@@ -112,6 +134,14 @@ efficiency<-function(dat,g=1:stackcount(dat),diag=FALSE){
 
 #gden - Compute the density of an input graph or graph stack.
 gden<-function(dat,g=NULL,diag=FALSE,mode="digraph"){
+   #Pre-process the raw input
+   dat<-as.sociomatrix.sna(dat)
+   if(is.list(dat)){
+     if(is.null(g))
+       g<-1:length(dat)
+     return(sapply(dat[g],gden,diag=diag,mode=mode))
+   }
+   #End pre-processing
    n<-dim(dat)[2]
    if(length(dim(dat))>2){     #Is this a stack?
       if(!is.null(g)){                 #Were individual graphs selected?
@@ -141,40 +171,38 @@ gden<-function(dat,g=NULL,diag=FALSE,mode="digraph"){
 
 
 #grecip - Compute the reciprocity of an input graph or graph stack.
-grecip<-function(dat,g=NULL,measure=c("dyadic","edgewise")){
-   n<-dim(dat)[2]
-   if(length(dim(dat))>2){     #Is this a stack?
-      if(!is.null(g)){                 #Were individual graphs selected?
-         gn<-length(g)
-         d<-dat[g,,]
-      }else{
-         d<-dat
-         gn<-dim(dat)[1]
-      }
-   }else{
-      d<-dat
-      gn<-1
-   }
-   if(gn==1){     #Only one graph - convert to stack format
-      temp<-array(dim=c(1,n,n))
-      temp[1,,]<-d
-      d<-temp
-   }
-   #Find mean lack of reciprocation
-   gr<-vector()
-   for(i in 1:gn){
-      temp<-d[i,,]
-      gr[i]<-switch(match.arg(measure),
-         dyadic=1-mean(abs(temp-t(temp))[upper.tri(temp)],na.rm=TRUE),
-         edgewise=1-mean(abs(temp-t(temp))[upper.tri(temp)&(temp|t(temp))],na.rm=TRUE)
-      )
-   }
-   gr
+grecip<-function(dat,g=NULL,measure=c("dyadic","dyadic.nonnull","edgewise")){
+  #Pre-process the raw input
+  dat<-as.sociomatrix.sna(dat)
+  if(is.list(dat)){
+    if(is.null(g))
+      g<-1:length(dat)
+    return(sapply(dat[g],grecip,measure=measure))
+  }
+  #End pre-processing
+  m<-stackcount(dat)         #How many graphs are there?
+  if(is.null(g))             #Create g, if needed
+    g<-1:m
+  dc<-dyad.census(dat,g=g)   #Obtain the dyad census for all specified graphs
+  #Return the appropriate measure
+  switch(match.arg(measure),
+    dyadic=(dc[,1]+dc[,3])/(dc[,1]+dc[,2]+dc[,3]),
+    dyadic.nonnull=dc[,1]/(dc[,1]+dc[,2]),
+    edgewise=2*dc[,1]/(2*dc[,1]+dc[,2])
+  )
 }
 
 
 #gtrans - Compute the transitivity of an input graph or graph stack.
 gtrans<-function(dat,g=NULL,diag=FALSE,mode="digraph",measure=c("weak","strong","weakcensus","strongcensus")){
+   #Pre-process the raw input
+   dat<-as.sociomatrix.sna(dat)
+   if(is.list(dat)){
+     if(is.null(g))
+       g<-1:length(dat)
+     return(sapply(dat[g],gtrans,diag=diag,mode=mode,measure=measure))
+   }
+   #End pre-processing
    n<-dim(dat)[2]
    if(length(dim(dat))>2){     #Is this a stack?
       if(!is.null(g)){                 #Were individual graphs selected?
@@ -195,26 +223,26 @@ gtrans<-function(dat,g=NULL,diag=FALSE,mode="digraph",measure=c("weak","strong",
    }
    if(!diag)           #If not using the diagonal, remove it
       d<-diag.remove(d,remove.val=0)
-   if(mode=="graph")    #If this is a simple graph, remove one triangle of each matrix
-      d<-upper.tri.remove(d,remove.val=0)
-   #Find the fraction of transitive triads, removing any NAs 
+   #Compute the appropriate transitivity indices
    t<-vector()
    for(i in 1:gn){
       #Prepare the transitivity test matrices
-      dsqt<-(d[i,,]%*%d[i,,])>0
+      dsqt<-(d[i,,]%*%d[i,,])
       dt<-d[i,,]>0
-      #NA the appropriate portions of the graph, if needed (this to prevent their being counted)
-      if(!diag)
+      #NA the diagonal, if needed
+      if(!diag){
          diag(dt)<-NA
-      if(mode=="graph")
-         dt[upper.tri(dt)]<-NA              
+         diag(dsqt)<-NA
+       }
       #Compute the transitivity
       t[i]<-switch(match.arg(measure),
-         strong=mean(dsqt==dt,na.rm=TRUE),
-         strongcensus=sum(dsqt==dt,na.rm=TRUE),
-         weak=mean(dsqt&dt,na.rm=TRUE),
-         weakcensus=sum(dsqt&dt,na.rm=TRUE)
+         strong=sum(dt*dsqt+(!dt)*(NCOL(d[i,,])-2-dsqt),na.rm=TRUE) / (choose(NCOL(d[i,,]),3)*6),
+         strongcensus=sum(dt*dsqt+(!dt)*(NCOL(d[i,,])-2-dsqt),na.rm=TRUE),
+         weak=sum(dt*dsqt,na.rm=TRUE)/sum(dsqt,na.rm=TRUE),
+         weakcensus=sum(dt*dsqt,na.rm=TRUE)
       )
+      if(is.nan(t[i]))  #By convention, map undefined case to 1
+        t[i]<-1
    }
    #Return the result
    t
@@ -222,7 +250,17 @@ gtrans<-function(dat,g=NULL,diag=FALSE,mode="digraph",measure=c("weak","strong",
 
 
 #hierarchy - Find the hierarchy score of a graph or graph stack
-hierarchy<-function(dat,g=1:stackcount(dat),measure=c("reciprocity","krackhardt")){
+hierarchy<-function(dat,g=NULL,measure=c("reciprocity","krackhardt")){
+   #Pre-process the raw input
+   dat<-as.sociomatrix.sna(dat)
+   if(is.list(dat)){
+     if(is.null(g))
+       g<-1:length(dat)
+     return(sapply(dat[g],hierarchy,measure=measure))
+   }
+   #End pre-processing
+   if(is.null(g))
+     g<-1:stackcount(dat)
    if(match.arg(measure)=="reciprocity")  #Use reciprocity scores
          h<-1-grecip(dat,g)
    else if(match.arg(measure)=="krackhardt"){ #Calculate the Krackhardt reciprocity
@@ -231,7 +269,7 @@ hierarchy<-function(dat,g=1:stackcount(dat),measure=c("reciprocity","krackhardt"
          d<-dat[g,,,drop=FALSE]
       else
          d[1,,]<-dat
-      h<-1-apply(d,1,function(x){r<-reachability(x); grecip(r,measure="edgewise")})
+      h<-1-apply(d,1,function(x){r<-reachability(x); grecip(r,measure="dyadic.nonnull")})
    }
    #Return the result
    h
@@ -239,7 +277,15 @@ hierarchy<-function(dat,g=1:stackcount(dat),measure=c("reciprocity","krackhardt"
 
 
 #lubness - Find Krackhardt's Least Upper Boundedness of a graph or graph stack
-lubness<-function(dat,g=1:stackcount(dat)){
+lubness<-function(dat,g=NULL){
+   #Pre-process the raw input
+   dat<-as.sociomatrix.sna(dat)
+   if(is.list(dat)){
+     if(is.null(g))
+       g<-1:length(dat)
+     return(sapply(dat[g],lubness))
+   }
+   #End pre-processing
    #Define an internal function, for convenience
    intlub<-function(g){
       r<-reachability(g)    #Get reachability (in directed paths) of g
@@ -254,19 +300,20 @@ lubness<-function(dat,g=1:stackcount(dat)){
            viol<-.C("lubness_con_R",as.double(g[vi,vi]), as.double(length(vi)),as.integer(r[vi,vi]),viol=viol,PACKAGE="sna")$viol
            nolub<-nolub+viol
            #Also accumulate maximum violations
-           maxnolub<-maxnolub+(length(vi))*(length(vi)-1)/2 
+           maxnolub<-maxnolub+(length(vi)-1)*(length(vi)-2)/2 
          }
       }
       #Return 1-violations/max(violations)
       1-nolub/maxnolub
    }
    #Perform the actual calculation
-   d<-array(dim=c(length(g),dim(dat)[2],dim(dat)[2]))
-   if(length(dim(dat))>2)
-      d<-dat[g,,,drop=FALSE]
+   if(length(dim(dat))>2){
+      if(!is.null(g))
+        dat<-dat[g,,,drop=FALSE]
+      lub<-apply(dat,1,intlub)
+   }
    else
-      d[1,,]<-dat
-   lub<-apply(d,1,intlub)
+      lub<-intlub(dat)
    #Return the result
    lub
 }
@@ -274,6 +321,14 @@ lubness<-function(dat,g=1:stackcount(dat)){
 
 #mutuality - Find the number of mutual (i.e., reciprocated) edges in a graph
 mutuality<-function(dat,g=NULL){
+   #Pre-process the raw input
+   dat<-as.sociomatrix.sna(dat)
+   if(is.list(dat)){
+     if(is.null(g))
+       g<-1:length(dat)
+     return(sapply(dat[g],mutuality))
+   }
+   #End pre-processing
    n<-dim(dat)[2]
    if(length(dim(dat))>2){     #Is this a stack?
       if(!is.null(g)){                 #Were individual graphs selected?
@@ -299,12 +354,26 @@ mutuality<-function(dat,g=NULL){
 
 
 #triad.census - Conduct a Davis and Leinhardt triad census for a graph or graph stack
-triad.census<-function(dat,g=1:stackcount(dat)){
+triad.census<-function(dat,g=NULL,mode=c("digraph","graph")){
+   #Pre-process the raw input
+   dat<-as.sociomatrix.sna(dat)
+   if(is.list(dat)){
+     if(is.null(g))
+       g<-1:length(dat)
+     return(sapply(dat[g],triad.census,mode=mode))
+   }
+   #End pre-processing
    #First, define the triad class vector
-   tc<-c("003","012","102","021D","021U","021C","111D","111U","030T","030C","201","120D","120U","120C","210","300")
+   tc<-switch(match.arg(mode),
+     graph=0:3,
+     digraph=c("003","012","102","021D","021U","021C","111D","111U","030T", "030C","201","120D","120U","120C","210","300")
+   )
    #Organize the data
    if(length(dim(dat))>2){
-      d<-dat[g,,,drop=FALSE]
+      if(is.null(g))
+        d<-dat
+      else
+        d<-dat[g,,,drop=FALSE]
       rnam<-dimnames(d)[[1]]
    }else{
       d<-array(dim=c(1,dim(dat)[1],dim(dat)[2]))
@@ -316,8 +385,9 @@ triad.census<-function(dat,g=1:stackcount(dat)){
    tcm<-vector()
    n<-as.integer(dim(d)[2])
    for(i in 1:dim(d)[1]){
-     tcv<-as.double(rep(0,16))
-     tcv<-.C("triad_census_R",as.integer(d[i,,]),n,tcv=tcv,PACKAGE="sna")$tcv
+     tcv<-as.double(rep(0,length(tc)))
+     gm<-as.integer(switch(match.arg(mode),graph=0,digraph=1))
+     tcv<-.C("triad_census_R",as.integer(d[i,,]),n,tcv=tcv,gm,PACKAGE="sna")$tcv
      tcm<-rbind(tcm,tcv)
    }
    colnames(tcm)<-tc
@@ -325,42 +395,15 @@ triad.census<-function(dat,g=1:stackcount(dat)){
    #Return the result
    tcm
 }
-#triad.census<-function(dat,g=1:stackcount(dat)){
-#   #First, define the triad class vector
-#   tc<-c("003","012","102","021D","021U","021C","111D","111U","030T","030C","201","120D","120U","120C","210","300")
-#   #Define an internal census function
-#   intcalc<-function(m,tcv){
-#      n<-dim(m)[1]
-#      tricent<-rep(0,length(tcv))
-#      for(i in 1:n)
-#         for(j in i:n)
-#            for(k in j:n)
-#               if((i!=j)&&(j!=k)&&(i!=k)){
-#                  tric<-triad.classify(m,tri=c(i,j,k))
-#                  tricent[tcv==tric]<-tricent[tcv==tric]+1
-#               }
-#      tricent
-#   }
-#   #Organize the data
-#   if(length(dim(dat))>2)
-#      d<-dat[g,,,drop=FALSE]
-#   else{
-#      d<-array(dim=c(1,dim(dat)[1],dim(dat)[2]))
-#      d[1,,]<-dat
-#   }
-#   d<-diag.remove(d,remove.val=0)  #Remove any diagonals
-#   #Perform the census
-#   census<-t(apply(d,1,intcalc,tc))
-#   colnames(census)<-tc
-#   #Return the result
-#   census
-#}
 
 
 #triad.classify - Return the Davis and Leinhardt classification of a given triad
-triad.classify<-function(dat,g=1,tri=c(1,2,3)){
+triad.classify<-function(dat,g=1,tri=c(1,2,3),mode=c("digraph","graph")){
    #Zeroth step: extract the triad
-   if(length(dim(dat))==2)
+   dat<-as.sociomatrix.sna(dat)
+   if(is.list(dat))
+      d<-dat[[g]][tri,tri]
+   else if(length(dim(dat))==2)
       d<-dat[tri,tri]
    else
       d<-dat[g,tri,tri]
@@ -368,56 +411,13 @@ triad.classify<-function(dat,g=1,tri=c(1,2,3)){
    if(any(is.na(d[upper.tri(d)|lower.tri(d)])))
       return(NA)
    #Next, define the triad class vector
-   tc<-c("003","012","102","021D","021U","021C","111D","111U","030T","030C","201","120D","120U","120C","210","300")
+   tc<-switch(match.arg(mode),
+     graph=0:3,
+     digraph=c("003","012","102","021D","021U","021C","111D","111U","030T", "030C","201","120D","120U","120C","210","300")
+   )
    #Classify the triad
    tt<-as.integer(0)
-   tt<-.C("triad_classify_R",as.integer(d),tt=tt,PACKAGE="sna")$tt
+   gm<-as.integer(switch(match.arg(mode),graph=0,digraph=1))
+   tt<-.C("triad_classify_R",as.integer(d),tt=tt,gm,PACKAGE="sna")$tt
    tc[tt]
 }
-#triad.classify<-function(dat,g=1,tri=c(1,2,3)){
-#   #Zeroth step: extract the triad
-#   if(length(dim(dat))==2)
-#      d<-dat[tri,tri]
-#   else
-#      d<-dat[g,tri,tri]
-#   #First, classify as NA if any entries are missing
-#   if(any(is.na(d[upper.tri(d)|lower.tri(d)])))
-#      man<-NA
-#   else{
-#      man<-dyad.census(d)  #Start with the dyad census
-#      #Refine the classification using configural properties
-#      if(all(man==c(0,2,1))){   #The two asym/one null triad
-#         ind<-apply(d,2,sum)  
-#         outd<-apply(d,1,sum)
-#         if(any(ind==2))
-#            man<-c(man,"U")   #"Up" variant
-#         else if(any(outd==2))
-#            man<-c(man,"D")   #"Down" variant
-#         else
-#            man<-c(man,"C")   #"Cyclic" variant
-#      }else if(all(man==c(1,1,1))){   #The one mut/one asym/one null triad
-#         ind<-apply(d,2,sum)  
-#         if(any(ind==2))
-#            man<-c(man,"D")   #"Down" variant
-#         else
-#            man<-c(man,"U")   #"Up" variant
-#      }else if(all(man==c(0,3,0))){   #The three asym triad
-#         ind<-apply(d,2,sum)  
-#         if(any(ind==2))
-#            man<-c(man,"T")   #"Transitive" variant
-#         else
-#            man<-c(man,"C")   #"Cyclic" variant
-#      }else if(all(man==c(1,2,0))){   #The one mut/two asym triad
-#         ind<-apply(d,2,sum)  
-#         outd<-apply(d,1,sum)
-#         if(any(ind==0))
-#            man<-c(man,"D")   #"Down" variant
-#         else if(any(outd==0))
-#            man<-c(man,"U")   #"Up" variant
-#         else
-#            man<-c(man,"C")   #"Cyclic" variant
-#      }         
-#   }
-#   #Return the classification
-#   paste(man,collapse="")
-#}

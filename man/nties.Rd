@@ -1,7 +1,7 @@
 \name{nties}
 \alias{nties}
 %- Also NEED an `\alias' for EACH other topic documented here.
-\title{ Find the Number of Possible Ties in a Given Graph or Stack }
+\title{ Find the Number of Possible Ties in a Given Graph or Graph Stack }
 \description{
 \code{nties} returns the number of possible edges in each element of \code{dat}, given \code{mode} and \code{diag}.
 }
@@ -10,9 +10,9 @@ nties(dat, mode="digraph", diag=FALSE)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
-  \item{dat}{ A graph or stack thereof }
-  \item{mode}{ One of ``digraph'', ``graph'', and ``hgraph'' }
-  \item{diag}{ A boolean indicating whether or not diagonal entries (loops) should be treated as valid data; ignored for hypergraphic (``hgraph'') data }
+  \item{dat}{ a graph or set thereof. }
+  \item{mode}{ one of ``digraph'', ``graph'', and ``hgraph''. }
+  \item{diag}{ a boolean indicating whether or not diagonal entries (loops) should be treated as valid data; ignored for hypergraphic (``hgraph'') data. }
 }
 \details{
 \code{nties} is used primarily to automate maximum edge counts for use with normalization routines.
@@ -34,3 +34,4 @@ nties(rgraph(15),diag=FALSE)
 }
 \keyword{ univar }%-- one or more ...
 \keyword{ math }
+\keyword{ graphs }

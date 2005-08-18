@@ -10,10 +10,10 @@ qaptest(dat, FUN, reps=1000, ...)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
-  \item{dat}{ Data array to be analyzed.  By assumption, the first dimension of the array indexes the graph, with the next two indexing the actors.  Though this could in principle be an array containing only one graph, this is rarely if ever sensible in a QAP-test context.}
-  \item{FUN}{ Function to generate the test statistic.  \code{FUN} must accept \code{dat} and the specified \code{g} arguments, and should return a real number. }
-  \item{reps}{ Integer indicating the number of draws to use for quantile estimation.  Note that, as for all Monte Carlo procedures, convergence is slower for more extreme quantiles.  By default, \code{reps}=1000. }
-  \item{\dots}{ Additional arguments to \code{FUN}. }
+  \item{dat}{ graphs to be analyzed.  Though one could in principle use a single graph, this is rarely if ever sensible in a QAP-test context.}
+  \item{FUN}{ function to generate the test statistic.  \code{FUN} must accept \code{dat} and the specified \code{g} arguments, and should return a real number. }
+  \item{reps}{ integer indicating the number of draws to use for quantile estimation.  Note that, as for all Monte Carlo procedures, convergence is slower for more extreme quantiles.  By default, \code{reps}=1000. }
+  \item{\dots}{ additional arguments to \code{FUN}. }
 }
 \details{
   The null hypothesis of the QAP test is that the observed graph-level statistic on graphs \eqn{G_1,G_2,\dots} was drawn from the distribution of said statistic evaluated (uniformly) on the set of all relabelings of \eqn{G_1,G_2,\dots}.  Pragmatically, this test is performed by repeatedly (randomly) relabeling the input graphs, recalculating the test statistic, and then evaluating the fraction of draws greater than or equal to (and less than or equal to) the observed value.  This accumulated fraction approximates the integral of the distribution of the test statistic over the set of unlabeled input graphs.
@@ -74,3 +74,4 @@ plot(q.13)
 }
 \keyword{ htest }%-- one or more ...
 \keyword{ math }
+\keyword{ graphs }

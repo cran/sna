@@ -1,7 +1,7 @@
 \name{centralgraph}
 \alias{centralgraph}
 %- Also NEED an `\alias' for EACH other topic documented here.
-\title{ Find the Central Graph of a Labeled Graph Set }
+\title{ Find the Central Graph of a Labeled Graph Stack }
 \description{
   Returns the central graph of a set of labeled graphs, i.e. that graph in which i->j iff i->j in >=50\% of the graphs within the set.  If \code{normalize==TRUE}, then the value of the i,jth edge is given as the proportion of graphs in which i->j.
 }
@@ -10,8 +10,8 @@ centralgraph(dat, normalize=FALSE)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
-  \item{dat}{ Data array to be analyzed.  By assumption, the first dimension of the array indexes the graph, with the next two indexing the actors. }
-  \item{normalize}{ Boolean indicating whether the results should be normalized.  The result of this is the "mean matrix".  By default, \code{normalize==FALSE}.}
+  \item{dat}{ one or more input graphs. }
+  \item{normalize}{ boolean indicating whether the results should be normalized.  The result of this is the "mean matrix".  By default, \code{normalize==FALSE}.}
 }
 \details{
   The central graph of a set of graphs S is that graph C which minimizes the sum of Hamming distances between C and G in S.  As such, it turns out (for the dichotomous case, at least), to be analogous to both the mean and median for sets of graphs.  The central graph is useful in a variety of contexts; see the references below for more details.
@@ -39,3 +39,4 @@ cg<-centralgraph(dat,normalize=TRUE)
 print(cg)
 }
 \keyword{ math }%-- one or more ...
+\keyword{ graphs}

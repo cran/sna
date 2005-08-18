@@ -27,20 +27,20 @@ lab.optimize.mc(d1, d2, FUN, exchange.list=0, seek="min",
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
-  \item{d1}{ A single adjacency matrix }
-  \item{d2}{ Another single adjacency matrix }
-  \item{FUN}{ A function taking two graphs as its first two arguments, and returning a numeric value }
-  \item{exchange.list}{ Information on which vertices are exchangeable (see below); this must be a single number, a vector of length n, or a nx2 matrix. }
-  \item{seek}{ "min" if the optimizer should seek a minimum, or "max" if a maximum should be sought }
-  \item{opt.method}{ The particular optimization method to use }
-  \item{prob.init}{Initial acceptance probability for a downhill move (\code{lab.optimize.anneal} only)}
-  \item{prob.decay}{The decay (cooling) multiplier for the probability of accepting a downhill move (\code{lab.optimize.anneal} only)}
-  \item{freeze.time}{Number of iterations at which the annealer should be frozen (\code{lab.optimize.anneal} only)}
-  \item{full.neighborhood}{Should all moves in the binary-exchange neighborhood be evaluated at each iteration? (\code{lab.optimize.anneal} only)}
-  \item{tol}{Tolerance for estimation of gumbel distribution parameters (\code{lab.optimize.gumbel} only)}
-  \item{estimator}{Gumbel distribution statistic to use as optimal value prediction; must be one of ``mean'', ``median'', or ``mode'' (\code{lab.optimize.gumbel} only)}
-  \item{draws}{Number of draws to take for gumbel and mc methods }
-  \item{\dots}{ Additional arguments to \code{FUN} }
+  \item{d1}{ a single graph. }
+  \item{d2}{ another single graph. }
+  \item{FUN}{ a function taking two graphs as its first two arguments, and returning a numeric value. }
+  \item{exchange.list}{ information on which vertices are exchangeable (see below); this must be a single number, a vector of length n, or a nx2 matrix. }
+  \item{seek}{ "min" if the optimizer should seek a minimum, or "max" if a maximum should be sought. }
+  \item{opt.method}{ the particular optimization method to use. }
+  \item{prob.init}{initial acceptance probability for a downhill move (\code{lab.optimize.anneal} only).}
+  \item{prob.decay}{the decay (cooling) multiplier for the probability of accepting a downhill move (\code{lab.optimize.anneal} only).}
+  \item{freeze.time}{number of iterations at which the annealer should be frozen (\code{lab.optimize.anneal} only).}
+  \item{full.neighborhood}{should all moves in the binary-exchange neighborhood be evaluated at each iteration? (\code{lab.optimize.anneal} only).}
+  \item{tol}{tolerance for estimation of gumbel distribution parameters (\code{lab.optimize.gumbel} only).}
+  \item{estimator}{Gumbel distribution statistic to use as optimal value prediction; must be one of ``mean'', ``median'', or ``mode'' (\code{lab.optimize.gumbel} only).}
+  \item{draws}{number of draws to take for gumbel and mc methods. }
+  \item{\dots}{ additional arguments to \code{FUN}. }
 }
 \details{
 \code{lab.optimize} is the front-end to a family of routines for optimizing a bivariate graph statistic over a set of permissible relabelings (or equivalently, permutations).  The accessible permutation set is determined by the \code{exchange.list} argument, which is dealt with in the following manner. First, \code{exchange.list} is expanded to fill an nx2 matrix.  If \code{exchange.list} is a single number, this is trivially accomplished by replication; if \code{exchange.list} is a vector of length n, the matrix is formed by cbinding two copies together.  If \code{exchange.list} is already an nx2 matrix, it is left as-is.  Once the nx2 exchangeabiliy matrix has been formed, it is interpreted as follows: columns refer to graphs 1 and 2, respectively; rows refer to their corresponding vertices in the original adjacency matrices; and vertices are taken to be theoretically exchangeable iff their corresponding exchangeability matrix values are identical.  To obtain an unlabeled graph statistic (the default), then, one could simply let \code{exchange.list} equal any single number.  To obtain the labeled statistic, one would use the vector \code{1:n}.
@@ -104,3 +104,4 @@ lab.optimize(g,g2,gcor,seek="max",opt.method="mc",draws=1000)
 }
 \keyword{ optimize }%-- one or more ...
 \keyword{ math }
+\keyword{ graphs }

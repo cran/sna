@@ -6,14 +6,14 @@
   Calculates central graphs associated with particular graph clusters (as indicated by the \code{k} partition of \code{h}).
 }
 \usage{
-gclust.centralgraph(h, k, mats, ...)
+gclust.centralgraph(h, k, dat, ...)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
-  \item{h}{ An \code{\link{hclust}} object, the based on a graph set }
-  \item{k}{ The number of groups to evaluate }
-  \item{mats}{ A graph stack containing the adjacency matrices for the graphs on which the clustering was performed }
-  \item{\dots}{ Additional arguments to \code{\link{centralgraph}} }
+  \item{h}{ an \code{\link{hclust}} object, based on a graph stack in \code{dat}. }
+  \item{k}{ the number of groups to evaluate. }
+  \item{dat}{ one or more graphs (on which the clustering was performed). }
+  \item{\dots}{ additional arguments to \code{\link{centralgraph}}. }
 }
 \details{
 \code{gclust.centralgraph} uses \code{\link{cutree}} to cut the hierarchical clustering in \code{h} into \code{k} groups.  \code{\link{centralgraph}} is then called on each cluster, and the results are returned as a graph stack.  This is a useful tool for interpreting clusters of (labeled) graphs, with the resulting central graphs being subsequently analyzed using standard SNA methods.
@@ -48,3 +48,4 @@ gplot(g.cg[2,,])
 }
 \keyword{ cluster }%-- one or more ...
 \keyword{ math }
+\keyword{ graphs }

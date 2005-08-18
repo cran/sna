@@ -3,7 +3,7 @@
 %- Also NEED an `\alias' for EACH other topic documented here.
 \title{ Calculate the Component Size Distribution of a Graph }
 \description{
-  \code{component.dist} returns a data frame containing a vector of length n such that the ith element contains the number of components of G having size i, and a vector of length n giving component membership.  Component strength is determined by the \code{connected} parameter; see below for details.
+  \code{component.dist} returns a list containing a vector of length n such that the ith element contains the number of components of G having size i, and a vector of length n giving component membership.  Component strength is determined by the \code{connected} parameter; see below for details.
 }
 \usage{
 component.dist(dat, connected=c("strong","weak","unilateral",
@@ -11,8 +11,8 @@ component.dist(dat, connected=c("strong","weak","unilateral",
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
-  \item{dat}{ A single nxn adjacency matrix }
-  \item{connected}{ A string selecting strong, weak, unilateral or recursively connected components; by default, \code{"strong"} components are used.}
+  \item{dat}{ one or more input graphs. }
+  \item{connected}{ a string selecting strong, weak, unilateral or recursively connected components; by default, \code{"strong"} components are used.}
 }
 \details{
 Components are maximal sets of mutually connected vertices; depending on the definition of ``connected'' one employs, one can arrive at several types of components.  Those supported here are as follows (in increasing order of restrictiveness):
@@ -30,11 +30,13 @@ Components are maximal sets of mutually connected vertices; depending on the def
 Note that the above definitions are distinct for directed graphs only; if \code{dat} is symmetric, then the \code{connected} parameter has no effect.  
 }
 \value{
-A data frame containing:
+A list containing:
 
   \item{membership }{A vector of component memberships, by vertex}
   \item{csize}{A vector of component sizes, by component}
   \item{cdist}{A vector of length |V(G)| with the (unnormalized) empirical distribution function of component sizes}
+
+If multiple input graphs are given, the return value is a list of lists.
 }
 \references{ West, D.B.  (1996).  \emph{Introduction to Graph Theory.}  Upper Saddle River, N.J.: Prentice Hall.}
 \author{ Carter T. Butts \email{buttsc@uci.edu} }
@@ -62,3 +64,4 @@ plot(1:length(cd$cdist),cd$cdist/sum(cd$cdist),ylim=c(0,1),type="h")
 
 }
 \keyword{ math }%-- one or more ...
+\keyword{ graphs } 

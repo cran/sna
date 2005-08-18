@@ -10,10 +10,10 @@ gclust.boxstats(h, k, meas, ...)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
-  \item{h}{ An \code{\link{hclust}} object, presumably formed by clustering a set of structural distances }
-  \item{k}{ The number of groups to evaluate }
-  \item{meas}{ A vector of length equal to the number of graphs in \code{h}, containing a GLI to be evaluated }
-  \item{\dots}{ Additional parameters to \code{\link{boxplot}} }
+  \item{h}{ an \code{\link{hclust}} object, presumably formed by clustering a set of structural distances. }
+  \item{k}{ the number of groups to evaluate. }
+  \item{meas}{ a vector of length equal to the number of graphs in \code{h}, containing a GLI to be evaluated. }
+  \item{\dots}{ additional parameters to \code{\link{boxplot}}. }
 }
 \details{
   \code{gclust.boxstats} simply takes the \code{\link{hclust}} object in \code{h}, applies \code{\link{cutree}} to form \code{k} groups, and then uses \code{\link{boxplot}} on the distribution of \code{meas} by group.  This can be quite handy for assessing graph clusters.

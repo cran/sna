@@ -11,12 +11,12 @@ netcancor(y, x, mode="digraph", diag=FALSE, nullhyp="cugtie",
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
-  \item{y}{ First data array to be analyzed.  By assumption, the first dimension of the array indexes the graph, with the next two indexing the actors.  Missing values are not allowed. }
-  \item{x}{ Second data array to be analyzed.  By assumption, the first dimension of the array indexes the graph, with the next two indexing the actors.  Missing values are not allowed. }
-  \item{mode}{ String indicating the type of graph being evaluated.  "digraph" indicates that edges should be interpreted as directed; "graph" indicates that edges are undirected.  \code{mode} is set to "digraph" by default. }
-  \item{diag}{ Boolean indicating whether or not the diagonal should be treated as valid data.  Set this true if and only if the data can contain loops.  \code{diag} is \code{FALSE} by default. }
-  \item{nullhyp}{ String indicating the particular null hypothesis against which to test the observed estimands.  A value of "cug" implies a conditional uniform graph test (see \code{\link{cugtest}}) controlling for order \emph{only}; "cugden" controls for both order and tie probability; "cugtie" controls for order and tie distribution (via bootstrap); and "qap" implies that the QAP null hypothesis (see \code{\link{qaptest}}) should be used. }
-  \item{reps}{Integer indicating the number of draws to use for quantile estimation.  (Relevant to the null hypothesis test only - the analysis itself is unaffected by this parameter.)  Note that, as for all Monte Carlo procedures, convergence is slower for more extreme quantiles. }
+  \item{y}{ one or more input graphs. }
+  \item{x}{ one or more input graphs. }
+  \item{mode}{ string indicating the type of graph being evaluated.  "digraph" indicates that edges should be interpreted as directed; "graph" indicates that edges are undirected.  \code{mode} is set to "digraph" by default. }
+  \item{diag}{ boolean indicating whether or not the diagonal should be treated as valid data.  Set this true if and only if the data can contain loops.  \code{diag} is \code{FALSE} by default. }
+  \item{nullhyp}{ string indicating the particular null hypothesis against which to test the observed estimands.  A value of "cug" implies a conditional uniform graph test (see \code{\link{cugtest}}) controlling for order \emph{only}; "cugden" controls for both order and tie probability; "cugtie" controls for order and tie distribution (via bootstrap); and "qap" implies that the QAP null hypothesis (see \code{\link{qaptest}}) should be used. }
+  \item{reps}{integer indicating the number of draws to use for quantile estimation.  (Relevant to the null hypothesis test only - the analysis itself is unaffected by this parameter.)  Note that, as for all Monte Carlo procedures, convergence is slower for more extreme quantiles. }
 }
 \details{
 The \code{netcancor} routine is actually a front-end to the \code{\link{cancor}} routine for computing canonical correlations between sets of vectors.  \code{netcancor} itself vectorizes the network variables (as per its graph type) and manages the appropriate null hypothesis tests; the actual canonical correlation is handled by \code{\link{cancor}}.  
@@ -109,3 +109,4 @@ summary(nc)
 }
 \keyword{ multivariate }%-- one or more ...
 \keyword{ math }
+\keyword{ graphs }

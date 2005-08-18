@@ -7,17 +7,16 @@ Find the (Product-Moment) Correlation Between Two or More Labeled Graphs }
  \code{gcor} finds the product-moment correlation between the adjacency matrices of graphs indicated by \code{g1} and \code{g2} in stack \code{dat} (or possibly \code{dat2}).  Missing values are permitted. 
 }
 \usage{
-gcor(dat, dat2=NULL, g1=c(1:dim(dat)[1]), g2=c(1:dim(dat)[1]), 
-    diag=FALSE, mode="digraph")
+gcor(dat, dat2=NULL, g1=NULL, g2=NULL, diag=FALSE, mode="digraph")
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
-  \item{dat}{ A graph stack }
-  \item{dat2}{ Optionally, a second graph stack }
-  \item{g1}{ The indices of \code{dat} reflecting the first set of graphs to be compared; by default, all members of \code{dat} are included }
-  \item{g2}{ The indices or \code{dat} (or \code{dat2}, if applicable) reflecting the second set of graphs to be compared; by default, all members of \code{dat} are included }
-  \item{diag}{ Boolean indicating whether or not the diagonal should be treated as valid data.  Set this true if and only if the data can contain loops.  \code{diag} is \code{FALSE} by default. }
-  \item{mode}{ String indicating the type of graph being evaluated.  "Digraph" indicates that edges should be interpreted as directed; "graph" indicates that edges are undirected.  \code{mode} is set to "digraph" by default. }
+  \item{dat}{ one or more input graphs. }
+  \item{dat2}{ optionally, a second stack of graphs. }
+  \item{g1}{ the indices of \code{dat} reflecting the first set of graphs to be compared; by default, all members of \code{dat} are included. }
+  \item{g2}{ the indices or \code{dat} (or \code{dat2}, if applicable) reflecting the second set of graphs to be compared; by default, all members of \code{dat} are included. }
+  \item{diag}{ boolean indicating whether or not the diagonal should be treated as valid data.  Set this true if and only if the data can contain loops.  \code{diag} is \code{FALSE} by default. }
+  \item{mode}{ string indicating the type of graph being evaluated.  "Digraph" indicates that edges should be interpreted as directed; "graph" indicates that edges are undirected.  \code{mode} is set to "digraph" by default. }
 }
 \details{
 
@@ -55,3 +54,4 @@ gcor(g)
 }
 \keyword{ univar }
 \keyword{ multivariate }%-- one or more ...
+\keyword{ graphs }

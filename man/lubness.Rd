@@ -3,18 +3,18 @@
 %- Also NEED an `\alias' for EACH other topic documented here.
 \title{ Compute Graph LUBness Scores }
 \description{
-  \code{lubness} takes a graph stack (\code{dat}) and returns the Krackhardt LUBness scores for the graphs selected by \code{g}.
+  \code{lubness} takes a graph set (\code{dat}) and returns the Krackhardt LUBness scores for the graphs selected by \code{g}.
 }
 \usage{
-lubness(dat, g=1:stackcount(dat))
+lubness(dat, g=NULL)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
-  \item{dat}{ A graph or graph stack }
-  \item{g}{ Index values for the graphs to be utilized; by default, all graphs are selected }
+  \item{dat}{ one or more input graphs. }
+  \item{g}{ index values for the graphs to be utilized; by default, all graphs are selected. }
 }
 \details{
-In the context of a directed graph \eqn{G}, two actors \eqn{i} and \eqn{j} may be said to have an \emph{upper bound} iff there exists some actor \eqn{k} such that directed \eqn{ki} and \eqn{kj} paths are belong to \eqn{G}.  An upper bound \eqn{\ell} is known as a \emph{least upper bound} for \eqn{i} and \eqn{j} iff it belongs to at least one \eqn{ki} and \eqn{kj} path (respectively) for all \eqn{i,j} upper bounds \eqn{k}; let \eqn{L(i,j)} be an indicator which returns 1 iff such an $\ell$ exists, otherwise returning 0.  Now, let \eqn{G_1,G_2,\dots,G_n}{G_1,G_2,...,G_n} represent the weak components of \eqn{G}.  For convenience, we denote the cardinalities of these graphs' vertex sets by \eqn{|V(G)|=N} and \eqn{|V(G_i)|=N_i}, \eqn{\forall i \in 1,\dots,n}{for i in 1,...,n}.  Given this, the Krackhardt LUBness of \eqn{G} is given by
+In the context of a directed graph \eqn{G}, two actors \eqn{i} and \eqn{j} may be said to have an \emph{upper bound} iff there exists some actor \eqn{k} such that directed \eqn{ki} and \eqn{kj} paths belong to \eqn{G}.  An upper bound \eqn{\ell} is known as a \emph{least upper bound} for \eqn{i} and \eqn{j} iff it belongs to at least one \eqn{ki} and \eqn{kj} path (respectively) for all \eqn{i,j} upper bounds \eqn{k}; let \eqn{L(i,j)} be an indicator which returns 1 iff such an $\ell$ exists, otherwise returning 0.  Now, let \eqn{G_1,G_2,\dots,G_n}{G_1,G_2,...,G_n} represent the weak components of \eqn{G}.  For convenience, we denote the cardinalities of these graphs' vertex sets by \eqn{|V(G)|=N} and \eqn{|V(G_i)|=N_i}, \eqn{\forall i \in 1,\dots,n}{for i in 1,...,n}.  Given this, the Krackhardt LUBness of \eqn{G} is given by
 
 \deqn{
 1-\frac{\sum_{i=1}^n \sum_{v_j,v_k \in V(G_i)} \Bigl(1-L(v_j,v_k)\Bigr)}{\sum_{i=1}^n \frac{1}{2}(N_i-1)(N_i-2)}}{%
@@ -41,3 +41,4 @@ lubness(rgraph(10,5,tprob=c(0.1,0.25,0.5,0.75,0.9)))
 }
 \keyword{ math }% at least one, from doc/KEYWORDS
 \keyword{ univar }% __ONLY ONE__ keyword per line
+\keyword{ graphs }

@@ -3,21 +3,21 @@
 %- Also NEED an `\alias' for EACH other topic documented here.
 \title{ Add Isolates to a Graph }
 \description{
-  Adds \code{n} isolates to the adjacency matrix (or matrices) in \code{dat}.
+  Adds \code{n} isolates to the graph (or graphs) in \code{dat}.
 }
 \usage{
 add.isolates(dat, n)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
-  \item{dat}{ One or more adjacency matrices }
-  \item{n}{ The number of isolates to add }
+  \item{dat}{ one or more input graphs. }
+  \item{n}{ the number of isolates to add. }
 }
 \details{
-  If \code{dat} contains more than one adjacency matrix, the \code{n} isolates are added to each member of \code{dat}.
+  If \code{dat} contains more than one graph, the \code{n} isolates are added to each member of \code{dat}.
 }
 \value{
-   The updated graph stack.
+   The updated graph(s).
 }
 \references{ Butts, C.T., and Carley, K.M.  (2001).  ``Multivariate Methods for Inter-Structural Analysis.''  CASOS Working Paper, Carnegie Mellon University. }
 \author{ Carter T. Butts \email{buttsc@uci.edu} }
@@ -39,3 +39,5 @@ g
 }
 \keyword{ manip }
 \keyword{ math }
+\keyword{ graphs }
+

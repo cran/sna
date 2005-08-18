@@ -16,8 +16,8 @@ lnam(y, x = NULL, W1 = NULL, W2 = NULL, theta.seed = NULL,
 \arguments{
   \item{y}{ a vector of responses. }
   \item{x}{ a vector or matrix of covariates; if the latter, each column should contain a single covariate. }
-  \item{W1}{ a (possibly valued) adjacency matrix on the elements of \code{y}. }
-  \item{W2}{ another (possibly valued) adjacency matrix on the elements of \code{y}. }
+  \item{W1}{ a (possibly valued) graph on the elements of \code{y}. }
+  \item{W2}{ another (possibly valued) graph on the elements of \code{y}. }
   \item{theta.seed}{ an optional seed value for \code{\link{optim}}. }
   \item{null.model}{ the null model to be fit; must be one of \code{"meanstd"}, \code{"mean"}, \code{"std"}, or \code{"none"}. }
   \item{method}{ method to be used with \code{\link{optim}}. }
@@ -106,3 +106,4 @@ plot(fit)
 }
 \keyword{ regression }% at least one, from doc/KEYWORDS
 \keyword{ multivariate }% __ONLY ONE__ keyword per line
+\keyword{ graphs }

@@ -10,10 +10,10 @@ is.isolate(dat, ego, g=1, diag=FALSE)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
-  \item{dat}{ A graph or graph stack }
-  \item{ego}{ Index of the vertex (or a vector of vertices) to check }
-  \item{g}{ Which graph should be examined? }
-  \item{diag}{ Boolean indicating whether adjacency matrix diagonals (i.e., loops) contain meaningful data }
+  \item{dat}{ one or more input graphs. }
+  \item{ego}{ index of the vertex (or a vector of vertices) to check. }
+  \item{g}{ which graph should be examined? }
+  \item{diag}{ boolean indicating whether adjacency matrix diagonals (i.e., loops) contain meaningful data. }
 }
 \details{
 In the valued case, any non-zero edge value is taken as sufficient to establish a tie.

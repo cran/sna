@@ -10,8 +10,8 @@ symmetrize(mats, rule="weak")
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
-  \item{mats}{ A graph or graph stack}
-  \item{rule}{ One of ``upper'', ``lower'', ``strong'' or ``weak'' }
+  \item{mats}{ a graph or graph stack.}
+  \item{rule}{ one of ``upper'', ``lower'', ``strong'' or ``weak''. }
 }
 \details{
  The rules used by \code{symmetrize} are as follows:
@@ -49,3 +49,4 @@ symmetrize(g,rule="strong")
 \keyword{ manip }
 \keyword{ array }%-- one or more ...
 \keyword{ math }
+\keyword{ graphs }

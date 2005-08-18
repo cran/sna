@@ -3,7 +3,7 @@
 # connectivity.R
 #
 # copyright (c) 2004, Carter T. Butts <buttsc@uci.edu>
-# Last Modified 12/26/04
+# Last Modified 4/16/05
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/sna package
@@ -19,6 +19,7 @@
 #  is.connected
 #  is.isolate
 #  reachability
+#  structure.statistics
 #
 ######################################################################
 
@@ -29,6 +30,14 @@
 #determined by the rule which is used to symmetrize the matrix; this controlled 
 #by the eponymous parameter given to the symmetrize command.
 component.dist<-function(dat,connected=c("strong","weak","unilateral","recursive")){
+   #Pre-process the raw input
+   dat<-as.sociomatrix.sna(dat)
+   if(is.list(dat))
+     return(lapply(dat,component.dist,connected=connected))
+   else if(length(dim(dat))>2)
+     return(apply(dat,1,component.dist,connected=connected))
+   #End pre-processing
+   #Begin routine
    n<-dim(dat)[2]
    #Symmetrize dat based on the connectedness rule
    if(any(dat!=t(dat)))  #Don't bother with this unless we need to do so
@@ -61,6 +70,13 @@ component.dist<-function(dat,connected=c("strong","weak","unilateral","recursive
 
 #components - Find the number of (maximal) components within a given graph
 components<-function(dat,connected="strong",comp.dist.precomp=NULL){
+   #Pre-process the raw input
+   dat<-as.sociomatrix.sna(dat)
+   if(is.list(dat))
+     return(lapply(dat,components,connected=connected, comp.dist.precomp=comp.dist.precomp))
+   else if(length(dim(dat))>2)
+     return(apply(dat,1,components,connected=connected, comp.dist.precomp=comp.dist.precomp))
+   #End pre-processing
    #Use component.dist to get the distribution
    if(!is.null(comp.dist.precomp))
       cd<-comp.dist.precomp
@@ -74,6 +90,14 @@ components<-function(dat,connected="strong",comp.dist.precomp=NULL){
 #geodist - Find the numbers and lengths of geodesics among nodes in a graph 
 #using a BFS, a la Brandes (2000).  (Thanks, Ulrik!)
 geodist<-function(dat,inf.replace=Inf){
+   #Pre-process the raw input
+   dat<-as.sociomatrix.sna(dat)
+   if(is.list(dat))
+     return(lapply(dat,geodist,inf.replace=inf.replace))
+   else if(length(dim(dat))>2)
+     return(apply(dat,1,geodist,inf.replace=inf.replace))
+   #End pre-processing
+   n<-dim(dat)[2]
    n<-dim(dat)[2]
    #Initialize the matrices
    sigma<-matrix(0,nrow=n,ncol=n)
@@ -91,6 +115,11 @@ geodist<-function(dat,inf.replace=Inf){
 
 #isolates - Returns a list of the isolates in a given graph or stack
 isolates<-function(dat,diag=FALSE){
+   #Pre-process the raw input
+   dat<-as.sociomatrix.sna(dat)
+   if(is.list(dat))
+     return(lapply(dat,isolates,diag))
+   #End pre-processing
    if(length(dim(dat))>2){
       o<-vector()
       for(g in 1:dim(dat)[1])
@@ -103,6 +132,11 @@ isolates<-function(dat,diag=FALSE){
 
 #is.connected - Determine whether or not one or more graphs are connected
 is.connected<-function(g,connected="strong",comp.dist.precomp=NULL){
+  #Pre-process the raw input
+  g<-as.sociomatrix.sna(g)
+  if(is.list(g))
+    return(lapply(g,is.connected,connected=connected, comp.dist.precomp=comp.dist.precomp))
+  #End pre-processing
   #Calculate numbers of components
   if(is.matrix(g)){
     comp<-components(g,connected=connected,comp.dist.precomp=comp.dist.precomp)
@@ -116,6 +150,11 @@ is.connected<-function(g,connected="strong",comp.dist.precomp=NULL){
 
 #is.isolate - Returns TRUE iff ego is an isolate
 is.isolate<-function(dat,ego,g=1,diag=FALSE){
+   #Pre-process the raw input
+   dat<-as.sociomatrix.sna(dat)
+   if(is.list(dat))
+     return(is.isolate(dat[[g]],ego=ego,g=1,diag=diag))
+   #End pre-processing
    if(length(dim(dat))>2)
       d<-dat[g,,]
    else
@@ -131,6 +170,14 @@ is.isolate<-function(dat,ego,g=1,diag=FALSE){
 
 #reachability - Find the reachability matrix of a graph.
 reachability<-function(dat,geodist.precomp=NULL){
+   #Pre-process the raw input
+   dat<-as.sociomatrix.sna(dat)
+   if(is.list(dat))
+     return(lapply(dat,reachability,geodist.precomp=geodist.precomp))
+   else if(length(dim(dat))>2)
+#     return(apply(dat,1,reachability,geodist.precomp=geodist.precomp))
+     return(unlist(apply(dat,1,function(x,geodist.precomp){list(reachability(x, geodist.precomp=geodist.precomp))},geodist.precomp=geodist.precomp),recursive=FALSE))
+   #End pre-processing
    #Get the counts matrix
    if(is.null(geodist.precomp))
       cnt<-geodist(dat)$counts
@@ -139,3 +186,27 @@ reachability<-function(dat,geodist.precomp=NULL){
    #Dichotomize and return
    apply(cnt>0,c(1,2),as.numeric)
 }
+
+
+#structure.statistics - Return the structure statistics for a given graph
+structure.statistics<-function(dat,geodist.precomp=NULL){
+  #Pre-process the raw input
+  dat<-as.sociomatrix.sna(dat)
+  if(is.list(dat))
+    return(lapply(dat,structure.statistics,geodist.precomp=geodist.precomp))
+  else if(length(dim(dat))>2)
+    return(apply(dat,1,structure.statistics,geodist.precomp=geodist.precomp))
+  #End pre-processing
+  #Get the geodesic distance matrix
+  if(is.null(geodist.precomp))
+    gd<-geodist(dat)$gdist
+  else
+    gd<-geodist.precomp$gdist
+  #Compute the reachability proportions for each vertex
+  ss<-vector()
+  for(i in 1:NROW(dat))
+    ss[i]<-mean(apply(gd<=i-1,1,mean))
+  names(ss)<-0:(NROW(dat)-1)
+  ss
+}
+

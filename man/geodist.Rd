@@ -10,7 +10,7 @@ geodist(dat, inf.replace=Inf)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
-  \item{dat}{ an adjacency matrix. }
+  \item{dat}{ one or more input graphs. }
   \item{inf.replace}{ the value to use for geodesic distances between disconnected nodes; by default, this is equal \code{Inf}. }
 }
 \details{

@@ -10,7 +10,7 @@ sr2css(net)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
-  \item{net}{ An adjacency matrix }
+  \item{net}{ an adjacency matrix. }
 }
 \details{
  A cognitive social structure (CSS) is an nxnxn array in which the ith matrix corresponds to the ith actor's perception of the entire network.  Here, we take a conventional self-report data structure and put it in CSS format for routines (such as \code{\link{bbnam}}) which require this.
@@ -35,3 +35,4 @@ c<-sr2css(g)
 }
 \keyword{ manip }%-- one or more ...
 \keyword{ math }
+\keyword{ graphs }

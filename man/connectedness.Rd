@@ -3,15 +3,15 @@
 %- Also NEED an `\alias' for EACH other topic documented here.
 \title{ Compute Graph Connectedness Scores }
 \description{
-\code{connectedness} takes a graph stack (\code{dat}) and returns the Krackhardt connectedness scores for the graphs selected by \code{g}. 
+\code{connectedness} takes one or more graphs (\code{dat}) and returns the Krackhardt connectedness scores for the graphs selected by \code{g}. 
 }
 \usage{
-connectedness(dat, g=1:stackcount(dat))
+connectedness(dat, g=NULL)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
-  \item{dat}{ A graph or graph stack }
-  \item{g}{ Index values for the graphs to be utilized; by default, all graphs are selected }
+  \item{dat}{ one or more graphs. }
+  \item{g}{ index values for the graphs to be utilized; by default, all graphs are selected. }
 }
 \details{
 Krackhardt's connectedness for a digraph \eqn{G} is equal to the fraction of all dyads, \eqn{\{i,j\}}, such that there exists an undirected path from \eqn{i} to \eqn{j} in \eqn{G}.  (This, in turn, is just the density of the weak \code{\link{reachability}} graph of \eqn{G}.)  Obviously, the connectedness score ranges from 0 (for the null graph) to 1 (for weakly connected graphs).
@@ -34,3 +34,4 @@ connectedness(rgraph(10,5,tprob=c(0.1,0.25,0.5,0.75,0.9)))
 }
 \keyword{ math }% at least one, from doc/KEYWORDS
 \keyword{ univar }% __ONLY ONE__ keyword per line
+\keyword{ graphs }

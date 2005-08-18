@@ -3,7 +3,7 @@
 # roles.R
 #
 # copyright (c) 2004, Carter T. Butts <buttsc@uci.edu>
-# Last Modified 1/05/05
+# Last Modified 8/7/05
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/sna package
@@ -17,6 +17,7 @@
 #   plot.blockmodel
 #   plot.equiv.clust
 #   print.blockmodel
+#   print.equiv.clust
 #   print.summary.blockmodel
 #   seham
 #   summary.blockmodel
@@ -25,12 +26,20 @@
 
 
 #blockmodel - Generate blockmodels based on partitions of network positions
-blockmodel<-function(dat,ec,k=NULL,h=NULL,block.content="density",plabels=ec$plabels,glabels=ec$glabels,rlabels=NULL,mode="digraph",diag=FALSE){
+blockmodel<-function(dat,ec,k=NULL,h=NULL,block.content="density",plabels=NULL,glabels=NULL,rlabels=NULL,mode="digraph",diag=FALSE){
    if(R.version$major<2)  #Only invoke mva if we're using an old R version
       require(mva)
    #First, extract the blocks
-   b<-cutree(ec$cluster,k,h)
+   if(class(ec)=="equiv.clust")
+     b<-cutree(ec$cluster,k,h)
+   else if(class(ec)=="hclust")
+     b<-cutree(ec,k,h)
+   else
+     b<-ec
    #Prepare the data
+   dat<-as.sociomatrix.sna(dat)
+   if(is.list(dat))
+     stop("Blockmodel requires input graphs to be of identical order.")
    n<-dim(dat)[2]
    if(length(dim(dat))>2)
       d<-dat
@@ -40,6 +49,19 @@ blockmodel<-function(dat,ec,k=NULL,h=NULL,block.content="density",plabels=ec$pla
    }
    if(!diag)
       d<-diag.remove(d)
+   #Get labels
+   if(is.null(plabels)){
+     if(class(ec)=="equiv.clust")
+       plabels<-ec$plabels
+     else
+       plabels<-1:length(b)
+   }
+   if(is.null(glabels)){
+     if(class(ec)=="equiv.clust")
+       glabels<-ec$glabels
+     else
+       glabels<-1:length(b)
+   }
    #Now, construct a model
    rn<-max(b)
    rm<-dim(d)[1]
@@ -82,16 +104,22 @@ blockmodel<-function(dat,ec,k=NULL,h=NULL,block.content="density",plabels=ec$pla
             }
          }
    #Prepare the output object
+   if(class(ec)=="equiv.clust")
+     pord<-ec$cluster$order
+   else if(class(ec)=="hclust")
+     pord<-ec$order
+   else
+     pord<-1:length(b)
    o<-list()
-   o$block.membership<-b[ec$cluster$order]
-   o$order.vector<-ec$cluster$order
+   o$block.membership<-b[pord]
+   o$order.vector<-pord
    o$block.content<-block.content
    if(length(dim(dat))>2){
-      o$blocked.data<-dat[,ec$cluster$order,ec$cluster$order]
-      dimnames(o$blocked.data)<-list(glabels,plabels[ec$cluster$order],plabels[ec$cluster$order])
+      o$blocked.data<-dat[,pord,pord]
+      dimnames(o$blocked.data)<-list(glabels,plabels[pord],plabels[pord])
    }else{
-      o$blocked.data<-dat[ec$cluster$order,ec$cluster$order]      
-      dimnames(o$blocked.data)<-list(plabels[ec$cluster$order],plabels[ec$cluster$order])
+      o$blocked.data<-dat[pord,pord]      
+      dimnames(o$blocked.data)<-list(plabels[pord],plabels[pord])
    }
    if(dim(bm)[1]==1){
       o$block.model<-bm[1,,]
@@ -101,12 +129,22 @@ blockmodel<-function(dat,ec,k=NULL,h=NULL,block.content="density",plabels=ec$pla
       o$block.model<-bm
       dimnames(o$block.model)<-list(glabels,rlabels,rlabels)
    }
-   o$plabels<-plabels[ec$cluster$order]
+   o$plabels<-plabels[pord]
    o$glabels<-glabels
    o$rlabels<-rlabels
-   o$cluster.method<-ec$cluster.method
-   o$equiv.fun<-ec$equiv.fun
-   o$equiv.metric<-ec$metric
+   o$cluster.method<-switch(class(ec),
+     equiv.clust=ec$cluster.method,
+     hclust=ec$method,
+     "Prespecified"
+   )
+   o$equiv.fun<-switch(class(ec),
+     equiv.clust=ec$equiv.fun,
+     "None"
+   )
+   o$equiv.metric<-switch(class(ec),
+     equiv.clust=ec$metric,
+     "None"
+   )
    class(o)<-"blockmodel"
    o   
 }
@@ -148,10 +186,23 @@ blockmodel.expand<-function(b,ev,mode="digraph",diag=FALSE){
 
 
 #equiv.clust - Find clusters of positions based on an equivalence relation
-equiv.clust<-function(dat,g=c(1:dim(dat)[1]),equiv.fun="sedist",method="hamming",mode="digraph",diag=FALSE,cluster.method="complete",glabels=dimnames(dat)[[1]][g],plabels=dimnames(dat)[[2]],...){
+equiv.clust<-function(dat,g=NULL,equiv.dist=NULL,equiv.fun="sedist",method="hamming",mode="digraph",diag=FALSE,cluster.method="complete",glabels=NULL,plabels=NULL,...){
+   #Pre-process the raw input
+   dat<-as.sociomatrix.sna(dat)
+   #End pre-processing
    #First, find the equivalence distances using the appropriate function and method
-   equiv.dist.fun<-match.fun(equiv.fun)
-   equiv.dist<-equiv.dist.fun(dat,g=g,method=method,joint.analysis=TRUE,mode=mode,diag=diag,code.diss=TRUE,...)
+   if(is.null(g)){             #Set g to all graphs, if needed
+     if(is.list(dat))
+       g<-1:length(dat)
+     else if(is.array(dat))
+       g<-dim(dat)[1]
+     else
+       g<-1
+   }     
+   if(is.null(equiv.dist)){
+     equiv.dist.fun<-match.fun(equiv.fun)
+     equiv.dist<-equiv.dist.fun(dat,g=g,method=method,joint.analysis=TRUE, mode=mode,diag=diag,code.diss=TRUE,...)
+   }
    #Load the mva package, if it's not already loaded
    if(R.version$major<2)  #Only invoke mva if we're using an old R version
       require(mva)
@@ -159,6 +210,19 @@ equiv.clust<-function(dat,g=c(1:dim(dat)[1]),equiv.fun="sedist",method="hamming"
    o<-list()
    #Produce the hierarchical clustering
    o$cluster<-hclust(as.dist(equiv.dist),method=cluster.method)
+   #Generate labels
+   if(is.null(glabels)){
+     if(is.list(dat))
+       glabels<-names(dat)[g]
+     else
+       glabels<-dimnames(dat)[[1]][g]
+   }
+   if(is.null(plabels)){
+     if(is.list(dat))
+       plabels<-dimnames(dat[[g]])[[2]]
+     else
+       plabels<-dimnames(dat)[[2]]
+   }
    #Set the output class and take care of other details
    o$metric<-method
    o$equiv.fun<-equiv.fun
@@ -177,7 +241,8 @@ equiv.clust<-function(dat,g=c(1:dim(dat)[1]),equiv.fun="sedist",method="hamming"
 #plot.blockmodel - Plotting for blockmodel objects
 plot.blockmodel<-function(x,...){
    #Save old settings
-   oldpar<-par()
+   oldpar<-par(no.readonly=TRUE)
+   on.exit(par(oldpar))
    #Get new settings from data
    n<-dim(x$blocked.data)[2]
    m<-stackcount(x$blocked.data)
@@ -189,34 +254,30 @@ plot.blockmodel<-function(x,...){
       glab<-x$glabels
    else
       glab<-1:m
-   print(glab)
    #Now, plot the blocked data
    par(mfrow=c(floor(sqrt(m)),ceiling(m/floor(sqrt(m)))))
    if(m>1)
       for(i in 1:m){
-         plot.sociomatrix(x$blocked.data[i,,],labels=list(plab,plab),main=paste("Relation - ",glab[i]))
+         plot.sociomatrix(x$blocked.data[i,,],labels=list(plab,plab), main=paste("Relation - ",glab[i]),drawlines=FALSE)
          for(j in 2:n)
             if(x$block.membership[j]!=x$block.membership[j-1])
                abline(v=j-0.5,h=j-0.5,lty=3)
       }
    else{
-      plot.sociomatrix(x$blocked.data,labels=list(plab,plab),main=paste("Relation - ",glab[1]))
+      plot.sociomatrix(x$blocked.data,labels=list(plab,plab), main=paste("Relation - ",glab[1]),drawlines=FALSE)
       for(j in 2:n)
          if(x$block.membership[j]!=x$block.membership[j-1])
             abline(v=j-0.5,h=j-0.5,lty=3)
    }
-   #Fix the display settings
-   par(oldpar)
 }
 
 
 #plot.equiv.clust - Plotting for equivalence clustering objects
-plot.equiv.clust<-function(x,labels=x$plabels,...){
+plot.equiv.clust<-function(x,labels=NULL,...){
    if(R.version$major<2)  #Only invoke mva if we're using an old R version
       require(mva)
-   class(x)<-"hclust"
    if(is.null(labels))
-      plot(x$cluster,...)
+      plot(x$cluster,labales=x$labels,...)
    else
       plot(x$cluster,labels=labels,...)
 }
@@ -224,7 +285,7 @@ plot.equiv.clust<-function(x,labels=x$plabels,...){
 
 #print.blockmodel - Printing for blockmodel objects
 print.blockmodel<-function(x,...){
-   cat("\nBlockmodel by Equivalence Clustering:\n\n")
+   cat("\nNetwork Blockmodel:\n\n")
    cat("Block membership:\n\n")
    if(is.null(x$plabels))                    #Get position labels
       plab<-(1:length(x$block.membership))[x$order.vector]
@@ -245,15 +306,25 @@ print.blockmodel<-function(x,...){
    }else{
          temp<-x$block.model
          dimnames(temp)<-list(x$rlabels,x$rlabels)
-         cat("\t",x$glabels[i],"\n") 
+         cat("\t",x$glabels,"\n") 
          print(temp)
    }
 }
 
 
+#print.equiv.clust - Printing for equiv.clust objects
+print.equiv.clust<-function(x, ...){
+  cat("Position Clustering:\n\n")
+  cat("\tEquivalence function:",x$equiv.fun,"\n")
+  cat("\tEquivalence metric:",x$metric,"\n")
+  cat("\tCluster method:",x$cluster.method,"\n")
+  cat("\tGraph order:",length(x$cluster$order),"\n\n")
+}
+
+
 #print.summary.blockmodel - Printing for blockmodel summary objects
 print.summary.blockmodel<-function(x,...){
-   cat("\nBlockmodel by Equivalence Clustering:\n\n")
+   cat("\nNetwork Blockmodel:\n\n")
 
    cat("\nGeneral information:\n\n")
    cat("\tEquivalence function: ",x$equiv.fun,"\n")
@@ -286,7 +357,7 @@ print.summary.blockmodel<-function(x,...){
    }else{
          temp<-x$block.model
          dimnames(temp)<-list(x$rlabels,x$rlabels)
-         cat("\t",x$glabels[i],"\n") 
+         cat("\t",x$glabels,"\n") 
          print(temp)
    }
 
@@ -302,7 +373,7 @@ print.summary.blockmodel<-function(x,...){
    }else{
          temp<-x$blocked.data
          dimnames(temp)<-list(plab,plab)
-         cat("\t",x$glabels[i],"\n") 
+         cat("\t",x$glabels,"\n") 
          print(temp)
    }
 
@@ -313,6 +384,9 @@ print.summary.blockmodel<-function(x,...){
 #equivalence
 sedist<-function(dat,g=c(1:dim(dat)[1]),method="hamming",joint.analysis=FALSE,mode="digraph",diag=FALSE,code.diss=FALSE){
    #First, prepare the data
+   dat<-as.sociomatrix.sna(dat)
+   if(is.list(dat))
+     stop("sedist requires input graphs to be of identical order.")
    if(length(dim(dat))>2){
       n<-dim(dat)[2]
       m<-length(g)
@@ -323,8 +397,6 @@ sedist<-function(dat,g=c(1:dim(dat)[1]),method="hamming",joint.analysis=FALSE,mo
       d<-array(dim=c(m,n,n))
       d[1,,]<-dat
    }
-   if(mode=="graph")
-      d<-upper.tri.remove(d)
    if(!diag)
       d<-diag.remove(d)
    #Are we conducting a joint analysis?

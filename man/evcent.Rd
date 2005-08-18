@@ -3,21 +3,21 @@
 %- Also NEED an `\alias' for EACH other topic documented here.
 \title{ Find Eigenvector Centrality Scores of Network Positions }
 \description{
-  \code{evcent} takes a graph stack (\code{dat}) and returns the eigenvector centralities of positions within one graph (indicated by \code{nodes} and \code{g}, respectively).  This function is compatible with \code{\link{centralization}}, and will return the theoretical maximum absolute deviation (from maximum) conditional on size (which is used by \code{\link{centralization}} to normalize the observed centralization score).
+  \code{evcent} takes one or more graphs (\code{dat}) and returns the eigenvector centralities of positions (selected by \code{nodes}) within the graphs indicated by \code{g}.  This function is compatible with \code{\link{centralization}}, and will return the theoretical maximum absolute deviation (from maximum) conditional on size (which is used by \code{\link{centralization}} to normalize the observed centralization score).
 }
 \usage{
-evcent(dat, g=1, nodes=c(1:dim(dat)[2]), gmode="digraph", diag=FALSE,
+evcent(dat, g=1, nodes=NULL, gmode="digraph", diag=FALSE,
     tmaxdev=FALSE, rescale=FALSE)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
-  \item{dat}{ Data array to be analyzed.  By assumption, the first dimension of the array indexes the graph, with the next two indexing the actors. Alternately, this can be an n x n matrix (if only one graph is involved). }
-  \item{g}{ Integer indicating the index of the graph for which centralities are to be calculated.  By default, \code{g==1}. }
-  \item{nodes}{ List indicating which nodes are to be included in the calculation.  By default, all nodes are included. }
-  \item{gmode}{ String indicating the type of graph being evaluated.  "digraph" indicates that edges should be interpreted as directed; "graph" indicates that edges are undirected.  This is currently ignored. }
-  \item{diag}{ Boolean indicating whether or not the diagonal should be treated as valid data.  Set this true if and only if the data can contain loops.  \code{diag} is \code{FALSE} by default. }
-  \item{tmaxdev}{ Boolean indicating whether or not the theoretical maximum absolute deviation from the maximum nodal centrality should be returned.  By default, \code{tmaxdev==FALSE}. }
-  \item{rescale}{ If true, centrality scores are rescaled such that they sum to 1. }
+  \item{dat}{ one or more input graphs. }
+  \item{g}{ integer indicating the index of the graph for which centralities are to be calculated (or a vector thereof).  By default, \code{g}=1. }
+  \item{nodes}{ vector indicating which nodes are to be included in the calculation.  By default, all nodes are included. }
+  \item{gmode}{ string indicating the type of graph being evaluated.  "digraph" indicates that edges should be interpreted as directed; "graph" indicates that edges are undirected.  This is currently ignored. }
+  \item{diag}{ boolean indicating whether or not the diagonal should be treated as valid data.  Set this true if and only if the data can contain loops.  \code{diag} is \code{FALSE} by default. }
+  \item{tmaxdev}{ boolean indicating whether or not the theoretical maximum absolute deviation from the maximum nodal centrality should be returned.  By default, \code{tmaxdev==FALSE}. }
+  \item{rescale}{ if true, centrality scores are rescaled such that they sum to 1. }
 }
 \details{
 Eigenvector centrality scores correspond to the values of the first eigenvector of the graph adjacency matrix; these scores may, in turn, be interpreted as arising from a reciprocal process in which the centrality of each actor is proportional to the sum of the centralities of those actors to whom he or she is connected.  In general, vertices with high eigenvector centralities are those which are connected to many other vertices which are, in turn, connected to many others (and so on).  (The perceptive may realize that this implies that the largest values will be obtained by individuals in large cliques (or high-density substructures).  This is also intelligible from an algebraic point of view, with the first eigenvector being closely related to the best rank-1 approximation of the adjacency matrix (a relationship which is easy to see in the special case of a diagonalizable symmetric real matrix via the \eqn{S \Lambda S^{-1}}{SLS^-1} decomposition).) 
@@ -25,7 +25,7 @@ Eigenvector centrality scores correspond to the values of the first eigenvector 
 The simple eigenvector centrality is generalized by the Bonacich power centrality measure; see \code{\link{bonpow}} for more details.
 }
 \value{
-  A vector containing the centrality scores
+  A vector, matrix, or list containing the centrality scores (depending on the number and size of the input graphs).
 }
 \references{ Bonacich, P.  (1987).  ``Power and Centrality: A Family of Measures.'' \emph{American Journal of Sociology}, 92, 1170-1182.
 
@@ -47,3 +47,4 @@ evcent(dat)
 }
 \keyword{ univar }%-- one or more ...
 \keyword{ math }
+\keyword{ graphs }

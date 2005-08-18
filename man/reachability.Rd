@@ -3,15 +3,15 @@
 %- Also NEED an `\alias' for EACH other topic documented here.
 \title{ Find the Reachability Matrix of a Graph }
 \description{
-  \code{reachability} takes a (possibly directed) graph as input, producing the associated reachability matrix.
+  \code{reachability} takes one or more (possibly directed) graphs as input, producing the associated reachability matrices.
 }
 \usage{
 reachability(dat, geodist.precomp=NULL)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
-  \item{dat}{ A graph adjacency matrix (directed or otherwise) }
-  \item{geodist.precomp}{ Optionally, a precomputed \code{\link{geodist}} object }
+  \item{dat}{ one or more graphs (directed or otherwise). }
+  \item{geodist.precomp}{ optionally, a precomputed \code{\link{geodist}} object. }
 }
 \details{
 For a digraph \eqn{G=(V,E)} with vertices \eqn{i} and \eqn{j}, let \eqn{P_{ij}}{P_ij} represent a directed \eqn{ij} path.  Then the graph
@@ -43,3 +43,4 @@ rg
 all(rg==(geodist(g)$counts>0))
 }
 \keyword{ algebra }% __ONLY ONE__ keyword per line
+\keyword{ graphs }

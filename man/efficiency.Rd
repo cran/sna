@@ -3,16 +3,16 @@
 %- Also NEED an `\alias' for EACH other topic documented here.
 \title{ Compute Graph Efficiency Scores }
 \description{
-  \code{efficiency} takes a graph stack (\code{dat}) and returns the Krackhardt efficiency scores for the graphs selected by \code{g}.
+  \code{efficiency} takes one or more graphs (\code{dat}) and returns the Krackhardt efficiency scores for the graphs selected by \code{g}.
 }
 \usage{
-efficiency(dat, g=1:stackcount(dat), diag=FALSE)
+efficiency(dat, g=NULL, diag=FALSE)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
-  \item{dat}{ A graph or graph stack }
-  \item{g}{ Index values for the graphs to be utilized; by default, all graphs are selected }
-  \item{diag}{ \code{TRUE} if the diagonal contains valid data; by default, \code{diag==FALSE} }
+  \item{dat}{ one or more graphs. }
+  \item{g}{ index values for the graphs to be utilized; by default, all graphs are selected. }
+  \item{diag}{ \code{TRUE} if the diagonal contains valid data; by default, \code{diag==FALSE}. }
 }
 \details{
 Let \eqn{G=\cup_{i=1}^n G_i}{G= G_1 U ... U G_n} be a digraph with weak components \eqn{G_1,G_2,\dots,G_n}{G_1,G_2,...,G_n}.  For convenience, we denote the cardinalities of these components' vertex sets by \eqn{|V(G)|=N} and \eqn{|V(G_i)|=N_i}, \eqn{\forall i \in 1,\dots,n}{for i in 1,...,n}.  Then the Krackhardt efficiency of \eqn{G} is given by
@@ -43,3 +43,4 @@ efficiency(rgraph(10,5,tprob=c(0.1,0.25,0.5,0.75,0.9)))
 }
 \keyword{ math }% at least one, from doc/KEYWORDS
 \keyword{ univar }% __ONLY ONE__ keyword per line
+\keyword{ graphs }

@@ -1,5 +1,49 @@
 CHANGELOG:
 
+v1.0 - New Functions, New Features, Changes, and Bug Fixes
+   New Functions:
+      bn.* - Estimation for biased net models
+      print.equiv.clust - Printing for equiv.clust objects
+      rgbn - Draw from a biased net model
+      structure.statistics - Return the structure statistics for one or more
+        graphs
+      write.dl - Write output in DL format
+      write.nos - Write output in NOS format
+   New Features:
+      Most functions now support networks objects (a la the network package)
+        and graph lists in a sensible way
+      blockmodel now takes hclust objects or block membership vectors as input
+      consensus now supports iterative reweighting (Romney-Batchelder model)
+      equiv.clust now supports user-supplied distance matrices
+      plot.sociomatrix can now suppress cell borders, and supports scaling of
+        label text [latter suggested by Mark Handcock]
+      triad.census and triad.classify now can now be set to obtain undirected
+        triad classifications using mode="graph"
+   Changes
+      addisolates is now defunct (was deprecated - use add.isolates instead)
+      grecip's output was confusing (edgewise measure was not what one might
+        expect).  grecip now gives a more conventional edgewise measure, with
+        the old measure available as "dyadic.nonnull". [suggested by Simone 
+        Gabbriellini]
+      netlm now uses more refined null hypotheses, and has been internally
+        streamlined; output has been modified slightly.  Modifications include
+        the use of Dekker et al.'s semi-partialling procedure as the QAP
+        default, and explicit compution of two-sided tests.
+      netlogit has been changed in a manner analogous to netlm.
+    Bug Fixes
+      bbnam plot methods were creating ugly labels/titles
+      equiv.clust and plot.equiv.clust were not fully compatible with recent
+        changes in hclust
+      gplot3d.arrow and gplot3d.loop (and hence gplot3d) were not drawing edge
+        attributes properly
+      print.blockmodel was failing under certain circumstances
+      gtrans was producing inaccurate results on some graphs [submitted by 
+        Jessica Flack]
+      plot.sociomatrix was generating annoying (albeit harmless) warning
+        messages
+      sedist was not considering all edges for mode=="graph" [submitted by 
+        Alex Montgomery]
+
 v0.51 - New Features and Bug Fixes
    New Features:
       gplot now supports vertex rotation, more refined label placement,

@@ -3,27 +3,45 @@
 %- Also NEED an `\alias' for EACH other topic documented here.
 \title{ Logistic Regression for Network Data }
 \description{
-  \code{netlogit} performs a logistic regression of the network variable in \code{y} on the network variables in stack \code{x}.  The resulting fits (and coefficients) are then tested against the indicated null hypothesis.
+  \code{netlogit} performs a logistic regression of the network variable in \code{y} on the network variables in set \code{x}.  The resulting fits (and coefficients) are then tested against the indicated null hypothesis.
 }
 \usage{
-netlogit(y, x, mode="digraph", diag=FALSE, nullhyp="cugtie", 
+netlogit(y, x, intercept=TRUE, mode="digraph", diag=FALSE,
+     nullhyp=c("qap", "qapspp", "qapy", "qapx", "qapallx", 
+    "cugtie", "cugden", "cuguman", "classical"), tol=1e-7,
     reps=1000)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
-  \item{y}{ Dependent network variable.  This should be a matrix, for obvious reasons; \code{NA}s are allowed, and the data should be dichotomous. }
-  \item{x}{ Data array containing the stack of independent network variables.  By assumption, the first dimension of the array indexes the graph, with the next two indexing the actors.  Note that \code{NA}s are permitted, as is dichotomous data. }
-  \item{mode}{ String indicating the type of graph being evaluated.  "Digraph" indicates that edges should be interpreted as directed; "graph" indicates that edges are undirected.  \code{mode} is set to "digraph" by default. }
-  \item{diag}{  Boolean indicating whether or not the diagonal should be treated as valid data.  Set this true if and only if the data can contain loops.  \code{diag} is \code{FALSE} by default. }
-  \item{nullhyp}{ String indicating the particular null hypothesis against which to test the observed estimands.  A value of "cug" implies a conditional uniform graph test (see \code{\link{cugtest}}) controlling for order \emph{only}; "cugden" controls for both order and tie probability; "cugtie" controls for order and tie distribution (via bootstrap); and "qap" implies that the QAP null hypothesis (see \code{\link{qaptest}}) should be used. }
-  \item{reps}{ Integer indicating the number of draws to use for quantile estimation.  (Relevant to the null hypothesis test only -- the analysis itself is unaffected by this parameter.)  Note that, as for all Monte Carlo procedures, convergence is slower for more extreme quantiles.  By default, \code{reps}=1000. }
+  \item{y}{ dependent network variable.  \code{NA}s are allowed, and the data should be dichotomous. }
+  \item{x}{ the stack of independent network variables.  Note that \code{NA}s are permitted, as is dichotomous data. }
+  \item{intercept}{logical; should an intercept term be fitted?}
+  \item{mode}{ string indicating the type of graph being evaluated.  \code{"digraph"} indicates that edges should be interpreted as directed; \code{"graph"} indicates that edges are undirected.  \code{mode} is set to \code{"digraph"} by default. }
+  \item{diag}{  boolean indicating whether or not the diagonal should be treated as valid data.  Set this true if and only if the data can contain loops.  \code{diag} is \code{FALSE} by default. }
+  \item{nullhyp}{ string indicating the particular null hypothesis against which to test the observed estimands. }
+  \item{tol}{ tolerance parameter for \code{qr.solve}. }
+  \item{reps}{ integer indicating the number of draws to use for quantile estimation.  (Relevant to the null hypothesis test only -- the analysis itself is unaffected by this parameter.)  Note that, as for all Monte Carlo procedures, convergence is slower for more extreme quantiles.  By default, \code{reps}=1000. }
 }
 \details{
-  \code{netlogit} is primarily a front-end to the built-in \code{\link{glm}} routine.  \code{netlogit} handles vectorization, sets up \code{\link{glm}} options, and deals with null hypothesis testing; the actual fitting is taken care of by \code{\link{glm}}.  
+  \code{netlogit} is primarily a front-end to the built-in \code{\link{glm.fit}} routine.  \code{netlogit} handles vectorization, sets up \code{\link{glm}} options, and deals with null hypothesis testing; the actual fitting is taken care of by \code{\link{glm.fit}}.  
 
 Logistic network regression using is directly analogous to standard logistic regression elementwise on the appropriately vectorized adjacency matrices of the networks involved.  As such, it is often a more appropriate model for fitting dichotomous response networks than is linear network regression.  
 
-Null hypothesis tests for logistic network regression are handled using either the conditional uniform graph hypothesis (the default) or QAP.  See the help pages for these tests for a fuller description of each.  Reasonable printing and summarizing of \code{netlogit} objects is provided by \code{\link{print.netlogit}} and \code{\link{summary.netlogit}}, respectively.  No plot methods exist at this time.
+Because of the frequent presence of row/column/block autocorrelation in network data, classical hull hypothesis tests (and associated standard errors) are generally suspect.  Further, it is sometimes of interest to compare fitted parameter values to those arising from various baseline models (e.g., uniform random graphs conditional on certain observed statistics).  The tests supported by \code{netlogit} are as follows:
+
+\describe{
+  \item{\code{classical}}{ tests based on classical asymptotics. }
+  \item{\code{cug}}{conditional uniform graph test (see \code{\link{cugtest}}) controlling for order.}
+  \item{\code{cugden}}{conditional uniform graph test, controlling for order and density.}
+  \item{\code{cugtie}}{conditional uniform graph test, controlling for order and tie distribution.}
+  \item{\code{qap}}{QAP permutation test (see \code{\link{qaptest}}); currently identical to \code{qapspp}. }
+  \item{\code{qapallx}}{QAP permutation test, using independent x-permutations.}
+  \item{\code{qapspp}}{QAP permutation test, using Dekker's "semi-partialling plus" procedure. }
+  \item{\code{qapx}}{QAP permutation test, using (single) x-permutations.}
+  \item{\code{qapy}}{QAP permutation test, using y-permutations.}
+}
+
+Note that interpretation of quantiles for single coefficients can be complex in the presence of multicollinearity or third variable effects.  Although \code{qapspp} is known to be robust to these conditions in the OLS case, there are no equivalent results for logistic regression.  Caution is thus advised.  Reasonable printing and summarizing of \code{netlogit} objects is provided by \code{\link{print.netlogit}} and \code{\link{summary.netlogit}}, respectively.  No plot methods exist at this time.
 }
 \value{
   An object of class \code{netlogit}
@@ -54,3 +72,4 @@ summary(nl)
 }
 \keyword{ regression }%-- one or more ...
 \keyword{ math }
+\keyword{ graphs }

@@ -10,10 +10,10 @@ blockmodel.expand(b, ev, mode="digraph", diag=FALSE)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
-  \item{b}{ Blockmodel object }
-  \item{ev}{ A vector indicating the number of copies to make of each class (respectively) }
-  \item{mode}{ A string indicating whether the result should be a ``graph'' or ``digraph'' }
-  \item{diag}{ A boolean indicating whether or not loops should be permitted }
+  \item{b}{ blockmodel object. }
+  \item{ev}{ a vector indicating the number of copies to make of each class (respectively). }
+  \item{mode}{ a string indicating whether the result should be a ``graph'' or ``digraph''. }
+  \item{diag}{ a boolean indicating whether or not loops should be permitted. }
 }
 \details{
   The primary use of blockmodel expansion is in generating test data from a blockmodeling hypothesis.  Expansion is performed depending on the content type of the blockmodel; at present, only density is supported.  For the density content type, expansion is performed by interpreting the interclass density as an edge probability, and by drawing random graphs from the Bernoulli parameter matrix formed by expanding the density model.  Thus, repeated calls to \code{blockmodel.expand} can be used to generate a sample for monte carlo null hypothesis tests under a Bernoulli graph model.
@@ -21,7 +21,10 @@ blockmodel.expand(b, ev, mode="digraph", diag=FALSE)
 \value{
 An adjacency matrix, or stack thereof.
 }
-\references{ White, H.C.; Boorman, S.A.; and Breiger, R.L.  (1976).  ``Social Structure from Multiple Networks I: Blockmodels of Roles and Positions.''  \emph{American Journal of Sociology}, 81, 730-779. }
+\references{ 
+Doreian, P.; Batagelj, V.; and Ferligoj, A.  (2005).  \emph{Generalized Blockmodeling.}  Cambridge: Cambridge University Press.
+
+White, H.C.; Boorman, S.A.; and Breiger, R.L.  (1976).  ``Social Structure from Multiple Networks I: Blockmodels of Roles and Positions.''  \emph{American Journal of Sociology}, 81, 730-779. }
 \author{ Carter T. Butts \email{buttsc@uci.edu} }
 \note{ Eventually, other content types will be supported. }
 
@@ -47,3 +50,4 @@ g.e
 }
 \keyword{ manip }%-- one or more ...
 \keyword{ math }
+\keyword{ graphs}

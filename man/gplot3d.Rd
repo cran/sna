@@ -3,7 +3,7 @@
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{ Three-Dimensional Visualization of Graphs }
 \description{
-  \code{gplot3d} produces a three-dimensional plot of graph \code{g} in stack \code{dat}.  A variety of options are available to control vertex placement, display details, color, etc.
+  \code{gplot3d} produces a three-dimensional plot of graph \code{g} in set \code{dat}.  A variety of options are available to control vertex placement, display details, color, etc.
 }
 \usage{
 gplot3d(dat, g = 1, gmode = "digraph", diag = FALSE, 
@@ -17,7 +17,7 @@ gplot3d(dat, g = 1, gmode = "digraph", diag = FALSE,
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{dat}{ a graph or graph stack.  This data may be valued. }
+  \item{dat}{ a graph or set thereof.  This data may be valued. }
   \item{g}{ integer indicating the index of the graph (from \code{dat}) which is to be displayed. }
   \item{gmode}{ string indicating the type of graph being evaluated. \code{"digraph"} indicates that edges should be interpreted as directed; \code{"graph"} indicates that edges are undirected;\code{"twomode"} indicates that data should be interpreted as two-mode (i.e., rows and columns are distinct vertex sets). }
   \item{diag}{ boolean indicating whether or not the diagonal should be treated as valid data.  Set this true if and only if the data can contain loops.  }

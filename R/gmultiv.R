@@ -3,7 +3,7 @@
 # gmultiv.R
 #
 # copyright (c) 2004, Carter T. Butts <buttsc@uci.edu>
-# Last Modified 1/05/05
+# Last Modified 8/8/05
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/sna package
@@ -30,6 +30,11 @@
 
 #centralgraph - Find the central graph of a graph stack
 centralgraph<-function(dat,normalize=FALSE){
+   #Pre-process the raw input
+   dat<-as.sociomatrix.sna(dat)
+   if(is.list(dat))
+     stop("Identical graph orders required in centralgraph.")
+   #End pre-processing
    #Check to see if someone foolishly called this with one graph
    if(length(dim(dat))==2)
       out<-dat
@@ -37,7 +42,7 @@ centralgraph<-function(dat,normalize=FALSE){
       if(normalize)
          out<-apply(dat,c(2,3),mean,na.rm=TRUE)
       else
-         out<-matrix(data=as.numeric(apply(dat,c(2,3),mean,na.rm=TRUE)>=0.5),nrow=dim(dat)[2],ncol=dim(dat)[2])
+         out<-matrix(data=as.numeric(apply(dat,c(2,3),mean,na.rm=TRUE)>=0.5), nrow=dim(dat)[2],ncol=dim(dat)[2])
    }
    out
 }
@@ -58,21 +63,41 @@ gclust.boxstats<-function(h,k,meas,...){
 
 
 #gclust.centralgraph - Get central graphs associated with clusters
-gclust.centralgraph<-function(h,k,mats,...){
-   #h must be an hclust object, k the number of groups, and mats the array of graphs
-   out<-array(dim=c(k,dim(mats)[2],dim(mats)[2]))
-   gmat<-matrix(nrow=dim(mats)[1],ncol=2)
-   gmat[,1]<-c(1:dim(mats)[1])
+gclust.centralgraph<-function(h,k,dat,...){
+   #Pre-process the raw input
+   dat<-as.sociomatrix.sna(dat)
+   if(is.list(dat))
+     stop("Identical graph orders required in gclust.centralgraph.")
+   #End pre-processing
+   #h must be an hclust object, k the number of groups, and dat a collection
+   #of graphs (with identical order)
+   out<-array(dim=c(k,dim(dat)[2],dim(dat)[2]))
+   gmat<-matrix(nrow=dim(dat)[1],ncol=2)
+   gmat[,1]<-c(1:dim(dat)[1])
    gmat[,2]<-cutree(h,k=k)
    for(i in 1:k)
-      out[i,,]<-centralgraph(mats[gmat[gmat[,2]==i,1],,],...)
+      out[i,,]<-centralgraph(dat[gmat[gmat[,2]==i,1],,],...)
    out
 }
 
 
 #gcor - Correlation between two or more graphs.
-gcor<-function(dat,dat2=NULL,g1=c(1:dim(dat)[1]),g2=c(1:dim(dat)[1]),diag=FALSE,mode="digraph"){
+gcor<-function(dat,dat2=NULL,g1=NULL,g2=NULL,diag=FALSE,mode="digraph"){
+   #Pre-process the raw input
+   dat<-as.sociomatrix.sna(dat)
+   if(is.list(dat))
+     stop("Identical graph orders required in gcor.")
+   if(!is.null(dat2)){
+     dat2<-as.sociomatrix.sna(dat2)
+     if(is.list(dat2))
+       stop("Identical graph orders required in gcor.")
+   }
+   #End pre-processing
    #Collect data and various parameters
+   if(is.null(g1))
+     g1<-1:dim(dat)[1]
+   if(is.null(g2))
+     g2<-1:dim(dat)[1]
    if(!is.null(dat2)){
       if(length(dim(dat))>2)
          temp1<-dat
@@ -118,7 +143,7 @@ gcor<-function(dat,dat2=NULL,g1=c(1:dim(dat)[1]),g2=c(1:dim(dat)[1]),diag=FALSE,
    colnames(gd)<-g2
    for(i in 1:gn1)
       for(j in 1:gn2)
-         gd[i,j]<-cor(as.vector(d[g1[i],,]),as.vector(d[g2[j],,]),use="complete.obs")
+         gd[i,j]<-cor(as.vector(d[g1[i],,]),as.vector(d[g2[j],,]), use="complete.obs")
    #If only one comparison requested, return as an element
    if((gn1==1)&(gn2==1))
       gd[1,1]
@@ -128,8 +153,22 @@ gcor<-function(dat,dat2=NULL,g1=c(1:dim(dat)[1]),g2=c(1:dim(dat)[1]),diag=FALSE,
 
 
 #gcov - Covariance between two or more graphs.
-gcov<-function(dat,dat2=NULL,g1=c(1:dim(dat)[1]),g2=c(1:dim(dat)[1]),diag=FALSE,mode="digraph"){
+gcov<-function(dat,dat2=NULL,g1=NULL,g2=NULL,diag=FALSE,mode="digraph"){
+   #Pre-process the raw input
+   dat<-as.sociomatrix.sna(dat)
+   if(is.list(dat))
+     stop("Identical graph orders required in gcov.")
+   if(!is.null(dat2)){
+     dat2<-as.sociomatrix.sna(dat2)
+     if(is.list(dat2))
+       stop("Identical graph orders required in gcov.")
+   }
+   #End pre-processing
    #Collect data and various parameters
+   if(is.null(g1))
+     g1<-1:dim(dat)[1]
+   if(is.null(g2))
+     g2<-1:dim(dat)[1]
    if(!is.null(dat2)){
       if(length(dim(dat))>2)
          temp1<-dat
@@ -175,7 +214,7 @@ gcov<-function(dat,dat2=NULL,g1=c(1:dim(dat)[1]),g2=c(1:dim(dat)[1]),diag=FALSE,
    colnames(gd)<-g2
    for(i in 1:gn1)
       for(j in 1:gn2)
-         gd[i,j]<-cov(as.vector(d[g1[i],,]),as.vector(d[g2[j],,]),use="complete.obs")
+         gd[i,j]<-cov(as.vector(d[g1[i],,]),as.vector(d[g2[j],,]), use="complete.obs")
    #If only one comparison requested, return as an element
    if((gn1==1)&(gn2==1))
       gd[1,1]
@@ -291,8 +330,22 @@ gdist.plotstats<-function(d,meas,siz.lim=c(0,0.15),rescale="quantile",display.sc
 
 
 #gscor - Structural correlation between two or more graphs.
-gscor<-function(dat,dat2=NULL,g1=c(1:dim(dat)[1]),g2=c(1:dim(dat)[1]),diag=FALSE,mode="digraph",method="anneal",reps=1000,prob.init=0.9,prob.decay=0.85,freeze.time=25,full.neighborhood=TRUE,exchange.list=rep(0,dim(dat)[2])){
+gscor<-function(dat,dat2=NULL,g1=NULL,g2=NULL,diag=FALSE,mode="digraph",method="anneal",reps=1000,prob.init=0.9,prob.decay=0.85,freeze.time=25,full.neighborhood=TRUE,exchange.list=0){
+   #Pre-process the raw input
+   dat<-as.sociomatrix.sna(dat)
+   if(is.list(dat))
+     stop("Identical graph orders required in gscor.")
+   if(!is.null(dat2)){
+     dat2<-as.sociomatrix.sna(dat2)
+     if(is.list(dat2))
+       stop("Identical graph orders required in gscor.")
+   }
+   #End pre-processing
    #Collect data and various parameters
+   if(is.null(g1))
+     g1<-1:dim(dat)[1]
+   if(is.null(g2))
+     g2<-1:dim(dat)[1]
    if(!is.null(dat2)){
       if(length(dim(dat))>2)
          temp1<-dat
@@ -380,8 +433,22 @@ gscor<-function(dat,dat2=NULL,g1=c(1:dim(dat)[1]),g2=c(1:dim(dat)[1]),diag=FALSE
 
 
 #gscov - Structural covariance between two or more graphs.
-gscov<-function(dat,dat2=NULL,g1=c(1:dim(dat)[1]),g2=c(1:dim(dat)[1]),diag=FALSE,mode="digraph",method="anneal",reps=1000,prob.init=0.9,prob.decay=0.85,freeze.time=25,full.neighborhood=TRUE,exchange.list=rep(0,dim(dat)[2])){
+gscov<-function(dat,dat2=NULL,g1=NULL,g2=NULL,diag=FALSE,mode="digraph",method="anneal",reps=1000,prob.init=0.9,prob.decay=0.85,freeze.time=25,full.neighborhood=TRUE,exchange.list=0){
+   #Pre-process the raw input
+   dat<-as.sociomatrix.sna(dat)
+   if(is.list(dat))
+     stop("Identical graph orders required in gscov.")
+   if(!is.null(dat2)){
+     dat2<-as.sociomatrix.sna(dat2)
+     if(is.list(dat2))
+       stop("Identical graph orders required in gscov.")
+   }
+   #End pre-processing
    #Collect data and various parameters
+   if(is.null(g1))
+     g1<-1:dim(dat)[1]
+   if(is.null(g2))
+     g2<-1:dim(dat)[1]
    if(!is.null(dat2)){
       if(length(dim(dat))>2)
          temp1<-dat
@@ -469,8 +536,22 @@ gscov<-function(dat,dat2=NULL,g1=c(1:dim(dat)[1]),g2=c(1:dim(dat)[1]),diag=FALSE
 
 
 #hdist - Find the Hamming distances between two or more graphs.
-hdist<-function(dat,dat2=NULL,g1=c(1:dim(dat)[1]),g2=c(1:dim(dat)[1]),normalize=FALSE,diag=FALSE,mode="digraph"){
+hdist<-function(dat,dat2=NULL,g1=NULL,g2=NULL,normalize=FALSE,diag=FALSE,mode="digraph"){
+   #Pre-process the raw input
+   dat<-as.sociomatrix.sna(dat)
+   if(is.list(dat))
+     stop("Identical graph orders required in hdist.")
+   if(!is.null(dat2)){
+     dat2<-as.sociomatrix.sna(dat2)
+     if(is.list(dat2))
+       stop("Identical graph orders required in hdist.")
+   }
+   #End pre-processing
    #Collect data and various parameters
+   if(is.null(g1))
+     g1<-1:dim(dat)[1]
+   if(is.null(g2))
+     g2<-1:dim(dat)[1]
    if(!is.null(dat2)){
       if(length(dim(dat))>2)
          temp1<-dat
@@ -534,13 +615,20 @@ hdist<-function(dat,dat2=NULL,g1=c(1:dim(dat)[1]),g2=c(1:dim(dat)[1]),normalize=
 #hdist and structdist, but the function is left for reasons of compatibility as 
 #well as speed (currently, the distance functions don't check for duplicate 
 #calculations when building distance matrices).
-sdmat<-function(dat,normalize=FALSE,diag=FALSE,mode="digraph",output="matrix",method="mc",exchange.list=rep(0,dim(dat)[2]),...){
+sdmat<-function(dat,normalize=FALSE,diag=FALSE,mode="digraph",output="matrix",method="mc",exchange.list=NULL,...){
+   #Pre-process the raw input
+   dat<-as.sociomatrix.sna(dat)
+   if(is.list(dat))
+     stop("Identical graph orders required in sdmat.")
+   #End pre-processing
+   if(is.null(exchange.list))
+     exchange.list<-rep(0,dim(dat)[2])
    m<-dim(dat)[1]
    sdm<-matrix(nrow=m,ncol=m)
    for(i in 1:m)
       if(i<m)
          for(j in i:m)
-         sdm[i,j]<-structdist(dat,g1=i,g2=j,normalize=normalize,diag=diag,mode=mode,method=method,exchange.list=exchange.list,...)
+         sdm[i,j]<-structdist(dat,g1=i,g2=j,normalize=normalize,diag=diag, mode=mode,method=method,exchange.list=exchange.list,...)
    diag(sdm)<-0
    for(i in 1:m)
       sdm[i,c(1:i)[-i]]<-sdm[c(1:i)[-i],i]
@@ -556,10 +644,21 @@ sdmat<-function(dat,normalize=FALSE,diag=FALSE,mode="digraph",output="matrix",me
 
 #structdist - Estimate the structural distance between two or more unlabeled 
 #graphs.
-structdist<-function(dat,g1=c(1:dim(dat)[1]),g2=c(1:dim(dat)[1]),normalize=FALSE,diag=FALSE,mode="digraph",method="anneal",reps=1000,prob.init=0.9,prob.decay=0.85,freeze.time=25,full.neighborhood=TRUE,mut=0.05,pop=20,trials=5,exchange.list=rep(0,dim(dat)[2])){
+structdist<-function(dat,g1=NULL,g2=NULL,normalize=FALSE,diag=FALSE,mode="digraph",method="anneal",reps=1000,prob.init=0.9,prob.decay=0.85,freeze.time=25,full.neighborhood=TRUE,mut=0.05,pop=20,trials=5,exchange.list=NULL){
+   #Pre-process the raw input
+   dat<-as.sociomatrix.sna(dat)
+   if(is.list(dat))
+     stop("Identical graph orders required in structdist.")
+   #End pre-processing
    #Collect data and various parameters
    d<-dat
    n<-dim(dat)[2]
+   if(is.null(g1))
+     g1<-1:dim(dat)[1]
+   if(is.null(g2))
+     g2<-1:dim(dat)[1]
+   if(is.null(exchange.list))
+     exchange.list<-rep(0,dim(dat)[2])
    gn<-dim(dat)[1]
    gn1<-length(g1)
    gn2<-length(g2)

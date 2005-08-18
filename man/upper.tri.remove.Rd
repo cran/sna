@@ -10,14 +10,14 @@ upper.tri.remove(dat, remove.val=NA)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
-  \item{dat}{ A graph stack }
-  \item{remove.val}{ The value with which to replace the existing upper triangles }
+  \item{dat}{ a graph or graph stack. }
+  \item{remove.val}{ the value with which to replace the existing upper triangles. }
 }
 \details{
   \code{upper.tri.remove} is simply a convenient way to apply \code{g[upper.tri(g)]<-remove.val} to an entire stack of adjacency matrices at once.
 }
 \value{
-  The updated graph stack
+  The updated graph stack.
 }
 %\references{ }
 \author{ Carter T. Butts \email{buttsc@uci.edu} }
@@ -36,3 +36,4 @@ g<-upper.tri.remove(g)
 \keyword{ manip }
 \keyword{ array }%-- one or more ...
 \keyword{ math }
+\keyword{ graphs }

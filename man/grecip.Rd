@@ -6,16 +6,17 @@
   \code{grecip} calculates the dyadic reciprocity of the elements of \code{dat} selected by \code{g}.
 }
 \usage{
-grecip(dat, g = NULL, measure = c("dyadic", "edgewise"))
+grecip(dat, g = NULL, measure = c("dyadic", "dyadic.nonnull",
+    "edgewise"))
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
-  \item{dat}{ An adjacency matrix, or stack thereof }
-  \item{g}{ A vector indicating which matrices to evaluate (optional) }
-  \item{measure}{ One of \code{"dyadic"} (default) or \code{"edgewise"} }
+  \item{dat}{ one or more input graphs. }
+  \item{g}{ a vector indicating which graphs to evaluate (optional). }
+  \item{measure}{ one of \code{"dyadic"} (default), \code{"dyadic.nonnull"} or \code{"edgewise"}. }
 }
 \details{
-  The dyadic reciprocity of a graph is the proportion of dyads which are symmetric; this is computed and returned by \code{grecip} for the graphs indicated.  Note that the dyadic reciprocity is distinct from the \emph{edgewise} or \emph{tie reciprocity}, which is the proportion of \emph{edges} which are reciprocated.  This latter form may be obtained by setting \code{measure="edgewise"}.
+  The dyadic reciprocity of a graph is the proportion of dyads which are symmetric; this is computed and returned by \code{grecip} for the graphs indicated.  (\code{dyadic.nonnull} returns the ratio of mutuals to non-null dyads.)  Note that the dyadic reciprocity is distinct from the \emph{edgewise} or \emph{tie reciprocity}, which is the proportion of \emph{edges} which are reciprocated.  This latter form may be obtained by setting \code{measure="edgewise"}.
 }
 \value{
   The graph reciprocity value(s)
@@ -34,3 +35,4 @@ grecip(rgraph(10,5))
 }
 \keyword{ math }%-- one or more ...
 \keyword{ univar }%-- one or more ...
+\keyword{ graphs }

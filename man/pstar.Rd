@@ -3,7 +3,7 @@
 %- Also NEED an `\alias' for EACH other topic documented here.
 \title{ Fit a p*/ERG Model Using a Logistic Approximation }
 \description{
-  Fits a p*/ERG model to the adjacency matrix in \code{dat} containing the effects listed in \code{effects}.  The result is returned as a \code{\link{glm}} object.
+  Fits a p*/ERG model to the graph in \code{dat} containing the effects listed in \code{effects}.  The result is returned as a \code{\link{glm}} object.
 }
 \usage{
 pstar(dat, effects=c("choice", "mutuality", "density", "reciprocity",
@@ -15,18 +15,18 @@ pstar(dat, effects=c("choice", "mutuality", "density", "reciprocity",
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
-  \item{dat}{ A single adjacency matrix }
-  \item{effects}{ A vector of strings indicating which effects should be fit }
-  \item{attr}{ A matrix whose columns contain individual attributes (one row per vertex) whose differences should be used as supplemental predictors }
-  \item{memb}{ A matrix whose columns contain group memberships whose categorical similarities (same group/not same group) should be used as supplemental predictors}
-  \item{diag}{ A boolean indicating whether or not diagonal entries (loops) should be counted as meaningful data }
+  \item{dat}{ a single graph }
+  \item{effects}{ a vector of strings indicating which effects should be fit. }
+  \item{attr}{ a matrix whose columns contain individual attributes (one row per vertex) whose differences should be used as supplemental predictors. }
+  \item{memb}{ a matrix whose columns contain group memberships whose categorical similarities (same group/not same group) should be used as supplemental predictors.}
+  \item{diag}{ a boolean indicating whether or not diagonal entries (loops) should be counted as meaningful data. }
   \item{mode}{ \code{"digraph"} if \code{dat} is directed, else \code{"graph"} }
 }
 \details{
 p* (also called the Exponential Random Graph (ERG) family) is an exponential family specification for network data.  Under p*, it is assumed that 
 \deqn{p(G=g) \propto \exp(\beta_0 \gamma_0(g) + \beta_1 \gamma_1(g) + \dots)}{%
 p(G=g) propto exp(beta_0 gamma_0(g) + beta_1 gamma_1(g) + \dots)}
-for all g, where the betas represent real coefficients and the gammas represent functions of g.  Unfortunately, the unknown normalizing factor in the above expression makes evaluation difficult in the general case.  One solution to this problem is to operate instead on the edgewise log odds; in this case, the p* can be approximated by a logistic regression of each edge on the \emph{differences} in the gamma scores induced by the presence and absence of said edge in the graph (conditional on all other edges).  It is this approximation (known as autologistic regression, or maximum pseudo-likelihood estimation) which is employed here.  
+for all g, where the betas represent real coefficients and the gammas represent functions of g.  Unfortunately, the unknown normalizing factor in the above expression makes evaluation difficult in the general case.  One solution to this problem is to operate instead on the edgewise log odds; in this case, the p* MLE can be approximated by a logistic regression of each edge on the \emph{differences} in the gamma scores induced by the presence and absence of said edge in the graph (conditional on all other edges).  It is this approximation (known as autologistic regression, or maximum pseudo-likelihood estimation) which is employed here.  
 
 Using the \code{effects} argument, a range of different potential parameters can be estimated.  The network measure associated with each is, in turn, the edge-perturbed difference in:
 \enumerate{
@@ -103,7 +103,7 @@ p2<-pstar(g,effects=c("outdegree","indegree"))
 #Fit a model with expansiveness, popularity, and mutuality
 p3<-pstar(g,effects=c("outdegree","indegree","mutuality"))
 
-#Compare the model AICs
+#Compare the model AICs -- use ONLY as heuristics!!!
 extractAIC(p1)
 extractAIC(p2)
 extractAIC(p3)

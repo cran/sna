@@ -11,13 +11,13 @@ sedist(dat, g=c(1:dim(dat)[1]), method="hamming",
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
-  \item{dat}{ A graph or graph stack }
-  \item{g}{ A vector indicating which elements of \code{dat} should be examined }
-  \item{method}{ One of \code{"correlation"}, \code{"euclidean"}, \code{"hamming"}, and \code{"gamma"}}
-  \item{joint.analysis}{ Should equivalence be assessed across all networks jointly (\code{TRUE}), or individually within each (\code{FALSE}) }
-  \item{mode}{ \code{"digraph"} for directed data, otherwise \code{"graph"} }
-  \item{diag}{ Boolean indicating whether diagonal entries (loops) should be treated as meaningful data }
-  \item{code.diss}{ Reverse-code the raw comparison values}
+  \item{dat}{ a graph or set thereof. }
+  \item{g}{ a vector indicating which elements of \code{dat} should be examined. }
+  \item{method}{ one of \code{"correlation"}, \code{"euclidean"}, \code{"hamming"}, or \code{"gamma"}.}
+  \item{joint.analysis}{ should equivalence be assessed across all networks jointly (\code{TRUE}), or individually within each (\code{FALSE})? }
+  \item{mode}{ \code{"digraph"} for directed data, otherwise \code{"graph"}. }
+  \item{diag}{ boolean indicating whether diagonal entries (loops) should be treated as meaningful data. }
+  \item{code.diss}{ reverse-code the raw comparison values.}
 }
 \details{
 \code{sedist} provides a basic tool for assessing the (approximate) structural equivalence of actors.  (Two vertices i and j are said to be structurally equivalent if i->k iff j->k for all k.)  SE similarity/difference scores are computed by comparing vertex rows and columns using the measure indicated by \code{method}:
@@ -62,3 +62,4 @@ plot(cmdscale(as.dist(g.se)))
 \keyword{ classif }
 \keyword{ cluster }%-- one or more ...
 \keyword{ math }
+\keyword{ graphs} 

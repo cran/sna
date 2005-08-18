@@ -39,3 +39,4 @@ g<-rgraph(5)
 eval.edgeperturbation(g,1,2,grecip)
 }
 \keyword{ math }%-- one or more ...
+\keyword{ graphs } 

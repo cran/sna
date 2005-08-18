@@ -11,7 +11,7 @@ gapply(X, MARGIN, STATS, FUN, ..., mode = "digraph", diag = FALSE,
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{X}{ the adjacency matrix to be used. }
+  \item{X}{ one or more input graphs. }
   \item{MARGIN}{ a vector giving the ``margin'' of \code{X} to be used in calculating neighborhoods.  1 indicates rows (out-neighbors), 2 indicates columns (in-neighbors), and c(1,2) indicates rows and columns (total neighborhood). }
   \item{STATS}{ the vector or matrix of vertex statistics to be used. }
   \item{FUN}{ the function to be applied.  In the case of operators, the function name must be quoted. }
@@ -58,3 +58,4 @@ gapply(g,c(1,2),1:6,mean,distance=2)
 }
 \keyword{ iteration }% at least one, from doc/KEYWORDS
 \keyword{ manip }% __ONLY ONE__ keyword per line
+\keyword{ graphs }

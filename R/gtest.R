@@ -3,7 +3,7 @@
 # gtest.R
 #
 # copyright (c) 2004, Carter T. Butts <buttsc@uci.edu>
-# Last Modified 11/25/04
+# Last Modified 8/8/05
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/sna package
@@ -28,23 +28,50 @@
 #objects.
 cugtest<-function(dat,FUN,reps=1000,gmode="digraph",cmode="density",diag=FALSE,g1=1,g2=2,...){
    out<-list()
+   #Pre-process the raw input
+   dat<-as.sociomatrix.sna(dat)
+   #End pre-processing
    #First, find the test value for fun on dat
    fun<-match.fun(FUN)
    out$testval<-fun(dat,g1=g1,g2=g2,...)
    #Next, determine on what we are conditioning
    if(cmode=="density"){
-      d<-c(gden(dat,g=g1,mode=gmode,diag=diag),gden(dat,g=g2,mode=gmode,diag=diag))
+      d<-c(gden(dat,g=g1,mode=gmode,diag=diag), gden(dat,g=g2,mode=gmode,diag=diag))
+   }else if(cmode=="ties"){
+     if(is.list(dat)){
+       tie1<-dat[[g1]]
+       tie2<-dat[[g2]]
+     }else{
+       tie1<-dat[g1,,]
+       tie2<-dat[g2,,]
+     }
    }else{
       d<-c(0.5,0.5)
+   }
+   if(is.list(dat)){    #Get the graph sizes
+     n1<-dim(dat[[g1]])[2]
+     n2<-dim(dat[[g2]])[2]
+   }else{
+     n1<-dim(dat)[2]
+     n2<-dim(dat)[2]
    }
    #Now, perform reps replications on random recreations of the data
    out$dist<-vector(mode="numeric",length=reps)
    for(i in 1:reps){
-      if(cmode=="ties"){
-         out$dist[i]<-fun(rgraph(dim(dat)[2],2,diag=diag,mode=gmode,tielist=dat),g1=1,g2=2,...)
+      if(cmode=="ties"){  #Generate random replicates
+        dat1<-rgraph(n1,diag=diag,mode=gmode,tielist=tie1)
+        dat2<-rgraph(n2,diag=diag,mode=gmode,tielist=tie2)
       }else{
-         out$dist[i]<-fun(rgraph(dim(dat)[2],2,tprob=d,diag=diag,mode=gmode),g1=1,g2=2,...)
+        dat1<-rgraph(n1,tprob=d[1],diag=diag,mode=gmode)
+        dat2<-rgraph(n2,tprob=d[2],diag=diag,mode=gmode)
       }
+      if(n1==n2){         #Combine into single structure
+        datc<-array(dim=c(2,n1,n1))
+        datc[1,,]<-dat1
+        datc[2,,]<-dat2
+      }else
+        datc<-list(dat1,dat2)
+      out$dist[i]<-fun(datc,g1=1,g2=2,...)  #Compute replicate stat
    }
    #Find p values
    out$pgreq<-mean(as.numeric(out$dist>=out$testval))
