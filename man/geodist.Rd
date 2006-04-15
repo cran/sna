@@ -27,7 +27,7 @@ Brandes, U.  (2000).  ``Faster Evaluation of Shortest-Path Based Centrality Indi
 
 West, D.B.  (1996).  \emph{Introduction to Graph Theory.}  Upper Saddle River, N.J.: Prentice Hall. }
 \author{ Carter T. Butts \email{buttsc@uci.edu} }
-\note{ Before \code{sna} version 0.5, \code{inf.replace} defaulted to \code{NROW(dat)}. }
+\note{ \code{geodist} implicitly treats graphs as unvalued; as such, reported distances may not be correct if all edge weights are non-identical. }
 
  %~Make other sections like WARNING with \section{WARNING }{....} ~
 

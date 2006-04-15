@@ -3,7 +3,7 @@
 # models.R
 #
 # copyright (c) 2004, Carter T. Butts <buttsc@uci.edu>
-# Last Modified 8/17/05
+# Last Modified 4/15/06
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/sna package
@@ -23,6 +23,7 @@
 #   bn.nlpl.edge
 #   bn.nlpl.triad
 #   bn.nltl
+#   brokerage
 #   coef.bn
 #   coef.lnam
 #   consensus
@@ -53,6 +54,7 @@
 #   print.summary.bbnam.fixed
 #   print.summary.bbnam.pooled
 #   print.summary.bn
+#   print.summary.brokerage
 #   print.summary.lnam
 #   print.summary.netcancor
 #   print.summary.netlm
@@ -64,6 +66,7 @@
 #   summary.bbnam.fixed
 #   summary.bbnam.pooled
 #   summary.bn
+#   summary.brokerage
 #   summary.lnam
 #   summary.netcancor
 #   summary.netlm
@@ -580,6 +583,130 @@ bn.nltl<-function(p,stats,fixed=rep(NA,4),...){
 }
 
 
+#brokerage - perform a Gould-Fernandez brokerage analysis
+brokerage<-function(g,cl){
+  #Pre-process the raw input
+  g<-as.sociomatrix.sna(g)
+  if(is.list(g)){
+    return(sapply(g,brokerage,cl))
+  }else if(length(dim(g))>2){
+    return(apply(g,1,brokerage,cl))
+  }
+  #End pre-processing
+  N<-NROW(g)
+  #Compute individual brokerage measures
+  br<-matrix(0,N,5)
+  for(i in 1:N){
+    for(j in 1:N){
+      for(k in 1:N){
+        if((i!=j)&&(i!=k)&&(j!=k)){
+          #Is there any brokerage at all?
+          if((g[j,i]>0)&&(g[i,k]>0)&&(g[j,k]==0)){
+            #Classify by type
+            if(cl[i]==cl[j]){
+              if(cl[i]==cl[k])      #Type 1: Within-group (wI) [j i k]
+                br[i,1]<-br[i,1]+1
+              else                  #Type 3: Representative (bIO) [j i] [k]
+                br[i,3]<-br[i,3]+1
+            }else if(cl[i]==cl[k]){
+              br[i,4]<-br[i,4]+1    #Type 4: Gatekeeping (bOI) [j] [i k]
+            }else if(cl[j]==cl[k]){
+              br[i,2]<-br[i,2]+1    #Type 2: Itinerant (WO) [i] [j k]
+            }else
+              br[i,5]<-br[i,5]+1    #Type 5: Liason (bO) [i] [j] [k]
+          }
+        }
+      } 
+    }
+  }
+  br<-cbind(br,apply(br,1,sum))
+  #Global brokerage measures
+  gbr<-apply(br,2,sum)
+  #Calculate expectations and such
+  d<-gden(g>0)
+  clid<-unique(cl)         #Count the class memberships
+  n<-vector()
+  for(i in clid)
+    n<-c(n,sum(cl==i))
+  ebr<-matrix(0,length(clid),6)
+  vbr<-matrix(0,length(clid),6)
+  for(i in 1:length(clid)){  #Compute moments by broker's class
+    #Type 1: Within-group (wI)
+    ebr[i,1]<-d^2*(1-d)*(n[i]-1)*(n[i]-2)
+    vbr[i,1]<-ebr[i,1]*(1-d^2*(1-d))+2*(n[i]-1)*(n[i]-2)*(n[i]-3)*d^3*(1-d)^3
+    #Type 2: Itinerant (WO)
+    ebr[i,2]<-d^2*(1-d)*sum(n[-i]*(n[-i]-1))
+    vbr[i,2]<-ebr[i,2]*(1-d^2*(1-d))+ 2*sum(n[-i]*(n[-i]-1)*(n[-i]-2))*d^3*(1-d)^3
+    #Type 3: Representative (bIO)
+    ebr[i,3]<-d^2*(1-d)*(N-n[i])*(n[i]-1)
+    vbr[i,3]<-ebr[i,3]*(1-d^2*(1-d))+ 2*((n[i]-1)*choose(N-n[i],2)+(N-n[i])*choose(n[i]-1,2))*d^3*(1-d)^3
+    #Type 4: Gatekeeping (bOI)
+    ebr[i,4]<-ebr[i,3]
+    vbr[i,4]<-vbr[i,3]
+    #Type 5: Liason (bO)
+    ebr[i,5]<-d^2*(1-d)*(sum((n[-i])%o%(n[-i]))-sum(n[-i]^2))
+    vbr[i,5]<-ebr[i,5]*(1-d^2*(1-d))+ 4*sum(n[-i]*choose(N-n[-i]-n[i],2)*d^3*(1-d)^3)
+    #Total
+    ebr[i,6]<-d^2*(1-d)*(N-1)*(N-2)
+    vbr[i,6]<-ebr[i,6]*(1-d^2*(1-d))+2*(N-1)*(N-2)*(N-3)*d^3*(1-d)^3
+  }
+  br.exp<-vector()
+  br.sd<-vector()
+  for(i in 1:N){
+    temp<-match(cl[i],clid)
+    br.exp<-rbind(br.exp,ebr[temp,])
+    br.sd<-rbind(br.sd,sqrt(vbr[temp,]))
+  }
+  br.z<-(br-br.exp)/br.sd
+  egbr<-vector()                     #Global expections/variances
+  vgbr<-vector()
+  #Type 1: Within-group (wI)
+  egbr[1]<-d^2*(1-d)*sum(n*(n-1)*(n-2))
+  vgbr[1]<-egbr[1]*(1-d^2*(1-d))+ sum(n*(n-1)*(n-2)*(((4*n-10)*d^3*(1-d)^3)-(4*(n-3)*d^4*(1-d)^2)+((n-3)*d^5*(1-d))))
+  #Type 2: Itinerant (WO)
+  egbr[2]<-d^2*(1-d)*sum(n*(N-n)*(n-1))
+  vgbr[2]<-egbr[2]*(1-d^2*(1-d))+ (sum(outer(n,n,function(x,y){x*y*(x-1)*(((2*x+2*y-6)*d^3*(1-d)^3)+((N-x-1)*d^5*(1-d)))})) - sum(n*n*(n-1)*(((4*n-6)*d^3*(1-d)^3)+((N-n-1)*d^5*(1-d)))))
+  #Type 3: Representative (bIO)
+  egbr[3]<-d^2*(1-d)*sum(n*(N-n)*(n-1))
+  vgbr[3]<-egbr[3]*(1-d^2*(1-d))+ sum(n*(N-n)*(n-1)*(((N-3)*d^3*(1-d)^3)+((n-2)*d^5*(1-d))))
+  #Type 4: Gatekeeping (bOI)
+  egbr[4]<-egbr[3]
+  vgbr[4]<-vgbr[3]
+  #Type 5: Liason (bO)
+  egbr[5]<- d^2*(1-d)*(sum(outer(n,n,function(x,y){x*y*(N-x-y)}))-sum(n*n*(N-2*n)))
+  vgbr[5]<-egbr[5]*(1-d^2*(1-d))
+  for(i in 1:length(n))
+    for(j in 1:length(n))
+      for(k in 1:length(n))
+        if((i!=j)&&(j!=k)&&(i!=k))
+          vgbr[5]<-vgbr[5] + n[i]*n[j]*n[k] * ((4*(N-n[j])-2*(n[i]+n[k]+1))*d^3*(1-d)^3-(4*(N-n[k])-2*(n[i]+n[j]+1))*d^4*(1-d)^2+(N-(n[i]+n[k]+1))*d^5*(1-d))
+  #Total
+  egbr[6]<-d^2*(1-d)*N*(N-1)*(N-2)
+  vgbr[6]<-egbr[6]*(1-d^2*(1-d))+ N*(N-1)*(N-2)*(((4*N-10)*d^3*(1-d)^3)-(4*(N-3)*d^4*(1-d)^2)+((N-3)*d^5*(1-d)))
+  
+  #Return the results
+  br.nam<-c("w_I","w_O","b_IO","b_OI","b_O","t")
+  colnames(br)<-br.nam
+  rownames(br)<-rownames(g)
+  colnames(br.exp)<-br.nam
+  rownames(br.exp)<-rownames(g)
+  colnames(br.sd)<-br.nam
+  rownames(br.sd)<-rownames(g)
+  colnames(br.z)<-br.nam
+  rownames(br.z)<-rownames(g)
+  names(gbr)<-br.nam
+  names(egbr)<-br.nam
+  names(vgbr)<-br.nam
+  colnames(ebr)<-br.nam
+  rownames(ebr)<-clid
+  colnames(vbr)<-br.nam
+  rownames(vbr)<-clid
+  out<-list(raw.nli=br,exp.nli=br.exp,sd.nli=br.sd,z.nli=br.z,raw.gli=gbr, exp.gli=egbr,sd.gli=sqrt(vgbr),z.gli=(gbr-egbr)/sqrt(vgbr),exp.grp=ebr, sd.grp=sqrt(vbr),cl=cl,clid=clid,n=n,N=N)
+  class(out)<-"brokerage"
+  out
+}
+
+
 #coef.bn - Coefficient method for bn
 coef.bn<-function(object, ...){
   coef<-c(object$d,object$pi,object$sigma,object$rho)
@@ -612,7 +739,7 @@ coef.lnam<-function(object, ...){
 #consensus - Find a consensus structure, using one of several algorithms.  Note 
 #that this is currently experimental, and that the routines are not guaranteed 
 #to produce meaningful output
-consensus<-function(dat,mode="digraph",diag=FALSE,method="central.graph",tol=1e-6){
+consensus<-function(dat,mode="digraph",diag=FALSE,method="central.graph",tol=1e-6,maxiter=1e3,verbose=TRUE,no.bias=FALSE){
    #First, prepare the data
    dat<-as.sociomatrix.sna(dat)
    if(is.list(dat))
@@ -639,9 +766,13 @@ consensus<-function(dat,mode="digraph",diag=FALSE,method="central.graph",tol=1e-
       cong<-centralgraph(d)
       ans<-sweep(d,c(2,3),cong,"==")
       comp<-pmax(apply(ans,1,mean,na.rm=TRUE),0.5)
-      bias<-apply(sweep(d,c(2,3),!ans,"*"),1,mean,na.rm=TRUE)
+      if(no.bias)
+        bias<-rep(0.5,length(comp))
+      else
+        bias<-apply(sweep(d,c(2,3),!ans,"*"),1,mean,na.rm=TRUE)
       cdiff<-1+tol
-      while(cdiff>tol){
+      iter<-1
+      while((cdiff>tol)&&(iter<maxiter)){
         ll1<-apply(sweep(d,1,log(comp+(1-comp)*bias),"*") + sweep(1-d,1,log((1-comp)*(1-bias)),"*"), c(2,3), sum, na.rm=TRUE)
         ll0<-apply(sweep(1-d,1,log(comp+(1-comp)*(1-bias)),"*") + sweep(d,1,log((1-comp)*bias),"*"), c(2,3), sum, na.rm=TRUE)
         cong<-ll1>ll0
@@ -650,11 +781,14 @@ consensus<-function(dat,mode="digraph",diag=FALSE,method="central.graph",tol=1e-
         comp<-pmax(apply(ans,1,mean,na.rm=TRUE),0.5)
         bias<-apply(sweep(d,c(2,3),!ans,"*"),1,mean,na.rm=TRUE)
         cdiff<-sum(abs(ocomp-comp))
+        iter<-iter+1
       }
-      cat("Estimated competency scores:\n")
-      print(comp)
-      cat("Estimated bias parameters:\n")
-      print(bias)
+      if(verbose){
+        cat("Estimated competency scores:\n")
+        print(comp)
+        cat("Estimated bias parameters:\n")
+        print(bias)
+      }
    #Perform a single reweighting using mean correlation
    }else if(method=="single.reweight"){
       gc<-gcor(d)
@@ -670,6 +804,49 @@ consensus<-function(dat,mode="digraph",diag=FALSE,method="central.graph",tol=1e-
       diag(gc)<-1
       rwv<-abs(eigen(gc)$vector[,1])
       cong<-apply(d*aperm(array(sapply(rwv,rep,n^2),dim=c(n,n,m)), c(3,2,1)),c(2,3),sum)
+   #Use the (proper) Romney-Batchelder model
+   }else if(method=="romney.batchelder"){
+     d<-d[!apply(is.na(d),1,all),,]              #Remove any missing informants
+     if(length(dim(d))<3)
+       error("Insufficient informant information.")
+     #Create the initial estimates
+     drate<-apply(d,1,mean,na.rm=TRUE)
+     cong<-apply(d,c(2,3),mean,na.rm=TRUE)>0.5   #Estimate graph
+     s1<-mean(cong,na.rm=TRUE)
+     s0<-mean(1-cong,na.rm=TRUE)
+     correct<-sweep(d,c(2,3),cong,"==")          #Check for correctness
+     correct<-apply(correct,1,mean,na.rm=TRUE)
+     comp<-pmax(2*correct-1,0)                   #Estimate competencies
+     if(no.bias)
+       bias<-rep(0.5,length(comp))
+     else
+       bias<-pmin(pmax((drate-s1*comp)/(1-comp),0),1)
+     #Now, iterate until the system converges
+     ocomp<-comp+tol+1
+     iter<-1
+     while((max(abs(ocomp-comp),na.rm=TRUE)>tol)&&(iter<maxiter)){
+       ocomp<-comp
+       #Estimate cong, based on the local MLE
+       ll1<-apply(sweep(d,1,log(comp+(1-comp)*bias),"*") + sweep(1-d,1,log((1-comp)*(1-bias)),"*"), c(2,3), sum, na.rm=TRUE)
+       ll0<-apply(sweep(1-d,1,log(comp+(1-comp)*(1-bias)),"*") + sweep(d,1,log((1-comp)*bias),"*"), c(2,3), sum, na.rm=TRUE)
+       cong<-ll1>ll0
+       s1<-mean(cong,na.rm=TRUE)
+       s0<-mean(1-cong,na.rm=TRUE)
+       #Estimate competencies, using EM
+       correct<-sweep(d,c(2,3),cong,"==")         #Check for correctness
+       correct<-apply(correct,1,mean,na.rm=TRUE)
+       comp<-pmax((correct-s1*bias-s0*(1-bias))/(1-s1*bias-s0*(1-bias)),0)
+       #Estimate bias (if no.bias==FALSE), using EM
+       if(!no.bias)
+         bias<-pmin(pmax((drate-s1*comp)/(1-comp),0),1)
+     }
+     #Possibly, dump fun messages
+     if(verbose){
+       cat("Estimated competency scores:\n")
+       print(comp)
+       cat("Estimated bias parameters:\n")
+       print(bias)
+     }
    #Use the Locally Aggregated Structure
    }else if(method=="LAS.intersection"){
       cong<-matrix(0,n,n)
@@ -2131,6 +2308,25 @@ print.summary.bn<-function(x, digits=max(4,getOption("digits")-3), signif.stars=
 }
 
 
+#print.summary.brokerage - print method for summary.brokerage objects
+print.summary.brokerage<-function(x,...){
+  cat("Gould-Fernandez Brokerage Analysis\n\n")
+  cat("Global Brokerage Properties\n")
+  cmat<-cbind(x$raw.gli,x$exp.gli,x$sd.gli,x$z.gli,2*(1-pnorm(abs(x$z.gli))))
+  rownames(cmat)<-names(x$raw.gli)
+  colnames(cmat)<-c("t","E(t)","Sd(t)","z","Pr(>|z|)")
+  printCoefmat(cmat)
+  cat("\nIndividual Properties (by Group)\n")
+  for(i in x$clid){
+    cat("\n\tGroup ID:",i,"\n")
+    temp<-x$cl==i
+    cmat<-cbind(x$raw.nli,x$z.nli)[temp,,drop=FALSE]
+    print(cmat)
+  }
+  cat("\n")
+}
+
+
 #print.summary.lnam - Print method for summary.lnam
 print.summary.lnam<-function(x, digits = max(3, getOption("digits") - 3), signif.stars = getOption("show.signif.stars"), ...){
    cat("\nCall:\n")
@@ -2575,6 +2771,13 @@ summary.bn<-function(object, ...){
   out<-object
   class(out)<-c("summary.bn",class(out))
   out
+}
+
+
+#summary.brokerage - Summary method for brokerage objects
+summary.brokerage<-function(object,...){
+  class(object)<-"summary.brokerage"
+  object
 }
 
 

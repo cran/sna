@@ -1,6 +1,6 @@
 add.isolates            Add Isolates to a Graph
-bbnam                   Butts' (Hierarchical) Bayesian Network
-                        Accuracy Model
+bbnam                   Butts' (Hierarchical) Bayesian Network Accuracy
+                        Model
 bbnam.bf                Estimate Bayes Factors for the bbnam
 betweenness             Compute the Betweenness Centrality Scores of
                         Network Positions
@@ -11,10 +11,10 @@ blockmodel.expand       Generate a Graph (or Stack) from a Given
 bn                      Fit a Biased Net Model
 bonpow                  Find Bonacich Power Centrality Scores of
                         Network Positions
-centralgraph            Find the Central Graph of a Labeled Graph
-                        Stack
-centralization          Find the Centralization of a Given Network,
-                        for Some Measure of Centrality
+brokerage               Perform a Gould-Fernandez Brokerage Analysis
+centralgraph            Find the Central Graph of a Labeled Graph Stack
+centralization          Find the Centralization of a Given Network, for
+                        Some Measure of Centrality
 closeness               Compute the Closeness Centrality Scores of
                         Network Positions
 component.dist          Calculate the Component Size Distribution of a
@@ -26,12 +26,11 @@ consensus               Estimate a Consensus Structure from Multiple
                         Observations
 cugtest                 Perform Conditional Uniform Graph (CUG)
                         Hypothesis Tests for Graph-Level Indices
-degree                  Compute the Degree Centrality Scores of
-                        Network Positions
-diag.remove             Remove the Diagonals of Adjacency Matrices in
-                        a Graph Stack
-dyad.census             Compute a Holland and Leinhardt MAN Dyad
-                        Census
+degree                  Compute the Degree Centrality Scores of Network
+                        Positions
+diag.remove             Remove the Diagonals of Adjacency Matrices in a
+                        Graph Stack
+dyad.census             Compute a Holland and Leinhardt MAN Dyad Census
 efficiency              Compute Graph Efficiency Scores
 equiv.clust             Find Clusters of Positions Based on an
                         Equivalence Relation
@@ -54,26 +53,26 @@ gdist.plotdiff          Plot Differences in Graph-level Statistics
                         Against Inter-graph Distances
 gdist.plotstats         Plot Various Graph Statistics Over a Network
                         MDS
-geodist                 Fund the Numbers and Lengths of Geodesics
-                        Among Nodes in a Graph
+geodist                 Fund the Numbers and Lengths of Geodesics Among
+                        Nodes in a Graph
 gliop                   Return a Binary Operation on GLI Values
                         Computed on Two Graphs
 gplot                   Two-Dimensional Visualization of Graphs
+gplot3d                 Three-Dimensional Visualization of Graphs
+gplot3d.arrow           Add Arrows a Three-Dimensional Plot
+gplot3d.layout          Vertex Layout Functions for gplot3d
+gplot3d.loop            Add Loops to a Three-Dimensional Plot
 gplot.arrow             Add Arrows or Segments to a Plot
 gplot.layout            Vertex Layout Functions for gplot
 gplot.loop              Add Loops to a Plot
 gplot.target            Display a Graph in Target Diagram Form
 gplot.vertex            Add Vertices to a Plot
-gplot3d                 Three-Dimensional Visualization of Graphs
-gplot3d.arrow           Add Arrows a Three-Dimensional Plot
-gplot3d.layout          Vertex Layout Functions for gplot3d
-gplot3d.loop            Add Loops to a Three-Dimensional Plot
-graphcent               Compute the (Harary) Graph Centrality Scores
-                        of Network Positions
+graphcent               Compute the (Harary) Graph Centrality Scores of
+                        Network Positions
 grecip                  Compute the Reciprocity of an Input Graph or
                         Graph Stack
-gscor                   Find the Structural Correlations Between Two
-                        or More Graphs
+gscor                   Find the Structural Correlations Between Two or
+                        More Graphs
 gscov                   Find the Structural Covariance(s) Between Two
                         or More Graphs
 gtrans                  Compute the Transitivity of an Input Graph or
@@ -144,6 +143,7 @@ pstar                   Fit a p*/ERG Model Using a Logistic
 qaptest                 Perform Quadratic Assignment Procedure (QAP)
                         Hypothesis Tests for Graph-Level Statistics
 reachability            Find the Reachability Matrix of a Graph
+read.dot                Read Graphviz DOT Files
 read.nos                Read (N)eo-(O)rg(S)tat Input Files
 rgbn                    Draw from a Skvoretz-Fararo Biased Net Process
 rgnm                    Draw Density-Conditioned Random Graphs
@@ -164,8 +164,8 @@ sna.operators           Graphical Operators
 sr2css                  Convert a Row-wise Self-Report Matrix to a CSS
                         Matrix with Missing Observations
 stackcount              How Many Graphs are in a Graph Stack?
-stresscent              Compute the Stress Centrality Scores of
-                        Network Positions
+stresscent              Compute the Stress Centrality Scores of Network
+                        Positions
 structdist              Find the Structural Distances Between Two or
                         More Graphs
 structure.statistics    Compute Network Structure Statistics
@@ -185,5 +185,4 @@ triad.classify          Compute the Davis and Leinhardt Classification
 upper.tri.remove        Remove the Upper Triangles of Adjacency
                         Matrices in a Graph Stack
 write.dl                Write Output Graphs in DL Format
-write.nos               Write Output Graphs in (N)eo-(O)rg(S)tat
-                        Format
+write.nos               Write Output Graphs in (N)eo-(O)rg(S)tat Format

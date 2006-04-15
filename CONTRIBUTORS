@@ -6,6 +6,7 @@ Author and Maintainer
 
 Specific Contributions (Noted in Corresponding Manual Pages)
   David Barron
+  Matthijs den Besten
   Alex Montgomery  
 
 Suggestions and Bug Reports
@@ -14,6 +15,7 @@ Suggestions and Bug Reports
   Jessica Flack
   Simone Gabbriellini
   Mark Handcock
+  Kieran Healy
   Kurt Hornik
   David Krackhardt
   Dan McFarland
@@ -24,4 +26,4 @@ project itself possible.  Without their tireless efforts, none of these
 tools would exist.
 
 -Carter Butts
- 8/18/05
+ 4/15/06

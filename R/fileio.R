@@ -3,7 +3,7 @@
 # fileio.R
 #
 # copyright (c) 2004, Carter T. Butts <buttsc@uci.edu>
-# Last Modified 8/17/05
+# Last Modified 4/15/06
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/sna package
@@ -11,11 +11,40 @@
 # This file contains routines relating to file I/O.
 #
 # Contents:
+#   read.dot
 #   read.nos
 #   write.dl
 #   write.nos
 #
 ######################################################################
+
+
+#read.dot - Import a file in Graphviz .dot format.  This code was contributed
+#by Matthijs den Besten.
+read.dot <- function(...) {
+  lines <- readLines(...);
+  body <- lines[grep("->", lines, fixed=T)];
+
+  nodePairs <- sub('^[[:space:]]+\"', '\"',
+                   sub('\"[;[:space:]]+$', '\"',
+                       unlist(strsplit(body, "->"))));
+  nodeLists <- split(nodePairs,1:length(nodePairs)%%2);
+
+  nodes <- unique(nodePairs);
+  edges <- data.frame(orig=nodeLists[[2]], dest=nodeLists[[1]]);
+
+  n <- length(nodes);
+  graph <- matrix(0, n, n, dimnames=list(nodes, nodes));
+                                        #for(i in 1:nrow(edges)) {
+                                        #  edge <- edges[i,];
+                                        #  graph[edge$orig,edge$dest] <- 1;
+                                        #} // Did not work as intended.
+  for(node in nodes) {
+    graph[node,nodes%in%edges$dest[edges$orig==node]] <- 1;
+  }
+                                       
+  return(graph);
+}
 
 
 #read.nos - Read an input file in Neo-OrgStat format.  At this time, only the 

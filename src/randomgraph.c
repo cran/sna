@@ -4,7 +4,7 @@
 # randomgraph.c
 #
 # copyright (c) 2004, Carter T. Butts <buttsc@uci.edu>
-# Last Modified 3/12/05
+# Last Modified 4/15/06
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/sna package
@@ -130,7 +130,7 @@ to by *g.  It is assumed that g contains a *pn x *pnv *pnv array, whose dyads
 are rewired (symmetrically) with uniform probability *pp.*/
 {
   long int n,nv,i,j,k,h,t;
-  double p,r,tempht,tempth;
+  double p,tempht,tempth;
   
   /*Take care of preliminaries*/
   n=(long int)*pn;
@@ -175,7 +175,7 @@ to by *gi, storing the results in *go.  It is assumed that gi contains a
 uniform probability *pp.  *go should be a copy of *gi.*/
 {
   long int n,nv,i,j,k,h,t;
-  double p,r,tempht,tempth;
+  double p,tempht,tempth;
   char flag;
   
   /*Take care of preliminaries*/

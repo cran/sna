@@ -3,7 +3,7 @@
 # roles.R
 #
 # copyright (c) 2004, Carter T. Butts <buttsc@uci.edu>
-# Last Modified 8/7/05
+# Last Modified 4/15/06
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/sna package
@@ -195,7 +195,7 @@ equiv.clust<-function(dat,g=NULL,equiv.dist=NULL,equiv.fun="sedist",method="hamm
      if(is.list(dat))
        g<-1:length(dat)
      else if(is.array(dat))
-       g<-dim(dat)[1]
+       g<-1:dim(dat)[1]
      else
        g<-1
    }     
@@ -390,7 +390,7 @@ sedist<-function(dat,g=c(1:dim(dat)[1]),method="hamming",joint.analysis=FALSE,mo
    if(length(dim(dat))>2){
       n<-dim(dat)[2]
       m<-length(g)
-      d<-dat[g,,]
+      d<-dat[g,,,drop=FALSE]
    }else{
       n<-dim(dat)[2]
       m<-1

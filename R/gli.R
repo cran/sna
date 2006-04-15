@@ -3,7 +3,7 @@
 # gli.R
 #
 # copyright (c) 2004, Carter T. Butts <buttsc@uci.edu>
-# Last Modified 8/8/05
+# Last Modified 4/10/06
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/sna package
@@ -419,5 +419,5 @@ triad.classify<-function(dat,g=1,tri=c(1,2,3),mode=c("digraph","graph")){
    tt<-as.integer(0)
    gm<-as.integer(switch(match.arg(mode),graph=0,digraph=1))
    tt<-.C("triad_classify_R",as.integer(d),tt=tt,gm,PACKAGE="sna")$tt
-   tc[tt]
+   tc[tt+1]
 }

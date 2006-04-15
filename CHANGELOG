@@ -1,5 +1,21 @@
 CHANGELOG:
 
+
+v1.1 - New Functions, New Features, and Bug Fixes
+   New Functions:
+      brokerage, summary.brokerage, print.summary.brokerage - Perform a Gould-
+        Fernandez brokerage analysis
+      read.dot - Read data in DOT format
+   New Features:
+      The variant of the Romney-Batchelder model implemented by consensus was
+        not standard; consensus now also supports the canonical version.  
+        (Ironically, this variant seems slightly less effective, but is
+        compatible with the multinomial processing tree interpretation.)
+   Bug Fixes:
+      equiv.clust and sedist would fail with multiple graphs if g argument
+        was not explicitly set [submitted by Kieran Healy]
+      triad.classify was not returning the right values in certain cases
+
 v1.0 - New Functions, New Features, Changes, and Bug Fixes
    New Functions:
       bn.* - Estimation for biased net models

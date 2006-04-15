@@ -33,4 +33,4 @@ g<-diag.remove(g)
 }
 \keyword{ manip }%-- one or more ...
 \keyword{ math }
-\keword{ graphs }
+\keyword{ graphs }
