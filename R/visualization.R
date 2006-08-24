@@ -3,7 +3,7 @@
 # visualization.R
 #
 # copyright (c) 2004, Carter T. Butts <buttsc@uci.edu>
-# Last Modified 8/18/05
+# Last Modified 6/14/06
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/sna package
@@ -1149,7 +1149,7 @@ gplot3d.arrow<-function(a,b,radius,color="white",alpha=1){
       coord<-rbind(coord,basetri%*%rmat)
     }
     #Rotate into final angle (spherical coord w/+z polar axis...I know...)
-    phi<--atan(b[2]-a[2],a[1]-b[1])-pi/2
+    phi<--atan2(b[2]-a[2],a[1]-b[1])-pi/2
     psi<-acos((b[3]-a[3])/alen)
     coord<-coord%*%rbind(c(1,0,0),c(0,cos(psi),sin(psi)), c(0,-sin(psi),cos(psi)))
     coord<-coord%*%rbind(c(cos(phi),sin(phi),0),c(-sin(phi),cos(phi),0), c(0,0,1))

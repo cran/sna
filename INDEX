@@ -1,4 +1,6 @@
 add.isolates            Add Isolates to a Graph
+addisolates-deprecated
+                        Add Isolates to a Graph (Deprecated)
 bbnam                   Butts' (Hierarchical) Bayesian Network Accuracy
                         Model
 bbnam.bf                Estimate Bayes Factors for the bbnam
@@ -32,6 +34,8 @@ diag.remove             Remove the Diagonals of Adjacency Matrices in a
                         Graph Stack
 dyad.census             Compute a Holland and Leinhardt MAN Dyad Census
 efficiency              Compute Graph Efficiency Scores
+ego.extract             Extract Egocentric Networks from Complete
+                        Network Data
 equiv.clust             Find Clusters of Positions Based on an
                         Equivalence Relation
 eval.edgeperturbation   Compute the Effects of Single-Edge

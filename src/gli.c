@@ -4,7 +4,7 @@
 # gli.c
 #
 # copyright (c) 2004, Carter T. Butts <buttsc@uci.edu>
-# Last Modified 11/26/04
+# Last Modified 8/24/06
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/sna package
@@ -19,6 +19,52 @@
 #include <stdlib.h>
 #include <R.h>
 #include "gli.h"
+
+
+void brokerage_R(double *g, int *pn, int *cl, double *brok)
+/*Calculate Gould-Fernandez brokerage scores for the vertices of g, based on
+the vertex class vector cl.  Scores are recorded in a *pn x 5 matrix, brok,
+whose columns are (in order) counts of coordinator, representative, 
+gatekeeper, itinerant, and liason broker roles for each vertex.*/
+{
+  int n,i,j,k;
+  element *ep,*ep2;
+  snaNet *net;
+
+  /*Set things up*/
+  n=*pn;
+  for(i=0;i<n;i++)
+    for(j=0;j<5;j++)
+      brok[i+n*j]=0.0;
+  net=adjMatTosnaNet(g,pn);
+
+  /*Calculate those scores!*/
+  for(i=0;i<n;i++){                /*Walk the egos*/
+    for(ep=net->oel[i];ep!=NULL;ep=ep->next)    /*ego->alter*/
+      if(ep->val!=(double)i){
+        for(ep2=net->oel[(int)(ep->val)];ep2!=NULL;ep2=ep2->next)  /*alt->alt*/
+          if((ep2->val!=(double)i)&&(ep2->val!=ep->val)){  /*Found 2-path?*/
+            if(!snaIsAdjacent(i,(int)(ep2->val),net)){     /*Found broker?*/
+              j=(int)(ep->val);
+              k=(int)(ep2->val);
+              /*Classify by type*/
+              if(cl[j]==cl[i]){
+                if(cl[j]==cl[k])
+                  brok[j]++;         /*Type 0: Within-group (wI) [i j k]*/
+                else
+                  brok[j+2*n]++;     /*Type 2: Representative (bIO) [i j] [k]*/
+              }else if(cl[j]==cl[k]){
+                brok[j+3*n]++;       /*Type 3: Gatekeeping (bOI) [i] [j k]*/
+              }else if(cl[i]==cl[k]){
+                brok[j+n]++;         /*Type 2: Itinerant (WO) [j] [i k]*/
+              }else
+                brok[j+4*n]++;       /*Type 4: Liason (bO) [i] [j] [k]*/
+            }
+          }
+      }
+  }
+}
+
 
 void lubness_con_R(double *g, double *pn, int *r, double *viol)
 /*Calculate lubness violations for a weakly connected graph, g, having

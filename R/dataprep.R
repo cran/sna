@@ -3,7 +3,7 @@
 # dataprep.R
 #
 # copyright (c) 2004, Carter T. Butts <buttsc@uci.edu>
-# Last Modified 8/17/05
+# Last Modified 8/23/06
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/sna package
@@ -17,6 +17,7 @@
 #   add.isolates
 #   as.sociomatrix.sna
 #   diag.remove
+#   ego.extract
 #   event2dichot
 #   gvectorize
 #   interval.graph
@@ -148,6 +149,45 @@ diag.remove<-function(dat,remove.val=NA){
       diag(d)<-remove.val
    }   
    d
+}
+
+
+#ego.extract - Extract ego nets from an input graph, returning them as a
+#list of graphs.
+ego.extract<-function(dat,ego=NULL,neighborhood=c("combined","in","out")){
+  #Pre-process the raw input
+  d<-as.sociomatrix.sna(dat)
+  if(is.list(d))
+    return(lapply(d,ego.extract,ego=ego,neighborhood=neighborhood))
+  else if(length(dim(dat))==3)
+    return(apply(d,1,ego.extract,ego=ego,neighborhood=neighborhood))
+  #End pre-processing
+  #Set input arguments
+  if(is.null(ego))
+    ego<-1:NROW(d)
+  neighborhood<-match.arg(neighborhood)  
+  #Extract the selected ego nets
+  enet<-list()
+  for(i in 1:length(ego)){             #Walk the ego list
+    sel<-switch(neighborhood,               #Grab the alters
+      "in"=(1:NROW(d))[d[,ego[i]]>0],
+      "out"=(1:NROW(d))[d[ego[i],]>0],
+      "combined"=(1:NROW(d))[(d[ego[i],]>0)|(d[,ego[i]]>0)]
+    )
+    if(length(sel)>0)
+      sel<-c(ego[i],sel[sel!=ego[i]])  #Force ego to be first
+    else
+      sel<-ego[i]
+    enet[[i]]<-d[sel,sel,drop=FALSE]   #Perform the extraction
+  }
+  #Return the result
+  if(!is.null(rownames(d)))          #Try to name the egos....
+    names(enet)<-rownames(d)[ego]
+  else if(!is.null(colnames(d)))
+    names(enet)<-colnames(d)[ego]
+  else
+    names(enet)<-ego
+  enet
 }
 
 

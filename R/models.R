@@ -3,7 +3,7 @@
 # models.R
 #
 # copyright (c) 2004, Carter T. Butts <buttsc@uci.edu>
-# Last Modified 4/15/06
+# Last Modified 8/24/06
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/sna package
@@ -594,31 +594,34 @@ brokerage<-function(g,cl){
   }
   #End pre-processing
   N<-NROW(g)
+  classes<-unique(cl)
+  icl<-match(cl,classes)
   #Compute individual brokerage measures
   br<-matrix(0,N,5)
-  for(i in 1:N){
-    for(j in 1:N){
-      for(k in 1:N){
-        if((i!=j)&&(i!=k)&&(j!=k)){
-          #Is there any brokerage at all?
-          if((g[j,i]>0)&&(g[i,k]>0)&&(g[j,k]==0)){
-            #Classify by type
-            if(cl[i]==cl[j]){
-              if(cl[i]==cl[k])      #Type 1: Within-group (wI) [j i k]
-                br[i,1]<-br[i,1]+1
-              else                  #Type 3: Representative (bIO) [j i] [k]
-                br[i,3]<-br[i,3]+1
-            }else if(cl[i]==cl[k]){
-              br[i,4]<-br[i,4]+1    #Type 4: Gatekeeping (bOI) [j] [i k]
-            }else if(cl[j]==cl[k]){
-              br[i,2]<-br[i,2]+1    #Type 2: Itinerant (WO) [i] [j k]
-            }else
-              br[i,5]<-br[i,5]+1    #Type 5: Liason (bO) [i] [j] [k]
-          }
-        }
-      } 
-    }
-  }
+  br<-matrix(.C("brokerage_R",as.double(g),as.integer(N),as.integer(icl), brok=as.double(br),PACKAGE="sna",NAOK=TRUE)$brok,N,5)
+#  for(i in 1:N){
+#    for(j in 1:N){
+#      for(k in 1:N){
+#        if((i!=j)&&(i!=k)&&(j!=k)){
+#          #Is there any brokerage at all?
+#          if((g[j,i]>0)&&(g[i,k]>0)&&(g[j,k]==0)){
+#            #Classify by type
+#            if(cl[i]==cl[j]){
+#              if(cl[i]==cl[k])      #Type 1: Within-group (wI) [j i k]
+#                br[i,1]<-br[i,1]+1
+#              else                  #Type 3: Representative (bIO) [j i] [k]
+#                br[i,3]<-br[i,3]+1
+#            }else if(cl[i]==cl[k]){
+#              br[i,4]<-br[i,4]+1    #Type 4: Gatekeeping (bOI) [j] [i k]
+#            }else if(cl[j]==cl[k]){
+#              br[i,2]<-br[i,2]+1    #Type 2: Itinerant (WO) [i] [j k]
+#            }else
+#              br[i,5]<-br[i,5]+1    #Type 5: Liason (bO) [i] [j] [k]
+#          }
+#        }
+#      } 
+#    }
+#  }
   br<-cbind(br,apply(br,1,sum))
   #Global brokerage measures
   gbr<-apply(br,2,sum)
@@ -628,6 +631,8 @@ brokerage<-function(g,cl){
   n<-vector()
   for(i in clid)
     n<-c(n,sum(cl==i))
+  n<-as.double(n)          #This shouldn't be needed, but R will generate
+  N<-as.double(N)          #integer overflows unless we coerce to double!
   ebr<-matrix(0,length(clid),6)
   vbr<-matrix(0,length(clid),6)
   for(i in 1:length(clid)){  #Compute moments by broker's class
@@ -819,8 +824,10 @@ consensus<-function(dat,mode="digraph",diag=FALSE,method="central.graph",tol=1e-
      comp<-pmax(2*correct-1,0)                   #Estimate competencies
      if(no.bias)
        bias<-rep(0.5,length(comp))
-     else
+     else{
        bias<-pmin(pmax((drate-s1*comp)/(1-comp),0),1)
+       bias[comp==1]<-0.5
+     }
      #Now, iterate until the system converges
      ocomp<-comp+tol+1
      iter<-1

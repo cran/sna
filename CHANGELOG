@@ -1,5 +1,22 @@
 CHANGELOG:
 
+v1.2 - New Functions, Changes, and Bug Fixes
+   New Functions:
+     ego.extract - Extract egocentric networks from complete network data
+   Changes:
+     Added a small tweak which improves performance of Romney-Batchelder model
+       (consensus) where corner solutions are initially obtained for competency
+       scores
+     brokerage has now been backended, with substantial performance gains
+     New backend functionality has been added for faster/more efficient graph
+       storage; this is not user-visible, but will eventually result in better
+       performance for many current routines (as it becomes integrated into
+       the underlying code)
+   Bug Fixes:
+     Man page for components erroneously referred to the symmetrize function in
+       place of component.dist
+     Removed an errant two-parameter atan reference which was broken by changes
+       in R >= 2.3
 
 v1.1 - New Functions, New Features, and Bug Fixes
    New Functions:
