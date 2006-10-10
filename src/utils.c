@@ -19,6 +19,26 @@
 
 #include "utils.h"
 
+
+/*MATH ROUTINES-----------------------------------------------------------*/
+
+void aggarray3d_R(double *a, double *w, double *mat, int *m, int *n)
+/*This is equivalent to mat<-apply(sweep(a,1,w,"*"),c(2,3)), i.e. it performs a
+simple weighted aggregation of a 3-dimensional array.  This operation can
+be surprisingly slow in R for large matrices, and hence is backended here.*/
+{
+  int i,j,k;
+  
+  for(i=0;i<*n;i++)
+    for(j=0;j<*n;j++){
+      mat[i+j*(*n)]=0.0;
+      for(k=0;k<*m;k++)
+        if(!ISNAN(a[k+i*(*m)+j*(*m)*(*n)]))
+          mat[i+j*(*n)]+=w[k]*a[k+i*(*m)+j*(*m)*(*n)];
+    }
+}
+
+
 /*snaNet ALLOCATION/MANIPULATION ROUTINES---------------------------------*/
 
 snaNet *adjMatTosnaNet(double *mat, int *n)

@@ -3,7 +3,7 @@
 # gmultiv.R
 #
 # copyright (c) 2004, Carter T. Butts <buttsc@uci.edu>
-# Last Modified 8/8/05
+# Last Modified 10/10/06
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/sna package
@@ -227,8 +227,6 @@ gcov<-function(dat,dat2=NULL,g1=NULL,g2=NULL,diag=FALSE,mode="digraph"){
 gdist.plotdiff<-function(d,meas,method="manhattan",jitter=TRUE,xlab="Inter-Graph Distance",ylab="Measure Distance",lm.line=FALSE,...){
    #Note that d must be a matrix of distances, and meas must be a matrix of measures
    #Create a matrix of differences in graph-level statistics
-   if(R.version$major<2)  #Only invoke mva if we're using an old R version
-      require(mva)
    md<-dist(meas,method=method)
    #Vectorize
    dv<-as.vector(as.dist(d))
@@ -248,8 +246,6 @@ gdist.plotdiff<-function(d,meas,method="manhattan",jitter=TRUE,xlab="Inter-Graph
 gdist.plotstats<-function(d,meas,siz.lim=c(0,0.15),rescale="quantile",display.scale="radius",display.type="circleray",cex=0.5,pch=1,labels=NULL,pos=1,labels.cex=1,legend=NULL,legend.xy=NULL,legend.cex=1,...){
    #d must be a matrix of distances (e.g., from structdist or hdist) and meas a matrix or vector of measures
    #Perform an MDS on the distances
-   if(R.version$major<2)  #Only invoke mva if we're using an old R version
-      require(mva)
    xy<-cmdscale(as.dist(d))
    n<-dim(xy)[1]
    #Adjust and rescale the measure(s) prior to display
@@ -633,9 +629,6 @@ sdmat<-function(dat,normalize=FALSE,diag=FALSE,mode="digraph",output="matrix",me
    for(i in 1:m)
       sdm[i,c(1:i)[-i]]<-sdm[c(1:i)[-i],i]
    if(output=="dist"){
-      #This is for compatibility with the mva library
-      if(R.version$major<2)  #Only invoke mva if we're using an old R version
-         require(mva)
       sdm<-as.dist(sdm)
    }
    sdm

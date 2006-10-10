@@ -8,12 +8,12 @@
 \usage{
 gplot3d(dat, g = 1, gmode = "digraph", diag = FALSE, 
     label = c(1:dim(dat)[2]), coord = NULL, jitter = TRUE, thresh = 0,
-    mode = "fruchtermanreingold", displayisolates = TRUE, displaylabels = FALSE,
-    xlab = NULL, ylab = NULL, zlab = NULL, vertex.radius = NULL, 
-    absolute.radius = FALSE, label.col = "gray50", edge.col = "black",
-    vertex.col = "red", edge.alpha = 1, vertex.alpha = 1, 
-    edge.lwd = NULL, suppress.axes = TRUE, new = TRUE, 
-    bg.col = "white", layout.par = NULL)
+    mode = "fruchtermanreingold", displayisolates = TRUE, 
+    displaylabels = !missing(label), xlab = NULL, ylab = NULL, 
+    zlab = NULL, vertex.radius = NULL, absolute.radius = FALSE, 
+    label.col = "gray50", edge.col = "black", vertex.col = "red", 
+    edge.alpha = 1, vertex.alpha = 1, edge.lwd = NULL, suppress.axes = TRUE,
+    new = TRUE, bg.col = "white", layout.par = NULL)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{

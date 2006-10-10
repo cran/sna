@@ -3,7 +3,7 @@
 # visualization.R
 #
 # copyright (c) 2004, Carter T. Butts <buttsc@uci.edu>
-# Last Modified 6/14/06
+# Last Modified 10/10/06
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/sna package
@@ -54,7 +54,7 @@
 
 
 #gplot - Two-dimensional graph visualization
-gplot<-function(dat,g=1,gmode="digraph",diag=FALSE,label=c(1:dim(dat)[2]),coord=NULL,jitter=TRUE,thresh=0,usearrows=TRUE,mode="fruchtermanreingold",displayisolates=TRUE,interactive=FALSE,xlab=NULL,ylab=NULL,xlim=NULL,ylim=NULL,pad=0.2,label.pad=0.5,displaylabels=FALSE,boxed.labels=TRUE,label.pos=0,label.bg="white",vertex.sides=8,vertex.rot=0,arrowhead.cex=1,label.cex=1,loop.cex=1,vertex.cex=1,edge.col=1,label.col=1,vertex.col=2,label.border=1,vertex.border=1,edge.lty=1,label.lty=NULL,vertex.lty=1,edge.lwd=0,label.lwd=par("lwd"),edge.len=0.5,edge.curve=0.1,edge.steps=50,loop.steps=20,object.scale=0.01,uselen=FALSE,usecurve=FALSE,suppress.axes=TRUE,vertices.last=TRUE,new=TRUE,layout.par=NULL,...){
+gplot<-function(dat,g=1,gmode="digraph",diag=FALSE,label=c(1:dim(dat)[2]),coord=NULL,jitter=TRUE,thresh=0,usearrows=TRUE,mode="fruchtermanreingold",displayisolates=TRUE,interactive=FALSE,xlab=NULL,ylab=NULL,xlim=NULL,ylim=NULL,pad=0.2,label.pad=0.5,displaylabels=!missing(label),boxed.labels=TRUE,label.pos=0,label.bg="white",vertex.sides=8,vertex.rot=0,arrowhead.cex=1,label.cex=1,loop.cex=1,vertex.cex=1,edge.col=1,label.col=1,vertex.col=2,label.border=1,vertex.border=1,edge.lty=1,label.lty=NULL,vertex.lty=1,edge.lwd=0,label.lwd=par("lwd"),edge.len=0.5,edge.curve=0.1,edge.steps=50,loop.steps=20,object.scale=0.01,uselen=FALSE,usecurve=FALSE,suppress.axes=TRUE,vertices.last=TRUE,new=TRUE,layout.par=NULL,...){
    #Turn the annoying locator bell off, and remove recursion limit
    bellstate<-options()$locatorBell
    expstate<-options()$expression
@@ -996,7 +996,7 @@ gplot.vertex<-function(x,y,radius=1,sides=4,border=1,col=2,lty=NULL,rot=0,...){
 
 
 #gplot3d - Three-dimensional graph visualization
-gplot3d<-function(dat,g=1,gmode="digraph",diag=FALSE,label=c(1:dim(dat)[2]),coord=NULL,jitter=TRUE,thresh=0,mode="fruchtermanreingold",displayisolates=TRUE,displaylabels=FALSE,xlab=NULL,ylab=NULL,zlab=NULL,vertex.radius=NULL,absolute.radius=FALSE,label.col="gray50",edge.col="black",vertex.col="red",edge.alpha=1,vertex.alpha=1,edge.lwd=NULL,suppress.axes=TRUE,new=TRUE,bg.col="white",layout.par=NULL){
+gplot3d<-function(dat,g=1,gmode="digraph",diag=FALSE,label=c(1:dim(dat)[2]),coord=NULL,jitter=TRUE,thresh=0,mode="fruchtermanreingold",displayisolates=TRUE,displaylabels=!missing(label),xlab=NULL,ylab=NULL,zlab=NULL,vertex.radius=NULL,absolute.radius=FALSE,label.col="gray50",edge.col="black",vertex.col="red",edge.alpha=1,vertex.alpha=1,edge.lwd=NULL,suppress.axes=TRUE,new=TRUE,bg.col="white",layout.par=NULL){
    #Require that rgl be loaded
    require(rgl)
    #Extract the graph to be displayed

@@ -16,8 +16,8 @@ lnam(y, x = NULL, W1 = NULL, W2 = NULL, theta.seed = NULL,
 \arguments{
   \item{y}{ a vector of responses. }
   \item{x}{ a vector or matrix of covariates; if the latter, each column should contain a single covariate. }
-  \item{W1}{ a (possibly valued) graph on the elements of \code{y}. }
-  \item{W2}{ another (possibly valued) graph on the elements of \code{y}. }
+  \item{W1}{ one or more (possibly valued) graphs on the elements of \code{y}. }
+  \item{W2}{ one or more (possibly valued) graphs on the elements of \code{y}. }
   \item{theta.seed}{ an optional seed value for \code{\link{optim}}. }
   \item{null.model}{ the null model to be fit; must be one of \code{"meanstd"}, \code{"mean"}, \code{"std"}, or \code{"none"}. }
   \item{method}{ method to be used with \code{\link{optim}}. }
@@ -26,10 +26,17 @@ lnam(y, x = NULL, W1 = NULL, W2 = NULL, theta.seed = NULL,
 \details{
   \code{lnam} fits the linear network autocorrelation model given by
   
-  \deqn{y = \rho_1 W_1 y + X \beta + e, \quad e=\rho_2 W_2 e + \nu}{%
-  y = rho1 * W1 \%*\% y + X \%*\% beta + e, e = rho2 * W2 \%*\% e + nu}
+  \deqn{y = W_1 y + X \beta + e, \quad e = W_2 e + \nu}{%
+  y = W1 \%*\% y + X \%*\% beta + e, e = W2 \%*\% e + nu}
 
-  where \eqn{y} is a vector of responses, \eqn{X} is a covariate matrix, \eqn{W_1}{W1} and \eqn{W_2}{W2} are (possibly valued) adjacency matrices, and \eqn{\nu \sim N(0,\sigma^2)}{nu ~ Norm(0,sigma^2)}.  Intuitively, \eqn{\rho_1}{rho1} is an ``AR''-like parameter (parameterizing the autoregression of each \eqn{y} value on its neighbors in \eqn{W_1}{W1}) while \eqn{\rho_2}{rho2} is an ``MA''-like parameter (parameterizing the autocorrelation of each \emph{disturbance} in \eqn{y} on its neighbors in \eqn{W_2}{W2}).  In general, the two models are distinct, and either or both effects may be selected by including the appropriate matrix arguments.
+  where \eqn{y} is a vector of responses, \eqn{X} is a covariate matrix, \eqn{\nu \sim N(0,\sigma^2)}{nu ~ Norm(0,sigma^2)},  
+  
+  \deqn{W_1 = \sum_{i=1}^p \rho_{1i} W_{1i}, \quad W_2 = \sum_{i=1}^q \rho_{2i} W_{2i},}{%
+  W1 = sum( rho1_i W1_i, i=1..p), W2 = sum( rho2_i W2_i, i=1..q),}
+
+and \eqn{W_{1i}}{W1_i}, \eqn{W_{2i}}{W2_i} are (possibly valued) adjacency matrices.
+  
+  Intuitively, \eqn{\rho_1}{rho1} is a vector of ``AR''-like parameters (parameterizing the autoregression of each \eqn{y} value on its neighbors in the graphs of \eqn{W_1}{W1}) while \eqn{\rho_2}{rho2} is a vector of ``MA''-like parameters (parameterizing the autocorrelation of each \emph{disturbance} in \eqn{y} on its neighbors in the graphs of \eqn{W_2}{W2}).  In general, the two models are distinct, and either or both effects may be selected by including the appropriate matrix arguments.
 
 Model parameters are estimated by maximum likelihood, and asymptotic standard errors are provided as well; all of the above (and more) can be obtained by means of the appropriate \code{print} and \code{summary} methods.  A plotting method is also provided, which supplies fit basic diagnostics for the estimated model.  For purposes of comparison, fits may be evaluated against one of four null models:
 
@@ -47,8 +54,8 @@ The default setting should be appropriate for the vast majority of cases, althou
 
   \item{y}{the response vector used.}
   \item{x}{if supplied, the coefficient matrix.}
-  \item{W1}{if supplied, the W1 matrix.}
-  \item{W2}{if supplied, the W2 matrix.}
+  \item{W1}{if supplied, the W1 array.}
+  \item{W2}{if supplied, the W2 array.}
   \item{model}{a code indicating the model terms fit.}
   \item{infomat}{the estimated Fisher information matrix for the fitted model.}
   \item{acvm}{the estimated asymptotic covariance matrix for the model parameters.}

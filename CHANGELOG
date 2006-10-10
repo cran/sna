@@ -1,5 +1,25 @@
 CHANGELOG:
 
+v1.3 - New Features, Changes, and Bug Fixes
+   New Features:
+     lnam now allows the user to specify multiple AR and/or MA effects
+       simultaneously; network objects are also supported
+   Changes:
+     R version 2.0.0 is now required, due to the fact that mva has been
+       phased out, mva was required for earlier R versions, and R CMD check
+       now requires that any such package be mentioned on the "suggests" line
+       of DESCRIPTION (thus generating an error, since mva is defunct).  My
+       apologies to anyone out there who is clinging to 1.x for some reason;
+       I'd have left the support in, if that were feasible
+     gplot and gplot3d now have displaylabels set to !missing(label) by default;
+       this eliminates the need to manually set displaylabels when labels are
+       explicitly specified [suggested by Gabor Grothendieck]
+   Bug Fixes:
+     ask=TRUE changed to ask=dev.interactive() where applicable, to ensure
+       support for non-interactive devices [submitted by Kurt Hornik]
+     network has been added to "suggests" line in DESCRIPTION, to calm down
+       R check; it is helpful, but not essential
+
 v1.2 - New Functions, Changes, and Bug Fixes
    New Functions:
      ego.extract - Extract egocentric networks from complete network data

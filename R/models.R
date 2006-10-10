@@ -3,7 +3,7 @@
 # models.R
 #
 # copyright (c) 2004, Carter T. Butts <buttsc@uci.edu>
-# Last Modified 8/24/06
+# Last Modified 10/10/06
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/sna package
@@ -723,20 +723,20 @@ coef.bn<-function(object, ...){
 #coef.lnam - Coefficient method for lnam
 coef.lnam<-function(object, ...){
    coefs<-vector()
-   cn<-vector()
+#   cn<-vector()
+   if(!is.null(object$beta)){
+      coefs<-c(coefs,object$beta)
+#      cn<-c(cn,names(object$beta))
+   }
    if(!is.null(object$rho1)){
       coefs<-c(coefs,object$rho1)
-      cn<-c(cn,"rho1")
+#      cn<-c(cn,"rho1")
    }
    if(!is.null(object$rho2)){
       coefs<-c(coefs,object$rho2)
-      cn<-c(cn,"rho2")
+#      cn<-c(cn,"rho2")
    }
-   if(!is.null(object$beta)){
-      coefs<-c(coefs,object$beta)
-      cn<-c(cn,names(object$beta))
-   }
-   names(coefs)<-cn
+#   names(coefs)<-cn
    coefs
 }
 
@@ -908,95 +908,146 @@ eval.edgeperturbation<-function(dat,i,j,FUN,...){
 #nu = (I-r2 W2) e
 lnam<-function(y,x=NULL,W1=NULL,W2=NULL,theta.seed=NULL,null.model=c("meanstd","mean","std","none"),method="BFGS",control=list()){
    #Define the log-likelihood functions for each case
-   lnLx<-function(theta,y,x,sigma.log=TRUE){ #theta=c(s,b)
+   agg<-function(a,w){
+     m<-length(w)
+     n<-dim(a)[2]
+     mat<-as.double(matrix(0,n,n))
+     matrix(.C("aggarray3d_R",as.double(a),as.double(w),mat=mat,as.integer(m), as.integer(n),PACKAGE="sna",NAOK=TRUE)$mat,n,n)
+   }
+   lnLx<-function(theta,y,x,sigma.log=TRUE){ #theta=c(b,s)
       m<-length(theta)
       if(sigma.log)
-        sig<-exp(theta[1])
+        sig<-exp(theta[m])
       else
-        sig<-theta[1]
-      -2*sum(dnorm(y-x%*%(theta[2:m]),0,sig,log=TRUE))
+        sig<-theta[m]
+      -2*sum(dnorm(y-x%*%(theta[1:(m-1)]),0,sig,log=TRUE))
    }
    lnL1<-function(theta,y,W1,sigma.log=TRUE){ #theta=c(r1,s)
       n<-length(y)
+      nw<-dim(W1)[1]
+      m<-length(theta)
       if(sigma.log)
-        sig<-exp(theta[2])
+        sig<-exp(theta[m])
       else
-        sig<-theta[2]
-      -2*sum(dnorm((diag(n)-theta[1]*W1)%*%y,0,sig,log=TRUE))
+        sig<-theta[m]
+      W1<-agg(W1,theta[1:nw])
+      -2*sum(dnorm((diag(n)-W1)%*%y,0,sig,log=TRUE))
    }
    lnL2<-function(theta,y,W2,sigma.log=TRUE){ #theta=c(r2,s)
       n<-length(y)
-      if(sigma.log)
-        sig<-exp(theta[2])
-      else
-        sig<-theta[2]
-      -2*sum(dnorm((diag(n)-theta[1]*W2)%*%y,0,sig,log=TRUE))
-   }
-   lnLx1<-function(theta,y,x,W1,sigma.log=TRUE){ #theta=c(r1,s,b)
-      n<-length(y)
+      nw<-dim(W2)[1]
       m<-length(theta)
       if(sigma.log)
-        sig<-exp(theta[2])
+        sig<-exp(theta[m])
       else
-        sig<-theta[2]
-      -2*sum(dnorm((diag(n)-theta[1]*W1)%*%y-x%*%theta[3:m],0,sig,log=TRUE))
+        sig<-theta[m]
+      W2<-agg(W2,theta[1:nw])
+      -2*sum(dnorm((diag(n)-W2)%*%y,0,sig,log=TRUE))
    }
-   lnLx2<-function(theta,y,x,W2,sigma.log=TRUE){ #theta=c(r2,s,b)
+   lnLx1<-function(theta,y,x,W1,sigma.log=TRUE){ #theta=c(b,r1,s)
       n<-length(y)
+      nw<-dim(W1)[1]
+      nx<-dim(x)[2]
       m<-length(theta)
       if(sigma.log)
-        sig<-exp(theta[2])
+        sig<-exp(theta[m])
       else
-        sig<-theta[2]
-      -2*sum(dnorm((diag(n)-theta[1]*W2)%*%(y-x%*%theta[3:m]),0,sig,log=TRUE))
+        sig<-theta[m]
+      W1<-agg(W1,theta[(nx+1):(nx+nw)])
+      -2*sum(dnorm((diag(n)-W1)%*%y-x%*%theta[1:nx],0,sig,log=TRUE))
+   }
+   lnLx2<-function(theta,y,x,W2,sigma.log=TRUE){ #theta=c(b,r2,s)
+      n<-length(y)
+      nw<-dim(W2)[1]
+      nx<-dim(x)[2]
+      m<-length(theta)
+      if(sigma.log)
+        sig<-exp(theta[m])
+      else
+        sig<-theta[m]
+      W2<-agg(W2,theta[(nx+1):(nx+nw)])
+      -2*sum(dnorm((diag(n)-W2)%*%(y-x%*%theta[1:nx]),0,sig,log=TRUE))
    }
    lnL12<-function(theta,y,W1,W2,sigma.log=TRUE){ #theta=c(r1,r2,s)
       n<-length(y)
-      if(sigma.log)
-        sig<-exp(theta[3])
-      else
-        sig<-theta[3]
-      -2*sum(dnorm((diag(n)-theta[2]*W2)%*%((diag(n)-theta[1]*W1)%*%y),0,sig,log=TRUE))
-   }
-   lnLx12<-function(theta,y,x,W1,W2,sigma.log=TRUE){ #theta=c(r1,r2,s,b)
-      n<-length(y)
+      nw1<-dim(W1)[1]
+      nw2<-dim(W2)[1]
       m<-length(theta)
       if(sigma.log)
-        sig<-exp(theta[3])
+        sig<-exp(theta[m])
       else
-        sig<-theta[3]
-      -2*sum(dnorm((diag(n)-theta[2]*W2)%*%((diag(n)-theta[1]*W1)%*%y-x%*%theta[4:m]),0,sig,log=TRUE))
+        sig<-theta[m]
+      W1<-agg(W1,theta[1:nw1])
+      W2<-agg(W2,theta[(nw1+1):(nw1+nw2)])
+      -2*sum(dnorm((diag(n)-W2)%*%((diag(n)-W1)%*%y),0,sig,log=TRUE))
+   }
+   lnLx12<-function(theta,y,x,W1,W2,sigma.log=TRUE){ #theta=c(b,r1,r2,s)
+      n<-length(y)
+      nx<-dim(x)[2]
+      nw1<-dim(W1)[1]
+      nw2<-dim(W2)[1]
+      m<-length(theta)
+      if(sigma.log)
+        sig<-exp(theta[m])
+      else
+        sig<-theta[m]
+      W1<-agg(W1,theta[(nx+1):(nw1+nx)])
+      W2<-agg(W2,theta[(nx+nw1+1):(nx+nw1+nw2)])
+      -2*sum(dnorm((diag(n)-W2)%*%((diag(n)-W1)%*%y-x%*%theta[1:nx]),0,sig, log=TRUE))
    }
    #How many data points are there?
    n<-length(y)
-   #Fix x, if needed
-   if(!is.null(x)&&is.vector(x))
-     x<-as.matrix(x)
+   #Fix x, W1, and W2, if needed
+   if(!is.null(x)){
+     if(is.vector(x))
+       x<-as.matrix(x)
+     if(NROW(x)!=n)
+       stop("Number of observations in x must match length of y.")
+     nx<-NCOL(x)
+   }else
+     nx<-0
+   if(!is.null(W1)){
+     W1<-as.sociomatrix.sna(W1)
+     if(!(is.matrix(W1)||is.array(W1)))
+       stop("All networks supplied in W1 must be of identical order.")
+     if(dim(W1)[2]!=n)
+       stop("Order of W1 must match length of y.")
+     if(length(dim(W1))==2)
+       W1<-array(W1,dim=c(1,n,n))
+     nw1<-dim(W1)[1]
+   }else
+     nw1<-0
+   if(!is.null(W2)){
+     W2<-as.sociomatrix.sna(W2)
+     if(!(is.matrix(W2)||is.array(W2)))
+       stop("All networks supplied in W2 must be of identical order.")
+     if(dim(W2)[2]!=n)
+       stop("Order of W2 must match length of y.")
+     if(length(dim(W2))==2)
+       W2<-array(W2,dim=c(1,n,n))
+     nw2<-dim(W2)[1]
+   }else
+     nw2<-0
    #Determine the computation mode from the x,W1,W2 parameters
-   comp.mode<-as.character(as.numeric(1*(!is.null(x))+10*(!is.null(W1))+100*(!is.null(W2))))
+   comp.mode<-as.character(as.numeric(1*(nx>0)+10*(nw1>0)+100*(nw2>0)))
    if(comp.mode=="0")
       stop("At least one of x, W1, W2 must be specified.\n")
    #How many predictors?   
    m<-switch(comp.mode,
-      "1"=dim(x)[2]+1,
-      "10"=2,
-      "100"=2,
-      "11"=dim(x)[2]+2,
-      "101"=dim(x)[2]+2,
-      "110"=3,
-      "111"=dim(x)[2]+3
+      "1"=nx+1,
+      "10"=nw1+1,
+      "100"=nw2+1,
+      "11"=nx+nw1+1,
+      "101"=nx+nw2+1,
+      "110"=nw1+nw2+1,
+      "111"=nx+nw1+nw2+1
    )
    #Initialize the parameter vector
    if(is.null(theta.seed)){
       theta<-rep(0,m)
    }else{
       theta<-theta.seed
-      if(comp.mode=="1")           #Log the standard deviation parameter
-         theta[1]<-log(theta[1])
-      else if(comp.mode%in%c("10","100","11","101"))
-         theta[2]<-log(theta[2])
-      else
-         theta[3]<-log(theta[3])
+      theta[m]<-log(theta[m])         #Log the standard deviation parameter
    }
    #Perform the MLE fit via a two-stage process
    fitted<-switch(comp.mode,
@@ -1006,23 +1057,18 @@ lnam<-function(y,x=NULL,W1=NULL,W2=NULL,theta.seed=NULL,null.model=c("meanstd","
       "11"=optim(theta,lnLx1,method=method,control=control,y=y,x=x,W1=W1),
       "101"=optim(theta,lnLx2,method=method,control=control,y=y,x=x,W2=W2),
       "110"=optim(theta,lnL12,method=method,control=control,y=y,W1=W1,W2=W2),
-      "111"=optim(theta,lnLx12,method=method,control=control,y=y,x=x,W1=W1,W2=W2)
+      "111"=optim(theta,lnLx12,method=method,control=control,y=y,x=x,W1=W1, W2=W2)
    )
-   if(comp.mode=="1")           #De-log the standard deviation parameter
-      fitted$par[1]<-exp(fitted$par[1])
-   else if(comp.mode%in%c("10","100","11","101"))
-      fitted$par[2]<-exp(fitted$par[2])
-   else
-      fitted$par[3]<-exp(fitted$par[3])
+   fitted$par[m]<-exp(fitted$par[m])  #De-log the standard deviation parameter
    theta<-fitted$par            #Prepare for the stage-2 fit
    fitted<-switch(comp.mode,
-      "1"=optim(theta,lnLx,method=method,control=control,hessian=TRUE,y=y,x=x,sigma.log=FALSE),
-      "10"=optim(theta,lnL1,method=method,control=control,hessian=TRUE,y=y,W1=W1,sigma.log=FALSE),
-      "100"=optim(theta,lnL2,method=method,control=control,hessian=TRUE,y=y,W2=W2,sigma.log=FALSE),
-      "11"=optim(theta,lnLx1,method=method,control=control,hessian=TRUE,y=y,x=x,W1=W1,sigma.log=FALSE),
-      "101"=optim(theta,lnLx2,method=method,control=control,hessian=TRUE,y=y,x=x,W2=W2,sigma.log=FALSE),
-      "110"=optim(theta,lnL12,method=method,control=control,hessian=TRUE,y=y,W1=W1,W2=W2,sigma.log=FALSE),
-      "111"=optim(theta,lnLx12,method=method,control=control,hessian=TRUE,y=y,x=x,W1=W1,W2=W2,sigma.log=FALSE)
+      "1"=optim(theta,lnLx,method=method,control=control,hessian=TRUE,y=y,x=x, sigma.log=FALSE),
+      "10"=optim(theta,lnL1,method=method,control=control,hessian=TRUE,y=y, W1=W1,sigma.log=FALSE),
+      "100"=optim(theta,lnL2,method=method,control=control,hessian=TRUE,y=y, W2=W2,sigma.log=FALSE),
+      "11"=optim(theta,lnLx1,method=method,control=control,hessian=TRUE,y=y,x=x, W1=W1,sigma.log=FALSE),
+      "101"=optim(theta,lnLx2,method=method,control=control,hessian=TRUE,y=y, x=x,W2=W2,sigma.log=FALSE),
+      "110"=optim(theta,lnL12,method=method,control=control,hessian=TRUE,y=y, W1=W1,W2=W2,sigma.log=FALSE),
+      "111"=optim(theta,lnLx12,method=method,control=control,hessian=TRUE,y=y, x=x,W1=W1,W2=W2,sigma.log=FALSE)
    )
    #Assemble and return the results
    o<-list()
@@ -1062,104 +1108,110 @@ lnam<-function(y,x=NULL,W1=NULL,W2=NULL,theta.seed=NULL,null.model=c("meanstd","
    o$df.model<-m
    o$df.residual<-n-m
    o$df.total<-n
-   o$rho1<-switch(comp.mode,   #Get the r1 parameter, if available
+   o$rho1<-switch(comp.mode,   #Get the r1 parameters, if available
       "1"=NULL,
-      "10"=fitted$par[1],
+      "10"=fitted$par[1:nw1],
       "100"=NULL,
-      "11"=fitted$par[1],
+      "11"=fitted$par[(nx+1):(nx+nw1)],
       "101"=NULL,
-      "110"=fitted$par[1],
-      "111"=fitted$par[1]
+      "110"=fitted$par[1:nw1],
+      "111"=fitted$par[(nx+1):(nx+nw1)]
    )
    o$rho1.se<-switch(comp.mode,   #Get the r1 SE, if available
       "1"=NULL,
-      "10"=sqrt(o$acvm[1,1]),
+      "10"=sqrt(diag(o$acvm)[1:nw1]),
       "100"=NULL,
-      "11"=sqrt(o$acvm[1,1]),
+      "11"=sqrt(diag(o$acvm)[(nx+1):(nx+nw1)]),
       "101"=NULL,
-      "110"=sqrt(o$acvm[1,1]),
-      "111"=sqrt(o$acvm[1,1])
+      "110"=sqrt(diag(o$acvm)[1:nw1]),
+      "111"=sqrt(diag(o$acvm)[(nx+1):(nx+nw1)])
    )
-   o$rho2<-switch(comp.mode,   #Get the r2 parameter, if available
+   o$rho2<-switch(comp.mode,   #Get the r2 parameters, if available
       "1"=NULL,
       "10"=NULL,
-      "100"=fitted$par[1],
+      "100"=fitted$par[1:nw2],
       "11"=NULL,
-      "101"=fitted$par[1],
-      "110"=fitted$par[2],
-      "111"=fitted$par[2]
+      "101"=fitted$par[(nx+1):(nx+nw2)],
+      "110"=fitted$par[(nw1+1):(nw1+nw2)],
+      "111"=fitted$par[(nx+nw1+1):(nx+nw1+nw2)]
    )
    o$rho2.se<-switch(comp.mode,   #Get the r2 SE, if available
       "1"=NULL,
       "10"=NULL,
-      "100"=sqrt(o$acvm[1,1]),
+      "100"=sqrt(diag(o$acvm)[1:nw2]),
       "11"=NULL,
-      "101"=sqrt(o$acvm[1,1]),
-      "110"=sqrt(o$acvm[2,2]),
-      "111"=sqrt(o$acvm[2,2])
+      "101"=sqrt(diag(o$acvm)[(nx+1):(nx+nw2)]),
+      "110"=sqrt(diag(o$acvm)[(nw1+1):(nw1+nw2)]),
+      "111"=sqrt(diag(o$acvm)[(nx+nw1+1):(nx+nw1+nw2)])
    )
-   o$sigma<-switch(comp.mode,   #Get the sigma parameter
-      "1"=(fitted$par[1]),
-      "10"=(fitted$par[2]),
-      "100"=(fitted$par[2]),
-      "11"=(fitted$par[2]),
-      "101"=(fitted$par[2]),
-      "110"=(fitted$par[3]),
-      "111"=(fitted$par[3])
-   )
-   o$sigma.se<-switch(comp.mode,   #Get the sigma SE
-      "1"=sqrt(o$acvm[1,1]),
-      "10"=sqrt(o$acvm[2,2]),
-      "100"=sqrt(o$acvm[2,2]),
-      "11"=sqrt(o$acvm[2,2]),
-      "101"=sqrt(o$acvm[2,2]),
-      "110"=sqrt(o$acvm[3,3]),
-      "111"=sqrt(o$acvm[3,3])
-   )
+   o$sigma<-fitted$par[m]         #Get the sigma parameter
+   o$sigma.se<-sqrt(diag(o$acvm)[m])     #Get the sigma SE
    o$beta<-as.vector(switch(comp.mode,   #Get the beta parameters, if available
-      "1"=fitted$par[2:m],
+      "1"=fitted$par[1:nx],
       "10"=NULL,
       "100"=NULL,
-      "11"=fitted$par[3:m],
-      "101"=fitted$par[3:m],
+      "11"=fitted$par[1:nx],
+      "101"=fitted$par[1:nx],
       "110"=NULL,
-      "111"=fitted$par[4:m]
+      "111"=fitted$par[1:nx]
    ))
    o$beta.se<-as.vector(switch(comp.mode,   #Get the beta SE, if available
-      "1"=sqrt(diag(o$acvm)[2:m]),
+      "1"=sqrt(diag(o$acvm)[1:nx]),
       "10"=NULL,
       "100"=NULL,
-      "11"=sqrt(diag(o$acvm)[3:m]),
-      "101"=sqrt(diag(o$acvm)[3:m]),
+      "11"=sqrt(diag(o$acvm)[1:nx]),
+      "101"=sqrt(diag(o$acvm)[1:nx]),
       "110"=NULL,
-      "111"=sqrt(diag(o$acvm)[4:m])
+      "111"=sqrt(diag(o$acvm)[1:nx])
    ))
-   if(!is.null(o$beta)){
+   if(!is.null(o$beta)){                   #Set X names
      if(!is.null(colnames(x))){
         names(o$beta)<-colnames(x)
         names(o$beta.se)<-colnames(x)
      }else{
-        names(o$beta)<-paste("X",1:dim(x)[2],sep="")
-        names(o$beta.se)<-paste("X",1:dim(x)[2],sep="")
+        names(o$beta)<-paste("X",1:nx,sep="")
+        names(o$beta.se)<-paste("X",1:nx,sep="")
      }
    }
+   if(!is.null(o$rho1)){                     #Set W1 names
+     if((!is.null(dimnames(W1)))&&(!is.null(dimnames(W1)[[1]]))){
+        names(o$rho1)<-dimnames(W1)[[1]]
+        names(o$rho1.se)<-dimnames(W1)[[1]]
+     }else{
+        names(o$rho1)<-paste("rho1",1:nw1,sep=".")
+        names(o$rho1.se)<-paste("rho1",1:nw1,sep=".")
+     }
+   }
+   if(!is.null(o$rho2)){                     #Set W2 names
+     if((!is.null(dimnames(W2)))&&(!is.null(dimnames(W2)[[1]]))){
+        names(o$rho2)<-dimnames(W2)[[1]]
+        names(o$rho2.se)<-dimnames(W2)[[1]]
+     }else{
+        names(o$rho2)<-paste("rho2",1:nw2,sep=".")
+        names(o$rho2.se)<-paste("rho2",1:nw2,sep=".")
+     }
+   }
+   if(nw1>0)                               #Aggregate W1 weights
+      W1ag<-agg(W1,o$rho1)
+   if(nw2>0)                               #Aggregate W2 weights
+      W2ag<-agg(W2,o$rho2)
    o$disturbances<-as.vector(switch(comp.mode,  #The estimated disturbances
       "1"=y-x%*%o$beta,
-      "10"=(diag(n)-o$rho1*W1)%*%y,
-      "100"=(diag(n)-o$rho2*W2)%*%y,
-      "11"=(diag(n)-o$rho1*W1)%*%y-x%*%o$beta,
-      "101"=(diag(n)-o$rho2*W2)%*%(y-x%*%o$beta),
-      "110"=(diag(n)-o$rho2*W2)%*%((diag(n)-o$rho1*W1)%*%y),
-      "111"=(diag(n)-o$rho2*W2)%*%((diag(n)-o$rho1*W1)%*%y-x%*%o$beta)
+      "10"=(diag(n)-W1ag)%*%y,
+      "100"=(diag(n)-W2ag)%*%y,
+      "11"=(diag(n)-W1ag)%*%y-x%*%o$beta,
+      "101"=(diag(n)-W2ag)%*%(y-x%*%o$beta),
+      "110"=(diag(n)-W2ag)%*%((diag(n)-W1ag)%*%y),
+      "111"=(diag(n)-W2ag)%*%((diag(n)-W1ag)%*%y-x%*%o$beta)
    ))
    o$fitted.values<-as.vector(switch(comp.mode,  #Compute the fitted values
       "1"=x%*%o$beta,
       "10"=rep(0,n),
       "100"=rep(0,n),
-      "11"=qr.solve(diag(n)-o$rho1*W1,x%*%o$beta),
+      "11"=qr.solve(diag(n)-W1ag,x%*%o$beta),
       "101"=x%*%o$beta,
       "110"=rep(0,n),
-      "111"=qr.solve(diag(n)-o$rho1*W1,x%*%o$beta)
+      "111"=qr.solve(diag(n)-W1ag,x%*%o$beta)
    ))
    o$residuals<-as.vector(y-o$fitted.values)
    o$call<-match.call()
@@ -1168,11 +1220,8 @@ lnam<-function(y,x=NULL,W1=NULL,W2=NULL,theta.seed=NULL,null.model=c("meanstd","
 }
 
 
-#netcancor - Canonical correlations for network variables.  NOTE: requires that 
-#mva be loaded for R<2.0.0.
+#netcancor - Canonical correlations for network variables. 
 netcancor<-function(y,x,mode="digraph",diag=FALSE,nullhyp="cugtie",reps=1000){
-   if(R.version$major<2)  #Only invoke mva if we're using an old R version
-      require(mva)
    y<-as.sociomatrix.sna(y)
    x<-as.sociomatrix.sna(x)
    if(is.list(x)|is.list(y))
@@ -1686,7 +1735,7 @@ plot.bbnam.actor<-function(x,mode="density",intlines=TRUE,...){
    #Get the initial graphical settings, so we can restore them later
    oldpar<-par(no.readonly=TRUE)
    #Change plotting params
-   par(ask=TRUE)
+   par(ask=dev.interactive())
    #Initial plot: global error distribution
    par(mfrow=c(2,1))
    if(mode=="density"){   #Approximate the pdf using kernel density estimation
@@ -1767,7 +1816,7 @@ plot.bbnam.pooled<-function(x,mode="density",intlines=TRUE,...){
    #Get the initial graphical settings, so we can restore them later
    oldpar<-par()
    #Change plotting params
-   par(ask=TRUE)
+   par(ask=dev.interactive())
    #Initial plot: pooled error distribution
    par(mfrow=c(2,1))
    if(mode=="density"){   #Approximate the pdf using kernel density estimation
@@ -1847,8 +1896,6 @@ plot.bn<-function(x,...){
 
 #plot.lnam - Plot method for lnam
 plot.lnam<-function(x,...){
-   if(R.version$major<2)  #Only invoke mva if we're using an old R version
-     require(mva)
    r<-residuals(x)
    f<-fitted(x)
    d<-x$disturbances
@@ -1872,9 +1919,9 @@ plot.lnam<-function(x,...){
    if(!(is.null(x$W1)&&is.null(x$W2))){
       inf<-matrix(0,nc=x$df.total,nr=x$df.total)
       if(!is.null(x$W1))
-         inf<-inf+qr.solve(diag(x$df.total)-x$rho1*x$W1)
+         inf<-inf+qr.solve(diag(x$df.total)-apply(sweep(x$W1,1,x$rho1,"*"), c(2,3),sum))
       if(!is.null(x$W2))
-         inf<-inf+qr.solve(diag(x$df.total)-x$rho2*x$W2)
+         inf<-inf+qr.solve(diag(x$df.total)-apply(sweep(x$W2,1,x$rho2,"*"), c(2,3),sum))
       syminf<-abs(inf)+abs(t(inf))
       diag(syminf)<-0
       infco<-cmdscale(as.dist(max(syminf)-syminf),k=2)
@@ -2709,6 +2756,10 @@ pstar<-function(dat,effects=c("choice","mutuality","density","reciprocity","stra
 se.lnam<-function(object, ...){
    se<-vector()
    sen<-vector()
+   if(!is.null(object$beta.se)){
+      se<-c(se,object$beta.se)
+      sen<-c(sen,names(object$beta.se))
+   }
    if(!is.null(object$rho1.se)){
       se<-c(se,object$rho1.se)
       sen<-c(sen,"rho1")
@@ -2716,10 +2767,6 @@ se.lnam<-function(object, ...){
    if(!is.null(object$rho2.se)){
       se<-c(se,object$rho2.se)
       sen<-c(sen,"rho2")
-   }
-   if(!is.null(object$beta.se)){
-      se<-c(se,object$beta.se)
-      sen<-c(sen,names(object$beta.se))
    }
    names(se)<-sen
    se

@@ -88,4 +88,6 @@ element queuedel(element *head,double val);
 
 /*R-CALLABLE ROUTINES-------------------------------------------------------*/
 
+void aggarray3d_R(double *a, double *w, double *mat, int *m, int *n);
+
 #endif
