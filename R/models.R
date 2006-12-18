@@ -3,7 +3,7 @@
 # models.R
 #
 # copyright (c) 2004, Carter T. Butts <buttsc@uci.edu>
-# Last Modified 10/10/06
+# Last Modified 12/18/06
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/sna package
@@ -29,6 +29,7 @@
 #   consensus
 #   eval.edgeperturbation
 #   lnam
+#   nacf
 #   netcancor
 #   netlm
 #   netlogit
@@ -906,7 +907,7 @@ eval.edgeperturbation<-function(dat,i,j,FUN,...){
 #e = (I-r1 W1) y - X b
 #nu = (I - r2 W2) [ (I-r1 W1) y - X b ]
 #nu = (I-r2 W2) e
-lnam<-function(y,x=NULL,W1=NULL,W2=NULL,theta.seed=NULL,null.model=c("meanstd","mean","std","none"),method="BFGS",control=list()){
+lnam<-function(y,x=NULL,W1=NULL,W2=NULL,theta.seed=NULL,null.model=c("meanstd","mean","std","none"),method="BFGS",control=list(),tol=1e-10){
    #Define the log-likelihood functions for each case
    agg<-function(a,w){
      m<-length(w)
@@ -914,120 +915,172 @@ lnam<-function(y,x=NULL,W1=NULL,W2=NULL,theta.seed=NULL,null.model=c("meanstd","
      mat<-as.double(matrix(0,n,n))
      matrix(.C("aggarray3d_R",as.double(a),as.double(w),mat=mat,as.integer(m), as.integer(n),PACKAGE="sna",NAOK=TRUE)$mat,n,n)
    }
-   lnLx<-function(theta,y,x,sigma.log=TRUE){ #theta=c(b,s)
-      m<-length(theta)
-      if(sigma.log)
-        sig<-exp(theta[m])
-      else
-        sig<-theta[m]
-      -2*sum(dnorm(y-x%*%(theta[1:(m-1)]),0,sig,log=TRUE))
-   }
-   lnL1<-function(theta,y,W1,sigma.log=TRUE){ #theta=c(r1,s)
-      n<-length(y)
-      nw<-dim(W1)[1]
-      m<-length(theta)
-      if(sigma.log)
-        sig<-exp(theta[m])
-      else
-        sig<-theta[m]
-      W1<-agg(W1,theta[1:nw])
-      -2*sum(dnorm((diag(n)-W1)%*%y,0,sig,log=TRUE))
-   }
-   lnL2<-function(theta,y,W2,sigma.log=TRUE){ #theta=c(r2,s)
-      n<-length(y)
-      nw<-dim(W2)[1]
-      m<-length(theta)
-      if(sigma.log)
-        sig<-exp(theta[m])
-      else
-        sig<-theta[m]
-      W2<-agg(W2,theta[1:nw])
-      -2*sum(dnorm((diag(n)-W2)%*%y,0,sig,log=TRUE))
-   }
-   lnLx1<-function(theta,y,x,W1,sigma.log=TRUE){ #theta=c(b,r1,s)
-      n<-length(y)
-      nw<-dim(W1)[1]
-      nx<-dim(x)[2]
-      m<-length(theta)
-      if(sigma.log)
-        sig<-exp(theta[m])
-      else
-        sig<-theta[m]
-      W1<-agg(W1,theta[(nx+1):(nx+nw)])
-      -2*sum(dnorm((diag(n)-W1)%*%y-x%*%theta[1:nx],0,sig,log=TRUE))
-   }
-   lnLx2<-function(theta,y,x,W2,sigma.log=TRUE){ #theta=c(b,r2,s)
-      n<-length(y)
-      nw<-dim(W2)[1]
-      nx<-dim(x)[2]
-      m<-length(theta)
-      if(sigma.log)
-        sig<-exp(theta[m])
-      else
-        sig<-theta[m]
-      W2<-agg(W2,theta[(nx+1):(nx+nw)])
-      -2*sum(dnorm((diag(n)-W2)%*%(y-x%*%theta[1:nx]),0,sig,log=TRUE))
-   }
-   lnL12<-function(theta,y,W1,W2,sigma.log=TRUE){ #theta=c(r1,r2,s)
-      n<-length(y)
-      nw1<-dim(W1)[1]
-      nw2<-dim(W2)[1]
-      m<-length(theta)
-      if(sigma.log)
-        sig<-exp(theta[m])
-      else
-        sig<-theta[m]
-      W1<-agg(W1,theta[1:nw1])
-      W2<-agg(W2,theta[(nw1+1):(nw1+nw2)])
-      -2*sum(dnorm((diag(n)-W2)%*%((diag(n)-W1)%*%y),0,sig,log=TRUE))
-   }
-   lnLx12<-function(theta,y,x,W1,W2,sigma.log=TRUE){ #theta=c(b,r1,r2,s)
-      n<-length(y)
-      nx<-dim(x)[2]
-      nw1<-dim(W1)[1]
-      nw2<-dim(W2)[1]
-      m<-length(theta)
-      if(sigma.log)
-        sig<-exp(theta[m])
-      else
-        sig<-theta[m]
-      W1<-agg(W1,theta[(nx+1):(nw1+nx)])
-      W2<-agg(W2,theta[(nx+nw1+1):(nx+nw1+nw2)])
-      -2*sum(dnorm((diag(n)-W2)%*%((diag(n)-W1)%*%y-x%*%theta[1:nx]),0,sig, log=TRUE))
-   }
-   #How many data points are there?
-   n<-length(y)
-   #Fix x, W1, and W2, if needed
-   if(!is.null(x)){
-     if(is.vector(x))
-       x<-as.matrix(x)
-     if(NROW(x)!=n)
-       stop("Number of observations in x must match length of y.")
-     nx<-NCOL(x)
-   }else
-     nx<-0
-   if(!is.null(W1)){
-     W1<-as.sociomatrix.sna(W1)
-     if(!(is.matrix(W1)||is.array(W1)))
-       stop("All networks supplied in W1 must be of identical order.")
-     if(dim(W1)[2]!=n)
-       stop("Order of W1 must match length of y.")
-     if(length(dim(W1))==2)
-       W1<-array(W1,dim=c(1,n,n))
-     nw1<-dim(W1)[1]
-   }else
-     nw1<-0
-   if(!is.null(W2)){
-     W2<-as.sociomatrix.sna(W2)
-     if(!(is.matrix(W2)||is.array(W2)))
-       stop("All networks supplied in W2 must be of identical order.")
-     if(dim(W2)[2]!=n)
-       stop("Order of W2 must match length of y.")
-     if(length(dim(W2))==2)
-       W2<-array(W2,dim=c(1,n,n))
-     nw2<-dim(W2)[1]
-   }else
-     nw2<-0
+  #Estimate covariate effects, conditional on autocorrelation parameters
+  betahat<-function(y,X,W1a,W2a){
+    if(nw1==0){
+      if(nw2==0){
+        return(qr.solve(t(X)%*%X,t(X)%*%y))
+      }else{
+        tXtW2aW2a<-t(X)%*%t(W2a)%*%W2a
+        return(qr.solve(tXtW2aW2a%*%X,tXtW2aW2a%*%y))
+      }
+    }else{
+      if(nw2==0){
+        return(qr.solve(t(X)%*%X,t(X)%*%W1a%*%y))
+      }else{
+        tXtW2aW2a<-t(X)%*%t(W2a)%*%W2a
+        qr.solve(tXtW2aW2a%*%X,tXtW2aW2a%*%W1a%*%y)
+      }
+    }
+  }
+  #Estimate predicted means, conditional on other effects
+  muhat<-function(y,X,W1a,W2a,betahat){
+    if(nx>0)
+      Xb<-X%*%betahat
+    else
+      Xb<-0
+    switch((nw1>0)+2*(nw2>0)+1,
+      y-Xb,
+      W1a%*%y-Xb,
+      W2a%*%(y-Xb),
+      W2a%*%(W1a%*%y-Xb)
+    )
+  }
+  #Estimate innovation variance, conditional on other effects
+  sigmasqhat<-function(muhat){
+    t(muhat)%*%muhat/length(muhat)
+  }
+  #Model deviance (for use with fitting rho | beta, sigma)
+  n2ll.rho<-function(rho,beta,sigmasq){
+    #Prepare ll elements according to which parameters are present
+    if(nw1>0){
+      W1a<-diag(n)-agg(W1,rho[1:nw1])
+      W1ay<-W1a%*%y
+      adetW1a<-abs(det(W1a))
+    }else{
+      W1ay<-y
+      adetW1a<-1
+    }
+    if(nw2>0){
+      W2a<-diag(n)-agg(W2,rho[(nw1+1):(nw1+nw2)])
+      tpW2a<-t(W2a)%*%W2a
+      adetW2a<-abs(det(W2a))
+    }else{
+      tpW2a<-diag(n)
+      adetW2a<-1
+    }
+    if(nx>0){
+      Xb<-x%*%beta
+    }else{
+      Xb<-0
+    }
+    #Compute and return
+    n*(log(2*pi)+log(sigmasq)) + t(W1ay-Xb)%*%tpW2a%*%(W1ay-Xb)/sigmasq - 2*(log(adetW1a)+log(adetW2a))
+  }
+  #Model deviance (general purpose)
+  n2ll<-function(W1a,W2a,sigmasqhat){
+    switch((nw1>0)+2*(nw2>0)+1,
+      n*(1+log(2*pi)+log(sigmasqhat)),
+      n*(1+log(2*pi)+log(sigmasqhat))-2*log(abs(det(W1a))),
+      n*(1+log(2*pi)+log(sigmasqhat))-2*log(abs(det(W2a))),
+      n*(1+log(2*pi)+log(sigmasqhat))- 2*(log(abs(det(W1a)))+log(abs(det(W2a))))
+    )
+  }
+  #Conduct a single iterative refinement of a set of initial parameter estimates
+  estimate<-function(parm,final=FALSE){
+    #Either aggregate the weight matrices, or NULL them
+    if(nw1>0)
+      W1a<-diag(n)-agg(W1,parm$rho1)
+    else
+      W1a<-NULL
+    if(nw2>0)
+      W2a<-diag(n)-agg(W2,parm$rho2)
+    else
+      W2a<-NULL
+    #If covariates were given, estimate beta | rho
+    if(nx>0)
+      parm$beta<-betahat(y,x,W1a,W2a)
+    #Estimate sigma | beta, rho
+    parm$sigmasq<-sigmasqhat(muhat(y,x,W1a,W2a,parm$beta))
+    #If networks were given, (and not final) estimate rho | beta, sigma
+    if(!(final||(nw1+nw2==0))){
+      rho<-c(parm$rho1,parm$rho2)
+      temp<-optim(rho,n2ll.rho,method=method,control=control,beta=parm$beta, sigmasq=parm$sigmasq)
+      if(nw1>0)
+        parm$rho1<-temp$par[1:nw1]
+      if(nw2>0)
+        parm$rho2<-temp$par[(nw1+1):(nw1+nw2)]
+    }
+    #Calculate model deviance
+    parm$dev<-n2ll(W1a,W2a,parm$sigmasq)
+    #Return the parameter list
+    parm
+  }
+  #Calculate the expected Fisher information matrix for a fitted model
+  infomat<-function(parm){     #Numerical version (requires numDeriv)
+    require(numDeriv)
+    locnll<-function(par){
+      #Prepare ll elements according to which parameters are present
+      if(nw1>0){
+        W1a<-diag(n)-agg(W1,par[(nx+1):(nx+nw1)])
+        W1ay<-W1a%*%y
+        ladetW1a<-log(abs(det(W1a)))
+      }else{
+        W1ay<-y
+        ladetW1a<-0
+      }
+      if(nw2>0){
+        W2a<-diag(n)-agg(W2,par[(nx+nw1+1):(nx+nw1+nw2)])
+        tpW2a<-t(W2a)%*%W2a
+        ladetW2a<-log(abs(det(W2a)))
+      }else{
+        tpW2a<-diag(n)
+        ladetW2a<-0
+      }
+      if(nx>0){
+        Xb<-x%*%par[1:nx]
+      }else{
+        Xb<-0
+      }
+      #Compute and return
+      n/2*(log(2*pi)+log(par[m]))+ t(W1ay-Xb)%*%tpW2a%*%(W1ay-Xb)/(2*par[m]) -ladetW1a-ladetW2a
+    }
+    #Return the information matrix
+    hessian(locnll,c(parm$beta,parm$rho1,parm$rho2,parm$sigmasq)) 
+  }
+  #How many data points are there?
+  n<-length(y)
+  #Fix x, W1, and W2, if needed, and count predictors
+  if(!is.null(x)){
+    if(is.vector(x))
+      x<-as.matrix(x)
+    if(NROW(x)!=n)
+      stop("Number of observations in x must match length of y.")
+    nx<-NCOL(x)
+  }else
+    nx<-0
+  if(!is.null(W1)){
+    W1<-as.sociomatrix.sna(W1)
+    if(!(is.matrix(W1)||is.array(W1)))
+      stop("All networks supplied in W1 must be of identical order.")
+    if(dim(W1)[2]!=n)
+      stop("Order of W1 must match length of y.")
+    if(length(dim(W1))==2)
+      W1<-array(W1,dim=c(1,n,n))
+    nw1<-dim(W1)[1]
+  }else
+    nw1<-0
+  if(!is.null(W2)){
+    W2<-as.sociomatrix.sna(W2)
+    if(!(is.matrix(W2)||is.array(W2)))
+      stop("All networks supplied in W2 must be of identical order.")
+    if(dim(W2)[2]!=n)
+      stop("Order of W2 must match length of y.")
+    if(length(dim(W2))==2)
+      W2<-array(W2,dim=c(1,n,n))
+    nw2<-dim(W2)[1]
+  }else
+    nw2<-0
    #Determine the computation mode from the x,W1,W2 parameters
    comp.mode<-as.character(as.numeric(1*(nx>0)+10*(nw1>0)+100*(nw2>0)))
    if(comp.mode=="0")
@@ -1042,181 +1095,183 @@ lnam<-function(y,x=NULL,W1=NULL,W2=NULL,theta.seed=NULL,null.model=c("meanstd","
       "110"=nw1+nw2+1,
       "111"=nx+nw1+nw2+1
    )
-   #Initialize the parameter vector
-   if(is.null(theta.seed)){
-      theta<-rep(0,m)
-   }else{
-      theta<-theta.seed
-      theta[m]<-log(theta[m])         #Log the standard deviation parameter
-   }
-   #Perform the MLE fit via a two-stage process
-   fitted<-switch(comp.mode,
-      "1"=optim(theta,lnLx,method=method,control=control,y=y,x=x),
-      "10"=optim(theta,lnL1,method=method,control=control,y=y,W1=W1),
-      "100"=optim(theta,lnL2,method=method,control=control,y=y,W2=W2),
-      "11"=optim(theta,lnLx1,method=method,control=control,y=y,x=x,W1=W1),
-      "101"=optim(theta,lnLx2,method=method,control=control,y=y,x=x,W2=W2),
-      "110"=optim(theta,lnL12,method=method,control=control,y=y,W1=W1,W2=W2),
-      "111"=optim(theta,lnLx12,method=method,control=control,y=y,x=x,W1=W1, W2=W2)
-   )
-   fitted$par[m]<-exp(fitted$par[m])  #De-log the standard deviation parameter
-   theta<-fitted$par            #Prepare for the stage-2 fit
-   fitted<-switch(comp.mode,
-      "1"=optim(theta,lnLx,method=method,control=control,hessian=TRUE,y=y,x=x, sigma.log=FALSE),
-      "10"=optim(theta,lnL1,method=method,control=control,hessian=TRUE,y=y, W1=W1,sigma.log=FALSE),
-      "100"=optim(theta,lnL2,method=method,control=control,hessian=TRUE,y=y, W2=W2,sigma.log=FALSE),
-      "11"=optim(theta,lnLx1,method=method,control=control,hessian=TRUE,y=y,x=x, W1=W1,sigma.log=FALSE),
-      "101"=optim(theta,lnLx2,method=method,control=control,hessian=TRUE,y=y, x=x,W2=W2,sigma.log=FALSE),
-      "110"=optim(theta,lnL12,method=method,control=control,hessian=TRUE,y=y, W1=W1,W2=W2,sigma.log=FALSE),
-      "111"=optim(theta,lnLx12,method=method,control=control,hessian=TRUE,y=y, x=x,W1=W1,W2=W2,sigma.log=FALSE)
-   )
-   #Assemble and return the results
-   o<-list()
-   o$y<-y
-   o$x<-x
-   o$W1<-W1
-   o$W2<-W2
-   o$model<-comp.mode
-   o$infomat<-fitted$hessian/2  
-   o$acvm<-qr.solve(o$infomat)
-   o$null.model<-match.arg(null.model)
-   o$lnlik.null<-switch(match.arg(null.model),  #Fit a null model
-      "meanstd"=sum(dnorm(y-mean(y),0,as.numeric(sqrt(var(y))),log=TRUE)),
-      "mean"=sum(dnorm(y-mean(y),log=TRUE)),
-      "std"=sum(dnorm(y,0,as.numeric(sqrt(var(y))),log=TRUE)),
-      "none"=sum(dnorm(y,log=TRUE))
-   )
-   o$df.null.resid<-switch(match.arg(null.model),  #Find residual null df
-      "meanstd"=n-2,
-      "mean"=n-1,
-      "std"=n-1,
-      "none"=n
-   )
-   o$df.null<-switch(match.arg(null.model),  #Find null df
-      "meanstd"=2,
-      "mean"=1,
-      "std"=1,
-      "none"=0
-   )
-   o$null.param<-switch(match.arg(null.model),  #Find null params, if any
-      "meanstd"=c(mean(y),sqrt(var(y))),
-      "mean"=mean(y),
-      "std"=sqrt(var(y)),
-      "none"=NULL
-   )
-   o$lnlik.model<--fitted$value/2
-   o$df.model<-m
-   o$df.residual<-n-m
-   o$df.total<-n
-   o$rho1<-switch(comp.mode,   #Get the r1 parameters, if available
-      "1"=NULL,
-      "10"=fitted$par[1:nw1],
-      "100"=NULL,
-      "11"=fitted$par[(nx+1):(nx+nw1)],
-      "101"=NULL,
-      "110"=fitted$par[1:nw1],
-      "111"=fitted$par[(nx+1):(nx+nw1)]
-   )
-   o$rho1.se<-switch(comp.mode,   #Get the r1 SE, if available
-      "1"=NULL,
-      "10"=sqrt(diag(o$acvm)[1:nw1]),
-      "100"=NULL,
-      "11"=sqrt(diag(o$acvm)[(nx+1):(nx+nw1)]),
-      "101"=NULL,
-      "110"=sqrt(diag(o$acvm)[1:nw1]),
-      "111"=sqrt(diag(o$acvm)[(nx+1):(nx+nw1)])
-   )
-   o$rho2<-switch(comp.mode,   #Get the r2 parameters, if available
-      "1"=NULL,
-      "10"=NULL,
-      "100"=fitted$par[1:nw2],
-      "11"=NULL,
-      "101"=fitted$par[(nx+1):(nx+nw2)],
-      "110"=fitted$par[(nw1+1):(nw1+nw2)],
-      "111"=fitted$par[(nx+nw1+1):(nx+nw1+nw2)]
-   )
-   o$rho2.se<-switch(comp.mode,   #Get the r2 SE, if available
-      "1"=NULL,
-      "10"=NULL,
-      "100"=sqrt(diag(o$acvm)[1:nw2]),
-      "11"=NULL,
-      "101"=sqrt(diag(o$acvm)[(nx+1):(nx+nw2)]),
-      "110"=sqrt(diag(o$acvm)[(nw1+1):(nw1+nw2)]),
-      "111"=sqrt(diag(o$acvm)[(nx+nw1+1):(nx+nw1+nw2)])
-   )
-   o$sigma<-fitted$par[m]         #Get the sigma parameter
-   o$sigma.se<-sqrt(diag(o$acvm)[m])     #Get the sigma SE
-   o$beta<-as.vector(switch(comp.mode,   #Get the beta parameters, if available
-      "1"=fitted$par[1:nx],
-      "10"=NULL,
-      "100"=NULL,
-      "11"=fitted$par[1:nx],
-      "101"=fitted$par[1:nx],
-      "110"=NULL,
-      "111"=fitted$par[1:nx]
-   ))
-   o$beta.se<-as.vector(switch(comp.mode,   #Get the beta SE, if available
-      "1"=sqrt(diag(o$acvm)[1:nx]),
-      "10"=NULL,
-      "100"=NULL,
-      "11"=sqrt(diag(o$acvm)[1:nx]),
-      "101"=sqrt(diag(o$acvm)[1:nx]),
-      "110"=NULL,
-      "111"=sqrt(diag(o$acvm)[1:nx])
-   ))
-   if(!is.null(o$beta)){                   #Set X names
-     if(!is.null(colnames(x))){
-        names(o$beta)<-colnames(x)
-        names(o$beta.se)<-colnames(x)
-     }else{
-        names(o$beta)<-paste("X",1:nx,sep="")
-        names(o$beta.se)<-paste("X",1:nx,sep="")
-     }
-   }
-   if(!is.null(o$rho1)){                     #Set W1 names
-     if((!is.null(dimnames(W1)))&&(!is.null(dimnames(W1)[[1]]))){
-        names(o$rho1)<-dimnames(W1)[[1]]
-        names(o$rho1.se)<-dimnames(W1)[[1]]
-     }else{
-        names(o$rho1)<-paste("rho1",1:nw1,sep=".")
-        names(o$rho1.se)<-paste("rho1",1:nw1,sep=".")
-     }
-   }
-   if(!is.null(o$rho2)){                     #Set W2 names
-     if((!is.null(dimnames(W2)))&&(!is.null(dimnames(W2)[[1]]))){
-        names(o$rho2)<-dimnames(W2)[[1]]
-        names(o$rho2.se)<-dimnames(W2)[[1]]
-     }else{
-        names(o$rho2)<-paste("rho2",1:nw2,sep=".")
-        names(o$rho2.se)<-paste("rho2",1:nw2,sep=".")
-     }
-   }
-   if(nw1>0)                               #Aggregate W1 weights
-      W1ag<-agg(W1,o$rho1)
-   if(nw2>0)                               #Aggregate W2 weights
-      W2ag<-agg(W2,o$rho2)
-   o$disturbances<-as.vector(switch(comp.mode,  #The estimated disturbances
-      "1"=y-x%*%o$beta,
-      "10"=(diag(n)-W1ag)%*%y,
-      "100"=(diag(n)-W2ag)%*%y,
-      "11"=(diag(n)-W1ag)%*%y-x%*%o$beta,
-      "101"=(diag(n)-W2ag)%*%(y-x%*%o$beta),
-      "110"=(diag(n)-W2ag)%*%((diag(n)-W1ag)%*%y),
-      "111"=(diag(n)-W2ag)%*%((diag(n)-W1ag)%*%y-x%*%o$beta)
-   ))
-   o$fitted.values<-as.vector(switch(comp.mode,  #Compute the fitted values
-      "1"=x%*%o$beta,
-      "10"=rep(0,n),
-      "100"=rep(0,n),
-      "11"=qr.solve(diag(n)-W1ag,x%*%o$beta),
-      "101"=x%*%o$beta,
-      "110"=rep(0,n),
-      "111"=qr.solve(diag(n)-W1ag,x%*%o$beta)
-   ))
-   o$residuals<-as.vector(y-o$fitted.values)
-   o$call<-match.call()
-   class(o)<-c("lnam")
-   o
+  #Initialize the parameter list
+  parm<-list()
+  if(is.null(theta.seed)){
+    if(nx>0)
+      parm$beta<-rep(0,nx)
+    if(nw1>0)
+      parm$rho1<-rep(0,nw1)
+    if(nw2>0)
+      parm$rho2<-rep(0,nw2)
+    parm$sigmasq<-1
+  }else{
+    if(nx>0)
+      parm$beta<-theta.seed[1:nx]
+    if(nw1>0)
+      parm$rho1<-theta.seed[(nx+1):(nx+nw1)]
+    if(nw2>0)
+      parm$rho2<-theta.seed[(nx+nw1+1):(nx+nw1+nw2)]
+    parm$sigmasq<-theta.seed[nx+nw1+nw2+1]
+  }
+  parm$dev<-Inf
+  #Fit the model
+  olddev<-Inf
+  while(is.na(parm$dev-olddev)||(abs(parm$dev-olddev)>tol)){
+    olddev<-parm$dev
+    parm<-estimate(parm,final=FALSE)
+  }
+  parm<-estimate(parm,final=TRUE)  #Final refinement
+  #Assemble the result
+  o<-list()
+  o$y<-y
+  o$x<-x
+  o$W1<-W1
+  o$W2<-W2
+  o$model<-comp.mode
+  o$infomat<-infomat(parm)
+  o$acvm<-qr.solve(o$infomat)
+  o$null.model<-match.arg(null.model)
+  o$lnlik.null<-switch(match.arg(null.model),  #Fit a null model
+    "meanstd"=sum(dnorm(y-mean(y),0,as.numeric(sqrt(var(y))),log=TRUE)),
+    "mean"=sum(dnorm(y-mean(y),log=TRUE)),
+    "std"=sum(dnorm(y,0,as.numeric(sqrt(var(y))),log=TRUE)),
+    "none"=sum(dnorm(y,log=TRUE))
+  )
+  o$df.null.resid<-switch(match.arg(null.model),  #Find residual null df
+    "meanstd"=n-2,
+    "mean"=n-1,
+    "std"=n-1,
+    "none"=n
+  )
+  o$df.null<-switch(match.arg(null.model),  #Find null df
+    "meanstd"=2,
+    "mean"=1,
+    "std"=1,
+    "none"=0
+  )
+  o$null.param<-switch(match.arg(null.model),  #Find null params, if any
+    "meanstd"=c(mean(y),sqrt(var(y))),
+    "mean"=mean(y),
+    "std"=sqrt(var(y)),
+    "none"=NULL
+  )
+  o$lnlik.model<--parm$dev/2
+  o$df.model<-m
+  o$df.residual<-n-m
+  o$df.total<-n
+  o$beta<-parm$beta                       #Extract parameters
+  o$rho1<-parm$rho1  
+  o$rho2<-parm$rho2  
+  o$sigmasq<-parm$sigmasq
+  o$sigma<-o$sigmasq^0.5
+  temp<-sqrt(diag(o$acvm))                #Get standard errors
+  if(nx>0)
+    o$beta.se<-temp[1:nx]
+  if(nw1>0)
+    o$rho1.se<-temp[(nx+1):(nx+nw1)]
+  if(nw2>0)
+    o$rho2.se<-temp[(nx+nw1+1):(nx+nw1+nw2)]
+  o$sigmasq.se<-temp[m]
+  o$sigma.se<-o$sigmasq.se^2/(4*o$sigmasq)  #This a delta method approximation
+  if(!is.null(o$beta)){                   #Set X names
+    if(!is.null(colnames(x))){
+       names(o$beta)<-colnames(x)
+       names(o$beta.se)<-colnames(x)
+    }else{
+       names(o$beta)<-paste("X",1:nx,sep="")
+       names(o$beta.se)<-paste("X",1:nx,sep="")
+    }
+  }
+  if(!is.null(o$rho1)){                     #Set W1 names
+    if((!is.null(dimnames(W1)))&&(!is.null(dimnames(W1)[[1]]))){
+       names(o$rho1)<-dimnames(W1)[[1]]
+       names(o$rho1.se)<-dimnames(W1)[[1]]
+    }else{
+       names(o$rho1)<-paste("rho1",1:nw1,sep=".")
+       names(o$rho1.se)<-paste("rho1",1:nw1,sep=".")
+    }
+  }
+  if(!is.null(o$rho2)){                     #Set W2 names
+    if((!is.null(dimnames(W2)))&&(!is.null(dimnames(W2)[[1]]))){
+       names(o$rho2)<-dimnames(W2)[[1]]
+       names(o$rho2.se)<-dimnames(W2)[[1]]
+    }else{
+       names(o$rho2)<-paste("rho2",1:nw2,sep=".")
+       names(o$rho2.se)<-paste("rho2",1:nw2,sep=".")
+    }
+  }
+  if(nw1>0)                               #Aggregate W1 weights
+     W1ag<-agg(W1,o$rho1)
+  if(nw2>0)                               #Aggregate W2 weights
+     W2ag<-agg(W2,o$rho2)
+  o$disturbances<-as.vector(switch(comp.mode,  #The estimated disturbances
+    "1"=y-x%*%o$beta,
+    "10"=(diag(n)-W1ag)%*%y,
+    "100"=(diag(n)-W2ag)%*%y,
+    "11"=(diag(n)-W1ag)%*%y-x%*%o$beta,
+    "101"=(diag(n)-W2ag)%*%(y-x%*%o$beta),
+    "110"=(diag(n)-W2ag)%*%((diag(n)-W1ag)%*%y),
+    "111"=(diag(n)-W2ag)%*%((diag(n)-W1ag)%*%y-x%*%o$beta)
+  ))
+  o$fitted.values<-as.vector(switch(comp.mode,  #Compute the fitted values
+    "1"=x%*%o$beta,
+    "10"=rep(0,n),
+    "100"=rep(0,n),
+    "11"=qr.solve(diag(n)-W1ag,x%*%o$beta),
+    "101"=x%*%o$beta,
+    "110"=rep(0,n),
+    "111"=qr.solve(diag(n)-W1ag,x%*%o$beta)
+  ))
+  o$residuals<-as.vector(y-o$fitted.values)
+  o$call<-match.call()
+  class(o)<-c("lnam")
+  o
+}
+
+
+#nacf - Network autocorrelation function
+nacf<-function(net,y,lag.max=NULL,type=c("correlation","covariance","moran","geary"),neighborhood.type=c("in","out","total"),partial.neighborhood=TRUE,mode="digraph",diag=FALSE,thresh=0,demean=TRUE){
+  #Pre-process the raw input
+  net<-as.sociomatrix.sna(net)
+  if(is.list(net))
+    return(lapply(net,nacf,y=y,lag.max=lag.max, neighborhood.type=neighborhood.type,partial.neighborhood=partial.neighborhood,mode=mode,diag=diag,thresh=thresh,demean=demean))
+  else if(length(dim(net))>2)
+    return(apply(nat,1,nacf,y=y,lag.max=lag.max, neighborhood.type=neighborhood.type,partial.neighborhood=partial.neighborhood,mode=mode,diag=diag,thresh=thresh,demean=demean))
+  #End pre-processing
+  if(length(y)!=NROW(net))
+    stop("Network size must match covariate length in nacf.")
+  #Process y
+  if(demean||(match.arg(type)=="moran"))
+    y<-y-mean(y)
+  vary<-var(y)
+  #Determine maximum lag, if needed
+  if(is.null(lag.max))
+    lag.max<-NROW(net)-1
+  #Get the appropriate neighborhood graphs for dat
+  neigh<-neighborhood(net,order=lag.max,neighborhood.type=neighborhood.type, mode=mode,diag=diag,thresh=thresh,return.all=TRUE,partial=partial.neighborhood)
+  #Form the coefficients
+  v<-switch(match.arg(type),
+    "covariance"=t(y)%*%y/NROW(net),
+    "correlation"=1,
+    "moran"=1,
+    "geary"=0,
+  )
+  for(i in 1:lag.max){
+    ec<-sum(neigh[i,,])
+    if(ec>0){
+      v[i+1]<-switch(match.arg(type),
+        "covariance"=(t(y)%*%neigh[i,,]%*%y)/ec,
+        "correlation"=((t(y)%*%neigh[i,,]%*%y)/ec)/vary,
+        "moran"=NROW(net)/ec*sum((y%o%y)*neigh[i,,])/sum(y^2),
+        "geary"=(NROW(net)-1)/(2*ec)*sum(neigh[i,,]*outer(y,y,"-")^2)/ sum((y-mean(y))^2),
+      )
+    }else
+      v[i+1]<-0
+  }
+  names(v)<-0:lag.max
+  #Return the results
+  v
 }
 
 

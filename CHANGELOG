@@ -1,5 +1,18 @@
 CHANGELOG:
 
+v1.4 - New Functions, Changes, and Bug Fixes
+   New Functions:
+     nacf - Network autocorrelation function
+     neighborhood - Return the matrix of n-th order neighbors for an input graph
+   Bug Fixes:
+     Likelihood computation in lnam was innaccurate in some cases [submitted by
+       Eric Neuman]
+   Changes:
+     A few remaining mva references were purged (see changes for v1.3)
+     lnam has been rewritten using a different optimization scheme; this should
+       prove more robust in some cases, but does change certain command-line
+       arguments (see the man page for details)
+
 v1.3 - New Features, Changes, and Bug Fixes
    New Features:
      lnam now allows the user to specify multiple AR and/or MA effects

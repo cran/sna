@@ -100,6 +100,10 @@ lubness                 Compute Graph LUBness Scores
 make.stochastic         Make a Graph Stack Row, Column, or Row-column
                         Stochastic
 mutuality               Find the Mutuality of a Graph
+nacf                    Sample Network Covariance and Correlation
+                        Functions
+neighborhood            Compute Neighborhood Structures of Specified
+                        Order
 netcancor               Canonical Correlation for Labeled Graphs
 netlm                   Linear Regression for Network Data
 netlogit                Logistic Regression for Network Data

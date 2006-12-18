@@ -3,7 +3,7 @@
 # connectivity.R
 #
 # copyright (c) 2004, Carter T. Butts <buttsc@uci.edu>
-# Last Modified 4/16/05
+# Last Modified 12/10/06
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/sna package
@@ -18,6 +18,7 @@
 #  isolates
 #  is.connected
 #  is.isolate
+#  neighborhood
 #  reachability
 #  structure.statistics
 #
@@ -165,6 +166,46 @@ is.isolate<-function(dat,ego,g=1,diag=FALSE){
    for(i in 1:length(ego))
       o<-c(o,all(is.na(d[ego[i],])|(d[ego[i],]==0))&all(is.na(d[,ego[i]])|(d[,ego[i]]==0)))
    o   
+}
+
+
+#neighborhood - Return the matrix of n-th order neighbors for an input graph
+neighborhood<-function(dat,order,neighborhood.type=c("in","out","total"),mode="digraph",diag=FALSE,thresh=0,return.all=FALSE,partial=TRUE){
+  #Pre-process the raw input
+  dat<-as.sociomatrix.sna(dat)
+  if(is.list(dat))
+    return(lapply(dat,neighborhood,order=order, neighborhood.type=neighborhood.type,mode=mode,diag=diag,thresh=thresh,return.all=return.all,partial=partial))
+  else if(length(dim(dat))>2)
+    return(apply(dat,1,neighborhood,order=order, neighborhood.type=neighborhood.type,mode=mode,diag=diag,thresh=thresh,return.all=return.all,partial=partial))
+  #End pre-processing
+  dat<-dat>thresh           #Dichotomize at threshold
+  #Adjust the graph to take care of symmetry or neighborhood type issues
+  if((mode=="graph")||(match.arg(neighborhood.type)=="total"))
+    dat<-dat|t(dat)
+  if(match.arg(neighborhood.type)=="in")
+    dat<-t(dat)
+  #Extract the neighborhood graphs
+  geo<-geodist(dat)
+  if(return.all){                     #Return all orders?
+    neigh<-array(dim=c(order,NROW(dat),NROW(dat)))
+    for(i in 1:order){
+      neigh[i,,]<-switch(partial+1,
+        geo$gdist<=i,                       #!partial -> order i or less
+        geo$gdist==i                        #partial -> exactly order i
+      )
+      if(!diag)
+        diag(neigh[i,,])<-0
+    }
+  }else{                              #Don't return all orders
+    neigh<-switch(partial+1,
+      geo$gdist<=order,
+      geo$gdist==order
+    )
+    if(!diag)
+      diag(neigh)<-0
+  }
+  #Return the result
+  neigh
 }
 
 

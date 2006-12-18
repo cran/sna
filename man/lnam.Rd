@@ -10,7 +10,7 @@
 \usage{
 lnam(y, x = NULL, W1 = NULL, W2 = NULL, theta.seed = NULL, 
     null.model = c("meanstd", "mean", "std", "none"), method = "BFGS", 
-    control = list())
+    control = list(), tol=1e-10)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -18,10 +18,11 @@ lnam(y, x = NULL, W1 = NULL, W2 = NULL, theta.seed = NULL,
   \item{x}{ a vector or matrix of covariates; if the latter, each column should contain a single covariate. }
   \item{W1}{ one or more (possibly valued) graphs on the elements of \code{y}. }
   \item{W2}{ one or more (possibly valued) graphs on the elements of \code{y}. }
-  \item{theta.seed}{ an optional seed value for \code{\link{optim}}. }
+  \item{theta.seed}{ an optional seed value for the parameter vector estimation process. }
   \item{null.model}{ the null model to be fit; must be one of \code{"meanstd"}, \code{"mean"}, \code{"std"}, or \code{"none"}. }
   \item{method}{ method to be used with \code{\link{optim}}. }
   \item{control}{ optional control parameters for \code{\link{optim}}. }
+  \item{tol}{ convergence tolerance for the MLE (expressed as change in deviance).}
 }
 \details{
   \code{lnam} fits the linear network autocorrelation model given by

@@ -3,7 +3,7 @@
 # roles.R
 #
 # copyright (c) 2004, Carter T. Butts <buttsc@uci.edu>
-# Last Modified 4/15/06
+# Last Modified 12/09/06
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/sna package
@@ -27,8 +27,6 @@
 
 #blockmodel - Generate blockmodels based on partitions of network positions
 blockmodel<-function(dat,ec,k=NULL,h=NULL,block.content="density",plabels=NULL,glabels=NULL,rlabels=NULL,mode="digraph",diag=FALSE){
-   if(R.version$major<2)  #Only invoke mva if we're using an old R version
-      require(mva)
    #First, extract the blocks
    if(class(ec)=="equiv.clust")
      b<-cutree(ec$cluster,k,h)
@@ -203,9 +201,6 @@ equiv.clust<-function(dat,g=NULL,equiv.dist=NULL,equiv.fun="sedist",method="hamm
      equiv.dist.fun<-match.fun(equiv.fun)
      equiv.dist<-equiv.dist.fun(dat,g=g,method=method,joint.analysis=TRUE, mode=mode,diag=diag,code.diss=TRUE,...)
    }
-   #Load the mva package, if it's not already loaded
-   if(R.version$major<2)  #Only invoke mva if we're using an old R version
-      require(mva)
    #Generate the output object
    o<-list()
    #Produce the hierarchical clustering
@@ -274,8 +269,6 @@ plot.blockmodel<-function(x,...){
 
 #plot.equiv.clust - Plotting for equivalence clustering objects
 plot.equiv.clust<-function(x,labels=NULL,...){
-   if(R.version$major<2)  #Only invoke mva if we're using an old R version
-      require(mva)
    if(is.null(labels))
       plot(x$cluster,labales=x$labels,...)
    else
