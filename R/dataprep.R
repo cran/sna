@@ -3,7 +3,7 @@
 # dataprep.R
 #
 # copyright (c) 2004, Carter T. Butts <buttsc@uci.edu>
-# Last Modified 8/23/06
+# Last Modified 7/28/07
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/sna package
@@ -71,7 +71,12 @@ as.sociomatrix.sna<-function(x, attrname=NULL, simplify=TRUE){
     require("network")  #Must have network library to process network objects
     return(as.sociomatrix(x, attrname=NULL, simplify=TRUE))
   }
-  #Coerce to adjacency matrix form -- by now, no network class involved
+  #Not a network -- is this a sparse matrix (from SparseM)?
+  if(class(x)%in%c("matrix.csr","matrix.csc","matrix.ssr","matrix.ssc", "matrix.hb")){
+    require("SparseM")   #Need SparseM for this
+    x<-as.matrix(x)      #Coerce to matrix form, and pass on
+  }
+  #Coerce to adjacency matrix form -- by now, no other classes involved
   if(is.matrix(x)||is.array(x)){ #If an array/matrix, use as-is
     g<-x
   }else if(is.list(x)){  #If a list, recurse on list elements

@@ -91,6 +91,7 @@ interval.graph          Convert Spell Data to Interval Graphs
 is.connected            Is a Given Graph Connected?
 is.isolate              Is Ego an Isolate?
 isolates                List the Isolates in a Graph or Graph Stack
+kpath.census            Compute Path or Cycle Census Information
 lab.optimize            Optimize a Bivariate Graph Statistic Across a
                         Set of Accessible Permutations
 lnam                    Fit a Linear Network Autocorrelation Model

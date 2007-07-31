@@ -1,5 +1,21 @@
 CHANGELOG:
 
+v1.5 - New Functions, Changes, and Bug Fixes
+   New Functions:
+     component.largest - Extract the largest component from a graph
+     kcycle.census - Compute cycle census information for a graph
+     kpath.census - Compute path census information for a graph
+   Changes:
+     as.sociomatrix.sna now supports sparse matrices from the SparseM
+       package (assuming that said package is installed); such objects
+       should now be transparently supported by sna routines (albeit
+       not efficiently)
+   Bug Fixes:
+     An error in the Holland and Leinhardt citation in the dyad.census
+       documentation has been fixed [submitted by Ben Lind]
+     Disabled lnam example which was apparently taking a long time to run on
+       the CRAN test systems (but not on mine, for some reason)
+
 v1.4 - New Functions, Changes, and Bug Fixes
    New Functions:
      nacf - Network autocorrelation function

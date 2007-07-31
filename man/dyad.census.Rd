@@ -19,12 +19,12 @@ Each dyad in a directed graph may be in one of four states: the null state (\eqn
 \value{
 A matrix whose three columns contain the counts of mutual, asymmetric, and null dyads (respectively) for each graph
 }
-\references{ Holland, P.W. and Leinhardt, S.  (1970).  ``A Method for Detecting Structure in Sociometric Data.''  \emph{American Journal of Sociology}, 70, 492-513. 
+\references{ Holland, P.W. and Leinhardt, S.  (1970).  ``A Method for Detecting Structure in Sociometric Data.''  \emph{American Journal of Sociology}, 76, 492-513. 
 
 Wasserman, S., and Faust, K.  (1994).  ``Social Network Analysis: Methods and Applications.''  Cambridge: Cambridge University Press.}
 \author{ Carter T. Butts \email{buttsc@uci.edu} }
 
-\seealso{ \code{\link{mutuality}}, \code{\link{grecip}}, \code{\link{rguman}} \code{\link{triad.census}} }
+\seealso{ \code{\link{mutuality}}, \code{\link{grecip}}, \code{\link{rguman}} \code{\link{triad.census}}, \code{\link{kcycle.census}}, \code{\link{kpath.census}} }
 
 \examples{
 #Generate a dyad census of random data with varying densities

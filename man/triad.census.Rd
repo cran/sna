@@ -30,7 +30,7 @@ Wasserman, S., and Faust, K.  (1994).  ``Social Network Analysis: Methods and Ap
 \author{ Carter T. Butts \email{buttsc@uci.edu} }
 %\note{ ~~further notes~~ }
 
-\seealso{ \code{\link{triad.classify}}, \code{\link{dyad.census}}, \code{\link{gtrans}} }
+\seealso{ \code{\link{triad.classify}}, \code{\link{dyad.census}}, \code{\link{kcycle.census}}, \code{\link{kpath.census}}, \code{\link{gtrans}} }
 
 \section{Warning }{Valued data may cause strange behavior with this routine.  Dichotomize the data first.}
 

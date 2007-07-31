@@ -3,7 +3,7 @@
 # connectivity.R
 #
 # copyright (c) 2004, Carter T. Butts <buttsc@uci.edu>
-# Last Modified 12/10/06
+# Last Modified 7/31/07
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/sna package
@@ -14,10 +14,13 @@
 # Contents:
 #  component
 #  component.dist
+#  component.largest
 #  geodist
 #  isolates
 #  is.connected
 #  is.isolate
+#  kcycle.census
+#  kpath.census
 #  neighborhood
 #  reachability
 #  structure.statistics
@@ -66,6 +69,25 @@ component.dist<-function(dat,connected=c("strong","weak","unilateral","recursive
    for(i in 1:n)                                     #Find component size distribution
       o$cdist[i]<-length(o$csize[o$csize==i])
    o
+}
+
+
+#component.largest - Extract the largest component from a graph
+component.largest<-function(dat,connected=c("strong","weak","unilateral", "recursive"), result=c("membership","graph")){
+    #Deal with network, array, or list data
+    dat <- as.sociomatrix.sna(dat)
+    if (is.list(dat))
+        return(lapply(dat, component.largest, connected = connected, result = result))
+    else if (length(dim(dat)) > 2)
+        return(apply(dat, 1, component.dist, connected = connected, result = result))
+    #We now have a single matrix.  Proceed accordingly.
+    cd<-component.dist(dat,connected=connected)
+    lgcmp<-which(cd$csize==max(cd$csize))  #Get largest component(s)
+    #Return the appropriate result
+    switch(match.arg(result),
+        membership=cd$membership%in%lgcmp,
+        graph=dat[cd$membership%in%lgcmp,cd$membership%in%lgcmp]
+    )
 }
 
 
@@ -166,6 +188,161 @@ is.isolate<-function(dat,ego,g=1,diag=FALSE){
    for(i in 1:length(ego))
       o<-c(o,all(is.na(d[ego[i],])|(d[ego[i],]==0))&all(is.na(d[,ego[i]])|(d[,ego[i]]==0)))
    o   
+}
+
+
+#kcycle.census - Compute the cycle census of a graph, possibly along with 
+#additional information on the inidence of cycles.
+kcycle.census<-function(dat,maxlen=3,mode="digraph",tabulate.by.vertex=TRUE,cycle.comembership=c("none","sum","bylength")){
+  #Pre-process the raw input
+  dat<-as.sociomatrix.sna(dat)
+  if(is.list(dat))
+    return(lapply(dat,cycle.census,mode=mode, tabulate.by.vertex=tabulate.by.vertex,cycle.comembership=cycle.comembership))
+  else if(length(dim(dat))>2)
+    return(apply(dat,1,cycle.census,mode=mode, tabulate.by.vertex=tabulate.by.vertex,cycle.comembership=cycle.comembership))
+  #End pre-processing
+  n<-NCOL(dat)
+  if(is.null(maxlen))
+    maxlen<-n
+  if(maxlen<2)
+    stop("maxlen must be >=2")
+  if(is.null(colnames(dat)))
+    vnam<-paste("v",1:n,sep="")
+  else
+    vnam<-colnames(dat)
+  if(mode=="digraph")
+    directed<-TRUE
+  else
+    directed<-FALSE
+  cocycles<-switch(match.arg(cycle.comembership),
+    "none"=0,
+    "sum"=1,
+    "bylength"=2
+  )
+  #Generate the data structures for the counts
+  if(!tabulate.by.vertex)
+    count<-rep(0,maxlen-1)
+  else
+    count<-matrix(0,maxlen-1,n+1)
+  if(!cocycles)
+    cccount<-NULL
+  else if(cocycles==1)
+    cccount<-matrix(0,n,n)
+  else
+    cccount<-array(0,dim=c(maxlen-1,n,n))
+  if(is.null(maxlen))
+    maxlen<-n
+  #Calculate the cycle information
+  ccen<-.C("cycleCensus_R",as.integer(dat), as.integer(n), count=as.double(count), cccount=as.double(cccount), as.integer(maxlen), as.integer(directed), as.integer(tabulate.by.vertex), as.integer(cocycles),PACKAGE="sna")
+  #Coerce the cycle counts into the right form
+  if(!tabulate.by.vertex){
+    count<-ccen$count
+    names(count)<-2:maxlen
+  }else{
+    count<-matrix(ccen$count,maxlen-1,n+1)
+    rownames(count)<-2:maxlen
+    colnames(count)<-c("Agg",vnam)
+  }  
+  if(cocycles==1){
+    cccount<-matrix(ccen$cccount,n,n)
+    rownames(cccount)<-vnam
+    colnames(cccount)<-vnam
+  }else if(cocycles==2){
+    cccount<-array(ccen$cccount,dim=c(maxlen-1,n,n))
+    dimnames(cccount)<-list(2:maxlen,vnam,vnam)
+  }
+  #Return the result
+  out<-list(cycle.count=count)
+  if(cocycles>0)
+    out$cycle.comemb<-cccount
+  out
+}
+
+
+#kpath.census - Compute the path census of a graph, possibly along with 
+#additional information on the inidence of paths.
+kpath.census<-function(dat,maxlen=3,mode="digraph",tabulate.by.vertex=TRUE,path.comembership=c("none","sum","bylength"),dyadic.tabulation=c("none","sum","bylength")){
+  #Pre-process the raw input
+  dat<-as.sociomatrix.sna(dat)
+  if(is.list(dat))
+    return(lapply(dat,path.census,mode=mode, tabulate.by.vertex=tabulate.by.vertex,path.comembership=path.comembership, dyadic.tabulation=dyadic.tabulation))
+  else if(length(dim(dat))>2)
+    return(apply(dat,1,path.census,mode=mode, tabulate.by.vertex=tabulate.by.vertex,path.comembership=path.comembership, dyadic.tabulation=dyadic.tabulation))
+  #End pre-processing
+  n<-NCOL(dat)
+  if(is.null(maxlen))
+    maxlen<-n-1
+  if(maxlen<1)
+    stop("maxlen must be >=1")
+  if(is.null(colnames(dat)))
+    vnam<-paste("v",1:n,sep="")
+  else
+    vnam<-colnames(dat)
+  if(mode=="digraph")
+    directed<-TRUE
+  else
+    directed<-FALSE
+  copaths<-switch(match.arg(path.comembership),
+    "none"=0,
+    "sum"=1,
+    "bylength"=2
+  )
+  dyadpaths<-switch(match.arg(dyadic.tabulation),
+    "none"=0,
+    "sum"=1,
+    "bylength"=2
+  )
+  #Generate the data structures for the counts
+  if(!tabulate.by.vertex)
+    count<-rep(0,maxlen)
+  else
+    count<-matrix(0,maxlen,n+1)
+  if(!copaths)
+    cpcount<-NULL
+  else if(copaths==1)
+    cpcount<-matrix(0,n,n)
+  else
+    cpcount<-array(0,dim=c(maxlen,n,n))
+  if(!dyadpaths)
+    dpcount<-NULL
+  else if(dyadpaths==1)
+    dpcount<-matrix(0,n,n)
+  else
+    dpcount<-array(0,dim=c(maxlen,n,n))
+  #Calculate the path information
+  pcen<-.C("pathCensus_R",as.double(dat), as.integer(n), count=as.double(count), cpcount=as.double(cpcount), dpcount=as.double(dpcount), as.integer(maxlen), as.integer(directed), as.integer(tabulate.by.vertex), as.integer(copaths), as.integer(dyadpaths),PACKAGE="sna")
+  #Coerce the path counts into the right form
+  if(!tabulate.by.vertex){
+    count<-pcen$count
+    names(count)<-1:maxlen
+  }else{
+    count<-matrix(pcen$count,maxlen,n+1)
+    rownames(count)<-1:maxlen
+    colnames(count)<-c("Agg",vnam)
+  }  
+  if(copaths==1){
+    cpcount<-matrix(pcen$cpcount,n,n)
+    rownames(cpcount)<-vnam
+    colnames(cpcount)<-vnam
+  }else if(copaths==2){
+    cpcount<-array(pcen$cpcount,dim=c(maxlen,n,n))
+    dimnames(cpcount)<-list(1:maxlen,vnam,vnam)
+  }
+  if(dyadpaths==1){
+    dpcount<-matrix(pcen$dpcount,n,n)
+    rownames(dpcount)<-vnam
+    colnames(dpcount)<-vnam
+  }else if(dyadpaths==2){
+    dpcount<-array(pcen$dpcount,dim=c(maxlen,n,n))
+    dimnames(dpcount)<-list(1:maxlen,vnam,vnam)
+  }
+  #Return the result
+  out<-list(path.count=count)
+  if(copaths>0)
+    out$path.comemb<-cpcount
+  if(dyadpaths>0)
+    out$paths.bydyad<-dpcount
+  out
 }
 
 

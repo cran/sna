@@ -94,6 +94,7 @@ Anselin, L.  (1988)  \emph{Spatial Econometrics: Methods and Models.}  Norwell, 
 
 \seealso{ \code{\link{lm}}, \code{\link{optim}} }
 \examples{
+\dontrun{
 #Construct a simple, random example:
 w1<-rgraph(100)               #Draw the AR matrix
 w2<-rgraph(100)               #Draw the MA matrix
@@ -111,6 +112,7 @@ y<-qr.solve(diag(100)-r1*w1,x\%*\%beta+e)  #Compute y
 fit<-lnam(y,x,w1,w2)
 summary(fit)
 plot(fit)
+}
 }
 \keyword{ regression }% at least one, from doc/KEYWORDS
 \keyword{ multivariate }% __ONLY ONE__ keyword per line
