@@ -1,5 +1,5 @@
 Package: sna
-Version: 2.0
+Version: 2.0-1
 Date: 2009-06-07
 Title: Tools for Social Network Analysis
 Author: Carter T. Butts <buttsc@uci.edu>
@@ -13,6 +13,6 @@ Description: A range of tools for social network analysis, including
         visualization.
 License: GPL (>= 2)
 URL: http://erzuli.ss.uci.edu/R.stuff
-Packaged: 2009-06-07 10:02:18 UTC; buttsc
+Packaged: 2009-06-08 06:58:43 UTC; buttsc
 Repository: CRAN
-Date/Publication: 2009-06-07 13:08:50
+Date/Publication: 2009-06-08 07:08:51

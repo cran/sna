@@ -27,7 +27,7 @@ Gould and Fernandez (following Marsden and others) describe \emph{brokerage} as 
   \item{\eqn{t}}{Total (cumulative) brokerage role occupancy.  (Any of the above two-paths.)}  
 }
 
-The \emph{brokerage score} for a given vertex with respect to a given role is the number of ordered pairs having the appropriate group membership(s) brokered by said vertex.  \code{brokerage} computes the brokerage scores for each vertex, given an input graph and vector of class memberships.  Aggregate scores are also computed at the graph level, which correspond to the total frequency of each role type within the network structure.  Expectations and variances of the brokerage scores conditional on size and density are computed, along with approximate $z$-tests for incidence of brokerage.  (Note that the accuracy of the normality assumption is not known in the general case; see Gould and Fernandez (1989) for details.  Simulation-based tests may be desirable as an alternative.)
+The \emph{brokerage score} for a given vertex with respect to a given role is the number of ordered pairs having the appropriate group membership(s) brokered by said vertex.  \code{brokerage} computes the brokerage scores for each vertex, given an input graph and vector of class memberships.  Aggregate scores are also computed at the graph level, which correspond to the total frequency of each role type within the network structure.  Expectations and variances of the brokerage scores conditional on size and density are computed, along with approximate \eqn{z}-tests for incidence of brokerage.  (Note that the accuracy of the normality assumption is not known in the general case; see Gould and Fernandez (1989) for details.  Simulation-based tests may be desirable as an alternative.)
 
 }
 \value{
@@ -47,7 +47,7 @@ The \emph{brokerage score} for a given vertex with respect to a given role is th
   \item{n }{The input class sizes}
   \item{N }{The order of the input network}
 }
-\references{ Gould, R.V. and Fernandez, R.M.  1989.  "Structures of Mediation: A Formal Approach to Brokerage in Transaction Networks."  \emph{Sociological Methodology,} 19: 89-126. }
+\references{ Gould, R.V. and Fernandez, R.M.  1989.  \dQuote{Structures of Mediation: A Formal Approach to Brokerage in Transaction Networks.}  \emph{Sociological Methodology,} 19: 89-126. }
 \author{ Carter T. Butts \email{buttsc@uci.edu} }
 %\note{ ~~further notes~~ 
 %
