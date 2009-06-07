@@ -4,7 +4,7 @@
 # paths.h
 #
 # copyright (c) 2007, Carter T. Butts <buttsc@uci.edu>
-# Last Modified 4/27/07
+# Last Modified 3/27/09
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/sna package
@@ -21,6 +21,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <R.h>
+#include "utils.h"
 
 
 /*INTERNAL ROUTINES---------------------------------------------------------*/
@@ -34,8 +35,8 @@ void dyadPathCensus(snaNet *g, int src, int dest, double *count, double *cpcount
 
 /*R-CALLABLE ROUTINES-------------------------------------------------------*/
 
-void cycleCensus_R(int *g, int *pn, double *count, double *cccount, int *pmaxlen, int *pdirected, int *pbyvertex, int *pcocycles);
+void cycleCensus_R(int *g, int *pn, int *pm, double *count, double *cccount, int *pmaxlen, int *pdirected, int *pbyvertex, int *pcocycles);
 
-void pathCensus_R(double *g, int *pn, double *count, double *cpcount, double *dpcount, int *pmaxlen, int *pdirected, int *pbyvertex, int *pcopaths, int *pdyadpaths);
+void pathCensus_R(double *g, int *pn, int *pm, double *count, double *cpcount, double *dpcount, int *pmaxlen, int *pdirected, int *pbyvertex, int *pcopaths, int *pdyadpaths);
 
 #endif

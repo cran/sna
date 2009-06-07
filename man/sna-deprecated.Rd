@@ -6,25 +6,22 @@
   These functions are provided for compatibility with older versions of \code{sna} only, and may be defunct as soon as the next release.
 }
 %\usage{
-%addisolates(dat, n)
 %}
 %- maybe also `usage' for other objects documented here.
 %\arguments{
-%  \item{x}{ An object of class \code{cugtest} }
-%  \item{\dots}{ Further arguments passed to or from other methods }
 %}
 \details{
 The following \code{sna} functions are currently deprecated:
 
-\begin{describe}
-\item None.
-\end{describe}
+\describe{
+\item{ }{None.}
+}
 
 The original help pages for these functions can be found at \code{help("oldName-deprecated")}.  Please avoid using them, since they will disappear....
 }
 %\value{
 %None.
-}
+%}
 %\references{}
 \author{ Carter T. Butts \email{buttsc@uci.edu} }
 %\note{  }

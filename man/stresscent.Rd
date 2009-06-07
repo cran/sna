@@ -6,9 +6,9 @@
   \code{stresscent} takes one or more graphs (\code{dat}) and returns the stress centralities of positions (selected by \code{nodes}) within the graphs indicated by \code{g}.  Depending on the specified mode, stress on directed or undirected geodesics will be returned; this function is compatible with \code{\link{centralization}}, and will return the theoretical maximum absolute deviation (from maximum) conditional on size (which is used by \code{\link{centralization}} to normalize the observed centralization score).
 }
 \usage{
-stresscent(dat, g=1, nodes=c(1:dim(dat)[2]), gmode="digraph", 
+stresscent(dat, g=1, nodes=NULL, gmode="digraph", 
     diag=FALSE, tmaxdev=FALSE, cmode="directed", 
-    geodist.precomp=NULL, rescale=FALSE)
+    geodist.precomp=NULL, rescale=FALSE, ignore.eval=TRUE)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
@@ -21,6 +21,7 @@ stresscent(dat, g=1, nodes=c(1:dim(dat)[2]), gmode="digraph",
   \item{cmode}{ string indicating the type of betweenness centrality being computed (directed or undirected geodesics). }
   \item{geodist.precomp}{a \code{\link{geodist}} object precomputed for the graph to be analyzed (optional).  }
   \item{rescale}{ if true, centrality scores are rescaled such that they sum to 1. }
+  \item{ignore.eval}{ logical; should edge values be ignored when calculating density?}
 }
 \details{
  The stress of a vertex, v, is given by

@@ -3,7 +3,7 @@
 # gli.R
 #
 # copyright (c) 2004, Carter T. Butts <buttsc@uci.edu>
-# Last Modified 4/10/06
+# Last Modified 3/28/09
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/sna package
@@ -30,7 +30,15 @@
 
 #centralization - Find the centralization of a graph (for some arbitrary 
 #centrality measure)
-centralization<-function(dat,FUN,g=1,mode="digraph",diag=FALSE,normalize=TRUE,...){
+centralization<-function(dat,FUN,g=NULL,mode="digraph",diag=FALSE,normalize=TRUE,...){
+   #Pre-process the raw input
+   dat<-as.edgelist.sna(dat)
+   if(is.list(dat)){
+     if(is.null(g))
+       g<-1:length(dat)
+     return(mapply(centralization,dat[g],MoreArgs=list(FUN=FUN,g=1,mode=mode, diag=diag, normalize=normalize,...)))
+   }
+   #End pre-processing
    #Find the centrality function
    fun<-match.fun(FUN)
    #Grab the vector of centralities
@@ -71,29 +79,40 @@ connectedness<-function(dat,g=NULL){
 #dyad.census - Return the Holland and Leinhardt MAN dyad census for a given 
 #graph or graph stack
 dyad.census<-function(dat,g=NULL){
-   #Define an internal function
-   intcalc<-function(m,meas){
-      switch(meas,
-         mut=sum(m[upper.tri(m)]&t(m)[upper.tri(m)],na.rm=TRUE),
-         asym=sum(xor(m[upper.tri(m)],t(m)[upper.tri(m)]),na.rm=TRUE),
-         null=sum(!m[upper.tri(m)]&!t(m)[upper.tri(m)],na.rm=TRUE)
-      )
+   #Define an internal function to get the dyad census for a single mat
+   intcalc<-function(m){
+     n<-attr(m,"n")
+     m<-m[m[,1]!=m[,2],,drop=FALSE]          #Kill loops, if any
+     if(NROW(m)>0){
+       dc<-.C("dyadcode_R",as.double(m),as.integer(n),as.integer(NROW(m)), dc=as.double(rep(0,NROW(m))),PACKAGE="sna",NAOK=TRUE)$dc
+       mis<-is.na(m[,3])            #Count/remove missing dyads
+       if(any(mis)){
+         mis[dc%in%c(dc[mis])]<-TRUE
+         dcm<-dc[mis]
+         dmut<-sum(duplicated(dcm))
+         dasym<-length(dcm)-2*dmut
+         mc<-dmut+dasym
+         dc<-dc[!mis]
+       }else
+         mc<-0
+       mut<-sum(duplicated(dc))            #Find non-missing counts
+       asym<-length(dc)-2*mut
+       c(mut,asym,choose(n,2)-mut-asym-mc)
+     }else
+       c(0,0,choose(n,2))
    }
    #Organize the data
-   dat<-as.sociomatrix.sna(dat)
+   dat<-as.edgelist.sna(dat)
    #Perform the census
    if(is.list(dat)){
      if(is.null(g))
        g<-1:length(dat)
-     man<-cbind(sapply(dat,intcalc,"mut"),sapply(dat,intcalc,"asym"), sapply(dat,intcalc,"null"))
-   }else if(length(dim(dat))>2){
-     if(is.null(g))
-       g<-1:dim(dat)[1]
-     dat<-dat[g,,,drop=FALSE]
-     man<-cbind(apply(dat,1,intcalc,"mut"),apply(dat,1,intcalc,"asym"), apply(dat,1,intcalc,"null"))
+     man<-t(sapply(dat[g],intcalc))
    }else{
-     man<-cbind(intcalc(dat,"mut"),intcalc(dat,"asym"),intcalc(dat,"null"))
+     man<-intcalc(dat)
    }
+   if(length(man)==3)
+     man<-matrix(man,nr=1)
    colnames(man)<-c("Mut","Asym","Null")
    #Return the result
    man
@@ -133,119 +152,151 @@ efficiency<-function(dat,g=NULL,diag=FALSE){
 
 
 #gden - Compute the density of an input graph or graph stack.
-gden<-function(dat,g=NULL,diag=FALSE,mode="digraph"){
+gden<-function(dat,g=NULL,diag=FALSE,mode="digraph",ignore.eval=FALSE){
    #Pre-process the raw input
-   dat<-as.sociomatrix.sna(dat)
+   dat<-as.edgelist.sna(dat)
    if(is.list(dat)){
      if(is.null(g))
        g<-1:length(dat)
-     return(sapply(dat[g],gden,diag=diag,mode=mode))
+     return(sapply(dat[g],gden,diag=diag,mode=mode,ignore.eval=ignore.eval))
    }
    #End pre-processing
-   n<-dim(dat)[2]
-   if(length(dim(dat))>2){     #Is this a stack?
-      if(!is.null(g)){                 #Were individual graphs selected?
-         gn<-length(g)
-         d<-dat[g,,]
-      }else{
-         d<-dat
-         gn<-dim(dat)[1]
-      }
+   n<-attr(dat,"n")
+   bip<-attr(dat,"bipartite")
+   #If needed, remove loops and missing edges
+   if((!diag)&&(!(mode%in%c("hgraph","twomode"))))
+     dat<-dat[dat[,1]!=dat[,2],,drop=FALSE]
+   nmis<-sum(is.na(dat[,3]))
+   dat<-dat[!is.na(dat[,3]),,drop=FALSE]
+   #Find number/value of ties, and counts
+   if(n==0){
+     den<-NaN
+   }else if(n==1){
+     if(!diag)
+       den<-NaN
+     else{
+       if(ignore.eval)
+         den<-(NROW(dat)>0)/(1-nmis)
+       else
+         den<-sum(dat[,3],na.rm=TRUE)/(1-nmis)
+     }
    }else{
-      d<-dat
-      gn<-1
+     if(ignore.eval)
+       count<-NROW(dat)
+     else
+       count<-sum(dat[,3])
+     nt<-switch(mode,
+       digraph=n*(n-1)-nmis+diag*n,
+       graph=n*(n-1)/2-nmis+diag*n,
+       hgraph=bip*(n-bip)-nmis,
+       twomode=bip*(n-bip)-nmis
+     )
+     den<-count/nt
    }
-   if(gn==1){     #Only one graph - convert to stack format
-      temp<-array(dim=c(1,n,n))
-      temp[1,,]<-d
-      d<-temp
-   }
-   if(!diag)           #If not using the diagonal, remove it
-      d<-diag.remove(d)
-   if(mode=="graph")    #If this is a simple graph, remove one triangle of each matrix
-      d<-upper.tri.remove(d)
-   #Find number of ties, and counts
-   count<-apply(d,1,sum,na.rm=TRUE)
-   count/nties(d[1,,],mode=mode,diag=diag)
+   #Return the result
+   den
 }
 
 
 #grecip - Compute the reciprocity of an input graph or graph stack.
-grecip<-function(dat,g=NULL,measure=c("dyadic","dyadic.nonnull","edgewise")){
+grecip<-function(dat,g=NULL,measure=c("dyadic","dyadic.nonnull","edgewise","edgewise.lrr")){
   #Pre-process the raw input
-  dat<-as.sociomatrix.sna(dat)
+  dat<-as.edgelist.sna(dat)
   if(is.list(dat)){
-    if(is.null(g))
-      g<-1:length(dat)
-    return(sapply(dat[g],grecip,measure=measure))
+    if(!is.null(g))
+      dat<-dat[g]
   }
   #End pre-processing
-  m<-stackcount(dat)         #How many graphs are there?
-  if(is.null(g))             #Create g, if needed
-    g<-1:m
-  dc<-dyad.census(dat,g=g)   #Obtain the dyad census for all specified graphs
+  dc<-dyad.census(dat)   #Obtain the dyad census for all specified graphs
   #Return the appropriate measure
   switch(match.arg(measure),
     dyadic=(dc[,1]+dc[,3])/(dc[,1]+dc[,2]+dc[,3]),
     dyadic.nonnull=dc[,1]/(dc[,1]+dc[,2]),
-    edgewise=2*dc[,1]/(2*dc[,1]+dc[,2])
+    edgewise=2*dc[,1]/(2*dc[,1]+dc[,2]),
+    edgewise.lrr=log(dc[,1]*(dc[,1]+dc[,2]+dc[,3])/(dc[,1]+dc[,2]/2)^2)
   )
 }
 
 
 #gtrans - Compute the transitivity of an input graph or graph stack.
-gtrans<-function(dat,g=NULL,diag=FALSE,mode="digraph",measure=c("weak","strong","weakcensus","strongcensus")){
-   #Pre-process the raw input
-   dat<-as.sociomatrix.sna(dat)
-   if(is.list(dat)){
-     if(is.null(g))
-       g<-1:length(dat)
-     return(sapply(dat[g],gtrans,diag=diag,mode=mode,measure=measure))
-   }
-   #End pre-processing
-   n<-dim(dat)[2]
-   if(length(dim(dat))>2){     #Is this a stack?
-      if(!is.null(g)){                 #Were individual graphs selected?
-         gn<-length(g)
-         d<-dat[g,,]
-      }else{
-         d<-dat
-         gn<-dim(dat)[1]
-      }
-   }else{
-      d<-dat
-      gn<-1
-   }
-   if(gn==1){     #Only one graph - convert to stack format
-      temp<-array(dim=c(1,n,n))
-      temp[1,,]<-d
-      d<-temp
-   }
-   if(!diag)           #If not using the diagonal, remove it
-      d<-diag.remove(d,remove.val=0)
-   #Compute the appropriate transitivity indices
-   t<-vector()
-   for(i in 1:gn){
-      #Prepare the transitivity test matrices
-      dsqt<-(d[i,,]%*%d[i,,])
-      dt<-d[i,,]>0
-      #NA the diagonal, if needed
-      if(!diag){
-         diag(dt)<-NA
-         diag(dsqt)<-NA
+gtrans<-function(dat,g=NULL,diag=FALSE,mode="digraph",measure=c("weak","strong","weakcensus","strongcensus"),use.adjacency=TRUE){
+  if(use.adjacency){  #Use adjacency matrix - much faster for n<1000 or dense
+    #Pre-process the raw input
+    dat<-as.sociomatrix.sna(dat)
+    if(is.list(dat)){
+      if(is.null(g))
+        g<-1:length(dat)
+      return(sapply(dat[g],gtrans,diag=diag,mode=mode,measure=measure, use.adjacency=use.adjacency))
+    }
+    #End pre-processing
+    n<-dim(dat)[2]
+    if(length(dim(dat))>2){     #Is this a stack?
+       if(!is.null(g)){                 #Were individual graphs selected?
+          gn<-length(g)
+          d<-dat[g,,]
+       }else{
+          d<-dat
+          gn<-dim(dat)[1]
        }
-      #Compute the transitivity
-      t[i]<-switch(match.arg(measure),
-         strong=sum(dt*dsqt+(!dt)*(NCOL(d[i,,])-2-dsqt),na.rm=TRUE) / (choose(NCOL(d[i,,]),3)*6),
-         strongcensus=sum(dt*dsqt+(!dt)*(NCOL(d[i,,])-2-dsqt),na.rm=TRUE),
-         weak=sum(dt*dsqt,na.rm=TRUE)/sum(dsqt,na.rm=TRUE),
-         weakcensus=sum(dt*dsqt,na.rm=TRUE)
-      )
-      if(is.nan(t[i]))  #By convention, map undefined case to 1
-        t[i]<-1
-   }
-   #Return the result
-   t
+    }else{
+       d<-dat
+       gn<-1
+    }
+    if(gn==1){     #Only one graph - convert to stack format
+       temp<-array(dim=c(1,n,n))
+       temp[1,,]<-d
+       d<-temp
+    }
+    if(!diag)           #If not using the diagonal, remove it
+       d<-diag.remove(d,remove.val=0)
+    #Compute the appropriate transitivity indices
+    t<-vector()
+    for(i in 1:gn){
+       #Prepare the transitivity test matrices
+       dsqt<-(d[i,,]%*%d[i,,])
+       dt<-d[i,,]>0
+       #NA the diagonal, if needed
+       if(!diag){
+          diag(dt)<-NA
+          diag(dsqt)<-NA
+        }
+       #Compute the transitivity
+       t[i]<-switch(match.arg(measure),
+          strong=sum(dt*dsqt+(!dt)*(NCOL(d[i,,])-2-dsqt),na.rm=TRUE) / (choose(NCOL(d[i,,]),3)*6),
+          strongcensus=sum(dt*dsqt+(!dt)*(NCOL(d[i,,])-2-dsqt),na.rm=TRUE),
+          weak=sum(dt*dsqt,na.rm=TRUE)/sum(dsqt,na.rm=TRUE),
+          weakcensus=sum(dt*dsqt,na.rm=TRUE)
+       )
+       if(is.nan(t[i]))  #By convention, map undefined case to 1
+         t[i]<-1
+    }
+    #Return the result
+    t
+  }else{  #Use edgelist - much faster for large, sparse graphs
+    #Pre-process the raw input
+    dat<-as.edgelist.sna(dat)
+    if(is.list(dat)){
+      if(is.null(g))
+        g<-1:length(dat)
+      return(sapply(dat[g],gtrans,diag=diag,mode=mode,measure=measure, use.adjacency=use.adjacency))
+    }
+    #End pre-processing
+    if(attr(dat,"n")<3)          #Consider vacuously transitive if n<3
+      return(1)
+    measure<-match.arg(measure)
+    if(measure%in%c("weak","weakcensus"))
+      weak<-1
+    else
+      weak<-0
+    gt<-.C("transitivity_R",as.double(dat),as.integer(attr(dat,"n")), as.integer(NROW(dat)),gt=as.double(c(0,0)),as.integer(weak),as.integer(1),NAOK=TRUE,PACKAGE="sna")$gt
+    if(measure%in%c("weak","strong")){
+      if(gt[2]==0)                 #By convention, return 1 if no preconditions
+        1
+      else
+        gt[1]/gt[2]
+    }else
+      gt[1]
+  }
 }
 
 
@@ -321,74 +372,40 @@ lubness<-function(dat,g=NULL){
 
 #mutuality - Find the number of mutual (i.e., reciprocated) edges in a graph
 mutuality<-function(dat,g=NULL){
-   #Pre-process the raw input
-   dat<-as.sociomatrix.sna(dat)
-   if(is.list(dat)){
-     if(is.null(g))
-       g<-1:length(dat)
-     return(sapply(dat[g],mutuality))
-   }
-   #End pre-processing
-   n<-dim(dat)[2]
-   if(length(dim(dat))>2){     #Is this a stack?
-      if(!is.null(g)){                 #Were individual graphs selected?
-         gn<-length(g)
-         d<-dat[g,,]
-      }else{
-         d<-dat
-         gn<-dim(dat)[1]
-      }
-   }else{
-      d<-dat
-      gn<-1
-   }
-   if(gn==1){     #Only one graph - convert to stack format
-      temp<-array(dim=c(1,n,n))
-      temp[1,,]<-d
-      d<-temp
-   }
-   #Find numbers of mutuals
-   m<-apply(d,1,function(a){sum(a[upper.tri(a)]*t(a)[upper.tri(a)],na.rm=TRUE)})
-   m
+  #Pre-process the raw input
+  dat<-as.edgelist.sna(dat)
+  if(is.list(dat)){
+    if(!is.null(g))
+      dat<-dat[g]
+  }
+  #End pre-processing
+  dc<-dyad.census(dat)   #Obtain the dyad census for all specified graphs
+  dc[,1]                 #Return the mutual count
 }
 
 
 #triad.census - Conduct a Davis and Leinhardt triad census for a graph or graph stack
 triad.census<-function(dat,g=NULL,mode=c("digraph","graph")){
    #Pre-process the raw input
-   dat<-as.sociomatrix.sna(dat)
-   if(is.list(dat)){
-     if(is.null(g))
-       g<-1:length(dat)
-     return(sapply(dat[g],triad.census,mode=mode))
-   }
+   dat<-as.edgelist.sna(dat)
    #End pre-processing
    #First, define the triad class vector
    tc<-switch(match.arg(mode),
      graph=0:3,
      digraph=c("003","012","102","021D","021U","021C","111D","111U","030T", "030C","201","120D","120U","120C","210","300")
    )
-   #Organize the data
-   if(length(dim(dat))>2){
-      if(is.null(g))
-        d<-dat
-      else
-        d<-dat[g,,,drop=FALSE]
-      rnam<-dimnames(d)[[1]]
-   }else{
-      d<-array(dim=c(1,dim(dat)[1],dim(dat)[2]))
-      d[1,,]<-dat
-      rnam<-NULL
-   }
-   d<-diag.remove(d,remove.val=0)  #Remove any diagonals
    #Obtain triad census scores
-   tcm<-vector()
-   n<-as.integer(dim(d)[2])
-   for(i in 1:dim(d)[1]){
+   if(!is.list(dat))
+     dat<-list(dat)
+   rnam<-names(dat)
+   gm<-as.integer(switch(match.arg(mode),graph=0,digraph=1))
+   tcm<-matrix(nr=length(dat),nc=length(tc))
+   for(i in 1:length(dat)){
+     n<-as.integer(attr(dat[[i]],"n"))
+     m<-as.integer(NROW(dat[[i]]))
      tcv<-as.double(rep(0,length(tc)))
-     gm<-as.integer(switch(match.arg(mode),graph=0,digraph=1))
-     tcv<-.C("triad_census_R",as.integer(d[i,,]),n,tcv=tcv,gm,PACKAGE="sna")$tcv
-     tcm<-rbind(tcm,tcv)
+     if(n>2)
+       tcm[i,]<-.C("triad_census_R",as.double(dat[[i]]),n,m,tcv=tcv,gm, as.integer(1),PACKAGE="sna", NAOK=TRUE)$tcv
    }
    colnames(tcm)<-tc
    rownames(tcm)<-rnam

@@ -6,7 +6,7 @@
   Prints a quick summary of objects produced by \code{\link{netcancor}}.
 }
 \usage{
-print.netcancor(x, ...)
+\method{print}{netcancor}(x, ...)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
@@ -15,8 +15,8 @@ print.netcancor(x, ...)
 }
 %\details{
 %}
-\value{
-}
+%\value{
+%}
 %\references{}
 \author{ Carter T. Butts \email{buttsc@uci.edu} }
 %\note{  }
@@ -25,6 +25,6 @@ print.netcancor(x, ...)
 
 \seealso{ \code{\link{netcancor}} }
 
-\examples{
-}
+%\examples{
+%}
 \keyword{ print }%-- one or more ...

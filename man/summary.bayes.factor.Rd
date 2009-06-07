@@ -6,7 +6,7 @@
 Returns a \code{bayes.factor} summary object.
 }
 \usage{
-summary.bayes.factor(object, ...)
+\method{summary}{bayes.factor}(object, ...)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
@@ -26,6 +26,6 @@ An object of class \code{summary.bayes.factor}
 
 \seealso{ \code{\link{bbnam.bf}} }
 
-\examples{
-}
+%\examples{
+%}
 \keyword{ math }%-- one or more ...

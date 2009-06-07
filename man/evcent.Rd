@@ -7,7 +7,7 @@
 }
 \usage{
 evcent(dat, g=1, nodes=NULL, gmode="digraph", diag=FALSE,
-    tmaxdev=FALSE, rescale=FALSE)
+    tmaxdev=FALSE, rescale=FALSE, ignore.eval=FALSE, tol=1e-10)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
@@ -18,6 +18,8 @@ evcent(dat, g=1, nodes=NULL, gmode="digraph", diag=FALSE,
   \item{diag}{ boolean indicating whether or not the diagonal should be treated as valid data.  Set this true if and only if the data can contain loops.  \code{diag} is \code{FALSE} by default. }
   \item{tmaxdev}{ boolean indicating whether or not the theoretical maximum absolute deviation from the maximum nodal centrality should be returned.  By default, \code{tmaxdev==FALSE}. }
   \item{rescale}{ if true, centrality scores are rescaled such that they sum to 1. }
+  \item{ignore.eval}{ logical; should edge values be ignored?}
+  \item{tol}{ convergence tolerance for the eigenvector computation.}
 }
 \details{
 Eigenvector centrality scores correspond to the values of the first eigenvector of the graph adjacency matrix; these scores may, in turn, be interpreted as arising from a reciprocal process in which the centrality of each actor is proportional to the sum of the centralities of those actors to whom he or she is connected.  In general, vertices with high eigenvector centralities are those which are connected to many other vertices which are, in turn, connected to many others (and so on).  (The perceptive may realize that this implies that the largest values will be obtained by individuals in large cliques (or high-density substructures).  This is also intelligible from an algebraic point of view, with the first eigenvector being closely related to the best rank-1 approximation of the adjacency matrix (a relationship which is easy to see in the special case of a diagonalizable symmetric real matrix via the \eqn{S \Lambda S^{-1}}{SLS^-1} decomposition).) 

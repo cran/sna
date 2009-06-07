@@ -6,7 +6,7 @@
   Prints an object of class \code{summary.blockmodel}.
 }
 \usage{
-print.summary.blockmodel(x, ...)
+\method{print}{summary.blockmodel}(x, ...)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
@@ -15,8 +15,8 @@ print.summary.blockmodel(x, ...)
 }
 %\details{
 %}
-\value{
-}
+%\value{
+%}
 %\references{  }
 \author{ Carter T. Butts \email{buttsc@uci.edu} }
 %\note{ }
@@ -25,7 +25,7 @@ print.summary.blockmodel(x, ...)
 
 \seealso{ \code{\link{summary.blockmodel}}}
 
-\examples{
-
-}
+%\examples{
+%
+%}
 \keyword{ print }%-- one or more ...

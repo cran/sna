@@ -6,7 +6,7 @@
   Displays a plot of the blocked data matrix, given a blockmodel object.
 }
 \usage{
-plot.blockmodel(x, ...)
+\method{plot}{blockmodel}(x, ...)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{

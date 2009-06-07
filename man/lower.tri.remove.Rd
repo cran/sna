@@ -19,7 +19,7 @@ lower.tri.remove(dat, remove.val=NA)
 \value{
   The updated graph set.
 }
-\references{  }
+%\references{  }
 \author{ Carter T. Butts \email{buttsc@uci.edu}}
 %\note{  }
 

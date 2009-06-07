@@ -6,7 +6,7 @@
   Returns a \code{lnam} summary object.
 }
 \usage{
-summary.lnam(object, ...)
+\method{summary}{lnam}(object, ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{

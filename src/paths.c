@@ -4,7 +4,7 @@
 # paths.c
 #
 # copyright (c) 2007, Carter T. Butts <buttsc@uci.edu>
-# Last Modified 7/29/07
+# Last Modified 3/27/09
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/sna package
@@ -34,7 +34,7 @@ void edgewisePathRecurse(snaNet *g, int src, int dest, int curnode, int *availno
   /*Rprintf("N=%d\n",n);*/
   /*If we've found a path to the destination, increment the census vector*/ 
   if(directed||(curnode<dest)){
-    if(snaIsAdjacent(curnode,dest,g)){
+    if(snaIsAdjacent(curnode,dest,g,2)){
       /*Rprintf("\t\t\t\t%d is adjacent to target (%d)\n",curnode,dest);*/
       count[curlen]++;                       /*Basic update*/
       if(byvertex){                          /*Update path incidence counts*/
@@ -89,7 +89,7 @@ void edgewisePathRecurse(snaNet *g, int src, int dest, int curnode, int *availno
       }
     }
   }else{
-    if(snaIsAdjacent(dest,curnode,g)){
+    if(snaIsAdjacent(dest,curnode,g,2)){
       count[curlen]++;                       /*Basic update*/
       if(byvertex){                          /*Update path incidence counts*/
         for(j=0;j<curlen;j++)
@@ -174,12 +174,12 @@ void edgewisePathRecurse(snaNet *g, int src, int dest, int curnode, int *availno
     /*Rprintf("\t\t\tAbout to recurse on available nodes (newavail=%d)\n", newavailcount);*/
     for(i=0;i<newavailcount;i++)
       if(directed||(curnode<newavail[i])){
-        if(snaIsAdjacent(curnode,newavail[i],g))
+        if(snaIsAdjacent(curnode,newavail[i],g,2))
           edgewisePathRecurse(g,src,dest,newavail[i],newavail,newavailcount,
             newused,curlen+1,count,cpcount,dpcount,maxlen,directed,byvertex,
             copaths,dyadpaths);
       }else{
-        if(snaIsAdjacent(newavail[i],curnode,g))
+        if(snaIsAdjacent(newavail[i],curnode,g,2))
           edgewisePathRecurse(g,src,dest,newavail[i],newavail,newavailcount,
             newused,curlen+1,count,cpcount,dpcount,maxlen,directed,byvertex,
             copaths,dyadpaths);
@@ -216,7 +216,7 @@ void edgewiseCycleCensus(snaNet *g, int src, int dest, double *count, double *cc
 
   /*First, check for a 2-cycle (but only if directed)*/
   /*Rprintf("\t\tChecking for (%d,%d) edge\n",dest,src);*/
-  if(directed&&snaIsAdjacent(dest,src,g)){
+  if(directed&&snaIsAdjacent(dest,src,g,2)){
     count[0]++;
     if(byvertex){
       count[(1+src)*(maxlen-1)]++;
@@ -257,11 +257,11 @@ void edgewiseCycleCensus(snaNet *g, int src, int dest, double *count, double *cc
   /*Rprintf("\t\tBeginning recursion\n");*/
   for(i=0;i<n-2;i++)               /*Recurse on each available vertex*/
     if(directed||(dest<availnodes[i])){
-      if(snaIsAdjacent(dest,availnodes[i],g))
+      if(snaIsAdjacent(dest,availnodes[i],g,2))
         edgewisePathRecurse(g,dest,src,availnodes[i],availnodes,n-2,usednodes,1,
           count,cccount,NULL,maxlen,directed,byvertex,cocycles,0);
     }else{
-      if(snaIsAdjacent(availnodes[i],dest,g))
+      if(snaIsAdjacent(availnodes[i],dest,g,2))
         edgewisePathRecurse(g,dest,src,availnodes[i],availnodes,n-2,usednodes,1,
           count,cccount,NULL,maxlen,directed,byvertex,cocycles,0);
     }
@@ -287,7 +287,7 @@ void dyadPathCensus(snaNet *g, int src, int dest, double *count, double *cpcount
 
   /*Check for a 1-path (i.e., edge)*/
   /*Rprintf("\t\tChecking for (%d,%d) edge\n",src,dest);*/
-  if(snaIsAdjacent(src,dest,g)||((!directed)&&snaIsAdjacent(dest,src,g))){
+  if(snaIsAdjacent(src,dest,g,2)||((!directed)&&snaIsAdjacent(dest,src,g,2))){
     count[0]++;
     if(byvertex){
       count[(1+src)*maxlen]++;
@@ -335,11 +335,11 @@ void dyadPathCensus(snaNet *g, int src, int dest, double *count, double *cpcount
   }
   for(i=0;i<n-2;i++)               /*Recurse on each available vertex*/
     if(directed||(dest<availnodes[i])){  
-      if(snaIsAdjacent(src,availnodes[i],g))
+      if(snaIsAdjacent(src,availnodes[i],g,2))
         edgewisePathRecurse(g,src,dest,availnodes[i],availnodes,n-2,usednodes,1,
           count,cpcount,dpcount,maxlen+1,directed,byvertex,copaths,dyadpaths);
     }else{
-      if(snaIsAdjacent(availnodes[i],src,g))
+      if(snaIsAdjacent(availnodes[i],src,g,2))
         edgewisePathRecurse(g,src,dest,availnodes[i],availnodes,n-2,usednodes,1,
           count,cpcount,dpcount,maxlen+1,directed,byvertex,copaths,dyadpaths);
     }
@@ -351,22 +351,24 @@ void dyadPathCensus(snaNet *g, int src, int dest, double *count, double *cpcount
 
 /*R-CALLABLE ROUTINES-------------------------------------------------------*/
 
-void cycleCensus_R(int *g, int *pn, double *count, double *cccount, int *pmaxlen, int *pdirected, int *pbyvertex, int *pcocycles)
+void cycleCensus_R(int *g, int *pn, int *pm, double *count, double *cccount, int *pmaxlen, int *pdirected, int *pbyvertex, int *pcocycles)
 /*Count the number of cycles associated with the (src,dest) edge in g, assuming that this edge exists.  The byvertex and cocycles flags indicate whether cycle counts should be broken down by participating vertex, and whether cycle co-membership counts should be returned (respectively).  In either case, count and cccount must be structured per count and pccount in edgewisePathRecurse.*/
 {
-  int i,j,n;
+  int i,r,c,n,m;
   double *dval;
   snaNet *ng;
 
+  GetRNGstate();
   /*Allocate memory for the new graph object*/
   /*Rprintf("Initializing ng\n");*/
   n=(*pn);
+  m=(*pm);
   ng=(snaNet *)R_alloc(1,sizeof(struct snaNettype));
   ng->n=(*pn);
   ng->indeg=(int *)R_alloc(n,sizeof(int));
   ng->outdeg=(int *)R_alloc(n,sizeof(int));
-  ng->iel=(element **)R_alloc(n,sizeof(element *));
-  ng->oel=(element **)R_alloc(n,sizeof(element *));
+  ng->iel=(slelement **)R_alloc(n,sizeof(slelement *));
+  ng->oel=(slelement **)R_alloc(n,sizeof(slelement *));
 
   /*Initialize the graph*/
   for(i=0;i<n;i++){
@@ -378,42 +380,44 @@ void cycleCensus_R(int *g, int *pn, double *count, double *cccount, int *pmaxlen
 
   /*Walk the graph, adding edges and accumulating cycles*/
   /*Rprintf("Building graph/accumulating cycles\n\tn=%d,%d\n",n,ng->n);*/
-  for(i=0;i<n;i++)
-    for(j=(!(*pdirected))*(i+1);j<n;j++)
-      if((!ISNAN(g[i+j*n]))&&(g[i+j*n]!=0)){
-        /*First, accumulate the cycles to be formed by the (i,j) edge*/
-        /*Rprintf("\tEdge at (%d,%d); counting cycles\n",i,j);*/
-        edgewiseCycleCensus(ng,i,j,count,cccount,*pmaxlen,*pdirected,*pbyvertex,
-          *pcocycles);
-        /*for(k=0;k<*pmaxlen-1;k++)
-          Rprintf("%d:%d ",k+2,(int)(count[k]));
-        Rprintf("\n");*/
-        /*Next, add the (i,j) edge to the graph*/
-        /*Rprintf("\tGot cycles, now adding edge to ng\n");*/
+  for(i=0;i<m;i++)
+    if((!IISNA(g[i+2*m]))&&((*pdirected)||(g[i]<g[i+m]))){
+      r=g[i]-1;
+      c=g[i+m]-1;
+      /*First, accumulate the cycles to be formed by the (r,c) edge*/
+      /*Rprintf("\tEdge at (%d,%d); counting cycles\n",r+1,c+1);*/
+      edgewiseCycleCensus(ng,r,c,count,cccount,*pmaxlen,*pdirected, 
+        *pbyvertex,*pcocycles);
+      /*for(k=0;k<*pmaxlen-1;k++)
+      Rprintf("%d:%d ",k+2,(int)(count[k]));
+      Rprintf("\n");*/
+      /*Next, add the (r,c) edge to the graph*/
+      /*Rprintf("\tGot cycles, now adding edge to ng\n");*/
+      dval=(double *)R_alloc(1,sizeof(double));   /*Create iel element*/
+      dval[0]=(double)g[i+2*m];
+      ng->iel[c]=slistInsert(ng->iel[c],(double)r,(void *)dval);
+      ng->indeg[c]++;
+      dval=(double *)R_alloc(1,sizeof(double));   /*Create oel element*/
+      dval[0]=(double)g[i+2*m];
+      ng->oel[r]=slistInsert(ng->oel[r],(double)c,(void *)dval);
+      ng->outdeg[r]++;
+      if(!(*pdirected)){
         dval=(double *)R_alloc(1,sizeof(double));   /*Create iel element*/
-        dval[0]=(double)g[i+j*n];
-        ng->iel[j]=listInsert(ng->iel[j],(double)i,(void *)dval);
-        ng->indeg[j]++;
+        dval[0]=(double)g[i+2*m];
+        ng->iel[r]=slistInsert(ng->iel[r],(double)c,(void *)dval);
+        ng->indeg[r]++;
         dval=(double *)R_alloc(1,sizeof(double));   /*Create oel element*/
-        dval[0]=(double)g[i+j*n];
-        ng->oel[i]=listInsert(ng->oel[i],(double)j,(void *)dval);
-        ng->outdeg[i]++;
-/*This seems to be superfluous....I'm leaving until I am sure.
-        if(!(*pdirected)){
-          dval=(double *)R_alloc(1,sizeof(double)); */  /*Create iel element*/
-          /*dval[0]=(double)g[j+i*n];
-          ng->iel[i]=listInsert(ng->iel[i],(double)j,(void *)dval);
-          ng->indeg[i]++;
-          dval=(double *)R_alloc(1,sizeof(double)); */  /*Create oel element*/
-          /*dval[0]=(double)g[j+i*n];
-          ng->oel[j]=listInsert(ng->oel[j],(double)i,(void *)dval);
-          ng->outdeg[j]++;
-        }*/
+        dval[0]=(double)g[i+2*m];
+        ng->oel[c]=slistInsert(ng->oel[c],(double)r,(void *)dval);
+        ng->outdeg[c]++;
       }
+    }
+    
+  PutRNGstate();
 }
 
 
-void pathCensus_R(double *g, int *pn, double *count, double *cpcount, double *dpcount, int *pmaxlen, int *pdirected, int *pbyvertex, int *pcopaths, int *pdyadpaths)
+void pathCensus_R(double *g, int *pn, int *pm, double *count, double *cpcount, double *dpcount, int *pmaxlen, int *pdirected, int *pbyvertex, int *pcopaths, int *pdyadpaths)
 /*Conduct a census of paths in g, out to length maxlen.  The byvertex and copaths flags indicate whether path counts should be broken down by participating vertex, and whether path co-membership counts should be returned (respectively).  In either case, count and pccount must be structured per count and pccount in edgewisePathRecurse.*/
 {
   int i,j,n;
@@ -421,7 +425,8 @@ void pathCensus_R(double *g, int *pn, double *count, double *cpcount, double *dp
 
   /*Create the new graph object*/
   n=(*pn);
-  ng=adjMatTosnaNet(g,pn);
+  GetRNGstate();
+  ng=elMatTosnaNet(g,pn,pm);
 
   /*Walk the graph, counting paths associated with each pair*/
   for(i=0;i<n;i++)
@@ -430,5 +435,7 @@ void pathCensus_R(double *g, int *pn, double *count, double *cpcount, double *dp
         dyadPathCensus(ng,i,j,count,cpcount,dpcount,*pmaxlen,*pdirected, 
           *pbyvertex,*pcopaths,*pdyadpaths);
       }
+      
+  PutRNGstate();
 }
 

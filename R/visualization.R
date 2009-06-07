@@ -3,7 +3,7 @@
 # visualization.R
 #
 # copyright (c) 2004, Carter T. Butts <buttsc@uci.edu>
-# Last Modified 10/10/06
+# Last Modified 6/5/09
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/sna package
@@ -49,12 +49,13 @@
 #   gplot3d.layout.seham
 #   gplot3d.loop
 #   plot.sociomatrix
+#   sociomatrixplot
 #
 ######################################################################
 
 
 #gplot - Two-dimensional graph visualization
-gplot<-function(dat,g=1,gmode="digraph",diag=FALSE,label=c(1:dim(dat)[2]),coord=NULL,jitter=TRUE,thresh=0,usearrows=TRUE,mode="fruchtermanreingold",displayisolates=TRUE,interactive=FALSE,xlab=NULL,ylab=NULL,xlim=NULL,ylim=NULL,pad=0.2,label.pad=0.5,displaylabels=!missing(label),boxed.labels=TRUE,label.pos=0,label.bg="white",vertex.sides=8,vertex.rot=0,arrowhead.cex=1,label.cex=1,loop.cex=1,vertex.cex=1,edge.col=1,label.col=1,vertex.col=2,label.border=1,vertex.border=1,edge.lty=1,label.lty=NULL,vertex.lty=1,edge.lwd=0,label.lwd=par("lwd"),edge.len=0.5,edge.curve=0.1,edge.steps=50,loop.steps=20,object.scale=0.01,uselen=FALSE,usecurve=FALSE,suppress.axes=TRUE,vertices.last=TRUE,new=TRUE,layout.par=NULL,...){
+gplot<-function(dat,g=1,gmode="digraph",diag=FALSE,label=NULL,coord=NULL,jitter=TRUE,thresh=0,usearrows=TRUE,mode="fruchtermanreingold",displayisolates=TRUE,interactive=FALSE,interact.bycomp=FALSE,xlab=NULL,ylab=NULL,xlim=NULL,ylim=NULL,pad=0.2,label.pad=0.5,displaylabels=!is.null(label),boxed.labels=TRUE,label.pos=0,label.bg="white",vertex.sides=NULL,vertex.rot=0,arrowhead.cex=1,label.cex=1,loop.cex=1,vertex.cex=1,edge.col=1,label.col=1,vertex.col=NULL,label.border=1,vertex.border=1,edge.lty=1,label.lty=NULL,vertex.lty=1,edge.lwd=0,label.lwd=par("lwd"),edge.len=0.5,edge.curve=0.1,edge.steps=50,loop.steps=20,object.scale=0.01,uselen=FALSE,usecurve=FALSE,suppress.axes=TRUE,vertices.last=TRUE,new=TRUE,layout.par=NULL,...){
    #Turn the annoying locator bell off, and remove recursion limit
    bellstate<-options()$locatorBell
    expstate<-options()$expression
@@ -62,33 +63,41 @@ gplot<-function(dat,g=1,gmode="digraph",diag=FALSE,label=c(1:dim(dat)[2]),coord=
    options(locatorBell=FALSE,expression=Inf)
    #Create a useful interval inclusion operator
    "%iin%"<-function(x,int) (x>=int[1])&(x<=int[2])
-   #Extract the graph to be displayed
-   dat<-as.sociomatrix.sna(dat)
-   if(is.list(dat))
-     dat<-dat[[g]]
-   else if(length(dim(dat))>2)
-      d<-dat[g,,]
-   else
-      d<-dat
-   #Make adjustments for gmode, if required
+   #Extract the graph to be displayed and obtain its properties
+   d<-as.edgelist.sna(dat,force.bipartite=(gmode=="twomode"))
+   if(is.list(d))
+     d<-d[[g]]
+   n<-attr(d,"n")
+   if(is.null(label)){
+     if(displaylabels!=TRUE)
+       displaylabels<-FALSE
+     if(!is.null(attr(d,"vnames")))
+       label<-attr(d,"vnames")
+     else if((gmode=="twomode")&&(!is.null(attr(d,"bipartite"))))
+       label<-c(paste("R",1:attr(d,"bipartite"),sep=""), paste("C",(attr(d,"bipartite")+1):n,sep=""))
+     else{
+       label<-1:n
+     }
+   }
+   #Make adjustments for gmode, if required, and set up other defaults
    if(gmode=="graph"){
       usearrows<-FALSE
-      n<-dim(d)[1]
-   }else if(gmode=="twomode"){
-      n<-sum(dim(d))
-      temp<-matrix(0,nrow=n,ncol=n)
-      temp[1:dim(d)[1],(dim(d)[1]+1):n]<-d
-      d<-temp
-      if(all(label==1:dim(dat)[2]))
-         label<-1:n
-   }else 
-      n<-dim(d)[1]
-   #Replace NAs with 0s
-   d[is.na(d)]<-0
+   } else if ((gmode=="twomode")&&(!is.null(attr(d,"bipartite")))) {
+     #For two-mode graphs, make columns blue and 4-sided (versus red and 8-sided)
+     #If defaults haven't been modified
+     Rn <- attr(d,"bipartite")
+     if (is.null(vertex.col)) vertex.col <- c(rep(2,Rn),rep(4,n-Rn))
+     if (is.null(vertex.sides)) vertex.sides <- c(rep(8,Rn),rep(4,n-Rn))
+   } 
+   if (is.null(vertex.col)) vertex.col <- 2
+   if (is.null(vertex.sides)) vertex.sides <- 8
+   #Remove missing edges
+   d<-d[!is.na(d[,3]),,drop=FALSE]
    #Save a copy of d, in case values are needed
    d.raw<-d
    #Dichotomize d
-   d<-matrix(as.numeric(d>thresh),n,n)
+   d<-d[d[,3]>thresh,,drop=FALSE]
+   attr(d,"n")<-n                    #Restore "n" to d
    #Determine coordinate placement
    if(!is.null(coord)){      #If the user has specified coords, override all other considerations
       x<-coord[,1]
@@ -107,7 +116,7 @@ gplot<-function(dat,g=1,gmode="digraph",diag=FALSE,label=c(1:dim(dat)[2]),coord=
       y<-jitter(y)
    }
    #Which nodes should we use?
-   use<-displayisolates|(!is.isolate(d,ego=1:dim(d)[1]))   
+   use<-displayisolates|(!is.isolate(d,ego=1:n))   
    #Deal with axis labels
    if(is.null(xlab))
      xlab=""
@@ -156,51 +165,75 @@ gplot<-function(dat,g=1,gmode="digraph",diag=FALSE,label=c(1:dim(dat)[2]),coord=
    e.toff<-vector() #Offset radii for tails
    e.diag<-vector() #Indicator for self-ties
    e.rad<-vector()  #Edge radius (only used for loops)
-   if(!is.array(edge.col))   #Coerce edge.col/edge.lty to array form
-     edge.col<-array(edge.col,dim=dim(d))
-   if(!is.array(edge.lty))
-     edge.lty<-array(edge.lty,dim=dim(d))
-   dist<-as.matrix(dist(cbind(x,y)))  #Get the inter-point distances for curves
-   tl<-d.raw*dist   #Get rescaled edge lengths
-   tl.max<-max(tl)  #Get maximum edge length   
-   for(i in (1:n)[use])    #Plot edges for displayed vertices
-     for(j in (1:n)[use])
-       if(d[i,j]){       #Perform for actually existing edges
-         px0<-c(px0,as.real(x[i]))  #Store endpoint coordinates
-         py0<-c(py0,as.real(y[i]))
-         px1<-c(px1,as.real(x[j]))
-         py1<-c(py1,as.real(y[j]))
-         e.toff<-c(e.toff,vertex.radius[i]) #Store endpoint offsets
-         e.hoff<-c(e.hoff,vertex.radius[j])
-         e.col<-c(e.col,edge.col[i,j])    #Store other edge attributes
-         e.type<-c(e.type,edge.lty[i,j])
-         if(!is.array(edge.lwd)){
-           if(edge.lwd>0)
-             e.lwd<-c(e.lwd,edge.lwd*d.raw[i,j])
+   if(NROW(d)>0){
+     if(length(dim(edge.col))==2)   #Coerce edge.col/edge.lty to vector form
+       edge.col<-edge.col[d[,1:2]]
+     else
+       edge.col<-rep(edge.col,length=NROW(d))
+     if(length(dim(edge.lty))==2)
+       edge.lty<-edge.lty[d[,1:2]]
+     else
+       edge.lty<-rep(edge.lty,length=NROW(d))
+     if(length(dim(edge.lwd))==2){
+       edge.lwd<-edge.lwd[d[,1:2]]
+       e.lwd.as.mult<-FALSE
+     }else{ 
+       if(length(edge.lwd)==1)
+         e.lwd.as.mult<-TRUE
+       else
+         e.lwd.as.mult<-FALSE
+       edge.lwd<-rep(edge.lwd,length=NROW(d))
+     }
+     if(!is.null(edge.curve)){
+       if(length(dim(edge.curve))==2){
+         edge.curve<-edge.curve[d[,1:2]]
+         e.curv.as.mult<-FALSE
+       }else{ 
+         if(length(edge.curve)==1)
+           e.curv.as.mult<-TRUE
+         else
+           e.curv.as.mult<-FALSE
+         edge.curve<-rep(edge.curve,length=NROW(d))
+       }
+     }else
+       edge.curve<-rep(0,length=NROW(d))
+     dist<-((x[d[,1]]-x[d[,2]])^2+(y[d[,1]]-y[d[,2]])^2)^0.5  #Get the inter-point distances for curves
+     tl<-d.raw*dist   #Get rescaled edge lengths
+     tl.max<-max(tl)  #Get maximum edge length
+     for(i in 1:NROW(d))
+       if(use[d[i,1]]&&use[d[i,2]]){  #Plot edges for displayed vertices
+         px0<-c(px0,as.real(x[d[i,1]]))  #Store endpoint coordinates
+         py0<-c(py0,as.real(y[d[i,1]]))
+         px1<-c(px1,as.real(x[d[i,2]]))
+         py1<-c(py1,as.real(y[d[i,2]]))
+         e.toff<-c(e.toff,vertex.radius[d[i,1]]) #Store endpoint offsets
+         e.hoff<-c(e.hoff,vertex.radius[d[i,2]])
+         e.col<-c(e.col,edge.col[i])    #Store other edge attributes
+         e.type<-c(e.type,edge.lty[i])
+         if(edge.lwd[i]>0){
+           if(e.lwd.as.mult)
+             e.lwd<-c(e.lwd,edge.lwd[i]*d.raw[i,3])
            else
-             e.lwd<-c(e.lwd,1)
+             e.lwd<-c(e.lwd,edge.lwd[i])
          }else
-           e.lwd<-c(e.lwd,edge.lwd[i,j])
-         e.diag<-c(e.diag,i==j)  #Is this a loop?
-         e.rad<-c(e.rad,vertex.radius[i]*loop.cex[i])
+           e.lwd<-c(e.lwd,1)
+         e.diag<-c(e.diag,d[i,1]==d[i,2])  #Is this a loop?
+         e.rad<-c(e.rad,vertex.radius[d[i,1]]*loop.cex[d[i,1]])
          if(uselen){   #Should we base curvature on interpoint distances?
-           if(tl[i,j]>0){ 
-             e.len<-dist[i,j]*tl.max/tl[i,j]
-             e.curv<-c(e.curv,edge.len*sqrt((e.len/2)^2-(dist[i,j]/2)^2))
-           }else{      
+           if(tl[i]>0){ 
+             e.len<-dist[i]*tl.max/tl[i]
+             e.curv<-c(e.curv,edge.len*sqrt((e.len/2)^2-(dist[i]/2)^2))
+           }else{
              e.curv<-c(e.curv,0)   
            }
          }else{        #Otherwise, use prespecified edge.curve
-           if(!is.array(edge.curve)){
-             if(!is.null(edge.curve))  #If it's a scalar, multiply by edge str
-               e.curv<-c(e.curv,edge.curve*d.raw[i,j])
-             else
-               e.curv<-c(e.curv,0)
-           }else{
-            e.curv<-c(e.curv,edge.curve[i,j])
-           }
+           if(e.curv.as.mult)    #If it's a scalar, multiply by edge str
+             e.curv<-c(e.curv,edge.curve[i]*d.raw[i])
+           else
+             e.curv<-c(e.curv,edge.curve[i])
          }
        }
+     }
    #Plot loops for the diagonals, if diag==TRUE, rotating wrt center of mass
    if(diag&&(length(px0)>0)&&sum(e.diag>0)){  #Are there any loops present?
      gplot.loop(as.vector(px0)[e.diag],as.vector(py0)[e.diag], length=1.5*baserad*arrowhead.cex,angle=25,width=e.lwd[e.diag]*baserad/10,col=e.col[e.diag],border=e.col[e.diag],lty=e.type[e.diag],offset=e.hoff[e.diag],edge.steps=loop.steps,radius=e.rad[e.diag],arrowhead=usearrows,xctr=mean(x[use]),yctr=mean(y[use]))
@@ -233,14 +266,52 @@ gplot<-function(dat,g=1,gmode="digraph",diag=FALSE,label=c(1:dim(dat)[2]),coord=
    #Plot vertex labels, if needed
    if(displaylabels&(!all(label==""))&(!all(use==FALSE))){
      if (label.pos==0){
+       xhat <- yhat <- rhat <- rep(0,n) 
+       #Set up xoff yoff and roff when we get odd vertices
+       xoff <- x[use]-mean(x[use])
+       yoff <- y[use]-mean(y[use])
+       roff <- sqrt(xoff^2+yoff^2)
+       #Loop through vertices
+       for (i in (1:n)[use]){
+         #Find all in and out ties that aren't loops
+         ij <- unique(c(d[d[,2]==i&d[,1]!=i,1],d[d[,1]==i&d[,2]!=i,2]))
+         ij.n <- length(ij)
+         if (ij.n>0) {
+           #Loop through all ties and add each vector to label direction
+           for (j in ij){
+             dx <- x[i]-x[j]
+             dy <- y[i]-y[j]
+             dr <- sqrt(dx^2+dy^2)
+             xhat[i] <- xhat[i]+dx/dr
+             yhat[i] <- yhat[i]+dy/dr
+           }
+           #Take the average of all the ties
+           xhat[i] <- xhat[i]/ij.n
+           yhat[i] <- yhat[i]/ij.n
+           rhat[i] <- sqrt(xhat[i]^2+yhat[i]^2)
+           if (rhat[i]!=0) { # normalize direction vector
+             xhat[i] <- xhat[i]/rhat[i]
+             yhat[i] <- yhat[i]/rhat[i]
+           } else { #if no direction, make xhat and yhat away from center
+             xhat[i] <- xoff[i]/roff[i]
+             yhat[i] <- yoff[i]/roff[i]
+           }
+         } else { #if no ties, make xhat and yhat away from center
+           xhat[i] <- xoff[i]/roff[i]
+           yhat[i] <- yoff[i]/roff[i]
+         }
+       }
+       xhat <- xhat[use]
+       yhat <- yhat[use]
+     } else if (label.pos<5) {
+       xhat <- switch(label.pos,0,-1,0,1)
+       yhat <- switch(label.pos,-1,0,1,0)
+     } else if (label.pos==6) {
        xoff <- x[use]-mean(x[use])
        yoff <- y[use]-mean(y[use])
        roff <- sqrt(xoff^2+yoff^2)
        xhat <- xoff/roff
        yhat <- yoff/roff
-     } else if (label.pos<5) {
-       xhat <- switch(label.pos,0,-1,0,1)
-       yhat <- switch(label.pos,-1,0,1,0)
      } else {
        xhat <- 0
        yhat <- 0
@@ -249,15 +320,15 @@ gplot<-function(dat,g=1,gmode="digraph",diag=FALSE,label=c(1:dim(dat)[2]),coord=
      lw<-strwidth(label[use],cex=label.cex)/2
      lh<-strheight(label[use],cex=label.cex)/2
      if(boxed.labels){
-       rect(x[use]-lw*(1+label.pad)+xhat*(lw*(1+label.pad+0.2)+ vertex.radius[use]),
-            y[use]-lh*(1+label.pad)+yhat*(lh*(1+label.pad+0.2)+ vertex.radius[use]),
-            x[use]+lw*(1+label.pad)+xhat*(lw*(1+label.pad+0.2)+ vertex.radius[use]),
-            y[use]+lh*(1+label.pad)+yhat*(lh*(1+label.pad+0.2)+ vertex.radius[use]),
+       rect(x[use]+xhat*vertex.radius[use]-(lh*label.pad+lw)*((xhat<=0)*2),
+            y[use]+yhat*vertex.radius[use]-(lh*label.pad+lh)*((yhat<=0)*2),
+            x[use]+xhat*vertex.radius[use]+(lh*label.pad+lw)*((xhat>0)*2),
+            y[use]+yhat*vertex.radius[use]+(lh*label.pad+lh)*((yhat>0)*2),
             col=label.bg,border=label.border,lty=label.lty,lwd=label.lwd)
      }
-     text(x[use]+xhat*(lw*(1+label.pad+0.2)+vertex.radius[use]),
-          y[use]+yhat*(lh*(1+label.pad+0.2)+vertex.radius[use]),
-          label[use],cex=label.cex,col=label.col,offset=0)
+     text(x[use]+xhat*vertex.radius[use]+(lh*label.pad+lw)*((xhat>0)*2-1),
+          y[use]+yhat*vertex.radius[use]+(lh*label.pad+lh)*((yhat>0)*2-1),
+          label[use],cex=label.cex,col=label.col,offset=0)         
    }
    #If interactive, allow the user to mess with things
    if(interactive&&((length(x)>0)&&(!all(use==FALSE)))){
@@ -295,7 +366,8 @@ gplot<-function(dat,g=1,gmode="digraph",diag=FALSE,label=c(1:dim(dat)[2]),coord=
          label<-1:n
        #Clear out the old message, and write a new one
        rect(textloc[1],textloc[2]-tmh/2,textloc[1]+tmw,textloc[2]+tmh/2, border="white",col="white")
-       tm<-"Where should I move this vertex?"
+       if (interact.bycomp) tm <- "Where should I move this component?"
+       else tm<-"Where should I move this vertex?"
        tmh<-strheight(tm)
        tmw<-strwidth(tm)
        text(textloc[1],textloc[2],tm,adj=c(0,0.5))
@@ -309,8 +381,17 @@ gplot<-function(dat,g=1,gmode="digraph",diag=FALSE,label=c(1:dim(dat)[2]),coord=
        #Get the destination for the new vertex
        clickpos<-unlist(locator(1))
        #Set the coordinates accordingly
-       x[use][selvert]<-clickpos[1]
-       y[use][selvert]<-clickpos[2]
+       if (interact.bycomp) {
+         dx <- clickpos[1]-x[use][selvert]
+         dy <- clickpos[2]-y[use][selvert]             
+         comp.mem <- component.dist(d,connected="weak")$membership
+         same.comp <- comp.mem==comp.mem[selvert]
+         x[use][same.comp] <- x[use][same.comp]+dx
+         y[use][same.comp] <- y[use][same.comp]+dy
+       } else {
+         x[use][selvert]<-clickpos[1]
+         y[use][selvert]<-clickpos[2]
+       }
        #Iterate (leaving interactivity on)
        cl<-match.call()                #Get the args of the current function
        cl$coord<-cbind(x,y)            #Set the coordinates
@@ -413,8 +494,11 @@ gplot.layout.adj<-function(d,layout.par){
 
 
 #gplot.layout.circle - Place vertices in a circular layout
-gplot.layout.circle<-function(d,layout.par){ 
-  n<-dim(d)[1]
+gplot.layout.circle<-function(d,layout.par){
+  d<-as.edgelist.sna(d)
+  if(is.list(d))
+    d<-d[[1]]
+  n<-attr(d,"n")
   cbind(sin(2*pi*((0:(n-1))/n)),cos(2*pi*((0:(n-1))/n)))
 }
 
@@ -431,6 +515,9 @@ gplot.layout.circrand<-function(d,layout.par){
 #gplot.layout.eigen - Place vertices based on the first two eigenvectors of
 #an adjacency matrix
 gplot.layout.eigen<-function(d,layout.par){     
+  d<-as.sociomatrix.sna(d)
+  if(is.list(d))
+    d<-d[[1]]
   #Determine the matrix to be used
   if(is.null(layout.par$var))
     vm<-d
@@ -459,8 +546,11 @@ gplot.layout.eigen<-function(d,layout.par){
 
 #gplot.layout.fruchtermanreingold - Fruchterman-Reingold layout routine for #gplot
 gplot.layout.fruchtermanreingold<-function(d,layout.par){
+  d<-as.edgelist.sna(d)
+  if(is.list(d))
+    d<-d[[1]]
   #Provide default settings
-  n<-dim(d)[1]
+  n<-attr(d,"n")
   if(is.null(layout.par$niter))
     niter<-500
   else
@@ -490,9 +580,10 @@ gplot.layout.fruchtermanreingold<-function(d,layout.par){
     y<-layout.par$seed.coord[,2]
   }
   #Symmetrize the graph, just in case
-  d<-d|t(d)  
+  d<-symmetrize(d,rule="weak",return.as.edgelist=TRUE) 
   #Perform the layout calculation
-  layout<-.C("gplot_layout_fruchtermanreingold_R", as.integer(d), as.double(n), as.integer(niter), as.double(max.delta), as.double(area), as.double(cool.exp), as.double(repulse.rad), x=as.double(x), y=as.double(y), PACKAGE="sna")
+  layout<-.C("gplot_layout_fruchtermanreingold_R", as.double(d), as.integer(n), as.integer(NROW(d)), as.integer(niter), as.double(max.delta), as.double(area), as.double(cool.exp), as.double(repulse.rad), x=as.double(x), y=as.double(y), PACKAGE="sna")
+#  layout<-.C("gplot_layout_fruchtermanreingold_R", as.integer(d), as.double(n), as.integer(niter), as.double(max.delta), as.double(area), as.double(cool.exp), as.double(repulse.rad), x=as.double(x), y=as.double(y), PACKAGE="sna")
   #Return the result
   cbind(layout$x,layout$y)
 }
@@ -511,7 +602,10 @@ gplot.layout.geodist<-function(d,layout.par){
 
 #gplot.layout.hall - Hall's layout method for gplot
 gplot.layout.hall<-function(d,layout.par){
-  n<-NCOL(d)
+  d<-as.sociomatrix.sna(d)
+  if(is.list(d))
+    d<-d[[1]]
+  n<-NROW(d)
   #Build the Laplacian matrix
   sd<-symmetrize(d)
   laplacian<--sd
@@ -523,7 +617,10 @@ gplot.layout.hall<-function(d,layout.par){
 
 #gplot.layout.kamadakawai
 gplot.layout.kamadakawai<-function(d,layout.par){
-  n<-NROW(d)
+  d<-as.edgelist.sna(d)
+  if(is.list(d))
+    d<-d[[1]]
+  n<-attr(d,"n")
   if(is.null(layout.par$niter)){
     niter<-1000
   }else
@@ -544,8 +641,16 @@ gplot.layout.kamadakawai<-function(d,layout.par){
     kkconst<-n^2
   }else
     kkconst<-layout.par$kkconst
+  if(is.null(layout.par$edge.val.as.str))
+    edge.val.as.str<-TRUE
+  else
+    edge.val.as.str<-layout.par$edge.val.as.str
   if(is.null(layout.par$elen)){
-    elen<-geodist(symmetrize(d),inf.replace=sqrt(n))$gdist
+    d<-symmetrize(d,return.as.edgelist=TRUE)
+    if(edge.val.as.str)
+      d[,3]<-1/d[,3]
+    elen<-geodist(d,ignore.eval=FALSE)$gdist
+    elen[elen==Inf]<-max(elen[is.finite(elen)])*1.25
   }else
     elen<-layout.par$elen
   if(is.null(layout.par$seed.coord)){
@@ -556,7 +661,7 @@ gplot.layout.kamadakawai<-function(d,layout.par){
     y<-layout.par$seed.coord[,2]
   }
   #Obtain locations
-  pos<-.C("gplot_layout_kamadakawai_R",as.integer(d),as.double(n), as.integer(niter),as.double(elen),as.double(initemp),as.double(coolexp), as.double(kkconst),as.double(sigma),x=as.double(x),y=as.double(y), PACKAGE="sna")
+  pos<-.C("gplot_layout_kamadakawai_R",as.integer(n),as.integer(niter), as.double(elen),as.double(initemp),as.double(coolexp),as.double(kkconst),as.double(sigma), x=as.double(x),y=as.double(y), PACKAGE="sna")
   #Return to x,y coords
   cbind(pos$x,pos$y)
 }
@@ -565,6 +670,9 @@ gplot.layout.kamadakawai<-function(d,layout.par){
 #gplot.layout.mds - Place vertices based on metric multidimensional scaling
 #of a distance matrix
 gplot.layout.mds<-function(d,layout.par){     
+  d<-as.sociomatrix.sna(d)
+  if(is.list(d))
+    d<-d[[1]]
   #Determine the raw inputs for the scaling
   if(is.null(layout.par$var))
     vm<-cbind(d,t(d))
@@ -604,6 +712,9 @@ gplot.layout.mds<-function(d,layout.par){
 #matrix among concatenated rows/columns (principal coordinates by position
 #similarity)
 gplot.layout.princoord<-function(d,layout.par){     
+  d<-as.sociomatrix.sna(d)
+  if(is.list(d))
+    d<-d[[1]]
   #Determine the vectors to be related
   if(is.null(layout.par$var))
     vm<-rbind(d,t(d))
@@ -632,7 +743,10 @@ gplot.layout.princoord<-function(d,layout.par){
 
 #gplot.layout.random - Random layout for gplot
 gplot.layout.random<-function(d,layout.par){     
-  n<-dim(d)[1]
+  d<-as.edgelist.sna(d)
+  if(is.list(d))
+    d<-d[[1]]
+  n<-attr(d,"n")
   #Determine the distribution
   if(is.null(layout.par$dist))
     temp<-matrix(runif(2*n,-1,1),n,2)
@@ -685,6 +799,9 @@ gplot.layout.seham<-function(d,layout.par){
 
 #gplot.layout.spring - Place vertices using a spring embedder
 gplot.layout.spring<-function(d,layout.par){
+  d<-as.sociomatrix.sna(d)
+  if(is.list(d))
+    d<-d[[1]]
   #Set up the embedder params
   ep<-vector()
   if(is.null(layout.par$mass))  #Mass is in "quasi-kilograms"
@@ -786,6 +903,9 @@ gplot.layout.springrepulse<-function(d,layout.par){
 
 #gplot.layout.target
 gplot.layout.target<-function(d,layout.par){
+  d<-as.sociomatrix.sna(d)
+  if(is.list(d))
+    d<-d[[1]]
   n<-NROW(d)
   if(is.null(layout.par$niter)){
     niter<-1000
@@ -996,36 +1116,41 @@ gplot.vertex<-function(x,y,radius=1,sides=4,border=1,col=2,lty=NULL,rot=0,...){
 
 
 #gplot3d - Three-dimensional graph visualization
-gplot3d<-function(dat,g=1,gmode="digraph",diag=FALSE,label=c(1:dim(dat)[2]),coord=NULL,jitter=TRUE,thresh=0,mode="fruchtermanreingold",displayisolates=TRUE,displaylabels=!missing(label),xlab=NULL,ylab=NULL,zlab=NULL,vertex.radius=NULL,absolute.radius=FALSE,label.col="gray50",edge.col="black",vertex.col="red",edge.alpha=1,vertex.alpha=1,edge.lwd=NULL,suppress.axes=TRUE,new=TRUE,bg.col="white",layout.par=NULL){
+gplot3d<-function(dat,g=1,gmode="digraph",diag=FALSE,label=NULL,coord=NULL,jitter=TRUE,thresh=0,mode="fruchtermanreingold",displayisolates=TRUE,displaylabels=!missing(label),xlab=NULL,ylab=NULL,zlab=NULL,vertex.radius=NULL,absolute.radius=FALSE,label.col="gray50",edge.col="black",vertex.col=NULL,edge.alpha=1,vertex.alpha=1,edge.lwd=NULL,suppress.axes=TRUE,new=TRUE,bg.col="white",layout.par=NULL){
    #Require that rgl be loaded
    require(rgl)
    #Extract the graph to be displayed
-   dat<-as.sociomatrix.sna(dat)
-   if(is.list(dat))
-     dat<-dat[[g]]
-   else if(length(dim(dat))>2)
-      d<-dat[g,,]
-   else
-      d<-dat
+   d<-as.edgelist.sna(dat,force.bipartite=(gmode=="twomode"))
+   if(is.list(d))
+     d<-d[[g]]
+   n<-attr(d,"n")
+   if(is.null(label)){
+     if(displaylabels!=TRUE)
+       displaylabels<-FALSE
+     if(!is.null(attr(d,"vnames")))
+       label<-attr(d,"vnames")
+     else if((gmode=="twomode")&&(!is.null(attr(d,"bipartite"))))
+       label<-c(paste("R",1:attr(d,"bipartite"),sep=""), paste("C",(attr(d,"bipartite")+1):n,sep=""))
+     else{
+       label<-1:n
+     }
+   }
    #Make adjustments for gmode, if required
    if(gmode=="graph"){
       usearrows<-FALSE
-      n<-dim(d)[1]
    }else if(gmode=="twomode"){
-      n<-sum(dim(d))
-      temp<-matrix(0,nrow=n,ncol=n)
-      temp[1:dim(d)[1],(dim(d)[1]+1):n]<-d
-      d<-temp
-      if(all(label==1:dim(dat)[2]))
-         label<-1:n
-   }else 
-      n<-dim(d)[1]
-   #Replace NAs with 0s
-   d[is.na(d)]<-0
+     if(is.null(vertex.col))
+       vertex.col<-rep(c("red","blue"),times=c(attr(d,"bipartite"), n-attr(d,"bipartite")))
+   }
+   if(is.null(vertex.col))
+     vertex.col<-"red"
+   #Remove missing edges
+   d<-d[!is.na(d[,3]),,drop=FALSE]
    #Save a copy of d, in case values are needed
    d.raw<-d
    #Dichotomize d
-   d<-matrix(as.numeric(d>thresh),n,n)
+   d<-d[d[,3]>thresh,,drop=FALSE]
+   attr(d,"n")<-n                    #Restore "n" to d
    #Determine coordinate placement
    if(!is.null(coord)){      #If the user has specified coords, override all other considerations
       x<-coord[,1]
@@ -1047,7 +1172,7 @@ gplot3d<-function(dat,g=1,gmode="digraph",diag=FALSE,label=c(1:dim(dat)[2]),coor
       z<-jitter(z)
    }
    #Which nodes should we use?
-   use<-displayisolates|(!is.isolate(d,ego=1:dim(d)[1]))   
+   use<-displayisolates|(!is.isolate(d,ego=1:n))   
    #Deal with axis labels
    if(is.null(xlab))
      xlab=""
@@ -1083,27 +1208,33 @@ gplot3d<-function(dat,g=1,gmode="digraph",diag=FALSE,label=c(1:dim(dat)[2]),coor
    e.col<-vector()
    e.alpha<-vector()
    e.diag<-vector() #Indicator for self-ties
-   if(!is.array(edge.col))   #Coerce edge.col/edge.lty to array form
-     edge.col<-array(edge.col,dim=dim(d))
-   if(!is.array(edge.alpha))
-     edge.alpha<-array(edge.alpha,dim=dim(d))
-   for(i in (1:n)[use])    #Plot edges for displayed vertices
-     for(j in (1:n)[use])
-       if(d[i,j]){       #Perform for actually existing edges
-         pt<-rbind(pt,as.real(c(x[i],y[i],z[i]))) #Store endpoint coordinates
-         ph<-rbind(ph,as.real(c(x[j],y[j],z[j])))
-         e.col<-c(e.col,edge.col[i,j])    #Store other edge attributes
-         e.alpha<-c(e.alpha,edge.alpha[i,j])
-         if(is.null(edge.lwd))
-           e.lwd<-c(e.lwd,0.5*min(vertex.radius[c(i,j)])+ vertex.radius[i]*(i==j))
-         else if(!is.array(edge.lwd)){
-           if(edge.lwd>0)
-             e.lwd<-c(e.lwd,edge.lwd+vertex.radius[i]*(i==j))
-           else
-             e.lwd<-c(e.lwd,0.5*vertex.radius[i]+vertex.radius[i]*(i==j))
-         }else
-           e.lwd<-c(e.lwd,edge.lwd[i,j]+vertex.radius[i]*(i==j))
-         e.diag<-c(e.diag,i==j)  #Is this a loop?
+   if(length(dim(edge.col))==2)   #Coerce edge.col/edge.lty to vector form
+     edge.col<-edge.col[d[,1:2]]
+   else
+     edge.col<-rep(edge.col,length=NROW(d))
+   if(is.null(edge.lwd)){
+     edge.lwd<-0.5*apply(cbind(vertex.radius[d[,1]],vertex.radius[d[,2]]),1, min) + vertex.radius[d[,1]]*(d[,1]==d[,2])
+   }else if(length(dim(edge.lwd))==2){
+     edge.lwd<-edge.lwd[d[,1:2]]
+   }else{
+     if(edge.lwd==0)
+       edge.lwd<-0.5*apply(cbind(vertex.radius[d[,1]],vertex.radius[d[,2]]),1, min) + vertex.radius[d[,1]]*(d[,1]==d[,2])
+     else
+       edge.lwd<-rep(edge.lwd,length=NROW(d))
+   }
+   if(length(dim(edge.alpha))==2){
+     edge.alpha<-edge.alpha[d[,1:2]]
+   }else{ 
+     edge.alpha<-rep(edge.alpha,length=NROW(d))
+   }
+   for(i in 1:NROW(d))
+     if(use[d[i,1]]&&use[d[i,2]]){    #Plot edges for displayed vertices
+       pt<-rbind(pt,as.real(c(x[d[i,1]],y[d[i,1]],z[d[i,1]]))) #Store endpoint coordinates
+       ph<-rbind(ph,as.real(c(x[d[i,2]],y[d[i,2]],z[d[i,2]])))
+         e.col<-c(e.col,edge.col[i])    #Store other edge attributes
+         e.alpha<-c(e.alpha,edge.alpha[i])
+         e.lwd<-c(e.lwd,edge.lwd[i])
+         e.diag<-c(e.diag,d[i,1]==d[i,2])  #Is this a loop?
        }
    m<-NROW(pt)  #Record number of edges
    #Plot loops for the diagonals, if diag==TRUE
@@ -1192,6 +1323,9 @@ gplot3d.layout.adj<-function(d,layout.par){
 #gplot3d.layout.eigen - Place vertices based on the first three eigenvectors of
 #an adjacency matrix
 gplot3d.layout.eigen<-function(d,layout.par){     
+  d<-as.sociomatrix.sna(d)
+  if(is.list(d))
+    d<-d[[1]]
   #Determine the matrix to be used
   if(is.null(layout.par$var))
     vm<-d
@@ -1221,8 +1355,11 @@ gplot3d.layout.eigen<-function(d,layout.par){
 #gplot3d.layout.fruchtermanreingold - Fruchterman-Reingold layout method for
 #gplot3d
 gplot3d.layout.fruchtermanreingold<-function(d,layout.par){
+  d<-as.edgelist.sna(d)
+  if(is.list(d))
+    d<-d[[1]]
+  n<-attr(d,"n")
   #Provide default settings
-  n<-dim(d)[1]
   if(is.null(layout.par$niter))
     niter<-300
   else
@@ -1255,10 +1392,10 @@ gplot3d.layout.fruchtermanreingold<-function(d,layout.par){
     z<-layout.par$seed.coord[,3]
   }
   #Symmetrize the graph, just in case
-  d<-d|t(d)  
+  d<-symmetrize(d,return.as.edgelist=TRUE)
   #Set up positions
   #Perform the layout calculation
-  layout<-.C("gplot3d_layout_fruchtermanreingold_R", as.integer(d), as.double(n), as.integer(niter), as.double(max.delta), as.double(volume), as.double(cool.exp), as.double(repulse.rad), x=as.double(x), y=as.double(y), z=as.double(z),PACKAGE="sna")
+  layout<-.C("gplot3d_layout_fruchtermanreingold_R", as.double(d), as.integer(n), as.integer(NROW(d)), as.integer(niter), as.double(max.delta), as.double(volume), as.double(cool.exp), as.double(repulse.rad), x=as.double(x), y=as.double(y), z=as.double(z),PACKAGE="sna")
   #Return the result
   cbind(layout$x,layout$y,layout$z)
 }
@@ -1277,6 +1414,9 @@ gplot3d.layout.geodist<-function(d,layout.par){
 
 #gplot3d.layout.hall - Hall's layout method for gplot3d
 gplot3d.layout.hall<-function(d,layout.par){
+  d<-as.sociomatrix.sna(d)
+  if(is.list(d))
+    d<-d[[1]]
   n<-NCOL(d)
   #Build the Laplacian matrix
   sd<-symmetrize(d)
@@ -1289,7 +1429,10 @@ gplot3d.layout.hall<-function(d,layout.par){
 
 #gplot3d.layout.kamadakawai
 gplot3d.layout.kamadakawai<-function(d,layout.par){
-  n<-NROW(d)
+  d<-as.edgelist.sna(d)
+  if(is.list(d))
+    d<-d[[1]]
+  n<-attr(d,"n")
   if(is.null(layout.par$niter)){
     niter<-1000
   }else
@@ -1310,8 +1453,16 @@ gplot3d.layout.kamadakawai<-function(d,layout.par){
     kkconst<-n^3
   }else
     kkconst<-layout.par$kkconst
+  if(is.null(layout.par$edge.val.as.str))
+    edge.val.as.str<-TRUE
+  else
+    edge.val.as.str<-layout.par$edge.val.as.str
   if(is.null(layout.par$elen)){
-    elen<-geodist(symmetrize(d),inf.replace=sqrt(n))$gdist
+    d<-symmetrize(d,return.as.edgelist=TRUE)
+    if(edge.val.as.str)
+      d[,3]<-1/d[,3]
+    elen<-geodist(d,ignore.eval=FALSE)$gdist
+    elen[elen==Inf]<-max(elen[is.finite(elen)])*1.5
   }else
     elen<-layout.par$elen
   if(is.null(layout.par$seed.coord)){
@@ -1324,7 +1475,7 @@ gplot3d.layout.kamadakawai<-function(d,layout.par){
     z<-layout.par$seed.coord[,3]
   }
   #Obtain locations
-  pos<-.C("gplot3d_layout_kamadakawai_R",as.integer(d),as.double(n), as.integer(niter),as.double(elen),as.double(initemp),as.double(coolexp), as.double(kkconst),as.double(sigma),x=as.double(x),y=as.double(y), z=as.double(z),PACKAGE="sna")
+  pos<-.C("gplot3d_layout_kamadakawai_R",as.double(n), as.integer(niter),as.double(elen),as.double(initemp),as.double(coolexp), as.double(kkconst),as.double(sigma),x=as.double(x),y=as.double(y), z=as.double(z),PACKAGE="sna")
   #Return to x,y coords
   cbind(pos$x,pos$y,pos$z)
 }
@@ -1333,6 +1484,9 @@ gplot3d.layout.kamadakawai<-function(d,layout.par){
 #gplot3d.layout.mds - Place vertices based on metric multidimensional scaling
 #of a distance matrix
 gplot3d.layout.mds<-function(d,layout.par){     
+  d<-as.sociomatrix.sna(d)
+  if(is.list(d))
+    d<-d[[1]]
   #Determine the raw inputs for the scaling
   if(is.null(layout.par$var))
     vm<-cbind(d,t(d))
@@ -1372,6 +1526,9 @@ gplot3d.layout.mds<-function(d,layout.par){
 #matrix among concatenated rows/columns (principal coordinates by position
 #similarity)
 gplot3d.layout.princoord<-function(d,layout.par){     
+  d<-as.sociomatrix.sna(d)
+  if(is.list(d))
+    d<-d[[1]]
   #Determine the vectors to be related
   if(is.null(layout.par$var))
     vm<-rbind(d,t(d))
@@ -1401,7 +1558,10 @@ gplot3d.layout.princoord<-function(d,layout.par){
 
 #gplot3d.layout.random - Layout method (random placement) for gplot3d
 gplot3d.layout.random<-function(d,layout.par){     
-  n<-dim(d)[1]
+  d<-as.edgelist.sna(d)
+  if(is.list(d))
+    d<-d[[1]]
+  n<-attr(d,"n")
   #Determine the distribution
   if(is.null(layout.par$dist))
     temp<-matrix(runif(3*n,-1,1),n,3)
@@ -1532,8 +1692,10 @@ gplot3d.loop<-function(a,radius,color="white",alpha=1){
 #visualizing large valued matrices...
 plot.sociomatrix<-function(x,labels=NULL,drawlab=TRUE,diaglab=TRUE,drawlines=TRUE,xlab=NULL,ylab=NULL,cex.lab=1,...){       
    #Begin preprocessing
-   if(class(x)=="network")
+   if((!(class(x)%in%c("matrix","array","data.frame")))||(length(dim(x))>2))
      x<-as.sociomatrix.sna(x)
+   if(is.list(x))
+     x<-x[[1]]
    #End preprocessing
    n<-dim(x)[1]
    o<-dim(x)[2]
@@ -1569,3 +1731,7 @@ plot.sociomatrix<-function(x,labels=NULL,drawlab=TRUE,diaglab=TRUE,drawlines=TRU
       if(all(labels[[1]]==labels[[2]]))
          text(1:o,1:n,labels[[1]],cex=cex.lab)
 }
+
+
+#sociomatrixplot - an alias for plot.sociomatrix
+sociomatrixplot<-plot.sociomatrix

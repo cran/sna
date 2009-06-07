@@ -6,7 +6,7 @@
   Returns a \code{netcancor} summary object
 }
 \usage{
-summary.netcancor(object, ...)
+\method{summary}{netcancor}(object, ...)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
@@ -27,7 +27,7 @@ summary.netcancor(object, ...)
 
 \seealso{ \code{\link{netcancor}} }
 
-\examples{
-
-}
+%\examples{
+%
+%}
 \keyword{ math }%-- one or more ...

@@ -6,7 +6,7 @@
   Prints a quick summary of objects produced by \code{\link{cugtest}}.
 }
 \usage{
-print.cugtest(x, ...)
+\method{print}{cugtest}(x, ...)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
@@ -26,6 +26,6 @@ None.
 
 \seealso{ \code{\link{cugtest}} }
 
-\examples{
-}
+%\examples{
+%}
 \keyword{ print }%-- one or more ...

@@ -8,7 +8,8 @@
 \usage{
 netlm(y, x, intercept=TRUE, mode="digraph", diag=FALSE,
     nullhyp=c("qap", "qapspp", "qapy", "qapx", "qapallx", 
-    "cugtie", "cugden", "cuguman", "classical"), tol=1e-7,
+    "cugtie", "cugden", "cuguman", "classical"), 
+    test.statistic = c("t-value", "beta"), tol=1e-7,
     reps=1000)
 }
 %- maybe also `usage' for other objects documented here.
@@ -19,6 +20,7 @@ netlm(y, x, intercept=TRUE, mode="digraph", diag=FALSE,
   \item{mode}{ string indicating the type of graph being evaluated.  \code{"digraph"} indicates that edges should be interpreted as directed; \code{"graph"} indicates that edges are undirected.  \code{mode} is set to \code{"digraph"} by default. }
   \item{diag}{ logical; should the diagonal be treated as valid data?  Set this true if and only if the data can contain loops.  \code{diag} is \code{FALSE} by default. }
   \item{nullhyp}{ string indicating the particular null hypothesis against which to test the observed estimands. }
+  \item{test.statistic}{ string indicating the test statistic to be used for the Monte Carlo procedures.}
   \item{tol}{ tolerance parameter for \code{\link{qr.solve}}. }
   \item{reps}{ integer indicating the number of draws to use for quantile estimation.  (Relevant to the null hypothesis test only - the analysis itself is unaffected by this parameter.)  Note that, as for all Monte Carlo procedures, convergence is slower for more extreme quantiles.  By default, \code{reps}=1000. }
 }
@@ -44,17 +46,21 @@ Because of the frequent presence of row/column/block autocorrelation in network 
   \item{\code{qapy}}{QAP permutation test, using y-permutations.}
 }
 
-Note that interpretation of quantiles for single coefficients can be complex in the presence of multicollinearity or third variable effects.  \code{qapspp}  is generally recommended for most multivariable analyses, as it is known to be robust to these conditions.  Reasonable printing and summarizing of \code{netlm} objects is provided by \code{\link{print.netlm}} and \code{\link{summary.netlm}}, respectively.  No plot methods exist at this time, alas. 
+The statistic to be employed in the above tests may be selected via \code{test.statistic}.  By default, the \eqn{t}-statistic (rather than estimated coefficient) is used, as this is more approximately pivotal; coefficient-based tests are not recommended for QAP null hypotheses, although they are provided here for legacy purposes.
+
+Note that interpretation of quantiles for single coefficients can be complex in the presence of multicollinearity or third variable effects.  \code{qapspp}  is generally recommended for most multivariable analyses, as it is known to be fairly robust to these conditions.  Reasonable printing and summarizing of \code{netlm} objects is provided by \code{\link{print.netlm}} and \code{\link{summary.netlm}}, respectively.  No plot methods exist at this time, alas. 
 }
 \value{
   An object of class \code{netlm}
 }
 \references{
-Dekker, D.; Krackhardt, D.; Snijders, T.A.B.  (2003).  ``Mulicollinearity Robust QAP for Multiple Regression.''  CASOS Working Paper, Carnegie Mellon University.
+Dekker, D.; Krackhardt, D.; Snijders, T.A.B.  (2007).  \dQuote{Sensitivity of MRQAP Tests to Collinearity and Autocorrelation Conditions.}  \emph{Psychometrika}, 72(4), 563-581.
 
-Krackhardt, D.  (1987).  ``QAP Partialling as a Test of Spuriousness.'' \emph{Social Networks}, 9 171-186.
+Dekker, D.; Krackhardt, D.; Snijders, T.A.B.  (2003).  \dQuote{Mulicollinearity Robust QAP for Multiple Regression.}  CASOS Working Paper, Carnegie Mellon University.
 
-Krackhardt, D.  (1988).  ``Predicting With Networks: Nonparametric Multiple Regression Analyses of Dyadic Data.''  \emph{Social Networks}, 10, 359-382.
+Krackhardt, D.  (1987).  \dQuote{QAP Partialling as a Test of Spuriousness.} \emph{Social Networks}, 9 171-186.
+
+Krackhardt, D.  (1988).  \dQuote{Predicting With Networks: Nonparametric Multiple Regression Analyses of Dyadic Data.}  \emph{Social Networks}, 10, 359-382.
 }
 \author{ Carter T. Butts \email{buttsc@uci.edu} }
 %\note{  }

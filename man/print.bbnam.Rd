@@ -9,7 +9,7 @@
 Prints a quick summary of posterior draws from \code{\link{bbnam}}.
 }
 \usage{
-print.bbnam(x, ...)
+\method{print}{bbnam}(x, ...)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
@@ -29,6 +29,6 @@ None
 
 \seealso{ \code{\link{bbnam}} }
 
-\examples{
-}
+%\examples{
+%}
 \keyword{ print }%-- one or more ...

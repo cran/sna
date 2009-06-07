@@ -6,7 +6,7 @@
   Returns a \code{cugtest} summary object
 }
 \usage{
-summary.cugtest(object, ...)
+\method{summary}{cugtest}(object, ...)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
@@ -27,7 +27,7 @@ An object of class \code{summary.cugtest}
 
 \seealso{ \code{\link{cugtest}} }
 
-\examples{
-
-}
+%\examples{
+%
+%}
 \keyword{ math }%-- one or more ...

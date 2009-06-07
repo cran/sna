@@ -7,11 +7,11 @@
 }
 \usage{
 gplot3d(dat, g = 1, gmode = "digraph", diag = FALSE, 
-    label = c(1:dim(dat)[2]), coord = NULL, jitter = TRUE, thresh = 0,
+    label = NULL, coord = NULL, jitter = TRUE, thresh = 0,
     mode = "fruchtermanreingold", displayisolates = TRUE, 
     displaylabels = !missing(label), xlab = NULL, ylab = NULL, 
     zlab = NULL, vertex.radius = NULL, absolute.radius = FALSE, 
-    label.col = "gray50", edge.col = "black", vertex.col = "red", 
+    label.col = "gray50", edge.col = "black", vertex.col = NULL, 
     edge.alpha = 1, vertex.alpha = 1, edge.lwd = NULL, suppress.axes = TRUE,
     new = TRUE, bg.col = "white", layout.par = NULL)
 }
@@ -35,7 +35,7 @@ gplot3d(dat, g = 1, gmode = "digraph", diag = FALSE,
   \item{absolute.radius}{ vertex radius, specified in absolute terms; this may be given as a vector. }
   \item{label.col}{ color for vertex labels; may be given as a vector, if labels are to be of different colors. }
   \item{edge.col}{ color for edges; may be given as a vector or adjacency matrix, if edges are to be of different colors. }
-  \item{vertex.col}{ color for vertices; may be given as a vector, if vertices are to be of different colors. }
+  \item{vertex.col}{ color for vertices; may be given as a vector, if vertices are to be of different colors.   By default, red is used (or red and blue, if \code{gmode=="twomode"}).}
   \item{edge.alpha}{ alpha (transparency) values for edges; may be given as a vector or adjacency matrix, if edge transparency is to vary. }
   \item{vertex.alpha}{ alpha (transparency) values for vertices; may be given as a vector, if vertex transparency is to vary. }
   \item{edge.lwd}{ line width scale for edges; if set greater than 0, edge widths are rescaled by \code{edge.lwd*dat}.  May be given as a vector or adjacency matrix, if edges are to have different line widths. }
@@ -47,7 +47,7 @@ gplot3d(dat, g = 1, gmode = "digraph", diag = FALSE,
 \details{
 \code{gplot3d} is the three-dimensional companion to \code{gplot}.  As with the latter, clever manipulation of parameters can allow for a great deal of flexibility in the resulting display.  (Displays produced by \code{gplot3d} are also interactive, to the extent supported by \code{\link[rgl]{rgl}}.)  If vertex positions are not specified directly using \code{coord}, vertex layout is determined via one of the various available algorithms.  These should be specified via the \code{mode} argument; see \code{\link{gplot3d.layout}} for a full list.  User-supplied layout functions are also possible - see the aforementioned man page for details.
 
-Note that where \code{gmode=="twomode"}, the supplied two-mode matrix is converted to bipartite adjacency form prior to computing coordinates.  It may be desirable to use parameters such as \code{vertex.col} to differentiate row and column vertices.
+Note that where \code{gmode=="twomode"}, the supplied two-mode graph is converted to bipartite form prior to computing coordinates (assuming it is not in this form already).  It may be desirable to use parameters such as \code{vertex.col} to differentiate row and column vertices; by default, row vertices are colored red, and column vertices blue.
 }
 \value{
   A three-column matrix containing vertex coordinates

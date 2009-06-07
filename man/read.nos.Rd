@@ -6,11 +6,12 @@
   Reads an input file in NOS format, returning the result as a graph set.
 }
 \usage{
-read.nos(file)
+read.nos(file, return.as.edgelist = FALSE)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
-  \item{file}{ The file to be imported }
+  \item{file}{ the file to be imported }
+  \item{return.as.edgelist}{ logical; should the resulting graphs be returned in sna edgelist format?}
 }
 \details{
   NOS format consists of three header lines, followed by a whitespace delimited stack of raw adjacency matrices; the format is not particularly elegant, but turns up in certain legacy applications (mostly at CMU).  \code{read.nos} provides a quick and dirty way of reading in these files, without the headache of messing with \code{\link{read.table}} settings.
@@ -45,7 +46,7 @@ The content of the NOS format is as follows:
 where <abcd> is understood to be the value of the c->d edge in the bth graph of the file.  (As one might expect, m, n, and o are the numbers of graphs (matrices), rows, and columns for the data, respectively.)  The "k" line contains a list of row and column "colors", categorical variables associated with each row and column, respectively.  Although originally intended to communicate exchangability information, these can be used for other purposes (though there are easier ways to deal with attribute data these days).
 }
 \value{
-  The imported graph set (in adjacency array form).
+  The imported graph set (in adjacency array or edgelist form).
 }
 %\references{  }
 \author{ Carter T. Butts \email{buttsc@uci.edu} }
@@ -55,9 +56,9 @@ where <abcd> is understood to be the value of the c->d edge in the bth graph of 
 
 \seealso{ \code{\link{write.nos}}, \code{\link{scan}}, \code{\link{read.table}} }
 
-\examples{
-
-}
+%\examples{
+%
+%}
 \keyword{ file }%-- one or more ...
 \keyword{graphs}
 

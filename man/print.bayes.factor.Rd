@@ -6,7 +6,7 @@
   Prints a quick summary of a Bayes Factor object.
 }
 \usage{
-print.bayes.factor(x, ...)
+\method{print}{bayes.factor}(x, ...)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
@@ -26,6 +26,6 @@ None
 
 \seealso{ \code{\link{bbnam.bf}}}
 
-\examples{
-}
+%\examples{
+%}
 \keyword{ print }%-- one or more ...

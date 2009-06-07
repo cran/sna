@@ -6,7 +6,7 @@
   Prints an object of class \code{summary.cugtest}.
 }
 \usage{
-print.summary.cugtest(x, ...)
+\method{print}{summary.cugtest}(x, ...)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
@@ -15,8 +15,8 @@ print.summary.cugtest(x, ...)
 }
 %\details{
 %}
-\value{
-}
+%\value{
+%}
 %\references{  }
 \author{ Carter T. Butts \email{buttsc@uci.edu} }
 %\note{  }
@@ -25,7 +25,7 @@ print.summary.cugtest(x, ...)
 
 \seealso{ \code{\link{summary.cugtest}} }
 
-\examples{
-
-}
+%\examples{
+%
+%}
 \keyword{ print }%-- one or more ...

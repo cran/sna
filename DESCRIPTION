@@ -1,12 +1,18 @@
 Package: sna
-Version: 1.5
-Date: 2007-07-31
+Version: 2.0
+Date: 2009-06-07
 Title: Tools for Social Network Analysis
 Author: Carter T. Butts <buttsc@uci.edu>
 Maintainer: Carter T. Butts <buttsc@uci.edu>
 Depends: R (>= 2.0.0), utils
-Suggests: network, rgl, numDeriv, SparseM
-Description: A range of tools for social network analysis, including node and graph-level indices, structural distance and covariance methods, structural equivalence detection, p* modeling, random graph generation, and 2D/3D network visualization.
-License: GPL Version 2 or newer
+Suggests: network, rgl, numDeriv, SparseM, statnet
+Description: A range of tools for social network analysis, including
+        node and graph-level indices, structural distance and
+        covariance methods, structural equivalence detection, p*
+        modeling, random graph generation, and 2D/3D network
+        visualization.
+License: GPL (>= 2)
 URL: http://erzuli.ss.uci.edu/R.stuff
-Packaged: Tue Jul 31 16:12:32 2007; buttsc
+Packaged: 2009-06-07 10:02:18 UTC; buttsc
+Repository: CRAN
+Date/Publication: 2009-06-07 13:08:50

@@ -6,7 +6,7 @@
   Prints an object of class \code{summary.lnam}.
 }
 \usage{
-print.summary.lnam(x, digits = max(3, getOption("digits") - 3), 
+\method{print}{summary.lnam}(x, digits = max(3, getOption("digits") - 3), 
     signif.stars = getOption("show.signif.stars"), ...)
 }
 %- maybe also 'usage' for other objects documented here.

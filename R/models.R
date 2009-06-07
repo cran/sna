@@ -3,7 +3,7 @@
 # models.R
 #
 # copyright (c) 2004, Carter T. Butts <buttsc@uci.edu>
-# Last Modified 12/18/06
+# Last Modified 5/1/09
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/sna package
@@ -95,13 +95,36 @@ bbnam<-function(dat,model="actor",...){
 
 
 #bbnam.actor - Draw from the error-prob-by-actor model
-bbnam.actor<-function(dat,nprior=matrix(rep(0.5,dim(dat)[2]*dim(dat)[3]),nrow=dim(dat)[2],ncol=dim(dat)[3]),emprior=cbind(rep(1,dim(dat)[1]),rep(1,dim(dat)[1])),epprior=cbind(rep(1,dim(dat)[1]),rep(1,dim(dat)[1])),diag=FALSE, mode="digraph",reps=5,draws=1500,burntime=500,quiet=TRUE,anames=paste("a",1:dim(dat)[2],sep=""),onames=paste("o",1:dim(dat)[1],sep=""),compute.sqrtrhat=TRUE){
+bbnam.actor<-function(dat,nprior=0.5,emprior=c(1,11),epprior=c(1,11),diag=FALSE, mode="digraph",reps=5,draws=1500,burntime=500,quiet=TRUE,anames=NULL,onames=NULL,compute.sqrtrhat=TRUE){
+   dat<-as.sociomatrix.sna(dat,simplify=TRUE)
+   if(is.list(dat))
+     stop("All bbnam input graphs must be of the same order.")
+   if(length(dim(dat))==2)
+     dat<-array(dat,dim=c(1,NROW(dat),NCOL(dat)))
    #First, collect some basic model parameters and do other "setup" stuff
    m<-dim(dat)[1]
    n<-dim(dat)[2]
    d<-dat
    slen<-burntime+floor(draws/reps)
    out<-list()
+   if((!is.matrix(nprior))||(NROW(nprior)!=n)||(NCOL(nprior)!=n))
+     nprior<-matrix(nprior,n,n)
+   if((!is.matrix(emprior))||(NROW(emprior)!=n)||(NCOL(emprior)!=2)){
+     if(length(emprior)==2)
+       emprior<-sapply(emprior,rep,n)
+     else
+       emprior<-matrix(emprior,n,2)
+   }
+   if((!is.matrix(epprior))||(NROW(epprior)!=n)||(NCOL(epprior)!=2)){
+     if(length(epprior)==2)
+       emprior<-sapply(epprior,rep,n)
+     else
+       emprior<-matrix(epprior,n,2)
+   }
+   if(is.null(anames))
+     anames<-paste("a",1:n,sep="")
+   if(is.null(onames))
+     onames<-paste("o",1:m,sep="")
    #Remove any data which doesn't count...
    if(mode=="graph")
       d<-upper.tri.remove(d)
@@ -179,13 +202,6 @@ bbnam.actor<-function(dat,nprior=matrix(rep(0.5,dim(dat)[2]*dim(dat)[3]),nrow=di
       }
    if(!quiet)
       cat("\tAggregated error parameters\n")
-   #Mix up draws (keeping components together, of course!) to reduce dependence
-   o<-sample(1:dim(out$em)[1])
-   out$net<-out$net[o,,]
-   out$em<-out$em[o,]
-   out$ep<-out$ep[o,]
-   if(!quiet)
-      cat("Remixing draws\n")
    #Finish off the output and return it.
    out$anames<-anames
    out$onames<-onames
@@ -203,8 +219,27 @@ bbnam.actor<-function(dat,nprior=matrix(rep(0.5,dim(dat)[2]*dim(dat)[3]),nrow=di
 #bbnam.bf - Estimate Bayes Factors for the Butts Bayesian Network Accuracy 
 #Model.  This implementation relies on monte carlo integration to estimate the 
 #BFs, and tests the fixed probability, pooled, and pooled by actor models.
-bbnam.bf<-function(dat,nprior=matrix(rep(0.5,dim(dat)[1]^2),nrow=dim(dat)[1],ncol=dim(dat)[1]),em.fp=0.5,ep.fp=0.5,emprior.pooled=c(1,1),epprior.pooled=c(1,1),emprior.actor=cbind(rep(1,dim(dat)[1]),rep(1,dim(dat)[1])),epprior.actor=cbind(rep(1,dim(dat)[1]),rep(1,dim(dat)[1])),diag=FALSE, mode="digraph",reps=1000){
+bbnam.bf<-function(dat,nprior=0.5,em.fp=0.5,ep.fp=0.5,emprior.pooled=c(1,11),epprior.pooled=c(1,11),emprior.actor=c(1,11),epprior.actor=c(1,11),diag=FALSE, mode="digraph",reps=1000){
+   dat<-as.sociomatrix.sna(dat,simplify=TRUE)
+   if(is.list(dat))
+     stop("All bbnam.bf input graphs must be of the same order.")
+   if(length(dim(dat))==2)
+     dat<-array(dat,dim=c(1,NROW(dat),NCOL(dat)))
    n<-dim(dat)[1]
+   if((!is.matrix(nprior))||(NROW(nprior)!=n)||(NCOL(nprior)!=n))
+     nprior<-matrix(nprior,n,n)
+   if((!is.matrix(emprior.actor))||(NROW(emprior.actor)!=n)|| (NCOL(emprior.actor)!=2)){
+     if(length(emprior.actor)==2)
+       emprior.actor<-sapply(emprior.actor,rep,n)
+     else
+       emprior.actor<-matrix(emprior.actor,n,2)
+   }
+   if((!is.matrix(epprior.actor))||(NROW(epprior.actor)!=n)|| (NCOL(epprior.actor)!=2)){
+     if(length(epprior.actor)==2)
+       epprior.actor<-sapply(epprior.actor,rep,n)
+     else
+       epprior.actor<-matrix(epprior.actor,n,2)
+   }
    d<-dat
    if(!diag)
       d<-diag.remove(d)
@@ -220,19 +255,20 @@ bbnam.bf<-function(dat,nprior=matrix(rep(0.5,dim(dat)[1]^2),nrow=dim(dat)[1],nco
       ep.pooled<-eval(call("rbeta",1,epprior.pooled[1],epprior.pooled[2]))
       em.actor<-eval(call("rbeta",n,emprior.actor[,1],emprior.actor[,2]))
       ep.actor<-eval(call("rbeta",n,epprior.actor[,1],epprior.actor[,2]))
-      pfpv[i]<-bbnam.jntlik(d,a=a,em=em.fp,ep=ep.fp)
-      ppov[i]<-bbnam.jntlik(d,a=a,em=em.pooled,ep=ep.pooled)
-      pacv[i]<-bbnam.jntlik(d,a=a,em=em.actor,ep=ep.actor)
+      pfpv[i]<-bbnam.jntlik(d,a=a,em=em.fp,ep=ep.fp,log=TRUE)
+      ppov[i]<-bbnam.jntlik(d,a=a,em=em.pooled,ep=ep.pooled,log=TRUE)
+      pacv[i]<-bbnam.jntlik(d,a=a,em=em.actor,ep=ep.actor,log=TRUE)
    }
-   int.lik<-c(mean(pfpv),mean(ppov),mean(pacv))
+   int.lik<-c(logMean(pfpv),logMean(ppov),logMean(pacv))
    int.lik.std<-sqrt(c(var(pfpv),var(ppov),var(pacv)))
+   int.lik.std<-(logSub(c(logMean(2*pfpv),logMean(2*ppov),logMean(2*pacv)), 2*int.lik)-log(reps))/2
    #Find the Bayes Factors
    o<-list()
    o$int.lik<-matrix(nrow=3,ncol=3)
    for(i in 1:3)
       for(j in 1:3){
          if(i!=j)
-            o$int.lik[i,j]<-int.lik[i]/int.lik[j]
+            o$int.lik[i,j]<-int.lik[i]-int.lik[j]
          else
             o$int.lik[i,i]<-int.lik[i]
       }
@@ -247,10 +283,21 @@ bbnam.bf<-function(dat,nprior=matrix(rep(0.5,dim(dat)[1]^2),nrow=dim(dat)[1],nco
 
 
 #bbnam.fixed - Draw from the fixed probability error model
-bbnam.fixed<-function(dat,nprior=matrix(rep(0.5,dim(dat)[2]^2),nrow=dim(dat)[2],ncol=dim(dat)[2]),em=0.25,ep=0.25,diag=FALSE,mode="digraph",draws=1500,outmode="draws",anames=paste("a",1:dim(dat)[2],sep=""),onames=paste("o",1:dim(dat)[1],sep="")){
+bbnam.fixed<-function(dat,nprior=0.5,em=0.25,ep=0.25,diag=FALSE,mode="digraph",draws=1500,outmode="draws",anames=NULL,onames=NULL){
+   dat<-as.sociomatrix.sna(dat,simplify=TRUE)
+   if(is.list(dat))
+     stop("All bbnam input graphs must be of the same order.")
+   if(length(dim(dat))==2)
+     dat<-array(dat,dim=c(1,NROW(dat),NCOL(dat)))
    #How many actors are involved?
    m<-dim(dat)[1]
    n<-dim(dat)[2]
+   if((!is.matrix(nprior))||(NROW(nprior)!=n)||(NCOL(nprior)!=n))
+     nprior<-matrix(nprior,n,n)
+   if(is.null(anames))
+     anames<-paste("a",1:n,sep="")
+   if(is.null(onames))
+     onames<-paste("o",1:m,sep="")
    #Check to see if we've been given full matrices (or vectors) of error probs...
    if(length(em)==m*n^2)
       em.a<-em
@@ -319,13 +366,24 @@ bbnam.jntlik.slice<-function(s,dat,a,em,ep,log=FALSE){
 
 
 #bbnam.pooled - Draw from the pooled error model
-bbnam.pooled<-function(dat,nprior=matrix(rep(0.5,dim(dat)[2]*dim(dat)[3]),nrow=dim(dat)[2],ncol=dim(dat)[3]),emprior=c(1,1),epprior=c(1,1),diag=FALSE, mode="digraph",reps=5,draws=1500,burntime=500,quiet=TRUE,anames=paste("a",1:dim(dat)[2],sep=""),onames=paste("o",1:dim(dat)[1],sep=""),compute.sqrtrhat=TRUE){
+bbnam.pooled<-function(dat,nprior=0.5,emprior=c(1,11),epprior=c(1,11), diag=FALSE,mode="digraph",reps=5,draws=1500,burntime=500,quiet=TRUE,anames=NULL,onames=NULL,compute.sqrtrhat=TRUE){
+   dat<-as.sociomatrix.sna(dat,simplify=TRUE)
+   if(is.list(dat))
+     stop("All bbnam input graphs must be of the same order.")
+   if(length(dim(dat))==2)
+     dat<-array(dat,dim=c(1,NROW(dat),NCOL(dat)))
    #First, collect some basic model parameters and do other "setup" stuff
    m<-dim(dat)[1]
    n<-dim(dat)[2]
    d<-dat
    slen<-burntime+floor(draws/reps)
    out<-list()
+   if((!is.matrix(nprior))||(NROW(nprior)!=n)||(NCOL(nprior)!=n))
+     nprior<-matrix(nprior,n,n)
+   if(is.null(anames))
+     anames<-paste("a",1:n,sep="")
+   if(is.null(onames))
+     onames<-paste("o",1:m,sep="")
    #Remove any data which doesn't count...
    if(mode=="graph")
       d<-upper.tri.remove(d)
@@ -402,13 +460,6 @@ bbnam.pooled<-function(dat,nprior=matrix(rep(0.5,dim(dat)[2]*dim(dat)[3]),nrow=d
       }
    if(!quiet)
       cat("\tAggregated error parameters\n")
-   #Mix up draws (keeping components together, of course!) to reduce dependence
-   o<-sample(1:length(out$em))
-   out$net<-out$net[o,,]
-   out$em<-out$em[o]
-   out$ep<-out$ep[o]
-   if(!quiet)
-      cat("Remixing draws\n")
    #Finish off the output and return it.
    out$anames<-anames
    out$onames<-onames
@@ -436,7 +487,11 @@ bbnam.probtie<-function(dat,i,j,npriorij,em,ep){
 
 #bn - Fit a biased net model
 bn<-function(dat,method=c("mple.triad","mple.dyad","mple.edge","mtle"),param.seed=NULL,param.fixed=NULL,optim.method="BFGS",optim.control=list(),epsilon=1e-5){
-  dat<-as.sociomatrix.sna(dat)
+  dat<-as.sociomatrix.sna(dat,simplify=FALSE)
+  if(is.list(dat))
+    return(lapply(dat,bn,method=method,param.seed=param.seed, param.fixed=param.fixed,optim.method=optim.method,optim.contol=optim.control,epsilon=epsilon))
+  else if(length(dim(dat))>2)
+    return(apply(dat,1,bn,method=method,param.seed=param.seed, param.fixed=param.fixed,optim.method=optim.method,optim.contol=optim.control,epsilon=epsilon))
   n<-NROW(dat)
   #Make sure dat is appropriate
   if(!is.matrix(dat))
@@ -587,47 +642,22 @@ bn.nltl<-function(p,stats,fixed=rep(NA,4),...){
 #brokerage - perform a Gould-Fernandez brokerage analysis
 brokerage<-function(g,cl){
   #Pre-process the raw input
-  g<-as.sociomatrix.sna(g)
-  if(is.list(g)){
-    return(sapply(g,brokerage,cl))
-  }else if(length(dim(g))>2){
-    return(apply(g,1,brokerage,cl))
-  }
+  g<-as.edgelist.sna(g)
+  if(is.list(g))
+    return(lapply(g,brokerage,cl))
   #End pre-processing
-  N<-NROW(g)
+  N<-attr(g,"n")
+  m<-NROW(g)
   classes<-unique(cl)
   icl<-match(cl,classes)
   #Compute individual brokerage measures
   br<-matrix(0,N,5)
-  br<-matrix(.C("brokerage_R",as.double(g),as.integer(N),as.integer(icl), brok=as.double(br),PACKAGE="sna",NAOK=TRUE)$brok,N,5)
-#  for(i in 1:N){
-#    for(j in 1:N){
-#      for(k in 1:N){
-#        if((i!=j)&&(i!=k)&&(j!=k)){
-#          #Is there any brokerage at all?
-#          if((g[j,i]>0)&&(g[i,k]>0)&&(g[j,k]==0)){
-#            #Classify by type
-#            if(cl[i]==cl[j]){
-#              if(cl[i]==cl[k])      #Type 1: Within-group (wI) [j i k]
-#                br[i,1]<-br[i,1]+1
-#              else                  #Type 3: Representative (bIO) [j i] [k]
-#                br[i,3]<-br[i,3]+1
-#            }else if(cl[i]==cl[k]){
-#              br[i,4]<-br[i,4]+1    #Type 4: Gatekeeping (bOI) [j] [i k]
-#            }else if(cl[j]==cl[k]){
-#              br[i,2]<-br[i,2]+1    #Type 2: Itinerant (WO) [i] [j k]
-#            }else
-#              br[i,5]<-br[i,5]+1    #Type 5: Liason (bO) [i] [j] [k]
-#          }
-#        }
-#      } 
-#    }
-#  }
+  br<-matrix(.C("brokerage_R",as.double(g),as.integer(N),as.integer(m), as.integer(icl), brok=as.double(br),PACKAGE="sna",NAOK=TRUE)$brok,N,5)
   br<-cbind(br,apply(br,1,sum))
   #Global brokerage measures
   gbr<-apply(br,2,sum)
   #Calculate expectations and such
-  d<-gden(g>0)
+  d<-m/(N*(N-1))
   clid<-unique(cl)         #Count the class memberships
   n<-vector()
   for(i in clid)
@@ -693,13 +723,13 @@ brokerage<-function(g,cl){
   #Return the results
   br.nam<-c("w_I","w_O","b_IO","b_OI","b_O","t")
   colnames(br)<-br.nam
-  rownames(br)<-rownames(g)
+  rownames(br)<-attr(g,"vnames")
   colnames(br.exp)<-br.nam
-  rownames(br.exp)<-rownames(g)
+  rownames(br.exp)<-attr(g,"vnames")
   colnames(br.sd)<-br.nam
-  rownames(br.sd)<-rownames(g)
+  rownames(br.sd)<-attr(g,"vnames")
   colnames(br.z)<-br.nam
-  rownames(br.z)<-rownames(g)
+  rownames(br.z)<-attr(g,"vnames")
   names(gbr)<-br.nam
   names(egbr)<-br.nam
   names(vgbr)<-br.nam
@@ -814,7 +844,7 @@ consensus<-function(dat,mode="digraph",diag=FALSE,method="central.graph",tol=1e-
    }else if(method=="romney.batchelder"){
      d<-d[!apply(is.na(d),1,all),,]              #Remove any missing informants
      if(length(dim(d))<3)
-       error("Insufficient informant information.")
+       stop("Insufficient informant information.")
      #Create the initial estimates
      drate<-apply(d,1,mean,na.rm=TRUE)
      cong<-apply(d,c(2,3),mean,na.rm=TRUE)>0.5   #Estimate graph
@@ -1237,7 +1267,7 @@ nacf<-function(net,y,lag.max=NULL,type=c("correlation","covariance","moran","gea
   if(is.list(net))
     return(lapply(net,nacf,y=y,lag.max=lag.max, neighborhood.type=neighborhood.type,partial.neighborhood=partial.neighborhood,mode=mode,diag=diag,thresh=thresh,demean=demean))
   else if(length(dim(net))>2)
-    return(apply(nat,1,nacf,y=y,lag.max=lag.max, neighborhood.type=neighborhood.type,partial.neighborhood=partial.neighborhood,mode=mode,diag=diag,thresh=thresh,demean=demean))
+    return(apply(net,1,nacf,y=y,lag.max=lag.max, neighborhood.type=neighborhood.type,partial.neighborhood=partial.neighborhood,mode=mode,diag=diag,thresh=thresh,demean=demean))
   #End pre-processing
   if(length(y)!=NROW(net))
     stop("Network size must match covariate length in nacf.")
@@ -1417,9 +1447,22 @@ netcancor<-function(y,x,mode="digraph",diag=FALSE,nullhyp="cugtie",reps=1000){
 #  #    eij = rmperm (ei)
 #  #    Fit Y ~ b0** + b1** X1 + ... + bi** eij + ... + bp** Xp
 #  #Use resulting permutation distributions to test coefficients
-netlm<-function(y,x,intercept=TRUE,mode="digraph",diag=FALSE,nullhyp=c("qap", "qapspp","qapy","qapx","qapallx","cugtie","cugden","cuguman","classical"),tol=1e-7, reps=1000){
+netlm<-function(y,x,intercept=TRUE,mode="digraph",diag=FALSE,nullhyp=c("qap", "qapspp","qapy","qapx","qapallx","cugtie","cugden","cuguman","classical"),test.statistic=c("t-value","beta"),tol=1e-7, reps=1000){
+  #Define an internal routine to perform a QR reduction and get t-values
+  gettval<-function(x,y,tol){
+    xqr<-qr(x,tol=tol)
+    coef<-qr.coef(xqr,y)
+    resid<-qr.resid(xqr,y)
+    rank<-xqr$rank
+    n<-length(y)
+    rdf<-n-rank
+    resvar<-sum(resid^2)/rdf
+    cvm<-chol2inv(xqr$qr)
+    se<-sqrt(diag(cvm)*resvar)
+    coef/se
+  }
   #Define an internal routine to quickly fit linear models to graphs
-  gfit<-function(glist,mode,diag,tol,rety){
+  gfit<-function(glist,mode,diag,tol,rety,tstat){
     y<-gvectorize(glist[[1]],mode=mode,diag=diag,censor.as.na=TRUE)
     x<-vector()
     for(i in 2:length(glist))
@@ -1427,10 +1470,15 @@ netlm<-function(y,x,intercept=TRUE,mode="digraph",diag=FALSE,nullhyp=c("qap", "q
     if(!is.matrix(x))
       x<-matrix(x,nc=1)
     mis<-is.na(y)|apply(is.na(x),1,any)
-    if(!rety)
-      qr.solve(x[!mis,],y[!mis],tol=tol)
-    else
+    if(!rety){
+      if(tstat=="beta")
+        qr.solve(x[!mis,],y[!mis],tol=tol)
+      else if(tstat=="t-value"){
+        gettval(x[!mis,],y[!mis],tol=tol)
+      }
+    }else{
       list(qr(x[!mis,],tol=tol),y[!mis])
+    }
   }
   #Get the data in order
   y<-as.sociomatrix.sna(y)
@@ -1463,6 +1511,11 @@ netlm<-function(y,x,intercept=TRUE,mode="digraph",diag=FALSE,nullhyp=c("qap", "q
   fit$rank<-fit.base[[1]]$rank
   fit$n<-length(fit.base[[2]])
   fit$df.residual<-fit$n-fit$rank
+  tstat<-match.arg(test.statistic)
+  if(tstat=="beta")
+    fit$tstat<-fit$coefficients
+  else if(tstat=="t-value")
+    fit$tstat<-fit$coefficients/ sqrt(diag(chol2inv(fit$qr$qr))*sum(fit$residuals^2)/(fit$n-fit$rank))
   #Proceed based on selected null hypothesis
   nullhyp<-match.arg(nullhyp)
   if((nullhyp%in%c("qap","qapspp"))&&(nx==1))  #No partialling w/one predictor
@@ -1490,14 +1543,14 @@ netlm<-function(y,x,intercept=TRUE,mode="digraph",diag=FALSE,nullhyp=c("qap", "q
           cuguman<-(function(dc,n){rguman(1,n,mut=x[1],asym=x[2],null=x[3], method="exact")})(dyad.census(g[[i+1]]),n)
         )
         #Fit model with modified x
-        repdist[j,i]<-gfit(gr,mode=mode,diag=diag,tol=tol,rety=FALSE)[i]
+        repdist[j,i]<-gfit(gr,mode=mode,diag=diag,tol=tol,rety=FALSE, tstat=tstat)[i]
       }
     }
     #Prepare output
     fit$dist<-repdist
-    fit$pleeq<-apply(sweep(fit$dist,2,fit$coefficients,"<="),2,mean)
-    fit$pgreq<-apply(sweep(fit$dist,2,fit$coefficients,">="),2,mean)
-    fit$pgreqabs<-apply(sweep(abs(fit$dist),2,abs(fit$coefficients),">="),2, mean)
+    fit$pleeq<-apply(sweep(fit$dist,2,fit$tstat,"<="),2,mean)
+    fit$pgreq<-apply(sweep(fit$dist,2,fit$tstat,">="),2,mean)
+    fit$pgreqabs<-apply(sweep(abs(fit$dist),2,abs(fit$tstat),">="),2, mean)
   }else if(nullhyp=="qapy"){
     #Generate replicates for each predictor
     repdist<-matrix(0,reps,nx)
@@ -1505,13 +1558,13 @@ netlm<-function(y,x,intercept=TRUE,mode="digraph",diag=FALSE,nullhyp=c("qap", "q
     for(i in 1:reps){
       gr[[1]]<-rmperm(g[[1]])  #Permute y
       #Fit the model under replication
-      repdist[i,]<-gfit(gr,mode=mode,diag=diag,tol=tol,rety=FALSE)
+      repdist[i,]<-gfit(gr,mode=mode,diag=diag,tol=tol,rety=FALSE,tstat=tstat)
     }
     #Prepare output
     fit$dist<-repdist
-    fit$pleeq<-apply(sweep(fit$dist,2,fit$coefficients,"<="),2,mean)
-    fit$pgreq<-apply(sweep(fit$dist,2,fit$coefficients,">="),2,mean)
-    fit$pgreqabs<-apply(sweep(abs(fit$dist),2,abs(fit$coefficients),">="),2, mean)
+    fit$pleeq<-apply(sweep(fit$dist,2,fit$tstat,"<="),2,mean)
+    fit$pgreq<-apply(sweep(fit$dist,2,fit$tstat,">="),2,mean)
+    fit$pgreqabs<-apply(sweep(abs(fit$dist),2,abs(fit$tstat),">="),2, mean)
   }else if(nullhyp=="qapx"){
     #Generate replicates for each predictor
     repdist<-matrix(0,reps,nx)
@@ -1520,14 +1573,14 @@ netlm<-function(y,x,intercept=TRUE,mode="digraph",diag=FALSE,nullhyp=c("qap", "q
       for(j in 1:reps){
         gr[[i+1]]<-rmperm(gr[[i+1]]) #Modify the focal x
         #Fit model with modified x
-        repdist[j,i]<-gfit(gr,mode=mode,diag=diag,tol=tol,rety=FALSE)[i]
+        repdist[j,i]<-gfit(gr,mode=mode,diag=diag,tol=tol,rety=FALSE, tstat=tstat)[i]
       }
     }
     #Prepare output
     fit$dist<-repdist
-    fit$pleeq<-apply(sweep(fit$dist,2,fit$coefficients,"<="),2,mean)
-    fit$pgreq<-apply(sweep(fit$dist,2,fit$coefficients,">="),2,mean)
-    fit$pgreqabs<-apply(sweep(abs(fit$dist),2,abs(fit$coefficients),">="),2, mean)
+    fit$pleeq<-apply(sweep(fit$dist,2,fit$tstat,"<="),2,mean)
+    fit$pgreq<-apply(sweep(fit$dist,2,fit$tstat,">="),2,mean)
+    fit$pgreqabs<-apply(sweep(abs(fit$dist),2,abs(fit$tstat),">="),2, mean)
   }else if(nullhyp=="qapallx"){
     #Generate replicates for each predictor
     repdist<-matrix(0,reps,nx)
@@ -1536,13 +1589,13 @@ netlm<-function(y,x,intercept=TRUE,mode="digraph",diag=FALSE,nullhyp=c("qap", "q
       for(j in 1:nx)
         gr[[1+j]]<-rmperm(g[[1+j]])  #Permute each x
       #Fit the model under replication
-      repdist[i,]<-gfit(gr,mode=mode,diag=diag,tol=tol,rety=FALSE)
+      repdist[i,]<-gfit(gr,mode=mode,diag=diag,tol=tol,rety=FALSE, tstat=tstat)
     }
     #Prepare output
     fit$dist<-repdist
-    fit$pleeq<-apply(sweep(fit$dist,2,fit$coefficients,"<="),2,mean)
-    fit$pgreq<-apply(sweep(fit$dist,2,fit$coefficients,">="),2,mean)
-    fit$pgreqabs<-apply(sweep(abs(fit$dist),2,abs(fit$coefficients),">="),2, mean)
+    fit$pleeq<-apply(sweep(fit$dist,2,fit$tstat,"<="),2,mean)
+    fit$pgreq<-apply(sweep(fit$dist,2,fit$tstat,">="),2,mean)
+    fit$pgreqabs<-apply(sweep(abs(fit$dist),2,abs(fit$tstat),">="),2, mean)
   }else if((nullhyp=="qap")||(nullhyp=="qapspp")){
     xsel<-matrix(TRUE,n,n)
     if(!diag)
@@ -1553,20 +1606,20 @@ netlm<-function(y,x,intercept=TRUE,mode="digraph",diag=FALSE,nullhyp=c("qap", "q
     repdist<-matrix(0,reps,nx)
     for(i in 1:nx){
       #Regress x_i on other x's
-      xfit<-gfit(g[1+c(i,(1:nx)[-i])],mode=mode,diag=diag,tol=tol,rety=TRUE)
+      xfit<-gfit(g[1+c(i,(1:nx)[-i])],mode=mode,diag=diag,tol=tol,rety=TRUE, tstat=tstat)
       xres<-g[[1+i]]
       xres[xsel]<-qr.resid(xfit[[1]],xfit[[2]])  #Get residuals of x_i
       if(mode=="graph")
         xres[upper.tri(xres)]<-t(xres)[upper.tri(xres)]
       #Draw replicate coefs using permuted x residuals
       for(j in 1:reps)
-        repdist[j,i]<-gfit(c(g[-(1+i)],list(rmperm(xres))),mode=mode,diag=diag, tol=tol,rety=FALSE)[nx]
+        repdist[j,i]<-gfit(c(g[-(1+i)],list(rmperm(xres))),mode=mode,diag=diag, tol=tol,rety=FALSE,tstat=tstat)[nx]
     }
     #Prepare output
     fit$dist<-repdist
-    fit$pleeq<-apply(sweep(fit$dist,2,fit$coefficients,"<="),2,mean)
-    fit$pgreq<-apply(sweep(fit$dist,2,fit$coefficients,">="),2,mean)
-    fit$pgreqabs<-apply(sweep(abs(fit$dist),2,abs(fit$coefficients),">="),2, mean)
+    fit$pleeq<-apply(sweep(fit$dist,2,fit$tstat,"<="),2,mean)
+    fit$pgreq<-apply(sweep(fit$dist,2,fit$tstat,">="),2,mean)
+    fit$pgreqabs<-apply(sweep(abs(fit$dist),2,abs(fit$tstat),">="),2, mean)
   }
   #Finalize the results
   fit$nullhyp<-nullhyp
@@ -2018,7 +2071,7 @@ print.bayes.factor<-function(x,...){
    tab<-x$int.lik
    rownames(tab)<-x$model.names
    colnames(tab)<-x$model.names
-   cat("Bayes Factors by Model:\n\n(Diagonals indicate raw integrated likelihood estimates.)\n\n")
+   cat("Log Bayes Factors by Model:\n\n(Diagonals indicate raw integrated log likelihood estimates.)\n\n")
    print(tab)
    cat("\n")   
 }
@@ -2238,13 +2291,18 @@ print.netlogit<-function(x,...){
 
 #print.summary.bayes.factor - Printing for bayes factor summary objects
 print.summary.bayes.factor<-function(x,...){
-   cat("Bayes Factors by Model:\n\n(Diagonals indicate raw integrated likelihood estimates.)\n\n")
+   cat("Log Bayes Factors by Model:\n\n(Diagonals indicate raw integrated log likelihood estimates.)\n\n")
    print(x$int.lik)
    stdtab<-matrix(x$int.lik.std,nrow=1)
    colnames(stdtab)<-x$model.names
-   cat("\n\nInverse Bayes Factors:\n\n(Diagonals indicate posterior probability of model under within-set choice constraints and uniform model priors.\n\n")
+   cat("\n\nLog Inverse Bayes Factors:\n\n(Diagonals indicate log posterior probability of model under within-set choice constraints and uniform model priors.\n\n")
    print(x$inv.bf)
-   cat("\n\nDiagnostics:\n\nReplications - ",x$reps,"\n\nStd deviations of integrated likelihood estimates:\n\n")
+   cat("\nEstimated model probabilities (within-set):\n")
+   temp<-exp(diag(x$inv.bf))
+   names(temp)<-x$model.names
+   print(temp)
+   cat("\n\nDiagnostics:\n\nReplications - ",x$reps,"\n\nLog std deviations of integrated likelihood estimates:\n")
+   names(x$int.lik.std)<-x$model.names
    print(x$int.lik.std)
    cat("\n\nVector of hyperprior parameters:\n\n")
    priortab<-matrix(x$prior.param,nrow=1,ncol=length(x$prior.param))
@@ -2712,10 +2770,10 @@ pstar<-function(dat,effects=c("choice","mutuality","density","reciprocity","stra
                td<-c(td,eval.edgeperturbation(d,i,j,"gtrans",mode=mode,diag=diag,measure="weakcensus"))
             }
             if(!is.na(pmatch("outdegree",effects))){  #Compute outdegree effects
-               td<-c(td,eval.edgeperturbation(d,i,j,"degree",cmode="outdegree",gmode=gmode,diag=diag))
+               td<-c(td,eval.edgeperturbation(d,i,j,"degree",cmode="outdegree",gmode=mode,diag=diag))
             }
             if(!is.na(pmatch("indegree",effects))){  #Compute indegree effects
-               td<-c(td,eval.edgeperturbation(d,i,j,"degree",cmode="indegree",gmode=gmode,diag=diag))
+               td<-c(td,eval.edgeperturbation(d,i,j,"degree",cmode="indegree",gmode=mode,diag=diag))
             }
             if(!is.na(pmatch("betweenness",effects))){  #Compute betweenness effects
                td<-c(td,eval.edgeperturbation(d,i,j,"betweenness",gmode=mode,diag=diag))
@@ -2835,9 +2893,9 @@ summary.bayes.factor<-function(object, ...){
    o<-object
    rownames(o$int.lik)<-o$model.names
    colnames(o$int.lik)<-o$model.names
-   o$inv.bf<-1/o$int.lik
+   o$inv.bf<--o$int.lik
    for(i in 1:dim(o$int.lik)[1])
-      o$inv.bf[i,i]<-o$int.lik[i,i]/sum(diag(o$int.lik))
+      o$inv.bf[i,i]<-o$int.lik[i,i]-logSum(diag(o$int.lik))
    class(o)<-c("summary.bayes.factor","bayes.factor")
    o
 }

@@ -12,8 +12,8 @@ stackcount(d)
 \arguments{
   \item{d}{ a graph or graph stack. }
 }
-\details{
-}
+%\details{
+%}
 \value{
 The number of graphs in \code{d}
 }

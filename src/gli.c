@@ -4,7 +4,7 @@
 # gli.c
 #
 # copyright (c) 2004, Carter T. Butts <buttsc@uci.edu>
-# Last Modified 8/24/06
+# Last Modified 1/18/09
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/sna package
@@ -21,14 +21,14 @@
 #include "gli.h"
 
 
-void brokerage_R(double *g, int *pn, int *cl, double *brok)
+void brokerage_R(double *g, int *pn, int *pm, int *cl, double *brok)
 /*Calculate Gould-Fernandez brokerage scores for the vertices of g, based on
 the vertex class vector cl.  Scores are recorded in a *pn x 5 matrix, brok,
 whose columns are (in order) counts of coordinator, representative, 
 gatekeeper, itinerant, and liason broker roles for each vertex.*/
 {
   int n,i,j,k;
-  element *ep,*ep2;
+  slelement *ep,*ep2;
   snaNet *net;
 
   /*Set things up*/
@@ -36,15 +36,17 @@ gatekeeper, itinerant, and liason broker roles for each vertex.*/
   for(i=0;i<n;i++)
     for(j=0;j<5;j++)
       brok[i+n*j]=0.0;
-  net=adjMatTosnaNet(g,pn);
+  GetRNGstate();
+  net=elMatTosnaNet(g,pn,pm);
+  PutRNGstate();
 
   /*Calculate those scores!*/
   for(i=0;i<n;i++){                /*Walk the egos*/
-    for(ep=net->oel[i];ep!=NULL;ep=ep->next)    /*ego->alter*/
+    for(ep=snaFirstEdge(net,i,1);ep!=NULL;ep=ep->next[0])    /*ego->alter*/
       if(ep->val!=(double)i){
-        for(ep2=net->oel[(int)(ep->val)];ep2!=NULL;ep2=ep2->next)  /*alt->alt*/
+        for(ep2=snaFirstEdge(net,(int)(ep->val),1);ep2!=NULL;ep2=ep2->next[0])  /*alt->alt*/
           if((ep2->val!=(double)i)&&(ep2->val!=ep->val)){  /*Found 2-path?*/
-            if(!snaIsAdjacent(i,(int)(ep2->val),net)){     /*Found broker?*/
+            if(!snaIsAdjacent(i,(int)(ep2->val),net,0)){   /*Found broker?*/
               j=(int)(ep->val);
               k=(int)(ep2->val);
               /*Classify by type*/

@@ -6,12 +6,13 @@
   Adds \code{n} isolates to the graph (or graphs) in \code{dat}.
 }
 \usage{
-add.isolates(dat, n)
+add.isolates(dat, n, return.as.edgelist = FALSE)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
   \item{dat}{ one or more input graphs. }
   \item{n}{ the number of isolates to add. }
+  \item{return.as.edgelist}{ logical; should the input graph be returned as an edgelist (rather than an adjacency matrix)?}
 }
 \details{
   If \code{dat} contains more than one graph, the \code{n} isolates are added to each member of \code{dat}.

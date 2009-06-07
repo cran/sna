@@ -6,7 +6,7 @@
   Returns a \code{netlm} summary object
 }
 \usage{
-summary.netlm(object, ...)
+\method{summary}{netlm}(object, ...)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
@@ -27,7 +27,7 @@ summary.netlm(object, ...)
 
 \seealso{ \code{\link{netlm}} }
 
-\examples{
-
-}
+%\examples{
+%
+%}
 \keyword{ math }%-- one or more ...

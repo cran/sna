@@ -1,12 +1,16 @@
 \name{plot.sociomatrix}
 \alias{plot.sociomatrix}
+\alias{sociomatrixplot}
 %- Also NEED an `\alias' for EACH other topic documented here.
 \title{ Plot Matrices Using a Color/Intensity Grid }
 \description{
   Plots a matrix, \code{m}, associating the magnitude of the i,jth cell of \code{m} with the color of the i,jth cell of an \code{nrow(m)} by \code{ncol(m)} grid.
 }
 \usage{
-plot.sociomatrix(x, labels=NULL, drawlab=TRUE, diaglab=TRUE, 
+\method{plot}{sociomatrix}(x, labels=NULL, drawlab=TRUE, diaglab=TRUE, 
+    drawlines=TRUE, xlab=NULL, ylab=NULL, cex.lab=1, ...)
+
+sociomatrixplot(x, labels=NULL, drawlab=TRUE, diaglab=TRUE, 
     drawlines=TRUE, xlab=NULL, ylab=NULL, cex.lab=1, ...)
 }
 %- maybe also `usage' for other objects documented here.
@@ -22,7 +26,7 @@ plot.sociomatrix(x, labels=NULL, drawlab=TRUE, diaglab=TRUE,
   \item{\dots}{ additional arguments to \code{\link{plot}}. }
 }
 \details{
-  \code{plot.sociomatrix} is particularly valuable for examining large adjacency matrices, whose structure can be non-obvious otherwise.
+  \code{plot.sociomatrix} is particularly valuable for examining large adjacency matrices, whose structure can be non-obvious otherwise.  \code{sociomatrixplot} is an alias to \code{plot.sociomatrix}, and may eventually supersede it.
 }
 \value{
 None

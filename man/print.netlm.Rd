@@ -6,7 +6,7 @@
   Prints a quick summary of objects produced by \code{\link{netlm}}.
 }
 \usage{
-print.netlm(x, ...)
+\method{print}{netlm}(x, ...)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
@@ -15,8 +15,8 @@ print.netlm(x, ...)
 }
 %\details{
 %}
-\value{
-}
+%\value{
+%}
 %\references{  }
 \author{ Carter T. Butts \email{buttsc@uci.edu} }
 %\note{  }
@@ -25,6 +25,6 @@ print.netlm(x, ...)
 
 \seealso{ \code{\link{netlm}}}
 
-\examples{
-}
+%\examples{
+%}
 \keyword{ print }%-- one or more ...

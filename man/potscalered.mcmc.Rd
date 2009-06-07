@@ -30,8 +30,8 @@ Gelman, A., and Rubin, D.B.  (1992).  ``Inference from Iterative Simulation Usin
 
 \seealso{ \code{\link{bbnam}}}
 
-\examples{
-
-}
+%\examples{
+%
+%}
 \keyword{ models }%-- one or more ...
 \keyword{univar}

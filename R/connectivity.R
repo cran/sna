@@ -3,7 +3,7 @@
 # connectivity.R
 #
 # copyright (c) 2004, Carter T. Butts <buttsc@uci.edu>
-# Last Modified 7/31/07
+# Last Modified 5/2/09
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/sna package
@@ -12,20 +12,118 @@
 # properties (including geodesic distance and friends).
 #
 # Contents:
+#  bicomponent.dist
+#  clique.census
 #  component
 #  component.dist
 #  component.largest
+#  cutpoints
 #  geodist
 #  isolates
 #  is.connected
 #  is.isolate
+#  kcores
 #  kcycle.census
 #  kpath.census
+#  maxflow
 #  neighborhood
 #  reachability
 #  structure.statistics
 #
 ######################################################################
+
+
+#bicomponent.dist - Returns a list containing a vector of length n such that
+#the ith element contains the number of components of G having size i, and a 
+#vector of length n giving component membership.  Component strength is 
+#determined by the rule which is used to symmetrize the matrix; this controlled 
+#by the eponymous parameter given to the symmetrize command.
+bicomponent.dist<-function(dat,symmetrize=c("strong","weak")){
+   #Pre-process the raw input
+   dat<-as.edgelist.sna(dat,suppress.diag=TRUE)
+   if(is.list(dat))
+     return(lapply(dat,bicomponent.dist,symmetrize=symmetrize))
+   #End pre-processing
+   #Begin routine
+   n<-attr(dat,"n")
+   #Symmetrize dat based on the connectedness rule
+   dat<-symmetrize(dat,rule=match.arg(symmetrize),return.as.edgelist=TRUE)
+   #Compute the bicomponents
+   bc<-.Call("bicomponents_R",dat,n,NROW(dat),PACKAGE="sna")
+   if(length(bc[[1]])>1){                             #Sort by size
+     ord<-order(sapply(bc[[1]],length),decreasing=TRUE)
+     bc[[1]]<-bc[[1]][ord]
+     bc[[2]][bc[[2]]>0]<-match(bc[[2]][bc[[2]]>0],ord)
+   }
+   bc[[2]][bc[[2]]<0]<-NA
+   bc[[1]]<-bc[[1]][sapply(bc[[1]],length)>0]
+   #Return the results
+   o<-list()
+   if(length(bc[[1]])>0){
+     o$members<-bc[[1]]                    #Copy membership lists
+     names(o$members)<-1:length(o$members)
+     o$membership<-bc[[2]]                 #Copy memberships
+     o$csize<-sapply(o$members,length)     #Extract component sizes
+     names(o$csize)<-1:length(o$csize)
+     o$cdist<-tabulate(o$csize,nbins=n)    #Find component size distribution
+     names(o$cdist)<-1:n
+   }else{
+     o$members<-list()
+     o$membership<-bc[[2]]
+     o$csize<-vector(mode="numeric")
+     o$cdist<-rep(0,n)
+     names(o$cdist)<-1:n
+   }
+   o
+}
+
+
+#clique.census - Enumerate all maximal cliques
+clique.census<-function(dat,mode="digraph",tabulate.by.vertex=TRUE,clique.comembership=c("none","sum","bysize"),enumerate=TRUE){
+  #Pre-process the raw input
+  dat<-as.edgelist.sna(dat)
+  if(is.list(dat))
+    return(lapply(dat,clique.census,mode=mode, tabulate.by.vertex=tabulate.by.vertex,clique.comembership=clique.comembership,enumerate=enumerate))
+  #End pre-processing
+  n<-attr(dat,"n")
+  if(is.null(attr(dat,"vnames")))
+    vnam<-paste("v",1:n,sep="")
+  else
+    vnam<-attr(dat,"vnames")
+  #If called with a digraph, symmetrize
+  if(mode=="digraph")
+    dat<-symmetrize(dat,rule="strong",return.as.edgelist=TRUE)
+  #Compute the census
+  clique.comembership<-switch(match.arg(clique.comembership),
+    none=0,
+    sum=1,
+    bysize=2
+  )
+  census<-.Call("cliques_R",dat,n,NROW(dat),tabulate.by.vertex, clique.comembership,enumerate,PACKAGE="sna")
+  #Assemble the results
+  maxsize<-census[[1]]
+  census<-census[-1]
+  names(census)<-c("clique.count","clique.comemb","cliques")
+  if(tabulate.by.vertex){
+    census[[1]]<-matrix(census[[1]],maxsize,n+1)
+    census[[1]]<-census[[1]][,c(n+1,1:n),drop=FALSE]
+    rownames(census[[1]])<-1:maxsize
+    colnames(census[[1]])<-c("Agg",vnam)
+  }else{
+    names(census[[1]])<-1:length(census[[1]])
+  }
+  if(clique.comembership==1){
+    census[[2]]<-matrix(census[[2]],n,n)
+    rownames(census[[2]])<-vnam
+    colnames(census[[2]])<-vnam
+  }else if(clique.comembership==2){
+    census[[2]]<-array(census[[2]],dim=c(maxsize,n,n))
+    dimnames(census[[2]])<-list(1:maxsize,vnam,vnam)
+  }
+  #Return the non-null components
+  pres<-c(TRUE,clique.comembership>0,enumerate>0)
+  census[pres]       
+}
 
 
 #component.dist - Returns a data frame containing a vector of length n such that
@@ -110,28 +208,67 @@ components<-function(dat,connected="strong",comp.dist.precomp=NULL){
 }
 
 
-#geodist - Find the numbers and lengths of geodesics among nodes in a graph 
-#using a BFS, a la Brandes (2000).  (Thanks, Ulrik!)
-geodist<-function(dat,inf.replace=Inf){
+#cutpoints - Find the cutpoints of an input graph
+cutpoints<-function(dat,mode="digraph",connected=c("strong","weak","recursive"),return.indicator=FALSE){
    #Pre-process the raw input
-   dat<-as.sociomatrix.sna(dat)
+   dat<-as.edgelist.sna(dat)
    if(is.list(dat))
-     return(lapply(dat,geodist,inf.replace=inf.replace))
-   else if(length(dim(dat))>2)
-     return(apply(dat,1,geodist,inf.replace=inf.replace))
+     return(lapply(dat,cutpoints,mode=mode,return.indicator=return.indicator))
    #End pre-processing
-   n<-dim(dat)[2]
-   n<-dim(dat)[2]
+   n<-attr(dat,"n")
+   cp<-rep(0,n)
+   if(mode=="graph")
+     cp<-.C("cutpointsUndir_R",as.double(dat),as.integer(n), as.integer(NROW(dat)),cp=as.integer(cp),NAOK=TRUE,PACKAGE="sna")$cp
+   else{
+     dat<-switch(match.arg(connected),
+       strong=dat,
+       weak=symmetrize(dat,rule="weak",return.as.edgelist=TRUE),
+       recursive=symmetrize(dat,rule="strong",return.as.edgelist=TRUE)
+     )
+     if(match.arg(connected)=="strong")
+       cp<-.C("cutpointsDir_R",as.double(dat),as.integer(n), as.integer(NROW(dat)),cp=as.integer(cp),NAOK=TRUE,PACKAGE="sna")$cp
+     else
+       cp<-.C("cutpointsUndir_R",as.double(dat),as.integer(n), as.integer(NROW(dat)),cp=as.integer(cp),NAOK=TRUE,PACKAGE="sna")$cp
+   }
+   if(!return.indicator)
+     return(which(cp>0))
+   else{
+     if(is.null(attr(dat,"vnames")))
+       names(cp)<-1:n
+     else
+       names(cp)<-attr(dat,"vnames")
+     return(cp>0)
+   }   
+}
+
+
+#geodist - Find the numbers and lengths of geodesics among nodes in a graph 
+#using a BFS, a la Brandes (2008).  Note that we still need N^2 storage,
+#although calculations are done on the edgelist (which should save some time).
+#Both valued and unvalued variants are possible -- don't use the valued 
+#version unless you need to, since it can be considerably slower.
+geodist<-function(dat,inf.replace=Inf,count.paths=TRUE,predecessors=FALSE,ignore.eval=TRUE){
+   #Pre-process the raw input
+   dat<-as.edgelist.sna(dat)
+   if(is.list(dat))
+     return(lapply(dat,geodist,inf.replace=inf.replace,ignore.eval=ignore.eval))
+   #End pre-processing
+   n<-attr(dat,"n")
+   m<-NROW(dat)
    #Initialize the matrices
-   sigma<-matrix(0,nrow=n,ncol=n)
-   gd<-matrix(Inf,nrow=n,ncol=n)
    #Perform the calculation
-   geo<-.C("geodist_R",as.double(dat),as.double(n),gd=as.double(gd), sigma=as.double(sigma),NAOK=TRUE,PACKAGE="sna")
+   if(ignore.eval)
+     geo<-.Call("geodist_R",dat,n,m,as.integer(1),count.paths,predecessors, NAOK=TRUE, PACKAGE="sna")
+   else
+     geo<-.Call("geodist_val_R",dat,n,m,as.integer(1),count.paths,predecessors, NAOK=TRUE, PACKAGE="sna")
    #Return the results
    o<-list()
-   o$counts<-matrix(geo$sigma,n,n)
-   o$gdist<-matrix(geo$gd,n,n)
+   if(count.paths)
+     o$counts<-matrix(geo[[2]],n,n)
+   o$gdist<-matrix(geo[[1]],n,n)
    o$gdist[o$gdist==Inf]<-inf.replace  #Patch Infs, if desired
+   if(predecessors)
+     o$predecessors<-geo[[2+count.paths]]
    o
 }
 
@@ -191,25 +328,51 @@ is.isolate<-function(dat,ego,g=1,diag=FALSE){
 }
 
 
+#kcores - Perform k-core decomposition of one or more input graphs
+kcores<-function(dat,mode="digraph",diag=FALSE,cmode="freeman",ignore.eval=FALSE){
+  #Pre-process the raw input
+  dat<-as.edgelist.sna(dat,as.digraph=TRUE,suppress.diag=TRUE)
+  if(is.list(dat))
+    return(lapply(dat,kcores,dat=dat,mode=mode,diag=diag,cmode=cmode, ignore.eval=ignore.eval))
+  #End pre-processing
+  if(mode=="graph")             #If undirected, force to "indegree"
+    cmode<-"indegree"
+  n<-attr(dat,"n")
+  m<-NROW(dat)
+  corevec<-1:n
+  dtype<-switch(cmode,
+    indegree=0,
+    outdegree=1,
+    freeman=2
+  )
+  if(!(cmode%in%c("indegree","outdegree","freeman")))
+    stop("Illegal cmode in kcores.\n")
+  solve<-.C("kcores_R",as.double(dat),as.integer(n),as.integer(m), cv=as.double(corevec), as.integer(dtype), as.integer(diag), as.integer(ignore.eval), NAOK=TRUE,PACKAGE="sna")
+  if(is.null(attr(dat,"vnames")))
+    names(solve$cv)<-1:n
+  else
+    names(solve$cv)<-attr(dat,"vnames")
+  solve$cv
+}
+
+
 #kcycle.census - Compute the cycle census of a graph, possibly along with 
 #additional information on the inidence of cycles.
 kcycle.census<-function(dat,maxlen=3,mode="digraph",tabulate.by.vertex=TRUE,cycle.comembership=c("none","sum","bylength")){
   #Pre-process the raw input
-  dat<-as.sociomatrix.sna(dat)
+  dat<-as.edgelist.sna(dat)
   if(is.list(dat))
-    return(lapply(dat,cycle.census,mode=mode, tabulate.by.vertex=tabulate.by.vertex,cycle.comembership=cycle.comembership))
-  else if(length(dim(dat))>2)
-    return(apply(dat,1,cycle.census,mode=mode, tabulate.by.vertex=tabulate.by.vertex,cycle.comembership=cycle.comembership))
+    return(lapply(dat,kcycle.census,mode=mode, tabulate.by.vertex=tabulate.by.vertex,cycle.comembership=cycle.comembership))
   #End pre-processing
-  n<-NCOL(dat)
+  n<-attr(dat,"n")
   if(is.null(maxlen))
     maxlen<-n
   if(maxlen<2)
     stop("maxlen must be >=2")
-  if(is.null(colnames(dat)))
+  if(is.null(attr(dat,"vnames")))
     vnam<-paste("v",1:n,sep="")
   else
-    vnam<-colnames(dat)
+    vnam<-attr(dat,"vnames")
   if(mode=="digraph")
     directed<-TRUE
   else
@@ -233,7 +396,7 @@ kcycle.census<-function(dat,maxlen=3,mode="digraph",tabulate.by.vertex=TRUE,cycl
   if(is.null(maxlen))
     maxlen<-n
   #Calculate the cycle information
-  ccen<-.C("cycleCensus_R",as.integer(dat), as.integer(n), count=as.double(count), cccount=as.double(cccount), as.integer(maxlen), as.integer(directed), as.integer(tabulate.by.vertex), as.integer(cocycles),PACKAGE="sna")
+  ccen<-.C("cycleCensus_R",as.integer(dat), as.integer(n), as.integer(NROW(dat)), count=as.double(count), cccount=as.double(cccount), as.integer(maxlen), as.integer(directed), as.integer(tabulate.by.vertex), as.integer(cocycles),PACKAGE="sna")
   #Coerce the cycle counts into the right form
   if(!tabulate.by.vertex){
     count<-ccen$count
@@ -263,21 +426,19 @@ kcycle.census<-function(dat,maxlen=3,mode="digraph",tabulate.by.vertex=TRUE,cycl
 #additional information on the inidence of paths.
 kpath.census<-function(dat,maxlen=3,mode="digraph",tabulate.by.vertex=TRUE,path.comembership=c("none","sum","bylength"),dyadic.tabulation=c("none","sum","bylength")){
   #Pre-process the raw input
-  dat<-as.sociomatrix.sna(dat)
+  dat<-as.edgelist.sna(dat)
   if(is.list(dat))
-    return(lapply(dat,path.census,mode=mode, tabulate.by.vertex=tabulate.by.vertex,path.comembership=path.comembership, dyadic.tabulation=dyadic.tabulation))
-  else if(length(dim(dat))>2)
-    return(apply(dat,1,path.census,mode=mode, tabulate.by.vertex=tabulate.by.vertex,path.comembership=path.comembership, dyadic.tabulation=dyadic.tabulation))
+    return(lapply(dat,kpath.census,mode=mode, tabulate.by.vertex=tabulate.by.vertex,path.comembership=path.comembership, dyadic.tabulation=dyadic.tabulation))
   #End pre-processing
-  n<-NCOL(dat)
+  n<-attr(dat,"n")
   if(is.null(maxlen))
     maxlen<-n-1
   if(maxlen<1)
     stop("maxlen must be >=1")
-  if(is.null(colnames(dat)))
+  if(is.null(attr(dat,"vnames")))
     vnam<-paste("v",1:n,sep="")
   else
-    vnam<-colnames(dat)
+    vnam<-attr(dat,"vnames")
   if(mode=="digraph")
     directed<-TRUE
   else
@@ -310,7 +471,7 @@ kpath.census<-function(dat,maxlen=3,mode="digraph",tabulate.by.vertex=TRUE,path.
   else
     dpcount<-array(0,dim=c(maxlen,n,n))
   #Calculate the path information
-  pcen<-.C("pathCensus_R",as.double(dat), as.integer(n), count=as.double(count), cpcount=as.double(cpcount), dpcount=as.double(dpcount), as.integer(maxlen), as.integer(directed), as.integer(tabulate.by.vertex), as.integer(copaths), as.integer(dyadpaths),PACKAGE="sna")
+  pcen<-.C("pathCensus_R",as.double(dat), as.integer(n), as.integer(NROW(dat)), count=as.double(count), cpcount=as.double(cpcount), dpcount=as.double(dpcount), as.integer(maxlen), as.integer(directed), as.integer(tabulate.by.vertex), as.integer(copaths), as.integer(dyadpaths),PACKAGE="sna")
   #Coerce the path counts into the right form
   if(!tabulate.by.vertex){
     count<-pcen$count
@@ -343,6 +504,47 @@ kpath.census<-function(dat,maxlen=3,mode="digraph",tabulate.by.vertex=TRUE,path.
   if(dyadpaths>0)
     out$paths.bydyad<-dpcount
   out
+}
+
+
+#maxflow - Return the matrix of maximum flows between positions
+maxflow<-function(dat,src=NULL,sink=NULL,ignore.eval=FALSE){
+  #Pre-process the raw input
+  dat<-as.sociomatrix.sna(dat)
+  if(is.list(dat))
+    return(lapply(dat,maxflow,src=src,sink=sink,ignore.eval=ignore.eval))
+  else if(length(dim(dat))>2)
+    return(apply(dat,1,maxflow,src=src,sink=sink,ignore.eval=ignore.eval))
+  #End pre-processing
+  n<-NROW(dat)
+  dat[is.na(dat)]<-0                       #Deal with values and missingness
+  if(ignore.eval)
+    dat[dat!=0]<-1
+  if(length(src)==0)                       #Define sources and sinks
+    src<-1:n
+  else
+    src<-src[(src>0)&(src<=n)]
+  if(length(sink)==0)
+    sink<-1:n
+  else
+    sink<-sink[(sink>0)&(sink<=n)]
+  fmat<-matrix(nr=length(src),nc=length(sink))
+  for(i in 1:length(src))
+    for(j in 1:length(sink))
+      fmat[i,j]<-.C("maxflow_EK_R",as.double(dat),as.integer(NROW(dat)), as.integer(src[i]-1),as.integer(sink[j]-1),flow=as.double(0),NAOK=TRUE,PACKAGE="sna")$flo
+  #Return the result
+  if(length(src)*length(sink)>1){
+    if(is.null(rownames(dat)))
+      rownames(fmat)<-src
+    else
+      rownames(fmat)<-rownames(dat)[src]
+    if(is.null(colnames(dat)))
+      colnames(fmat)<-sink
+    else
+      colnames(fmat)<-colnames(dat)[sink]
+  }else
+    fmat<-as.numeric(fmat)
+  fmat
 }
 
 

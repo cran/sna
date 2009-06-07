@@ -48,7 +48,7 @@ g<-rgraph(6)
 
 #Calculate the degree of g using gapply
 all(gapply(g,1,rep(1,6),sum)==degree(g,cmode="outdegree"))
-all(gapply(g,2,rep(1,6),sum)==degree(g,cmode="degree"))
+all(gapply(g,2,rep(1,6),sum)==degree(g,cmode="indegree"))
 all(gapply(g,c(1,2),rep(1,6),sum)==degree(symmetrize(g),cmode="freeman")/2)
 
 #Find first and second order neighborhood means on some variable

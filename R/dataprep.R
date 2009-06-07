@@ -3,7 +3,7 @@
 # dataprep.R
 #
 # copyright (c) 2004, Carter T. Butts <buttsc@uci.edu>
-# Last Modified 7/28/07
+# Last Modified 06/05/09
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/sna package
@@ -13,12 +13,13 @@
 #
 # Contents:
 #
-#   addisolates (defunct)
 #   add.isolates
+#   as.edgelist.sna
 #   as.sociomatrix.sna
 #   diag.remove
 #   ego.extract
 #   event2dichot
+#   gt
 #   gvectorize
 #   interval.graph
 #   lower.tri.remove
@@ -32,58 +33,311 @@
 ######################################################################
 
 
-#addisolates (Defunct, as of 1.0)
-addisolates<-function(dat,n){
-  .Defunct("add.isolates","sna")
-}
-
-
 #add.isolates - Add isolates to one or more graphs
-add.isolates<-function(dat,n){
-   #Pre-process the raw input
-   dat<-as.sociomatrix.sna(dat)
-   if(is.list(dat))
-     return(lapply(dat,add.isolates,n=n))
-   #End pre-processing
-   if(length(dim(dat))>2){
+add.isolates<-function(dat,n,return.as.edgelist=FALSE){
+  if(!return.as.edgelist){
+    #Pre-process the raw input
+    dat<-as.sociomatrix.sna(dat)
+    if(is.list(dat))
+      return(lapply(dat,add.isolates,n=n,return.as.edgelist=return.as.edgelist))
+    #End pre-processing
+    if(length(dim(dat))>2){
       d<-array(dim=c(dim(dat)[1],dim(dat)[2]+n,dim(dat)[3]+n))
       d[,,]<-0
       for(i in 1:dim(dat)[1])
          d[i,1:dim(dat)[2],1:dim(dat)[2]]<-dat[i,,]
-   }
-   else{
+    }else{
       d<-matrix(nrow=dim(dat)[1]+n,ncol=dim(dat)[2]+n)
       d[,]<-0
       d[1:dim(dat)[2],1:dim(dat)[2]]<-dat
-   }   
-   d
+    }   
+    d
+  }else{
+    #Pre-process the raw input
+    dat<-as.edgelist.sna(dat)
+    if(is.list(dat))
+      return(lapply(dat,add.isolates,n=n,return.as.edgelist=return.as.edgelist))
+    #End pre-processing
+    attr(dat,"n")<-attr(dat,"n")+n
+    dat
+  }
+}
+
+
+#Force the input into edgelist form.  Network size, directedness, and vertex
+#names are stored as attributes, since they cannot otherwise be included
+as.edgelist.sna<-function(x, attrname=NULL, as.digraph=TRUE, suppress.diag=FALSE, force.bipartite=FALSE){
+  #In case of lists, process independently
+  if(is.list(x)&&(!(class(x)%in%c("network","matrix.csr","matrix.csc", "matrix.ssr","matrix.ssc", "matrix.hb","data.frame"))))
+    return(lapply(x,as.edgelist.sna, attrname=attrname,  as.digraph=as.digraph, suppress.diag=suppress.diag, force.bipartite=force.bipartite))
+  #Begin with network objects
+  if(class(x)=="network"){
+    require("network")  #Must have network library to process network objects
+    out<-as.matrix.network.edgelist(x,attrname=attrname)
+    if(NCOL(out)==2)                        #If needed, add edge values
+      out<-cbind(out,rep(1,NROW(out)))
+    if(suppress.diag&&has.loops(x))
+      out<-out[!(out[,1]==out[,2]),]
+    if((!is.directed(x))&&as.digraph){
+      if(has.loops(x)){
+        temp<-out[,1]==out[,2]
+        if(any(temp)){
+          temp2<-out[temp,]
+          out<-out[!temp,]
+          out<-rbind(out,out[,c(2,1,3)])
+          out<-rbind(out,temp2)
+        }else
+          out<-rbind(out,out[,c(2,1,3)])
+      }else
+        out<-rbind(out,out[,c(2,1,3)])
+    }
+    attr(out,"n")<-network.size(x)
+    attr(out,"vnames")<-network.vertex.names(x)
+    if(is.bipartite(x))
+      attr(out,"bipartite")<-get.network.attribute(x,"bipartite")
+    else if(force.bipartite)
+      out<-as.edgelist.sna(out,attrname=attrname,as.digraph=as.digraph, suppress.diag=suppress.diag,force.bipartite=force.bipartite)
+  } else
+  #Not a network -- is this a sparse matrix (from SparseM)?
+  if(class(x)%in%c("matrix.csr","matrix.csc","matrix.ssr","matrix.ssc", "matrix.hb")){
+    require("SparseM")   #Need SparseM for this
+    if(force.bipartite||(!is.null(attr(x,"bipartite")))|| (x@dimension[1]!=x@dimension[2])){
+      nr<-x@dimension[1]
+      nc<-x@dimension[2]
+      val<-x@ra
+      if((!suppress.diag)&&(class(x)%in%c("matrix.ssr","matrix.ssc"))){
+        snd<-rep(1:nr,each=diff(x@ia))
+        rec<-nr+x@ja
+        out<-cbind(snd,rec,val)
+        out<-rbind(out,out[,c(2,1,3)])
+      }else{
+        snd<-switch(class(x),
+          matrix.csr=rep(1:nr,each=diff(x@ia)),
+          matrix.csc=x@ja,
+          matrix.ssr=c(rep(1:nr,each=diff(x@ia)),x@ja),
+          matrix.ssc=c(x@ja,rep(1:nr,each=diff(x@ia)))
+        )
+        rec<-switch(class(x),
+          matrix.csr=nr+x@ja,
+          matrix.csc=rep(nr+(1:nc),each=diff(x@ia)),
+          matrix.ssr=c(nr+x@ja,rep(1:n,each=diff(x@ia))),
+          matrix.ssc=c(rep(nr+(1:nc),each=diff(x@ia)),x@ja)
+        )
+        out<-cbind(snd,rec,val)
+        out<-rbind(out,out[,c(2,1,3)])
+      }
+      attr(out,"n")<-nr+nc
+      attr(out,"vnames")<-NULL    #No dimnames for these objects
+      attr(out,"bipartite")<-nr
+    }else{
+      n<-x@dimension[1]
+      val<-x@ra
+      if((!suppress.diag)&&(class(x)%in%c("matrix.ssr","matrix.ssc"))){
+        snd<-rep(1:n,times=diff(x@ia))
+        rec<-x@ja
+        temp<-snd==rec
+        out<-cbind(snd,rec,val)
+        temp2<-out[temp,]
+        out<-out[!temp,]
+        out<-rbind(out,out[,c(2,1,3)])
+        out<-rbind(out,temp2)
+      }else{
+        snd<-switch(class(x),
+          matrix.csr=rep(1:n,times=diff(x@ia)),
+          matrix.csc=x@ja,
+          matrix.ssr=c(rep(1:n,times=diff(x@ia)),x@ja),
+          matrix.ssc=c(x@ja,rep(1:n,times=diff(x@ia)))
+        )
+        rec<-switch(class(x),
+          matrix.csr=x@ja,
+          matrix.csc=rep(1:n,times=diff(x@ia)),
+          matrix.ssr=c(x@ja,rep(1:n,times=diff(x@ia))),
+          matrix.ssc=c(rep(1:n,times=diff(x@ia)),x@ja)
+        )
+        out<-cbind(snd,rec,val)
+        if(suppress.diag)
+          out<-out[!(out[,1]==out[,2]),]
+      }
+      attr(out,"n")<-n
+      attr(out,"vnames")<-NULL    #No dimnames for these objects
+    }
+    if(force.bipartite&&(is.null(attr(out,"bipartite"))))
+      out<-as.edgelist.sna(out,attrname=attrname,as.digraph=as.digraph, suppress.diag=suppress.diag,force.bipartite=force.bipartite)
+  } else
+  #Matrix or data frame case
+  if(is.matrix(x)||is.data.frame(x)){ 
+    if((NCOL(x)==3)&&(!is.null(attr(x,"n")))){  #Is this already an edgelist?
+      out<-x
+      if(force.bipartite&&(is.null(attr(out,"bipartite")))){ #Treat as bipartite
+        out[,2]<-out[,2]+attr(x,"n")
+        out<-rbind(out,out[,c(2,1,3)])
+        attr(out,"n")<-attr(x,"n")*2
+        attr(out,"bipartite")<-attr(x,"n")
+        if(!is.null(attr(x,"vnames")))
+          attr(out,"vnames")<-c(attr(x,"vnames"),attr(x,"vnames"))
+        else
+          attr(out,"vnames")<-NULL
+      }
+    }else if((NCOL(x)==2)&&(!is.null(attr(x,"n")))){  #Is this an edgelist w/out vals?
+      out<-cbind(x,rep(1,NROW(x)))
+      attr(out,"n")<-attr(x,"n")
+      attr(out,"bipartite")<-attr(x,"bipartite")
+      attr(out,"vnames")<-attr(x,"vnames")
+      if(force.bipartite&&(is.null(attr(out,"bipartite")))){ #Treat as bipartite
+        out[,2]<-out[,2]+attr(x,"n")
+        out<-rbind(out,out[,c(2,1,3)])
+        attr(out,"n")<-attr(x,"n")*2
+        attr(out,"bipartite")<-attr(x,"n")
+        if(!is.null(attr(x,"vnames")))
+          attr(out,"vnames")<-c(attr(x,"vnames"),attr(x,"vnames"))
+        else
+          attr(out,"vnames")<-NULL
+      }
+    }else if(force.bipartite||(!is.null(attr(x,"bipartite")))|| (NROW(x)!=NCOL(x))){  #Assume this is a bipartite graph
+      mask<-is.na(x)|(x!=0)
+      if(sum(mask)>0){
+        snd<-row(x)[mask]
+        rec<-NROW(x)+col(x)[mask]
+        val<-x[mask]
+      }else{
+        snd<-vector()
+        rec<-vector()
+        val<-vector()
+      }
+      out<-cbind(snd,rec,val)
+      out<-rbind(out,out[,c(2,1,3)])
+      attr(out,"n")<-NROW(x)+NCOL(x)
+      attr(out,"vnames")<-c(rownames(x),colnames(x))
+      attr(out,"bipartite")<-NROW(x)
+    }else{                                 #Assume this is an adjmat
+      mask<-is.na(x)|(x!=0)
+      snd<-row(x)[mask]
+      rec<-col(x)[mask]
+      val<-x[mask]
+      out<-cbind(snd,rec,val)
+      attr(out,"n")<-NROW(x)
+      attr(out,"vnames")<-rownames(x)
+    }
+  }else
+  #Array case 
+  if(is.array(x)){
+      dx<-dim(x)
+      ldx<-length(dx)
+      if(ldx==2){                                   #Two-dimensional array
+        if((dx[2]==3)&&(!is.null(attr(x,"n")))){  #Is this already an edgelist?
+          out<-as.matrix(x)
+          attr(out,"n")<-attr(x,"n")
+          attr(out,"bipartite")<-attr(x,"bipartite")
+          attr(out,"vnames")<-attr(x,"vnames")
+        }
+        if((NCOL(x)==2)&&(!is.null(attr(x,"n")))){  #Is this an edgelist w/out vals?
+          out<-cbind(as.matrix(x),rep(1,NROW(x)))
+          attr(out,"n")<-attr(x,"n")
+          attr(out,"bipartite")<-attr(x,"bipartite")
+          attr(out,"vnames")<-attr(x,"vnames")
+        }else if(force.bipartite||(!is.null(attr(x,"bipartite")))|| (NROW(x)!=NCOL(x))){  #Assume this is a bipartite graph
+          mask<-is.na(x)|(x!=0)
+          if(sum(mask)>0){
+            snd<-row(x)[mask]
+            rec<-NROW(x)+col(x)[mask]
+            val<-x[mask]
+          }else{
+            sna<-vector()
+            rec<-vector()
+            val<-vector()
+          }
+          out<-cbind(snd,rec,val)
+          out<-rbind(out,out[,c(2,1,3)])
+          attr(out,"n")<-NROW(x)+NCOL(x)
+          attr(out,"vnames")<-c(dimnames(x)[[1]],dimnames(x)[[2]])
+          attr(out,"bipartite")<-NROW(x)
+        }else{                                 #Assume this is an adjmat
+          mask<-is.na(x)|(x!=0)
+          snd<-row(x)[mask]
+          rec<-col(x)[mask]
+          val<-x[mask]
+          out<-cbind(snd,rec,val)
+          attr(out,"n")<-NROW(x)
+          attr(out,"vnames")<-dimnames(x)[[1]]
+        }
+        if(force.bipartite&&(is.null(attr(out,"bipartite")))){ #Treat as bipartite
+          out[,2]<-out[,2]+attr(x,"n")
+          out<-rbind(out,out[,c(2,1,3)])
+          attr(out,"n")<-attr(x,"n")*2
+          attr(out,"bipartite")<-attr(x,"n")
+          if(!is.null(attr(x,"vnames")))
+            attr(out,"vnames")<-c(attr(x,"vnames"),attr(x,"vnames"))
+          else
+            attr(out,"vnames")<-NULL
+        }
+      }else if(ldx==3){                           #Three-dimensional array
+        out<-unlist(apply(x,1,function(z){list(as.edgelist.sna(z, attrname=attrname,as.digraph=as.digraph,suppress.diag=suppress.diag,force.bipartite=force.bipartite))}),recursive=FALSE)
+      }else
+        stop("Array input to as.edgelist.sna must either be a proper edgelist, an adjacency matrix, or an adjacency array.\n")
+  }else{
+    stop("as.edgelist.sna input must be an adjacency matrix/array, edgelist matrix, network, or sparse matrix, or list thereof.\n")
+  }
+  #Return the result
+  out
 }
 
 
 #Force the input into sociomatrix form.  This function includes an sna
 #wrapper to the network function as.sociomatrix, for global happiness.
-as.sociomatrix.sna<-function(x, attrname=NULL, simplify=TRUE){
-  #Check for the network library
-  if("network"%in%(.packages()))
-    return(as.sociomatrix(x, attrname=NULL, simplify=TRUE))
-  #Otherwise, proceed apace
-  if((class(x)=="network")||(is.list(x)&&any(sapply(x,class)=="network"))){
+as.sociomatrix.sna<-function(x, attrname=NULL, simplify=TRUE, force.bipartite=FALSE){
+  #If passed a list, operate on each element
+  if(is.list(x)&&(!(class(x)%in%c("network","matrix.csr","matrix.csc", "matrix.ssr","matrix.ssc", "matrix.hb","data.frame")))){
+    g<-lapply(x,as.sociomatrix.sna,attrname=attrname,simplify=simplify, force.bipartite=force.bipartite)
+    #Otherwise, start with network
+  }else if(class(x)=="network"){
     require("network")  #Must have network library to process network objects
-    return(as.sociomatrix(x, attrname=NULL, simplify=TRUE))
-  }
+    g<-as.sociomatrix(x, attrname=attrname, simplify=simplify)
   #Not a network -- is this a sparse matrix (from SparseM)?
-  if(class(x)%in%c("matrix.csr","matrix.csc","matrix.ssr","matrix.ssc", "matrix.hb")){
+  }else if(class(x)%in%c("matrix.csr","matrix.csc","matrix.ssr","matrix.ssc", "matrix.hb")){
     require("SparseM")   #Need SparseM for this
-    x<-as.matrix(x)      #Coerce to matrix form, and pass on
-  }
-  #Coerce to adjacency matrix form -- by now, no other classes involved
-  if(is.matrix(x)||is.array(x)){ #If an array/matrix, use as-is
-    g<-x
-  }else if(is.list(x)){  #If a list, recurse on list elements
-    g<-lapply(x,as.sociomatrix.sna,attrname=attrname,simplify=simplify)
-#    g<-x
+    bip<-attr(x,"bipartite")
+    g<-as.matrix(x)      #Coerce to matrix form, and pass on
+    attr(g,"bipartite")<-bip
   }else{
-    stop("as.sociomatrix.sna input must be an adjacency matrix/array, network, or list.")
+    #Coerce to adjacency matrix form -- by now, no other classes involved
+    if(is.array(x)&&(length(dim(x))==2))  #Quick diversion for 2-d arrays
+      x<-as.matrix(x)
+    if(is.data.frame(x))                  #Coerce data frames to matrices
+      x<-as.matrix(x)
+    if(is.matrix(x)){
+      if((NCOL(x)%in%c(2,3))&&(!is.null(attr(x,"n")))){     #sna edgelist
+        if(NCOL(x)==2)
+          x<-cbind(x,rep(1,NROW(x)))
+        g<-matrix(0,attr(x,"n"),attr(x,"n"))
+        if(NROW(x)>0)
+          g[x[,1:2,drop=FALSE]]<-x[,3]
+      }else if(force.bipartite||(!is.null(attr(x,"bipartite")))|| (NROW(x)!=NCOL(x))){    #Bipartite adjmat
+        nr<-NROW(x)
+        nc<-NCOL(x)
+        g<-matrix(0,nr+nc,nr+nc)
+        g[1:nr,(nr+1):(nr+nc)]<-x
+        g[(nr+1):(nr+nc),1:nr]<-t(x)
+      }else{                                             #Regular adjmat
+        g<-x
+      }  
+    }else if(is.array(x)){                   #If an array, test for type
+      if(length(dim(x))!=3)
+        stop("as.sociomatrix.sna input must be an adjacency matrix/array, network, data frame, sparse matrix, or list.")
+      if(force.bipartite||(!is.null(attr(x,"bipartite")))|| (dim(x)[2]!=dim(x)[3])){      #Bipartite stack
+        dx<-dim(x)
+        nr<-dx[2]
+        nc<-dx[3]
+        g<-array(0,dim=c(dx[1],nr+nc,nr+nc))
+        for(i in 1:dx[1]){
+          g[i,1:nr,(nr+1):(nr+nc)]<-x[i,,]
+          g[i,(nr+1):(nr+nc),1:nr]<-t(x[i,,])
+        }
+      }else{                                          #Adjacency stack
+        g<-x
+      }
+    }else{
+      stop("as.sociomatrix.sna input must be an adjacency matrix/array, network, or list.")
+    }
   }
   #Convert into the appropriate return format
   if(is.list(g)){   #Collapse if needed
@@ -268,6 +522,36 @@ event2dichot<-function(m,method="quantile",thresh=0.5,leq=FALSE){
       if(dim(out)!=dim(m))
          out<-array(out,dim=dim(m))
    out
+}
+
+
+#gt - "Graph transpose"; transposition of one or more networks
+gt<-function(x, return.as.edgelist=FALSE){
+  if(return.as.edgelist){
+    #Pre-process the raw input
+    x<-as.edgelist.sna(x)
+    if(is.list(x))
+      return(lapply(x,gt,return.as.edgelist=TRUE))
+    #End pre-processing
+    n<-attr(x,"n")
+    vnames<-attr(x,"vnames")
+    bipartite<-attr(x,"bipartite")
+    x<-x[,c(2,1,3)]
+    attr(x,"n")<-n
+    attr(x,"vnames")<-vnames
+    attr(x,"bipartite")<-bipartite
+    x
+  }else{
+    #Pre-process the raw input
+    x<-as.sociomatrix.sna(x)
+    if(is.list(x))
+      return(lapply(x,gt,return.as.edgelist=FALSE))
+    #End pre-processing
+    if(length(dim(x))==3){
+      aperm(x,c(1,3,2))
+    }else
+      t(x)
+  }
 }
 
 
@@ -491,63 +775,99 @@ sr2css<-function(net){
 #stackcount -How many matrices in a given stack?
 stackcount<-function(d){
    #Pre-process the raw input
-   d<-as.sociomatrix.sna(d)
-   if(is.list(d))
-     return(sum(sapply(d,stackcount)))
+   d<-as.edgelist.sna(d)
    #End pre-processing
-   if(length(dim(d))>2)
-      dim(d)[1]
+   if(is.list(d))
+     length(d)
    else
-      1
+     1
 }
 
 
 #symmetrize - Convert a graph or graph stack to a symmetric form.  Current rules
 #for symmetrizing include "upper" and "lower" diagonals, "weak" connectedness 
-#rule, and a "strong" connectedness rule.
-symmetrize<-function(mats,rule="weak"){
-   #Pre-process the raw input
-   mats<-as.sociomatrix.sna(mats)
-   if(is.list(mats))
-     return(lapply(mats,symmetrize,rule=rule))
-   #End pre-processing
-   #Build the input data structures
-   if(length(dim(mats))>2){
-      m<-dim(mats)[1]
-      n<-dim(mats)[2]
-      o<-dim(mats)[3]
-      d<-mats
-   }else{
-      m<-1
-      n<-dim(mats)[1]
-      o<-dim(mats)[2]
-      d<-array(dim=c(1,n,o))
-      d[1,,]<-mats
+#rule, and a "strong" connectedness rule.  If return.as.edgelist=TRUE, the
+#data is processed and returned in sna edgelist form.
+symmetrize<-function(mats,rule="weak",return.as.edgelist=FALSE){
+   if(!return.as.edgelist){                 #Adjacency matrix form
+     #Pre-process the raw input
+     mats<-as.sociomatrix.sna(mats)
+     if(is.list(mats))
+       return(lapply(mats,symmetrize,rule=rule, return.as.edgelist=return.as.edgelist))
+     #End pre-processing
+     #Build the input data structures
+     if(length(dim(mats))>2){
+        m<-dim(mats)[1]
+        n<-dim(mats)[2]
+        o<-dim(mats)[3]
+        d<-mats
+     }else{
+        m<-1
+        n<-dim(mats)[1]
+        o<-dim(mats)[2]
+        d<-array(dim=c(1,n,o))
+        d[1,,]<-mats
+     }
+     #Apply the symmetry rule
+     for(i in 1:m){
+        if(rule=="upper"){
+           d[i,,][lower.tri(d[i,,])]<-t(d[i,,])[lower.tri(d[i,,])]
+        }else if(rule=="lower"){
+           d[i,,][upper.tri(d[i,,])]<-t(d[i,,])[upper.tri(d[i,,])]
+        }else if(rule=="weak"){
+           d[i,,]<-matrix(as.numeric(d[i,,]|t(d[i,,])),nrow=n,ncol=o)
+        }else if(rule=="strong"){
+           d[i,,]<-matrix(as.numeric(d[i,,]&t(d[i,,])),nrow=n,ncol=o)
+        }
+     }
+     #Return the symmetrized matrix
+     if(m==1)
+        out<-d[1,,]
+     else
+        out<-d
+     out
+   }else{                                  #Edgelist matrix form
+     #Pre-process the raw input
+     mats<-as.edgelist.sna(mats)
+     if(is.list(mats))
+       return(lapply(mats,symmetrize,rule=rule, return.as.edgelist=return.as.edgelist))
+     #End pre-processing
+     n<-attr(mats,"n")
+     vn<-attr(mats,"vnames")
+     bip<-attr(mats,"bipartite")
+     if(!is.null(bip))
+       return(mats)                   #Return unaltered if bipartite
+     #Apply the symmetry rule
+     if(rule=="upper"){
+       loops<-mats[mats[,1]==mats[,2],,drop=FALSE]
+       upedge<-mats[mats[,1]<mats[,2],,drop=FALSE]
+       mats<-rbind(upedge,upedge[,c(2,1,3)],loops)
+     }else if(rule=="lower"){
+       loops<-mats[mats[,1]==mats[,2],,drop=FALSE]
+       loedge<-mats[mats[,1]>mats[,2],,drop=FALSE]
+       mats<-rbind(loedge,loedge[,c(2,1,3)],loops)
+     }else if(rule=="weak"){
+       isloop<-mats[,1]==mats[,2]
+       loops<-mats[isloop,,drop=FALSE]
+       mats<-mats[!isloop,,drop=FALSE]
+       dc<-.C("dyadcode_R",as.double(mats),as.integer(n),as.integer(NROW(mats)), dc=as.double(rep(0,NROW(mats))),PACKAGE="sna",NAOK=TRUE)$dc
+       isdup<-duplicated(dc)
+       mats<-mats[!isdup,,drop=FALSE]
+       mats<-rbind(mats,mats[,c(2,1,3)],loops)
+     }else if(rule=="strong"){
+       isloop<-mats[,1]==mats[,2]
+       loops<-mats[isloop,,drop=FALSE]
+       mats<-mats[!isloop,,drop=FALSE]
+       dc<-.C("dyadcode_R",as.double(mats),as.integer(n),as.integer(NROW(mats)), dc=as.double(rep(0,NROW(mats))),PACKAGE="sna",NAOK=TRUE)$dc
+       isdup<-duplicated(dc)
+       mats<-mats[isdup,,drop=FALSE]
+       mats<-rbind(mats,mats[,c(2,1,3)],loops)
+     }
+     #Patch up the attributes and return
+     attr(mats,"n")<-n
+     attr(mats,"vnames")<-vn
+     mats
    }
-   #Apply the symmetry rule
-   for(i in 1:m){
-      if(rule=="upper"){
-         temp<-d[i,,]
-         for(j in 1:n)
-            temp[j:n,j]<-temp[j,j:n]
-         d[i,,]<-temp
-      }else if(rule=="lower"){
-         temp<-d[i,,]
-         for(j in 1:n)
-            temp[j,j:n]<-temp[j:n,j]
-         d[i,,]<-temp
-      }else if(rule=="weak"){
-         d[i,,]<-matrix(as.numeric(d[i,,]|t(d[i,,])),nrow=n,ncol=o)
-      }else if(rule=="strong"){
-         d[i,,]<-matrix(as.numeric(d[i,,]&t(d[i,,])),nrow=n,ncol=o)
-      }
-   }
-   #Return the symmetrized matrix
-   if(m==1)
-      out<-d[1,,]
-   else
-      out<-d
-   out
 }
 
 

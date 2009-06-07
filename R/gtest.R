@@ -3,7 +3,7 @@
 # gtest.R
 #
 # copyright (c) 2004, Carter T. Butts <buttsc@uci.edu>
-# Last Modified 8/8/05
+# Last Modified 6/7/09
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/sna package
@@ -11,8 +11,12 @@
 # This file contains routines related to null hypothesis testing.
 #
 # Contents:
+#  cug.test
 #  cugtest
+#  plot.cug.test
+#  plot.cugtest
 #  plot.qaptest
+#  print.cug.test
 #  print.cugtest
 #  print.qaptest
 #  print.summary.cugtest
@@ -22,6 +26,100 @@
 #  summary.qaptest
 #
 ######################################################################
+
+
+#Second generation (univariate) CUG test routine
+cug.test<-function(dat,FUN,mode=c("digraph","graph"),cmode=c("size","edges","dyad.census"),diag=FALSE,reps=1000,ignore.eval=TRUE,FUN.args=list()){
+  if(ignore.eval){   #Handle everything in edgelist form here
+    #Pre-process the raw input
+    dat<-as.edgelist.sna(dat)
+    if(is.list(dat))
+      return(sapply(dat,cug.test,FUN=FUN,mode=mode,cmode=cmode,diag=diag, reps=reps,ignore.eval=ignore.eval,FUN.args=FUN.args))
+    #End pre-processing
+    n<-attr(dat,"n")
+    if(!diag){
+      dat<-dat[dat[,1]!=dat[,2],,drop=FALSE]
+      attr(dat,"n")<-n
+      ndiag<-0
+    }else
+      ndiag<-sum(dat[,1]==dat[,2])
+    mode<-match.arg(mode)
+    cmode<-match.arg(cmode)
+    #Generate conditioning statistics
+    if(cmode=="size"){
+      m<-NULL
+      dc<-NULL
+    }else if(cmode=="edges"){
+      m<-switch(match.arg(mode),
+       graph=(NROW(dat)-ndiag)/2+ndiag,
+        digraph=NROW(dat)
+      )
+      dc<-NULL
+    }else if(cmode=="dyad.census"){
+      m<-NULL
+      dc<-dyad.census(dat)
+    }
+    #Generate randomization functions
+    getstat<-function(d){do.call(fun,c(list(d),FUN.args))}
+    drawrep<-switch(cmode,
+      size=function(n,...){rgraph(n,1,mode=mode,diag=diag,tp=0.5, return.as.edgelist=TRUE)},
+      edges=function(n,m,...){rgnm(n=1,nv=n,m=m,mode=mode,diag=diag, return.as.edgelist=TRUE)},
+      dyad.census=function(n,dc,...){rguman(n=1,nv=n,mut=dc[1],asym=dc[2], null=dc[3],method="exact",return.as.edgelist=TRUE)},
+    )
+  }else{       #For valued data, we're going to use adjacency matrices (sorry)
+    #Pre-process the raw input
+    dat<-as.sociomatrix.sna(dat)
+    if(is.list(dat))
+      return(sapply(dat,cug.test,FUN=FUN,mode=mode,cmode=cmode,diag=diag, reps=reps,ignore.eval=ignore.eval,FUN.args=FUN.args))
+    else if(length(dim(dat))>2)
+      return(apply(dat,1,cug.test,FUN=FUN,mode=mode,cmode=cmode,diag=diag, reps=reps,ignore.eval=ignore.eval,FUN.args=FUN.args))
+    #End pre-processing
+    n<-NROW(dat)
+    m<-NULL
+    dc<-NULL
+    mode<-match.arg(mode)
+    cmode<-match.arg(cmode)
+    getstat<-function(d){do.call(fun,c(list(d),FUN.args))}
+    drawrep<-switch(cmode,
+      size=function(n,...){rgraph(n,1,mode=mode,diag=diag,tp=0.5)},
+      edges=switch(mode,
+        digraph=function(n,...){g<-dat; 
+          g[upper.tri(g,diag=diag)|lower.tri(g)]<- sample(g[upper.tri(g,diag=diag)|lower.tri(g)]); g
+        },
+        graph=function(n,...){g<-dat;
+          g[upper.tri(g,diag=diag)]<-sample(g[upper.tri(g,diag=diag)]);
+          g[lower.tri(g)]<-t(g)[lower.tri(g)]; g
+        }
+      ),
+      dyad.census=function(n,...){g<-rewire.ud(dat,1)[1,,]; 
+        if(diag) diag(g)<-sample(diag(g)); g
+      },
+    )
+  }
+  #Set things up
+  fun<-match.fun(FUN)
+  if("mode"%in%names(formals(fun)))
+    callmode<-TRUE
+  else
+    callmode<-FALSE
+  if("diag"%in%names(formals(fun)))
+    calldiag<-TRUE
+  else
+    calldiag<-FALSE
+  if(callmode)
+    FUN.args$mode<-mode
+  if(calldiag)
+    FUN.args$diag<-diag
+  obs<-getstat(dat)
+  #Draw replicate stats
+  repstats<-vector()
+  for(i in 1:reps){
+    repstats[i]<-getstat(drawrep(n=n,m=m,dc=dc))
+  }
+  out<-list(obs.stat=obs,rep.stat=repstats,mode=mode,diag=diag,cmode=cmode, plteobs=mean(repstats<=obs),pgteobs=mean(repstats>=obs),reps=reps)
+  class(out)<-"cug.test"
+  out
+}
 
 
 #cugtest - Generate, print, and plot CUG (conditional uniform graph) test 
@@ -82,6 +180,14 @@ cugtest<-function(dat,FUN,reps=1000,gmode="digraph",cmode="density",diag=FALSE,g
 
 
 #plot.cugtest - Plotting method for cugtest
+plot.cug.test<-function(x,main="Univariate CUG Test", sub=paste("Conditioning:",x$cmode,"Reps:",x$reps),...){
+  xl<-range(c(x$rep.stat,x$obs.stat))
+  hist(x$rep.stat,xlim=xl,xlab="CUG Replicates",prob=TRUE,main=main,sub=sub,...)
+  abline(v=x$obs.stat,col=2,lwd=3)
+}
+
+
+#plot.cugtest - Plotting method for cugtest
 plot.cugtest<-function(x,mode="density",...){
    if(mode=="density"){
       plot(density(x$dist),main="Estimated Density of CUG Replications",xlab="Test Statistic",...)
@@ -100,6 +206,16 @@ plot.qaptest<-function(x,mode="density",...){
       hist(x$dist,main="Histogram of QAP Replications",xlab="Test Statistic",...)
    }
    abline(v=x$testval,lty=2)
+}
+
+
+#print.cug.test - Print method for cug.test
+print.cug.test<-function(x,...){
+  cat("\nUnivariate Conditional Uniform Graph Test\n\n")
+  cat("Conditioning Method:",x$cmode,"\nGraph Type:",x$mode,"\nDiagonal Used:", x$diag,"\nReplications:",x$reps,"\n\n")
+  cat("Observed Value:",x$obs.stat,"\n")
+  cat("Pr(X>=Obs):",x$pgteobs,"\n")
+  cat("Pr(X<=Obs):",x$plteobs,"\n\n")
 }
 
 

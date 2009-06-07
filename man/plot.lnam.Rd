@@ -6,7 +6,7 @@
   Generates various diagnostic plots for \code{\link{lnam} objects.}
 }
 \usage{
-plot.lnam(x, ...)
+\method{plot}{lnam}(x, ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{

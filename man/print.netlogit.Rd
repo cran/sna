@@ -6,7 +6,7 @@
   Prints a quick summary of objects produced by \code{\link{netlogit}}.
 }
 \usage{
-print.netlogit(x, ...)
+\method{print}{netlogit}(x, ...)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
@@ -15,8 +15,8 @@ print.netlogit(x, ...)
 }
 %\details{
 %}
-\value{
-}
+%\value{
+%}
 %\references{  }
 \author{ Carter T. Butts \email{buttsc@uci.edu} }
 %\note{  }
@@ -25,6 +25,6 @@ print.netlogit(x, ...)
 
 \seealso{ \code{\link{netlogit}} }
 
-\examples{
-}
+%\examples{
+%}
 \keyword{ print }%-- one or more ...

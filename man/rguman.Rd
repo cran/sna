@@ -7,7 +7,7 @@
 }
 \usage{
 rguman(n, nv, mut = 0.25, asym = 0.5, null = 0.25, 
-    method = c("probability", "exact"))
+    method = c("probability", "exact"), return.as.edgelist = FALSE)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -17,9 +17,10 @@ rguman(n, nv, mut = 0.25, asym = 0.5, null = 0.25,
   \item{asym}{ if \code{method=="probability"}, the probability of obtaining an asymmetric dyad; otherwise, the number of asymmetric dyads. }
   \item{null}{ if \code{method=="probability"}, the probability of obtaining a null dyad; otherwise, the number of null dyads. }
   \item{method}{ the generation method to use.  \code{"probability"} results in a multinomial dyad distribution (conditional on the underlying rates), while \code{"exact"} results in a uniform draw conditional on the exact dyad distribution. }
+  \item{return.as.edgelist}{ logical; should the resulting graphs be returned in edgelist form?}
 }
 \details{
-A simple generalization of the Erd\"{o}s-R\'{e}nyi family, the U|MAN distributions are uniform on the set of graphs, conditional on order (size) and the dyad census.  As with the E-R case, there are two U|MAN variants.  The first (corresponding to \code{method=="probability"}) takes dyad states as independent multinomials with parameters \eqn{m} (for mutuals), \eqn{a} (for asymmetrics), and \eqn{n} (for nulls).  The resulting pmf is then
+A simple generalization of the Erdos-Renyi family, the U|MAN distributions are uniform on the set of graphs, conditional on order (size) and the dyad census.  As with the E-R case, there are two U|MAN variants.  The first (corresponding to \code{method=="probability"}) takes dyad states as independent multinomials with parameters \eqn{m} (for mutuals), \eqn{a} (for asymmetrics), and \eqn{n} (for nulls).  The resulting pmf is then
 \deqn{
 p(G=g|m,a,n) = \frac{(M+A+N)!}{M!A!N!} m^M a^A n^N,
 }{%
@@ -40,12 +41,12 @@ U|MAN graphs provide a natural baseline model for networks which are constrained
    A matrix or array containing the drawn adjacency matrices
 }
 \references{ 
-Holland, P.W. and Leinhardt, S.  (1976).  ``Local Structure in Social Networks.''  In D. Heise (Ed.), \emph{Sociological Methodology}, pp 1-45.  San Francisco: Jossey-Bass.
+Holland, P.W. and Leinhardt, S.  (1976).  \dQuote{Local Structure in Social Networks.}  In D. Heise (Ed.), \emph{Sociological Methodology}, pp 1-45.  San Francisco: Jossey-Bass.
 
 Wasserman, S. and Faust, K.  (1994).  \emph{Social Network Analysis: Methods and Applications.}  Cambridge: Cambridge University Press.
 }
 \author{ Carter T. Butts \email{buttsc@uci.edu} }
-%\note{ ~~further notes~~ }
+\note{ The famous mathematicians referenced in this man page now have misspelled names, due to R's difficulty with accent marks.  }
 
 % ~Make other sections like Warning with \section{Warning }{....} ~
 

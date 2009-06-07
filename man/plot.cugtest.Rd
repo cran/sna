@@ -6,7 +6,7 @@
   Plots the distribution of a CUG test statistic.
 }
 \usage{
-plot.cugtest(x, mode="density", ...)
+\method{plot}{cugtest}(x, mode="density", ...)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{

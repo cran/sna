@@ -23,7 +23,7 @@ An array containing the stack of central graph adjacency matrices
 }
 \references{ Butts, C.T., and Carley, K.M.  (2001).  ``Multivariate Methods for Interstructural Analysis.''  CASOS working paper, Carnegie Mellon University. }
 \author{ Carter T. Butts \email{buttsc@uci.edu} }
-\note{  }
+%\note{  }
 
  %~Make other sections like WARNING with \section{WARNING }{....} ~
 

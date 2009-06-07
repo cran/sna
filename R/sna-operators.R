@@ -3,7 +3,7 @@
 # sna-operators.R
 #
 # copyright (c) 2004, Carter T. Butts <buttsc@uci.edu>
-# Last Modified 4/23/05
+# Last Modified 6/7/09
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/sna package
@@ -14,6 +14,9 @@
 #   %c%
 #   gapply
 #   gliop
+#   logMean
+#   logSub
+#   logSum
 #
 ######################################################################
 
@@ -85,4 +88,33 @@ gliop<-function(dat,GFUN,OP="-",g1=1,g2=2,...){
      op(fun(dat[[g1]],...),fun(dat[[g2]],...))
    else
      op(fun(dat[g1,,],...),fun(dat[g2,,],...))
+}
+
+
+#logMean - Find the mean of a vector of numbers in logspace.
+logMean<-function(x){
+  if(length(x)==0)
+    numeric(0)
+  else
+    .C("logadd_R",as.double(x),as.integer(length(x)),lsum=as.double(0), NAOK=TRUE,PACKAGE="sna")$lsum-log(length(x))
+}
+
+
+#logSub - Find the differences between two vectors of numbers in logspace.
+logSub<-function(x,y){
+  if(length(x)!=length(y))
+    stop("x and y must be of the same length.")
+  else if(length(x)==0)
+    numeric(0)
+  else
+    .C("logsub_R",as.double(x),as.double(y),as.integer(length(x)), ldiff=as.double(rep(0,length(x))),NAOK=TRUE,PACKAGE="sna")$ldiff
+}
+
+
+#logSum - Add a vector of numbers in logspace.
+logSum<-function(x){
+  if(length(x)==0)
+    numeric(0)
+  else
+    .C("logadd_R",as.double(x),as.integer(length(x)),lsum=as.double(0), NAOK=TRUE,PACKAGE="sna")$lsum
 }

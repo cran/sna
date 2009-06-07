@@ -6,7 +6,7 @@
   Prints an object of class \code{summary.netlogit}.
 }
 \usage{
-print.summary.netlogit(x, ...)
+\method{print}{summary.netlogit}(x, ...)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
@@ -15,8 +15,8 @@ print.summary.netlogit(x, ...)
 }
 %\details{
 %}
-\value{
-}
+%\value{
+%}
 %\references{  }
 \author{ Carter T. Butts \email{buttsc@uci.edu} }
 %\note{  }
@@ -25,7 +25,7 @@ print.summary.netlogit(x, ...)
 
 \seealso{ \code{\link{summary.netlogit}} }
 
-\examples{
-
-}
+%\examples{
+%
+%}
 \keyword{ print }%-- one or more ...

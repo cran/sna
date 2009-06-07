@@ -6,7 +6,7 @@
 Prints a quick summary of a \code{\link{blockmodel}} object.
 }
 \usage{
-print.blockmodel(x, ...)
+\method{print}{blockmodel}(x, ...)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
@@ -26,6 +26,6 @@ None
 
 \seealso{ \code{\link{blockmodel}} }
 
-\examples{
-}
+%\examples{
+%}
 \keyword{ print }%-- one or more ...

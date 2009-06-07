@@ -7,7 +7,7 @@
 }
 \usage{
 gtrans(dat, g=NULL, diag=FALSE, mode="digraph", measure = c("weak", 
-    "strong", "weakcensus", "strongcensus"))
+    "strong", "weakcensus", "strongcensus"), use.adjacency = TRUE)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
@@ -16,9 +16,12 @@ gtrans(dat, g=NULL, diag=FALSE, mode="digraph", measure = c("weak",
   \item{diag}{ a boolean indicating whether or not diagonal entries (loops) are to be taken as valid data. }
   \item{mode}{ \code{"digraph"} if directed triads are sought, or else \code{"graph"}. }
   \item{measure}{ one of \code{"weak"} (default), \code{"strong"}, \code{"weakcensus"}, or \code{"strongcensus"}. }
+  \item{use.adjacency}{ logical; should adjacency matrices (versus sparse graph methods) be used in the transitivity computation?}
 }
 \details{
 Transitivity is a triadic, algebraic structural constraint.  In its weak form, the transitive constraint corresponds to \eqn{a \rightarrow b \rightarrow c \Rightarrow a \rightarrow c}{a->b->c => a->c}.  In the corresponding strong form, the constraint is \eqn{a \rightarrow b \rightarrow c \Leftrightarrow a \rightarrow c}{a->b->c <=> a->c}.  (Note that the weak form is that most commonly employed.)  Where \code{measure=="weak"}, the fraction of potentially intransitive triads obeying the weak condition is returned.  With the \code{measure=="weakcensus"} setting, by contrast, the total \emph{number} of transitive triads is computed.  The \code{strong} versions of the measures are similar to the above, save in that the set of all triads is considered (since all are ``at risk'' for intransitivity).
+
+Note that the default method used here employs matrix multiplication to calculate transitivity scores.  For very large, sparse graphs, the sparse graph method (\code{use.adjacency=FALSE}) may be preferred.  The latter provides much better scaling, but is significantly slower for networks of typical size due to the overhead involved (and R's highly optimized matrix operations).
 }
 \value{
 A vector of transitivity scores

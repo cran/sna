@@ -9,7 +9,7 @@
   Prints an object of class \code{summary.bbnam}.
 }
 \usage{
-print.summary.bbnam(x, ...)
+\method{print}{summary.bbnam}(x, ...)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
@@ -18,8 +18,8 @@ print.summary.bbnam(x, ...)
 }
 %\details{
 %}
-\value{
-}
+%\value{
+%}
 %\references{ }
 \author{ Carter T. Butts \email{buttsc@uci.edu} }
 %\note{  }
@@ -28,7 +28,7 @@ print.summary.bbnam(x, ...)
 
 \seealso{ \code{\link{bbnam}} }
 
-\examples{
-
-}
+%\examples{
+%
+%}
 \keyword{ print }%-- one or more ...

@@ -1,11 +1,10 @@
 add.isolates            Add Isolates to a Graph
-addisolates-deprecated
-                        Add Isolates to a Graph (Deprecated)
 bbnam                   Butts' (Hierarchical) Bayesian Network Accuracy
                         Model
 bbnam.bf                Estimate Bayes Factors for the bbnam
 betweenness             Compute the Betweenness Centrality Scores of
                         Network Positions
+bicomponent.dist        Calculate the Bicomponents of a Graph
 blockmodel              Generate Blockmodels Based on Partitions of
                         Network Positions
 blockmodel.expand       Generate a Graph (or Stack) from a Given
@@ -17,8 +16,10 @@ brokerage               Perform a Gould-Fernandez Brokerage Analysis
 centralgraph            Find the Central Graph of a Labeled Graph Stack
 centralization          Find the Centralization of a Given Network, for
                         Some Measure of Centrality
+clique.census           Compute Cycle Census Information
 closeness               Compute the Closeness Centrality Scores of
                         Network Positions
+coleman                 Coleman's High School Friendship Data
 component.dist          Calculate the Component Size Distribution of a
                         Graph
 components              Find the Number of (Maximal) Components Within
@@ -28,6 +29,8 @@ consensus               Estimate a Consensus Structure from Multiple
                         Observations
 cugtest                 Perform Conditional Uniform Graph (CUG)
                         Hypothesis Tests for Graph-Level Indices
+cug.test                Univariate Conditional Uniform Graph Tests
+cutpoints               Identify the Cutpoints of a Graph or Digraph
 degree                  Compute the Degree Centrality Scores of Network
                         Positions
 diag.remove             Remove the Diagonals of Adjacency Matrices in a
@@ -44,6 +47,8 @@ evcent                  Find Eigenvector Centrality Scores of Network
                         Positions
 event2dichot            Convert an Observed Event Matrix to a
                         Dichotomous matrix
+flowbet                 Calculate Flow Betweenness Scores of Network
+                        Positions
 gapply                  Apply Functions Over Vertex Neighborhoods
 gclust.boxstats         Plot Statistics Associated with Graph Clusters
 gclust.centralgraph     Get Central Graphs Associated with Graph
@@ -79,6 +84,7 @@ gscor                   Find the Structural Correlations Between Two or
                         More Graphs
 gscov                   Find the Structural Covariance(s) Between Two
                         or More Graphs
+gt                      Transpose an Input Graph
 gtrans                  Compute the Transitivity of an Input Graph or
                         Graph Stack
 gvectorize              Vectorization of Adjacency Matrices
@@ -91,15 +97,19 @@ interval.graph          Convert Spell Data to Interval Graphs
 is.connected            Is a Given Graph Connected?
 is.isolate              Is Ego an Isolate?
 isolates                List the Isolates in a Graph or Graph Stack
+kcores                  Compute the k-Core Structure of a Graph
 kpath.census            Compute Path or Cycle Census Information
 lab.optimize            Optimize a Bivariate Graph Statistic Across a
                         Set of Accessible Permutations
 lnam                    Fit a Linear Network Autocorrelation Model
+loadcent                Compute the Load Centrality Scores of Network
+                        Positions
 lower.tri.remove        Remove the Lower Triangles of Adjacency
                         Matrices in a Graph Stack
 lubness                 Compute Graph LUBness Scores
 make.stochastic         Make a Graph Stack Row, Column, or Row-column
                         Stochastic
+maxflow                 Calculate Maximum Flows Between Vertices
 mutuality               Find the Mutuality of a Graph
 nacf                    Sample Network Covariance and Correlation
                         Functions
@@ -154,8 +164,11 @@ qaptest                 Perform Quadratic Assignment Procedure (QAP)
 reachability            Find the Reachability Matrix of a Graph
 read.dot                Read Graphviz DOT Files
 read.nos                Read (N)eo-(O)rg(S)tat Input Files
+redist                  Find a Matrix of Distances Between Positions
+                        Based on Regular Equivalence
 rgbn                    Draw from a Skvoretz-Fararo Biased Net Process
 rgnm                    Draw Density-Conditioned Random Graphs
+rgnmix                  Draw Mixing-Conditioned Random Graphs
 rgraph                  Generate Bernoulli Random Graphs
 rguman                  Draw Dyad Census-Conditioned Random Graphs
 rgws                    Draw From the Watts-Strogatz Rewiring Model

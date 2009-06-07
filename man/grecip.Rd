@@ -7,21 +7,24 @@
 }
 \usage{
 grecip(dat, g = NULL, measure = c("dyadic", "dyadic.nonnull",
-    "edgewise"))
+    "edgewise", "edgewise.lrr"))
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
   \item{dat}{ one or more input graphs. }
   \item{g}{ a vector indicating which graphs to evaluate (optional). }
-  \item{measure}{ one of \code{"dyadic"} (default), \code{"dyadic.nonnull"} or \code{"edgewise"}. }
+  \item{measure}{ one of \code{"dyadic"} (default), \code{"dyadic.nonnull"}, \code{"edgewise"}, or \code{"edgewise.lrr"}. }
 }
 \details{
-  The dyadic reciprocity of a graph is the proportion of dyads which are symmetric; this is computed and returned by \code{grecip} for the graphs indicated.  (\code{dyadic.nonnull} returns the ratio of mutuals to non-null dyads.)  Note that the dyadic reciprocity is distinct from the \emph{edgewise} or \emph{tie reciprocity}, which is the proportion of \emph{edges} which are reciprocated.  This latter form may be obtained by setting \code{measure="edgewise"}.
+  The dyadic reciprocity of a graph is the proportion of dyads which are symmetric; this is computed and returned by \code{grecip} for the graphs indicated.  (\code{dyadic.nonnull} returns the ratio of mutuals to non-null dyads.)  Note that the dyadic reciprocity is distinct from the \emph{edgewise} or \emph{tie reciprocity}, which is the proportion of \emph{edges} which are reciprocated.  This latter form may be obtained by setting \code{measure="edgewise"}.  Setting \code{measure="edgewise.lrr"} returns the log of the ratio of the edgewise reciprocity to the density; this is measure (called \eqn{r_4} by Butts (2008)) can be interpreted as the relative log-odds of an edge given a reciprocation, versus the baseline probability of an edge.
 }
 \value{
   The graph reciprocity value(s)
 }
-\references{ Wasserman, S., and Faust, K.  (1994).  \emph{Social Network Analysis: Methods and Applications.}  Cambridge: Cambridge University Press. }
+\references{ Wasserman, S., and Faust, K.  (1994).  \emph{Social Network Analysis: Methods and Applications.}  Cambridge: Cambridge University Press. 
+
+Butts, C.T.  (2008).  \dQuote{Social Networks: A Methodological Introduction.} \emph{Asian Journal of Social Psychology,} 11(1), 13-41. 
+}
 \author{ Carter T. Butts \email{buttsc@uci.edu} }
 %\note{ ~~further notes~~ }
 

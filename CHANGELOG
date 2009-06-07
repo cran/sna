@@ -1,5 +1,90 @@
 CHANGELOG:
 
+v2.0 - New Functions, New Data Sets, New Features, Changes, and Bug Fixes
+   Changes:
+     The following functions now natively use sna edgelist format (and will
+       in most cases benefit from being passed data in sparse graph format):
+       add.isolates, betweenness, brokerage, centralization, closeness, degree,
+       dyad.census, evcent, gden, geodist, gplot, gplot3d, grecip, gtrans,
+       kcycle.census, kpath.census, rgraph, stresscent, symmetrize, 
+       triad.census
+     Various backend modifications have been made which should improve
+       scalability and performance for many routines
+     bbnam routines now default to often-realistic informative priors rather
+       than to never-realistic uninformative ones, and no longer randomly
+       reorder MCMC draws on output; they can also accept data in a wider range
+       of formats
+     bbnam.bf now computes and displays results in log scale
+     centralization will now compute scores for all input networks (previously
+       computed scores for only one network, so this may break some code)
+     degree with gmode=="graph" now forces conventional graph theoretic degree,
+       as opposed to total degree (which was the prior default behavior).  This
+       may break some existing code (but hopefully not much), but produces more
+       conventional behavior in the undirected case.  Users desiring the old
+       behavior can obtain it by simply setting gmode=="digraph".  [Suggested
+       by Alex Montgomery]
+     evcent now uses a sparse matrix eigenvector calculation mechanism (which
+       should greatly enhance scalability)
+     gplot's label placement algorithm has been improved [Submitted by Alex
+       Montgomery]
+     gden now omits NA edges (previously, they were treated as simply absent)
+     gplot and gplot3d now pass edgelists to the gplot.layout.* and 
+       gplot3d.layout.* functions; all existing layout functions have been
+       modified to support this, but user-generated code may need to be
+       adjusted accordingly
+     gplot and gplot3d now force data into two-mode form when gmode="twomode",
+       regardless of original type; by default, vertex color (and, in gplot,
+       shape) are used to differentiate between row and column vertices. 
+       [Submitted by Alex Montgomery]
+     gplot.layout.fruchtermanreingold and gplot.layout.kamadakawai now use
+       edge values when placing points
+     rgbn has a new (much faster) backend implementation
+     rgraph now uses an accelerated generation mechanism in the homogeneous
+       case
+   New Functions:
+     as.edgelist.sna - Convert data to sna edgelist format
+     bicomponent.dist - Compute bicomponents and associated statistics
+     cug.test - Simplified univariate conditional uniform graph tests
+     cutpoints - Identify cutpoints in an input graph
+     clique.census - Calculate the clique census of an input graph
+     flowbet - Calculate the flow betweenness scores of network positions 
+     gt - "Graph transpose"; transposition of one or more networks
+     kcores - Calculate the k-core decomposition of a graph
+     loadcent - Calculate the load centrality scores of network positions
+     maxflow - Calculate maximum flows between vertices
+     redist - Find distances between positions based on regular equivalence
+     rgnmix - Generate mixing-conditioned random graphs
+   New Data Sets:
+     coleman - Coleman's high school friendship data
+   New Features:
+     New sna edgelist format now supported by almost all routines (see 
+       above for list of those which now have native support)
+     Bipartite extension to adjacency structures now supported for most sna
+       routines
+     Several functions now have the option to return their results in sna
+       edgelist format (useful to avoid adjacency matrix conversion for large
+       graphs).  These include add.isolates, read.nos, rewire.ud, rewire.ws,
+       rgbn, rgnm, rgraph, rguman, rgws, and symmetrize.
+     as.sociomatrix.sna - now supports force.bipartite, bipartite attribute
+     betweenness now has an option to use edge values when computing 
+       geodesics; several alternative measures have also been added
+     bn now takes lists of networks
+     closeness now has an option to use edge values when computing geodesics;
+       an alternative measure has also been added
+     degree now has an option to ignore edge values
+     gden now has an option to ignore edge values
+     geodist now supports valued edges; an option has been added to return
+       predecessor lists
+     gplot now has an option ("interact.bycomp") to interactively move entire
+       components (instead of individual vertices)  [Submitted by Alex
+       Montgomery]
+     grecip now supports an additional index
+     netlm now supports use of t-statistics for resampling tests (new default)
+     rgbn supports a new exact sampling method
+     stresscent now has an option to use edge values when computing geodesics
+   Bug Fixes:
+     rgbn was returning a redundant state
+
 v1.5 - New Functions, Changes, and Bug Fixes
    New Functions:
      component.largest - Extract the largest component from a graph

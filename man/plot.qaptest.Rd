@@ -6,7 +6,7 @@
   Plots the Distribution of a QAP Test Statistic.
 }
 \usage{
-plot.qaptest(x, mode="density", ...)
+\method{plot}{qaptest}(x, mode="density", ...)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{

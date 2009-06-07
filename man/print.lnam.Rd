@@ -6,7 +6,7 @@
   Prints an objsect of class \code{lnam} 
 }
 \usage{
-print.lnam(x, digits = max(3, getOption("digits") - 3), ...)
+\method{print}{lnam}(x, digits = max(3, getOption("digits") - 3), ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{

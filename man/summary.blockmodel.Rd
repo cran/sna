@@ -6,7 +6,7 @@
   Returns a \code{blockmodel} summary object.
 }
 \usage{
-summary.blockmodel(object, ...)
+\method{summary}{blockmodel}(object, ...)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
@@ -27,7 +27,7 @@ An object of class \code{summary.blockmodel}
 
 \seealso{ \code{\link{blockmodel}} }
 
-\examples{
-
-}
+%\examples{
+%
+%}
 \keyword{ math }%-- one or more ...

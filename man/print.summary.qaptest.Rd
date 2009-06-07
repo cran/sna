@@ -6,7 +6,7 @@
   Prints an object of class \code{summary.qaptest}.
 }
 \usage{
-print.summary.qaptest(x, ...)
+\method{print}{summary.qaptest}(x, ...)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
@@ -15,8 +15,8 @@ print.summary.qaptest(x, ...)
 }
 %\details{
 %}
-\value{
-}
+%\value{
+%}
 %\references{  }
 \author{ Carter T. Butts \email{buttsc@uci.edu} }
 %\note{  }
@@ -25,7 +25,7 @@ print.summary.qaptest(x, ...)
 
 \seealso{ \code{\link{summary.qaptest}} }
 
-\examples{
-
-}
+%\examples{
+%
+%}
 \keyword{ print }%-- one or more ...

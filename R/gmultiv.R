@@ -3,7 +3,7 @@
 # gmultiv.R
 #
 # copyright (c) 2004, Carter T. Butts <buttsc@uci.edu>
-# Last Modified 10/10/06
+# Last Modified 4/30/09
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/sna package
@@ -112,9 +112,9 @@ gcor<-function(dat,dat2=NULL,g1=NULL,g2=NULL,diag=FALSE,mode="digraph"){
          temp2[1,,]<-dat2
       }
       if(dim(temp1)[2]>dim(temp2)[2])
-         temp2<-addisolates(temp2,dim(temp1)[2]-dim(temp2)[2])
+         temp2<-add.isolates(temp2,dim(temp1)[2]-dim(temp2)[2])
       if(dim(temp2)[2]>dim(temp1)[2])
-         temp1<-addisolates(temp1,dim(temp2)[2]-dim(temp1)[2])
+         temp1<-add.isolates(temp1,dim(temp2)[2]-dim(temp1)[2])
       n<-dim(temp1)[2]
       gn<-dim(temp1)[1]+dim(temp2)[1]
       gn1<-dim(temp1)[1]
@@ -183,9 +183,9 @@ gcov<-function(dat,dat2=NULL,g1=NULL,g2=NULL,diag=FALSE,mode="digraph"){
          temp2[1,,]<-dat2
       }
       if(dim(temp1)[2]>dim(temp2)[2])
-         temp2<-addisolates(temp2,dim(temp1)[2]-dim(temp2)[2])
+         temp2<-add.isolates(temp2,dim(temp1)[2]-dim(temp2)[2])
       if(dim(temp2)[2]>dim(temp1)[2])
-         temp1<-addisolates(temp1,dim(temp2)[2]-dim(temp1)[2])
+         temp1<-add.isolates(temp1,dim(temp2)[2]-dim(temp1)[2])
       n<-dim(temp1)[2]
       gn<-dim(temp1)[1]+dim(temp2)[1]
       gn1<-dim(temp1)[1]
@@ -356,9 +356,9 @@ gscor<-function(dat,dat2=NULL,g1=NULL,g2=NULL,diag=FALSE,mode="digraph",method="
          temp2[1,,]<-dat2
       }
       if(dim(temp1)[2]>dim(temp2)[2])
-         temp2<-addisolates(temp2,dim(temp1)[2]-dim(temp2)[2])
+         temp2<-add.isolates(temp2,dim(temp1)[2]-dim(temp2)[2])
       if(dim(temp2)[2]>dim(temp1)[2])
-         temp1<-addisolates(temp1,dim(temp2)[2]-dim(temp1)[2])
+         temp1<-add.isolates(temp1,dim(temp2)[2]-dim(temp1)[2])
       n<-dim(temp1)[2]
       gn<-dim(temp1)[1]+dim(temp2)[1]
       gn1<-dim(temp1)[1]
@@ -459,9 +459,9 @@ gscov<-function(dat,dat2=NULL,g1=NULL,g2=NULL,diag=FALSE,mode="digraph",method="
          temp2[1,,]<-dat2
       }
       if(dim(temp1)[2]>dim(temp2)[2])
-         temp2<-addisolates(temp2,dim(temp1)[2]-dim(temp2)[2])
+         temp2<-add.isolates(temp2,dim(temp1)[2]-dim(temp2)[2])
       if(dim(temp2)[2]>dim(temp1)[2])
-         temp1<-addisolates(temp1,dim(temp2)[2]-dim(temp1)[2])
+         temp1<-add.isolates(temp1,dim(temp2)[2]-dim(temp1)[2])
       n<-dim(temp1)[2]
       gn<-dim(temp1)[1]+dim(temp2)[1]
       gn1<-dim(temp1)[1]
@@ -562,9 +562,9 @@ hdist<-function(dat,dat2=NULL,g1=NULL,g2=NULL,normalize=FALSE,diag=FALSE,mode="d
          temp2[1,,]<-dat2
       }
       if(dim(temp1)[2]>dim(temp2)[2])
-         temp2<-addisolates(temp2,dim(temp1)[2]-dim(temp2)[2])
+         temp2<-add.isolates(temp2,dim(temp1)[2]-dim(temp2)[2])
       if(dim(temp2)[2]>dim(temp1)[2])
-         temp1<-addisolates(temp1,dim(temp2)[2]-dim(temp1)[2])
+         temp1<-add.isolates(temp1,dim(temp2)[2]-dim(temp1)[2])
       n<-dim(temp1)[2]
       gn<-dim(temp1)[1]+dim(temp2)[1]
       gn1<-dim(temp1)[1]

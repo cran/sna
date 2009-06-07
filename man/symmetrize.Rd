@@ -6,12 +6,13 @@
  Symmetrizes the elements of \code{mats} according to the rule in \code{rule}.
 }
 \usage{
-symmetrize(mats, rule="weak")
+symmetrize(mats, rule="weak", return.as.edgelist=FALSE)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
   \item{mats}{ a graph or graph stack.}
   \item{rule}{ one of ``upper'', ``lower'', ``strong'' or ``weak''. }
+  \item{return.as.edgelist}{ logical; should the symmetrized graphs be returned in edgelist form?}
 }
 \details{
  The rules used by \code{symmetrize} are as follows:

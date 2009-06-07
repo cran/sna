@@ -45,7 +45,7 @@ The paths or cycles computed by this function are directed if \code{mode=="digra
   For \code{kpath.census}, a list with the following elements:
   \item{path.count }{If \code{tabulate.byvertex==FALSE}, a vector of aggregate counts by path length.  Otherwise, a matrix whose first column is a vector of aggregate path counts, and whose succeeding columns contain vectors of path counts for each vertex.}
   \item{path.comemb }{If \code{path.comembership!="none"}, a matrix or array containing co-membership in paths by vertex pairs.  If \code{path.comembership=="sum"}, only a matrix of co-memberships is returned; if \code{bylength} is used, however, co-memberships are returned in a \code{maxlen} by \eqn{n} by \eqn{n} array whose \eqn{i,j,k}th cell is the number of paths of length \eqn{i} containing \code{j} and \code{k}.}
-  \item{paths.bydyad }{If \code{dyadic.tabulation!="none"}, a matrix or array containing the number of paths originating at a particular vertex and terminating.  If \code{bylength} is used, dyadic path counts are supplied via a \code{maxlen} by \eqn{n} by \eqn{n} array whose \eqn{i,j,k}th cell is the number of paths of length \eqn{i} starting at \code{j} and ending with \code{k}.  If \code{sum} is used instead, only a matrix whose \eqn{i,j} cell contains the total number of paths from \eqn{i} to {j} is returned.}
+  \item{paths.bydyad }{If \code{dyadic.tabulation!="none"}, a matrix or array containing the number of paths originating at a particular vertex and terminating.  If \code{bylength} is used, dyadic path counts are supplied via a \code{maxlen} by \eqn{n} by \eqn{n} array whose \eqn{i,j,k}th cell is the number of paths of length \eqn{i} starting at \code{j} and ending with \code{k}.  If \code{sum} is used instead, only a matrix whose \eqn{i,j} cell contains the total number of paths from \eqn{i} to \eqn{j} is returned.}
 
   For \code{kcycle.census}, a similar list:
   \item{cycle.count }{If \code{tabulate.byvertex==FALSE}, a vector of aggregate counts by cycle length.  Otherwise, a matrix whose first column is a vector of aggregate cycle counts, and whose succeeding columns contain vectors of cycle counts for each vertex.}
@@ -53,18 +53,16 @@ The paths or cycles computed by this function are directed if \code{mode=="digra
   
 }
 \references{ 
-Butts, C.T.  (2006).  ``Cycle Census Statistics for Exponential Ra
-ndom Graph Models.''  IMBS Technical Report MBS 06-05, University of California, Irvine.
+Butts, C.T.  (2006).  \dQuote{Cycle Census Statistics for Exponential Random Graph Models.}  IMBS Technical Report MBS 06-05, University of California, Irvine.
 
-West, D.B.  (1996).  \emph{Introduction to Graph Theory.}  Upper Sa
-ddle River, N.J.: Prentice Hall.}
+West, D.B.  (1996).  \emph{Introduction to Graph Theory.}  Upper Saddle River, N.J.: Prentice Hall.
 }
 \author{ Carter T. Butts \email{buttsc@uci.edu} }
 %\note{ ~~further notes~~ 
 %
 \section{Warning }{ The computational cost of calculating paths and cycles grows very sharply in both \code{maxlen} and network density.  Be wary of setting \code{maxlen} greater than 5-6, unless you know what you are doing.  Otherwise, the expected completion time for your calculation may exceed your life expectancy (and those of subsequent generations). }
 %}
-\seealso{ \code{\link{dyad.census}}, \code{\link{triad.census}}, \code{\link{geodist}} }
+\seealso{ \code{\link{dyad.census}}, \code{\link{triad.census}}, \code{\link{clique.census}}, \code{\link{geodist}} }
 \examples{
 g<-rgraph(20,tp=1.5/19)
 

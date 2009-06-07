@@ -3,7 +3,7 @@
 # nli.R
 #
 # copyright (c) 2004, Carter T. Butts <buttsc@uci.edu>
-# Last Modified 4/23/05
+# Last Modified 5/1/09
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/sna package
@@ -16,6 +16,7 @@
 #   closeness
 #   degree
 #   evcent
+#   flowbet
 #   graphcent
 #   infocent
 #   stresscent
@@ -24,44 +25,57 @@
 
 
 #betweenness - Find the betweenness centralities of network positions
-betweenness<-function(dat,g=1,nodes=NULL,gmode="digraph",diag=FALSE,tmaxdev=FALSE,cmode="directed",geodist.precomp=NULL,rescale=FALSE){
+betweenness<-function(dat,g=1,nodes=NULL,gmode="digraph",diag=FALSE,tmaxdev=FALSE,cmode="directed",geodist.precomp=NULL,rescale=FALSE,ignore.eval=TRUE){
    #Pre-process the raw input
-   dat<-as.sociomatrix.sna(dat)
+   dat<-as.edgelist.sna(dat)
    if(is.list(dat))
-     return(sapply(dat[g],betweenness,g=1,nodes=nodes,gmode=gmode, diag=diag,tmaxdev=tmaxdev,cmode=cmode,geodist.precomp=geodist.precomp, rescale=rescale))
-   else if((length(g)>1)&&(length(dim(dat))>2))
-     return(apply(dat[g,,],1,betweenness,g=1,nodes=nodes,gmode=gmode, diag=diag,tmaxdev=tmaxdev,cmode=cmode,geodist.precomp=geodist.precomp, rescale=rescale))
+     return(sapply(dat[g],betweenness,g=1,nodes=nodes,gmode=gmode, diag=diag,tmaxdev=tmaxdev,cmode=cmode,geodist.precomp=geodist.precomp, rescale=rescale,ignore.eval=ignore.eval))
    #End pre-processing
-   if(gmode=="graph")   #If the data is symmetric, treat it as such
-      cmode<-"undirected"
+   n<-attr(dat,"n")
    if(tmaxdev){
       #We got off easy: just return the theoretical maximum deviation for the centralization routine
+      #Note that I'm currently kludging some of these cases...could be iffy.
+      if(!(cmode%in%c("directed","undirected"))){
+        star<-rbind(rep(1,n-1),2:n,rep(1,n-1))
+        if(gmode=="graph")
+          star<-cbind(star,star[,c(2,1,3)])
+        attr(star,"n")<-n
+        bet<-betweenness(star,g=1,nodes=1:n,gmode=gmode,diag=diag,tmaxdev=FALSE, cmode=cmode,geodist.precomp=NULL,rescale=FALSE,ignore.eval=ignore.eval)
+        bet<-sum(max(bet)-bet)
+      }
       bet<-switch(cmode,
-         directed = (dim(dat)[2]-1)^2*(dim(dat)[2]-2),
-         undirected = (dim(dat)[2]-1)^2*(dim(dat)[2]-2)/2
+         directed = (n-1)^2*(n-2),
+         undirected = (n-1)^2*(n-2)/2,
+         bet
       )
    }else{
-      #First, prepare the data
-      if(length(dim(dat))>2)
-         d<-dat[g,,]
-      else
-         d<-dat
-      n<-dim(d)[1]
+      #First, set things up
       if(is.null(nodes))        #Set up node list, if needed
         nodes<-1:n
       if(cmode=="undirected")   #Symmetrize if need be
-         for(i in 1:n)
-            for(j in 1:n)
-               if(i!=j)
-                  d[i,j]<-max(d[i,j],d[j,i])
+        dat<-symmetrize(dat,rule="weak",return.as.edgelist=TRUE)
+      meas<-switch(cmode,
+        undirected=0,
+        directed=0,
+        endpoints=1,
+        proximalsrc=2,
+        proximaltar=3,
+        proximalsum=4,
+        lengthscaled=5,
+        linearscaled=6
+      )
+      if(!is.null(geodist.precomp)){
+        if(is.null(geodist.precomp$gdist) || is.null(geodist.precomp$counts) || is.null(geodist.precomp$predecessors)){
+          warning("Precomputed geodist output must include distance, count, and predecessor information (at least one of which was missing in geodist.precomp).  Re-computing on the fly.\n")
+          precomp<-FALSE
+        }else
+          precomp<-TRUE
+      }else{
+        precomp<-FALSE
+      }
       #Do the computation
-      if(is.null(geodist.precomp))
-         gd<-geodist(d)
-      else
-         gd<-geodist.precomp
-      bet<-rep(0,n)
-      bet<-.C("betweenness_R",as.double(d),as.double(n),bet=as.double(bet), as.double(gd$gdist),as.double(gd$counts),NAOK=TRUE,PACKAGE="sna")$bet
-      if(cmode=="undirected")
+      bet<-.Call("betweenness_R",dat,n,NROW(dat),meas,precomp,ignore.eval, geodist.precomp$gdist,geodist.precomp$counts,geodist.precomp$predecessors,NAOK=TRUE,PACKAGE="sna")
+      if((cmode=="undirected")||(gmode=="graph"))
          bet<-bet/2
       #Return the results
       if(rescale)
@@ -114,43 +128,39 @@ bonpow<-function(dat,g=1,nodes=NULL,gmode="digraph",diag=FALSE,tmaxdev=FALSE,exp
 
 
 #closeness - Find the closeness centralities of network positions
-closeness<-function(dat,g=1,nodes=NULL,gmode="digraph",diag=FALSE,tmaxdev=FALSE,cmode="directed",geodist.precomp=NULL,rescale=FALSE){
+closeness<-function(dat,g=1,nodes=NULL,gmode="digraph",diag=FALSE,tmaxdev=FALSE,cmode="directed",geodist.precomp=NULL,rescale=FALSE,ignore.eval=TRUE){
    #Pre-process the raw input
-   dat<-as.sociomatrix.sna(dat)
+   dat<-as.edgelist.sna(dat)
    if(is.list(dat))
-     return(sapply(dat[g],closeness,g=1,nodes=nodes,gmode=gmode,diag=diag, tmaxdev=tmaxdev,cmode=cmode,geodist.precomp=geodist.precomp,rescale=rescale))
-   else if((length(g)>1)&&(length(dim(dat))>2))
-     return(apply(dat[g,,],1,closeness,g=1,nodes=nodes,gmode=gmode,diag=diag, tmaxdev=tmaxdev,cmode=cmode,geodist.precomp=geodist.precomp,rescale=rescale))
+     return(sapply(dat[g],closeness,g=1,nodes=nodes,gmode=gmode,diag=diag, tmaxdev=tmaxdev,cmode=cmode,geodist.precomp=geodist.precomp,rescale=rescale,ignore.eval=ignore.eval))
    #End pre-processing
-   if(gmode=="graph")   #If the data is symmetric, treat it as such
-      cmode<-"undirected"
+   n<-attr(dat,"n")
    if(tmaxdev){
       #We got off easy: just return the theoretical maximum deviation for the centralization routine
-      n<-dim(dat)[2]
       clo<-switch(cmode,
          directed = (n-1)*(1-1/n),    #Depends on n subst for max distance
-         undirected = (n-2)*(n-1)/(2*n-3)
+         undirected = (n-2)*(n-1)/(2*n-3),
+         suminvdir = (n-1)*(n-1),
+         suminvundir = (n-2-(n-2)/2)*(n-1),
       )
    }else{
       #First, prepare the data
-      if(length(dim(dat))>2)
-         d<-dat[g,,]
-      else
-         d<-dat
-      n<-dim(d)[1]
       if(is.null(nodes))        #Set up node list, if needed
         nodes<-1:n
-      if(cmode=="undirected")   #Symmetrize if need be
-         d<-symmetrize(d,"weak")
+      if(cmode%in%c("undirected","suminvundir"))   #Symmetrize if need be
+        dat<-symmetrize(dat,rule="weak",return.as.edgelist=TRUE)
       #Do the computation
       if(is.null(geodist.precomp))
-         gd<-geodist(d)
+         gd<-geodist(dat,count.paths=FALSE,predecessors=FALSE, ignore.eval=ignore.eval)
       else
          gd<-geodist.precomp
-      clo<-rep(0,n)
-      for(i in 1:n)
-         clo[i]<-sum(gd$gdist[i,-i])
-      clo<-(n-1)/clo
+      diag(gd$gdist)<-NA
+      clo<-switch(cmode,
+        directed = (n-1)/rowSums(gd$gdist,na.rm=TRUE),
+        undirected = (n-1)/rowSums(gd$gdist,na.rm=TRUE),
+        suminvdir = rowSums(1/gd$gdist,na.rm=TRUE)/(n-1),
+        suminvundir = rowSums(1/gd$gdist,na.rm=TRUE)/(n-1)
+      )
       if(rescale)
          clo<-clo/sum(clo)
       clo<-clo[nodes]
@@ -161,85 +171,71 @@ closeness<-function(dat,g=1,nodes=NULL,gmode="digraph",diag=FALSE,tmaxdev=FALSE,
 
 
 #degree - Find the degree centralities of network positions
-degree<-function(dat,g=1,nodes=NULL,gmode="digraph",diag=FALSE,tmaxdev=FALSE,cmode="freeman",rescale=FALSE){
+degree<-function(dat,g=1,nodes=NULL,gmode="digraph",diag=FALSE,tmaxdev=FALSE,cmode="freeman",rescale=FALSE,ignore.eval=FALSE){
    #Pre-process the raw input
-   dat<-as.sociomatrix.sna(dat)
+   dat<-as.edgelist.sna(dat)
    if(is.list(dat))
      return(sapply(dat[g],degree,g=1,nodes=nodes,gmode=gmode,diag=diag, tmaxdev=tmaxdev,cmode=cmode,rescale=rescale))
-   else if((length(g)>1)&&(length(dim(dat))>2))
-     return(apply(dat[g,,],1,degree,g=1,nodes=nodes,gmode=gmode,diag=diag, tmaxdev=tmaxdev,cmode=cmode,rescale=rescale))
    #End pre-processing
+   n<-attr(dat,"n")
+   if(gmode=="graph")
+     cmode<-"indegree"
    if(tmaxdev){
       #We got off easy: just return the theoretical maximum deviation for the centralization routine
       if(gmode=="digraph")
         deg<-switch(cmode,
-           indegree = (dim(dat)[2]-1)*(dim(dat)[2]-1+as.numeric(diag)),
-           outdegree = (dim(dat)[2]-1)*(dim(dat)[2]-1+as.numeric(diag)),
-           freeman = (dim(dat)[2]-1)*(2*(dim(dat)[2]-1)-2+as.numeric(diag))
+           indegree = (n-1)*(n-1+diag),
+           outdegree = (n-1)*(n-1+diag),
+           freeman = (n-1)*(2*(n-1)-2+diag)
         )
       else
         deg<-switch(cmode,
-           indegree = (dim(dat)[2]-1)*(dim(dat)[2]-2+as.numeric(diag)),
-           outdegree = (dim(dat)[2]-1)*(dim(dat)[2]-2+as.numeric(diag)),
-           freeman = (dim(dat)[2]-1)*(2*(dim(dat)[2]-1)-2+as.numeric(diag))
+           indegree = (n-1)*(n-2+diag),
+           outdegree = (n-1)*(n-2+diag),
+           freeman = (n-1)*(2*(n-1)-2+diag)
         )
    }else{
-      #First, prepare the data
-      if(length(dim(dat))>2)
-         d<-dat[g,,]
-      else
-         d<-dat
-      n<-dim(d)[1]
-      if(is.null(nodes))        #Set up node list, if needed
-        nodes<-1:n
-      if(!diag)
-         diag(d)<-NA
-      #Do the computation
-      deg<-switch(cmode,
-         indegree = apply(d,2,sum,na.rm=TRUE),
-         outdegree = apply(d,1,sum,na.rm=TRUE),
-         freeman = apply(d,2,sum,na.rm=TRUE) + apply(d,1,sum,na.rm=TRUE)
+      #Set things up
+      m<-NROW(dat)
+      cm<-switch(cmode,
+        indegree = 0,
+        outdegree = 1,
+        freeman = 2
       )
+      if(!(cmode%in%c("indegree","outdegree","freeman")))
+        stop("Unknown cmode in degree.\n")
+      #Calculate the scores
+      deg<-.C("degree_R",as.double(dat),as.integer(m),as.integer(cm), as.integer(diag),as.integer(ignore.eval),deg=as.double(rep(0,n)), PACKAGE="sna",NAOK=TRUE)$deg
       if(rescale)
          deg<-deg/sum(deg)
-      deg<-deg[nodes]
+      if(!is.null(nodes))
+        deg<-deg[nodes]
    }
    deg
 }
 
 
 #evcent - Find the eigenvector centralities of network positions
-evcent<-function(dat,g=1,nodes=NULL,gmode="digraph",diag=FALSE,tmaxdev=FALSE,rescale=FALSE){
+evcent<-function(dat,g=1,nodes=NULL,gmode="digraph",diag=FALSE,tmaxdev=FALSE,rescale=FALSE,ignore.eval=FALSE,tol=1e-10){
    #Pre-process the raw input
-   dat<-as.sociomatrix.sna(dat)
+   dat<-as.edgelist.sna(dat)
    if(is.list(dat))
      return(sapply(dat[g],evcent,g=1,nodes=nodes,gmode=gmode,diag=diag, tmaxdev=tmaxdev,rescale=rescale))
-   else if((length(g)>1)&&(length(dim(dat))>2))
-     return(apply(dat[g,,],1,evcent,g=1,nodes=nodes,gmode=gmode,diag=diag, tmaxdev=tmaxdev,rescale=rescale))
    #End pre-processing
+   n<-attr(dat,"n")
    if(tmaxdev){
       #We got off easy: just return the theoretical maximum deviation for the centralization routine
       if(gmode=="graph"){
-         temp<-matrix(0,dim(dat)[2],dim(dat)[2]) #Construct the max
-         temp[1,2]<-1                            #deviation structure
-         temp[2,1]<-1
-         ev<-eigen(temp)$vectors[,1]
-         ev<-sum(max(ev)-ev)
+         ev<-sqrt(2)/2*(n-2)
       }else
-         ev<-dim(dat)[2]-1
+         ev<-n-1
    }else{
-      #First, prepare the data
-      if(length(dim(dat))>2)
-         d<-dat[g,,]
-      else
-         d<-dat
-      n<-dim(d)[1]
       if(is.null(nodes))        #Set up node list, if needed
         nodes<-1:n
       if(!diag)
-         diag(d)<-0
+         dat[dat[,1]==dat[,2],3]<-0
       #Do the computation
-      ev<-abs(eigen(d)$vectors[,1])
+      ev<-.C("evcent_R",as.double(dat),as.integer(n),as.integer(NROW(dat)), ev=as.double(rep(1,n)),as.double(tol),as.integer(1e4),as.integer(1),as.integer(ignore.eval),NAOK=TRUE,PACKAGE="sna")$ev
       if(rescale)
          ev<-ev/sum(ev)
       ev<-ev[nodes]
@@ -248,49 +244,106 @@ evcent<-function(dat,g=1,nodes=NULL,gmode="digraph",diag=FALSE,tmaxdev=FALSE,res
 }
 
 
+#flowbet - Find the flow betweenness of network positions
+#Note: this routine is fully non-optimized
+flowbet<-function(dat,g=1,nodes=NULL,gmode="digraph",diag=FALSE,tmaxdev=FALSE,cmode="rawflow",rescale=FALSE,ignore.eval=FALSE){
+  #Pre-process the raw input
+  dat<-as.sociomatrix.sna(dat)
+  if(is.list(dat))
+    return(sapply(dat[g],flowbet,g=1,nodes=nodes,gmode=gmode,diag=diag, tmaxdev=tmaxdev,cmode=cmode,rescale=rescale,ignore.eval=ignore.eval))
+  else if((length(g)>1)&&(length(dim(dat))>2))
+    return(apply(dat[g,,],1,flowbet,g=1,nodes=nodes,gmode=gmode,diag=diag, tmaxdev=tmaxdev,cmode=cmode,rescale=rescale,ignore.eval=ignore.eval))
+  #End pre-processing
+  n<-NROW(dat)
+  if(ignore.eval)
+    dat<-dat>0
+  if(tmaxdev){
+    #We got off easy: just return the theoretical maximum deviation for the centralization routine
+    flo<-switch(cmode,   #This only works if we assume unit capacities!
+      rawflow=(n-1)^2*(n-2)/(1+(gmode=="graph")),
+      normflow=n-1,
+      fracflow=(n-1)^2*(n-2)/(1+(gmode=="graph"))
+    )
+  }else{
+    #Wrapper for the Edmonds-Karp max-flow algorithm
+    mflow<-function(x,src,snk){
+      .C("maxflow_EK_R",as.double(x),as.integer(NROW(x)),as.integer(src-1),
+        as.integer(snk-1),flow=as.double(0),NAOK=TRUE,PACKAGE="sna")$flow
+    }
+    #Start by obtaining all-pairs max-solutions
+    maxflo<-matrix(Inf,n,n)
+    if(gmode=="digraph"){
+      for(i in 1:n)
+        for(j in 1:n)
+          if(i!=j)
+            maxflo[i,j]<-mflow(dat,i,j)
+    }else{
+      for(i in 1:n)
+        for(j in (i:n)[-1])
+          maxflo[i,j]<-mflow(dat,i,j)
+      maxflo[lower.tri(maxflo)]<-t(maxflo)[lower.tri(maxflo)]
+    }
+    if(cmode=="normflow"){
+      flo<-maxflo
+      diag(flo)<-0
+      maxoflo<-rep(0,n)
+      for(i in 1:n)
+        maxoflo[i]<-sum(flo[-i,-i])
+    }
+    #Compute the flow betweenness scores
+    flo<-rep(0,n)
+    for(i in 1:n){
+      for(j in 1:n)
+        for(k in 1:n)
+          if((i!=j)&&(i!=k)&&(j!=k)&&((gmode=="digraph")||j<k) &&(maxflo[j,k]>0)){
+            redflow<-mflow(dat[-i,-i],j-(j>i),k-(k>i))
+            flo[i]<-switch(cmode,
+              rawflow=flo[i]+maxflo[j,k]-redflow,
+              normflow=flo[i]+maxflo[j,k]-redflow,
+              fracflow=flo[i]+(maxflo[j,k]-redflow)/maxflo[j,k]
+            )
+          }
+    }
+    if(cmode=="normflow")
+      flo<-flo/maxoflo*(1+(gmode=="graph"))
+    if(rescale)
+      flo<-flo/sum(flo)
+    if(is.null(nodes))
+      nodes<-1:n
+    flo<-flo[nodes]
+  }
+  flo 
+}
+
+
 #graphcent - Find the graph centralities of network positions
-graphcent<-function(dat,g=1,nodes=NULL,gmode="digraph",diag=FALSE,tmaxdev=FALSE,cmode="directed",geodist.precomp=NULL,rescale=FALSE){
+graphcent<-function(dat,g=1,nodes=NULL,gmode="digraph",diag=FALSE,tmaxdev=FALSE,cmode="directed",geodist.precomp=NULL,rescale=FALSE,ignore.eval=TRUE){
    #Pre-process the raw input
-   dat<-as.sociomatrix.sna(dat)
+   dat<-as.edgelist.sna(dat)
    if(is.list(dat))
-     return(sapply(dat[g],graphcent,g=1,nodes=nodes,gmode=gmode,diag=diag, tmaxdev=tmaxdev,cmode=cmode,geodist.precomp=geodist.precomp,rescale=rescale))
-   else if((length(g)>1)&&(length(dim(dat))>2))
-     return(apply(dat[g,,],1,graphcent,g=1,nodes=nodes,gmode=gmode,diag=diag, tmaxdev=tmaxdev,cmode=cmode,geodist.precomp=geodist.precomp,rescale=rescale))
+     return(sapply(dat[g],graphcent,g=1,nodes=nodes,gmode=gmode,diag=diag, tmaxdev=tmaxdev,cmode=cmode,geodist.precomp=geodist.precomp,rescale=rescale,ignore.eval=ignore.eval))
    #End pre-processing
    if(gmode=="graph")   #If the data is symmetric, treat it as such
       cmode<-"undirected"
+    n<-attr(dat,"n")
    if(tmaxdev){
       #We got off easy: just return the theoretical maximum deviation for the centralization routine
-      n<-dim(dat)[2]
       gc<-switch(cmode,
          directed = (n-1)*(1-1/n),  #Depends on n subst for infinite distance
          undirected = (n-1)/2
       )
    }else{
       #First, prepare the data
-      if(length(dim(dat))>2)
-         d<-dat[g,,]
-      else
-         d<-dat
-      n<-dim(d)[1]
       if(is.null(nodes))        #Set up node list, if needed
         nodes<-1:n
       if(cmode=="undirected")   #Symmetrize if need be
-         for(i in 1:n)
-            for(j in 1:n)
-               if(i!=j)
-                  d[i,j]<-max(d[i,j],d[j,i])
+        dat<-symmetrize(dat,rule="weak",return.as.edgelist=TRUE)
       #Do the computation
       if(is.null(geodist.precomp))
-         gd<-geodist(d)
+         gd<-geodist(dat,count.paths=FALSE,predecessors=FALSE, ignore.eval=ignore.eval)
       else
          gd<-geodist.precomp
-      gc<-rep(0,n)
-      for(i in 1:n){
-         for(j in 1:n)
-            if(j!=i)
-               gc[i]<-max(gc[i],gd$gdist[i,j])
-      }
+      gc<-apply(gd$gdist,1,max)
       gc<-1/gc
       if(rescale)
          gc<-gc/sum(gc)
@@ -354,6 +407,49 @@ infocent <- function(dat,g=1,nodes=NULL,gmode="digraph",diag=FALSE,cmode="weak",
    }
    #Return the result
    cent
+}
+
+
+loadcent<-function(dat,g=1,nodes=NULL,gmode="digraph",diag=FALSE,tmaxdev=FALSE,cmode="directed",geodist.precomp=NULL,rescale=FALSE,ignore.eval=TRUE){
+   #Pre-process the raw input
+   dat<-as.edgelist.sna(dat)
+   if(is.list(dat))
+     return(sapply(dat[g],loadcent,g=1,nodes=nodes,gmode=gmode, diag=diag,tmaxdev=tmaxdev,cmode=cmode,geodist.precomp=geodist.precomp, rescale=rescale,ignore.eval=ignore.eval))
+   #End pre-processing
+   n<-attr(dat,"n")
+   if(gmode=="graph")   #If the data is symmetric, treat it as such
+      cmode<-"undirected"
+   if(tmaxdev){
+      #We got off easy: just return the theoretical maximum deviation for the centralization routine
+      lc<-switch(cmode,
+         directed = (n-1)^2*(n-2),
+         undirected = (n-1)^2*(n-2)/2
+      )
+   }else{
+      #First, set things up
+      if(is.null(nodes))        #Set up node list, if needed
+        nodes<-1:n
+      if(cmode=="undirected")   #Symmetrize if need be
+        dat<-symmetrize(dat,rule="weak",return.as.edgelist=TRUE)
+      else
+        dat<-gt(dat,return.as.edgelist=TRUE)  #Transpose the input digraph
+      if(!is.null(geodist.precomp)){
+        if(is.null(geodist.precomp$gdist) || is.null(geodist.precomp$counts) || is.null(geodist.precomp$predecessors)){
+          warning("Precomputed geodist output must include distance, count, and predecessor information (at least one of which was missing in geodist.precomp).  Re-computing on the fly.\n")
+          precomp<-FALSE
+        }else
+          precomp<-TRUE
+      }else{
+        precomp<-FALSE
+      }
+      #Do the computation (we use the betweenness routine, oddly)
+      lc<-.Call("betweenness_R",dat,n,NROW(dat),8,precomp,ignore.eval, geodist.precomp$gdist,geodist.precomp$counts,geodist.precomp$predecessors,NAOK=TRUE,PACKAGE="sna")
+      #Return the results
+      if(rescale)
+         lc<-lc/sum(lc)
+      lc<-lc[nodes]
+   }
+   lc
 }
 
 
@@ -433,43 +529,38 @@ prestige<-function(dat,g=1,nodes=NULL,gmode="digraph",diag=FALSE,cmode="indegree
 
 
 #stresscent - Find the stress centralities of network positions
-stresscent<-function(dat,g=1,nodes=c(1:dim(dat)[2]),gmode="digraph",diag=FALSE,tmaxdev=FALSE,cmode="directed",geodist.precomp=NULL,rescale=FALSE){
+stresscent<-function(dat,g=1,nodes=NULL,gmode="digraph",diag=FALSE,tmaxdev=FALSE,cmode="directed",geodist.precomp=NULL,rescale=FALSE,ignore.eval=TRUE){
    #Pre-process the raw input
-   dat<-as.sociomatrix.sna(dat)
+   dat<-as.edgelist.sna(dat)
    if(is.list(dat))
-     return(sapply(dat[g],stresscent,g=1,nodes=nodes,gmode=gmode,diag=diag, tmaxdev=tmaxdev,cmode=cmode,geodist.precomp=geodist.precomp,rescale=rescale))
-   else if((length(g)>1)&&(length(dim(dat))>2))
-     return(apply(dat[g,,],1,stresscent,g=1,nodes=nodes,gmode=gmode,diag=diag, tmaxdev=tmaxdev,cmode=cmode,geodist.precomp=geodist.precomp,rescale=rescale))
+     return(sapply(dat[g],stresscent,g=1,nodes=nodes,gmode=gmode, diag=diag,tmaxdev=tmaxdev,cmode=cmode,geodist.precomp=geodist.precomp, rescale=rescale,ignore.eval=ignore.eval))
    #End pre-processing
+   n<-attr(dat,"n")
    if(gmode=="graph")   #If the data is symmetric, treat it as such
       cmode<-"undirected"
    if(tmaxdev){
       #We got off easy: just return the theoretical maximum deviation for the centralization routine
       str<-switch(cmode,
-         directed = (dim(dat)[2]-1)^2*(dim(dat)[2]-2),
-         undirected = (dim(dat)[2]-1)^2*(dim(dat)[2]-2)/2
+         directed = (n-1)^2*(n-2),
+         undirected = (n-1)^2*(n-2)/2
       )
    }else{
-      #First, prepare the data
-      if(length(dim(dat))>2)
-         d<-dat[g,,]
-      else
-         d<-dat
-      n<-dim(d)[1]
+      #First, set things up
       if(is.null(nodes))        #Set up node list, if needed
         nodes<-1:n
       if(cmode=="undirected")   #Symmetrize if need be
-         for(i in 1:n)
-            for(j in 1:n)
-               if(i!=j)
-                  d[i,j]<-max(d[i,j],d[j,i])
-      #Do the computation
-      if(is.null(geodist.precomp))
-         gd<-geodist(d)
-      else
-         gd<-geodist.precomp
-      str<-rep(0,n)
-      str<-.C("stresscent_R",as.double(d),as.double(n),str=as.double(str), as.double(gd$gdist),as.double(gd$counts),NAOK=TRUE,PACKAGE="sna")$str
+        dat<-symmetrize(dat,rule="weak",return.as.edgelist=TRUE)
+      if(!is.null(geodist.precomp)){
+        if(is.null(geodist.precomp$gdist) || is.null(geodist.precomp$counts) || is.null(geodist.precomp$predecessors)){
+          warning("Precomputed geodist output must include distance, count, and predecessor information (at least one of which was missing in geodist.precomp).  Re-computing on the fly.\n")
+          precomp<-FALSE
+        }else
+          precomp<-TRUE
+      }else{
+        precomp<-FALSE
+      }
+      #Do the computation (we use the betweenness routine, oddly)
+      str<-.Call("betweenness_R",dat,n,NROW(dat),7,precomp,ignore.eval, geodist.precomp$gdist,geodist.precomp$counts,geodist.precomp$predecessors,NAOK=TRUE,PACKAGE="sna")
       if(cmode=="undirected")
          str<-str/2
       #Return the results
@@ -479,4 +570,3 @@ stresscent<-function(dat,g=1,nodes=c(1:dim(dat)[2]),gmode="digraph",diag=FALSE,t
    }
    str
 }
-

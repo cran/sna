@@ -24,7 +24,7 @@ make.stochastic(dat, mode="rowcol", tol=0.005,
 \value{
 The stochasticized adjacency matrices
 }
-\references{  }
+%\references{  }
 \author{ Carter T. Butts \email{buttsc@uci.edu}}
 %\note{  }
 

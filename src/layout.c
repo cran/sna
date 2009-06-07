@@ -121,22 +121,20 @@ or 0 otherwise.*/
 
 /*TWO-DIMENSIONAL LAYOUT ROUTINES--------------------------------------*/
 
-void gplot_layout_fruchtermanreingold_R(int *d, double *pn, int *pniter, 
-double *pmaxdelta, double *pvolume, double *pcoolexp, double *prepulserad,
-double *x, double *y)
+void gplot_layout_fruchtermanreingold_R(double *d, int *pn, int *pm, int *pniter, double *pmaxdelta, double *pvolume, double *pcoolexp, double *prepulserad, double *x, double *y)
 /*
 Calculate a two-dimensional Fruchterman-Reingold layout for (symmetrized) 
-adjacency matrix d.  Positions (stored in (x,y)) should be initialized
+edgelist matrix d.  Positions (stored in (x,y)) should be initialized
 prior to calling this routine.
 */
 {
   double frk,maxdelta,volume,coolexp,repulserad,t,ded,xd,yd,*dx,*dy;
   double rf,af;
-  long int n,j,k;
-  int niter,i;
+  int n,j,k,niter,i,m,l;
   
   /*Define various things*/
-  n=(long int)*pn;
+  n=(int)*pn;
+  m=(int)*pm;
   niter=*pniter;
   maxdelta=*pmaxdelta;
   volume=*pvolume;
@@ -171,15 +169,24 @@ prior to calling this routine.
         dx[k]-=xd*rf;
         dy[j]+=yd*rf;
         dy[k]-=yd*rf;
-        /*Calculate the attractive "force"*/
-        if(d[j+k*n]||d[k+j*n]){
-          af=ded*ded/frk;
-          dx[j]-=xd*af;        /*Add to the position change vector*/
-          dx[k]+=xd*af;
-          dy[j]-=yd*af;
-          dy[k]+=yd*af;
-        }
       }
+    /*Calculate the attractive "force"*/
+    for(j=0;j<m;j++){
+      k=(int)d[j]-1;
+      l=(int)d[j+m]-1;
+      if(k<l){
+        xd=x[k]-x[l];
+        yd=y[k]-y[l];
+        ded=sqrt(xd*xd+yd*yd);  /*Get dyadic euclidean distance*/
+        xd/=ded;                /*Rescale differences to length 1*/
+        yd/=ded;
+        af=d[j+2*m]*ded*ded/frk;
+        dx[k]-=xd*af;        /*Add to the position change vector*/
+        dx[l]+=xd*af;
+        dy[k]-=yd*af;
+        dy[l]+=yd*af;
+      }
+    }
     /*Dampen motion, if needed, and move the points*/
     for(j=0;j<n;j++){
       ded=sqrt(dx[j]*dx[j]+dy[j]*dy[j]);
@@ -194,15 +201,15 @@ prior to calling this routine.
   }
 }
 
-void gplot_layout_kamadakawai_R(int *d, double *pn, int *pniter, double *elen, double *pinitemp, double *pcoolexp, double *pkkconst, double *psigma, double *x, double *y)
+
+void gplot_layout_kamadakawai_R(int *pn, int *pniter, double *elen, double *pinitemp, double *pcoolexp, double *pkkconst, double *psigma, double *x, double *y)
 {
   double initemp,coolexp,sigma,temp,candx,candy;
   double dpot,odis,ndis,osqd,nsqd,kkconst;
-  int niter;
-  long int n,i,j,k;
+  int niter,n,i,j,k;
   
   /*Define various things*/
-  n=(long int)*pn;
+  n=(int)*pn;
   niter=*pniter;
   initemp=*pinitemp;
   coolexp=*pcoolexp;
@@ -445,22 +452,20 @@ void gplot_layout_target_R(int *d, double *pn, int *pniter, double *elen, double
 
 /*THREE-DIMENSIONAL LAYOUT ROUTINES------------------------------------*/
 
-void gplot3d_layout_fruchtermanreingold_R(int *d, double *pn, int *pniter, 
-double *pmaxdelta, double *pvolume, double *pcoolexp, double *prepulserad,
-double *x, double *y, double *z)
+void gplot3d_layout_fruchtermanreingold_R(double *d, int *pn, int *pm, int *pniter, double *pmaxdelta, double *pvolume, double *pcoolexp, double *prepulserad, double *x, double *y, double *z)
 /*
 Calculate a three-dimensional Fruchterman-Reingold layout for (symmetrized) 
-adjacency matrix d.  Positions (stored in (x,y,z)) should be initialized
+edgelist matrix d.  Positions (stored in (x,y,z)) should be initialized
 prior to calling this routine.
 */
 {
   double frk,maxdelta,volume,coolexp,repulserad,t,ded,xd,yd,zd,*dx,*dy,*dz;
   double rf,af;
-  long int n,j,k;
-  int niter,i;
+  int n,j,k,niter,i,m,l;
   
   /*Define various things*/
-  n=(long int)*pn;
+  n=(int)*pn;
+  m=(int)*pm;
   niter=*pniter;
   maxdelta=*pmaxdelta;
   volume=*pvolume;
@@ -501,17 +506,28 @@ prior to calling this routine.
         dy[k]-=yd*rf;
         dz[j]+=zd*rf;
         dz[k]-=zd*rf;
-        /*Calculate the attractive "force"*/
-        if(d[j+k*n]||d[k+j*n]){
-          af=ded*ded/frk;
-          dx[j]-=xd*af;        /*Add to the position change vector*/
-          dx[k]+=xd*af;
-          dy[j]-=yd*af;
-          dy[k]+=yd*af;
-          dz[j]-=zd*af;
-          dz[k]+=zd*af;
-        }
       }
+    /*Calculate the attractive "force"*/
+    for(j=0;j<m;j++){
+      k=(int)d[j]-1;
+      l=(int)d[j+m]-1;
+      if(k<l){
+        xd=x[k]-x[l];
+        yd=y[k]-y[l];
+        zd=z[k]-z[l];
+        ded=sqrt(xd*xd+yd*yd+zd*zd);  /*Get dyadic euclidean distance*/
+        xd/=ded;                    /*Rescale differences to length 1*/
+        yd/=ded;
+        zd/=ded;
+        af=d[j+2*m]*ded*ded/frk;
+        dx[k]-=xd*af;        /*Add to the position change vector*/
+        dx[l]+=xd*af;
+        dy[k]-=yd*af;
+        dy[l]+=yd*af;
+        dz[k]-=zd*af;
+        dz[l]+=zd*af;
+      }
+    }
     /*Dampen motion, if needed, and move the points*/
     for(j=0;j<n;j++){
       ded=sqrt(dx[j]*dx[j]+dy[j]*dy[j]+dz[j]*dz[j]);
@@ -528,7 +544,8 @@ prior to calling this routine.
   }
 }
 
-void gplot3d_layout_kamadakawai_R(int *d, double *pn, int *pniter, double *elen, double *pinitemp, double *pcoolexp, double *pkkconst, double *psigma, double *x, double *y, double *z)
+
+void gplot3d_layout_kamadakawai_R(double *pn, int *pniter, double *elen, double *pinitemp, double *pcoolexp, double *pkkconst, double *psigma, double *x, double *y, double *z)
 {
   double initemp,coolexp,sigma,temp,cx,cy,cz;
   double dpot,odis,ndis,osqd,nsqd,kkconst;

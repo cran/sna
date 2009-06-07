@@ -6,7 +6,7 @@
   Prints an object of class \code{summary.bayes.factor}.
 }
 \usage{
-print.summary.bayes.factor(x, ...)
+\method{print}{summary.bayes.factor}(x, ...)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
@@ -15,8 +15,8 @@ print.summary.bayes.factor(x, ...)
 }
 %\details{
 %}
-\value{
-}
+%\value{
+%}
 %\references{  }
 \author{ Carter T. Butts \email{buttsc@uci.edu} }
 %\note{ }
@@ -25,6 +25,6 @@ print.summary.bayes.factor(x, ...)
 
 \seealso{ \code{\link{summary.bayes.factor}} }
 
-\examples{
-}
+%\examples{
+%}
 \keyword{ print }%-- one or more ...

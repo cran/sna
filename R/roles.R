@@ -3,7 +3,7 @@
 # roles.R
 #
 # copyright (c) 2004, Carter T. Butts <buttsc@uci.edu>
-# Last Modified 12/09/06
+# Last Modified 6/6/09
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/sna package
@@ -19,7 +19,8 @@
 #   print.blockmodel
 #   print.equiv.clust
 #   print.summary.blockmodel
-#   seham
+#   redist
+#   sedist
 #   summary.blockmodel
 #
 ######################################################################
@@ -35,7 +36,7 @@ blockmodel<-function(dat,ec,k=NULL,h=NULL,block.content="density",plabels=NULL,g
    else
      b<-ec
    #Prepare the data
-   dat<-as.sociomatrix.sna(dat)
+   dat<-as.sociomatrix.sna(dat,simplify=TRUE)
    if(is.list(dat))
      stop("Blockmodel requires input graphs to be of identical order.")
    n<-dim(dat)[2]
@@ -107,7 +108,7 @@ blockmodel<-function(dat,ec,k=NULL,h=NULL,block.content="density",plabels=NULL,g
    else if(class(ec)=="hclust")
      pord<-ec$order
    else
-     pord<-1:length(b)
+     pord<-order(ec)
    o<-list()
    o$block.membership<-b[pord]
    o$order.vector<-pord
@@ -373,11 +374,103 @@ print.summary.blockmodel<-function(x,...){
 }
 
 
+#redist - Find a matrix of distances between positions based on regular 
+#equivalence
+redist<-function(dat, g=NULL, method=c("catrege"), mode="digraph", diag=FALSE, seed.partition=NULL, code.diss=TRUE, ...){
+  #Internal function to compute neighborhoods for CATREGE
+  neighb<-function(){
+    nmat<-array(0,dim=c(r,n,n))
+    for(i in 1:n)
+      for(j in 1:n)
+        if(d[i,j]>0)
+          nmat[d[i,j],i,part1[j]]<-TRUE
+    nmat
+  }
+  #Prep the data
+  dat<-as.sociomatrix.sna(dat,simplify=TRUE)
+  if(is.list(dat))
+    stop("redist requires input graphs to be of identical order.")
+  if(is.null(g))
+    g<-1:dim(dat)[1]
+  if(length(dim(dat)) > 2) {
+    n <- dim(dat)[2]
+    m <- length(g)
+    d <- dat[g, , ]
+  }else{
+    n <- dim(dat)[2]
+    m <- 1
+    d <- array(dim = c(m, n, n))
+    d[1, , ] <- dat
+  }
+  if(mode == "graph")
+    d <- symmetrize(d)
+  if (!diag)
+    d <- diag.remove(d,0) #Currently, treat as zeros
+  #Build the categorical matrix
+  da<-array(dim=c(2*m,n,n))   #First, perform symmetric interleaving
+  for(i in 1:m){
+    da[i*2-1,,]<-d[i,,]
+    da[i*2,,]<-t(d[i,,])
+  }
+  d<-apply(da,c(2,3),paste,collapse=" ")  #Convert to strings
+  vals<-apply(sapply((1:2^(2*m))-1,function(z){(z%/%2^((1:(2*m))-1))%%2}),2, paste,collapse=" ")  #Obtain all possible strings
+  r<-length(vals)-1   #Non-null values
+  d<-apply(d,c(1,2),match,vals)-1   #Replace with numeric values
+#  print(d[1:15,1:15])
+#  vals<-sort(unique(as.vector(d)))             #Obtain unique values
+#  print(vals)
+#  r<-length(vals-1)                        #Get number of unique values
+#  vals0<-grep("NA",vals)                 #Fix zeros
+#  print(vals0)
+#  vals0<-c(vals0,((1:r)[-vals0])[as.numeric(gsub(" ","",vals[-vals0]))==0]) 
+#  print(vals0)
+#  d<-apply(d,c(1,2),match,vals)          #Replace vals with numerics
+#  d[d%in%vals0]<-0                       #Set zeros
+  #Compute the equivalence
+  if(match.arg(method)=="catrege"){
+    outpart<-vector()
+    if(is.null(seed.partition))
+      part1<-rep(1,n)   #Create initial partition memberships
+    else
+      part1<-seed.partition
+    flag<-TRUE
+    while(flag){
+      nmat<-neighb()  #Compute neighborhoods, using current partition
+      outpart<-rbind(outpart,part1)
+      flag<-FALSE     #Set change flag
+      part2<-1:n
+      for(i in 2:n)
+        for(j in 1:(i-1))
+          if(part1[i]==part1[j]){
+            if(all(nmat[,i,]==nmat[,j,]))
+              part2[i]<-part2[j]
+            else
+              flag<-TRUE
+          }
+      part1<-part2
+    }
+    eq<-matrix(0,n,n)
+    for(i in 1:n)
+      for(j in 1:n)
+        eq[i,j]<-max((1:NROW(outpart))[outpart[,i]==outpart[,j]])
+  }
+  #Transform and rescale to distance form if required
+  if(!code.diss)
+    eq
+  else{
+    if(max(eq)==min(eq))
+      matrix(0,NROW(eq),NCOL(eq))
+    else
+      (max(eq)-eq)/(max(eq)-min(eq))
+  }
+}
+
+
 #sedist - Find a matrix of distances between positions based on structural 
 #equivalence
 sedist<-function(dat,g=c(1:dim(dat)[1]),method="hamming",joint.analysis=FALSE,mode="digraph",diag=FALSE,code.diss=FALSE){
    #First, prepare the data
-   dat<-as.sociomatrix.sna(dat)
+   dat<-as.sociomatrix.sna(dat,simplify=TRUE)
    if(is.list(dat))
      stop("sedist requires input graphs to be of identical order.")
    if(length(dim(dat))>2){

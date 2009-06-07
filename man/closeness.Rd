@@ -8,7 +8,7 @@
 \usage{
 closeness(dat, g=1, nodes=NULL, gmode="digraph", diag=FALSE, 
     tmaxdev=FALSE, cmode="directed", geodist.precomp=NULL, 
-    rescale=FALSE)
+    rescale=FALSE, ignore.eval=TRUE)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
@@ -18,9 +18,10 @@ closeness(dat, g=1, nodes=NULL, gmode="digraph", diag=FALSE,
   \item{gmode}{ string indicating the type of graph being evaluated.  "digraph" indicates that edges should be interpreted as directed; "graph" indicates that edges are undirected.  \code{gmode} is set to "digraph" by default. }
   \item{diag}{ boolean indicating whether or not the diagonal should be treated as valid data.  Set this true if and only if the data can contain loops.  \code{diag} is \code{FALSE} by default. }
   \item{tmaxdev}{ boolean indicating whether or not the theoretical maximum absolute deviation from the maximum nodal centrality should be returned.  By default, \code{tmaxdev==FALSE}. }
-  \item{cmode}{ string indicating the type of closeness centrality being computed (distances on directed or undirected geodesics). }
+  \item{cmode}{ string indicating the type of closeness centrality being computed (distances on directed or undirected pairs, or an alternate measure). }
   \item{geodist.precomp}{ a \code{\link{geodist}} object precomputed for the graph to be analyzed (optional) }
   \item{rescale}{ if true, centrality scores are rescaled such that they sum to 1. }
+  \item{ignore.eval}{ logical; should edge values be ignored when calculating geodesics?}
 }
 \details{
   The closeness of a vertex v is defined as
@@ -29,6 +30,10 @@ closeness(dat, g=1, nodes=NULL, gmode="digraph", diag=FALSE,
 C_C(v) = (|V(G)|-1)/sum( d(v,i), i in V(G), i!=v )}
 
 where \eqn{d(i,j)}{d(i,j)} is the geodesic distance between i and j (where defined).  Closeness is ill-defined on disconnected graphs; in such cases, this routine substitutes \code{Inf}.  It should be understood that this modification is not canonical (though it is common), but can be avoided by not attempting to measure closeness on disconnected graphs in the first place!  Intuitively, closeness provides an index of the extent to which a given vertex has short paths to all other vertices in the graph; this is one reasonable measure of the extent to which a vertex is in the ``middle'' of a given structure.
+
+An alternate form of closeness (whose origin is obscure) is obtained by taking the sum of the inverse distances to each vertex, i.e.
+\deqn{C_C(v) = \frac{\sum_{i : i \neq v} \frac{1}{d(v,i)}}{\left|V\left(G\right)\right|-1}.}{%
+C_C(v) = sum( 1/d(v,i), i in V(G), i!=v )/(|V(G)|-1).}  This measure correlates well with the standard form of closeness where both are well-defined, but lacks the latter's pathological behavior on disconnected graphs.  Computation of alternate closeness may be performed via the argument \code{cmode="suminvdir"} (directed case) and \code{cmode="suminvundir"} (undirected case).  The corresponding arguments \code{cmode="directed"} and \code{cmode="undirected"} return the standard closeness scores in the directed or undirected cases (respectively).
 }
 \value{
 A vector, matrix, or list containing the closeness scores (depending on the number and size of the input graphs).

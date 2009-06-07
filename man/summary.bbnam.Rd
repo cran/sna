@@ -9,7 +9,7 @@
   Returns a \code{bbnam} summary object
 }
 \usage{
-summary.bbnam(object, ...)
+\method{summary}{bbnam}(object, ...)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
@@ -29,7 +29,7 @@ An object of class \code{summary.bbnam}
 
 \seealso{ \code{\link{bbnam}} }
 
-\examples{
-
-}
+%\examples{
+%
+%}
 \keyword{ math }%-- one or more ...

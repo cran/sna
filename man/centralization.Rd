@@ -6,14 +6,14 @@
   \code{Centralization} returns the centralization GLI (graph-level index) for a given graph in \code{dat}, given a (node) centrality measure \code{FUN}.  \code{Centralization} follows Freeman's (1979) generalized definition of network centralization, and can be used with any properly defined centrality measure.  This measure must be implemented separately; see the references below for examples.
 }
 \usage{
-centralization(dat, FUN, g=1, mode="digraph", diag=FALSE, 
+centralization(dat, FUN, g=NULL, mode="digraph", diag=FALSE, 
     normalize=TRUE, ...)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
   \item{dat}{ one or more input graphs. }
   \item{FUN}{ Function to return nodal centrality scores.}
-  \item{g}{ Integer indicating the index of the graph for which centralization should be computed.  By default, \code{g}=1. }
+  \item{g}{ Integer indicating the index of the graph for which centralization should be computed.  By default, all graphs are employed. }
   \item{mode}{ String indicating the type of graph being evaluated.  "digraph" indicates that edges should be interpreted as directed; "graph" indicates that edges are undirected.  \code{mode} is set to "digraph" by default. }
   \item{diag}{ Boolean indicating whether or not the diagonal should be treated as valid data.  Set this true if and only if the data can contain loops.  \code{diag} is \code{FALSE} by default. }
   \item{normalize}{ Boolean indicating whether or not the centralization score should be normalized to the theoretical maximum.  (Note that this function relies on \code{FUN} to return this value when called with \code{tmaxdev==TRUE}.)  By default, \code{tmaxdev==TRUE}. }

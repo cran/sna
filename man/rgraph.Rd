@@ -7,7 +7,7 @@
 }
 \usage{
 rgraph(n, m=1, tprob=0.5, mode="digraph", diag=FALSE, replace=FALSE,
-    tielist=NULL)
+    tielist=NULL, return.as.edgelist=FALSE)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
@@ -18,6 +18,7 @@ rgraph(n, m=1, tprob=0.5, mode="digraph", diag=FALSE, replace=FALSE,
   \item{diag}{ Should the diagonal entries (loops) be set to zero? }
   \item{replace}{ Sample with or without replacement from a tie list (ignored if \code{tielist==NULL} }
   \item{tielist}{ A vector of edge values, from which the new graphs should be bootstrapped }
+  \item{return.as.edgelist}{ logical; should the resulting graphs be returned in edgelist form?}
 }
 \details{
    \code{rgraph} is a reasonably versatile routine for generating random network data.  The graphs so generated are either Bernoulli graphs (graphs in which each edge is a Bernoulli trial, independent conditional on the Bernoulli parameters), or are bootstrapped from a user-provided edge distribution (very handy for CUG tests).  In the latter case, edge data should be provided using the \code{tielist} argument; the exact form taken by the data is irrelevant, so long as it can be coerced to a vector.  In the former case, Bernoulli graph probabilities are set by the \code{tprob} argument as follows:
@@ -37,12 +38,12 @@ Finally, note that \code{rgraph} will symmetrize all generated networks if \code
   A graph stack
 }
 \references{ 
-Erd\"{o}s, P. and R\'{e}nyi, A.  (1960).  ``On the Evolution of Random Graphs.''  \emph{Public Mathematical Institute of Hungary Academy of Sciences,} 5:17-61.
+Erdos, P. and Renyi, A.  (1960).  \dQuote{On the Evolution of Random Graphs.}  \emph{Public Mathematical Institute of Hungary Academy of Sciences,} 5:17-61.
 
 Wasserman, S., and Faust, K.  (1994).  \emph{Social Network Analysis: Methods and Applications}.  Cambridge: Cambridge University Press. 
 }
 \author{ Carter T. Butts \email{buttsc@uci.edu} }
-%\note{  }
+\note{ The famous mathematicians referenced in this man page now have misspelled names, due to R's difficulty with accent marks.  }
 
  %~Make other sections like WARNING with \section{WARNING }{....} ~
 

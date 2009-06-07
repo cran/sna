@@ -6,7 +6,7 @@
   Returns a \code{netlogit} summary object~
 }
 \usage{
-summary.netlogit(object, ...)
+\method{summary}{netlogit}(object, ...)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
@@ -26,7 +26,7 @@ summary.netlogit(object, ...)
 
 \seealso{\code{\link{netlogit}} }
 
-\examples{
-
-}
+%\examples{
+%
+%}
 \keyword{ math }%-- one or more ...

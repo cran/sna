@@ -48,8 +48,8 @@ West, D.B.  (1996).  \emph{Introduction to Graph Theory}.  Upper Saddle River, N
 
 %\seealso{ }
 
-\examples{
-}
+%\examples{
+%}
 \keyword{ manip }%-- one or more ...
 \keyword{ math }
 \keyword{ graphs }

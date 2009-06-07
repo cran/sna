@@ -9,7 +9,7 @@
   Generates various plots of posterior draws from the \code{\link{bbnam}} model.
 }
 \usage{
-plot.bbnam(x, mode="density", intlines=TRUE, ...)
+\method{plot}{bbnam}(x, mode="density", intlines=TRUE, ...)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{

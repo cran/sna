@@ -25,7 +25,7 @@ nacf(net, y, lag.max = NULL, type = c("correlation", "covariance",
   \item{demean}{ logical; demean \code{y} prior to analysis? }
 }
 \details{
-  \code{nacf} computes dependence statistics for the vector \code{y} on network \code{net}, for neighborhoods of various orders.  Specifically, let \eqn{\mathbf{A}_i}{A_i} be the \eqn{i}th order adjacency matrix of \code{net}.  The sample network autocovariance of \code{\mathbf{y}}{y} on \eqn{\mathbf{A}_i}{A_i} is then given by
+  \code{nacf} computes dependence statistics for the vector \code{y} on network \code{net}, for neighborhoods of various orders.  Specifically, let \eqn{\mathbf{A}_i}{A_i} be the \eqn{i}th order adjacency matrix of \code{net}.  The sample network autocovariance of \eqn{\mathbf{y}}{y} on \eqn{\mathbf{A}_i}{A_i} is then given by
   \deqn{
     \sigma_i = \frac{\mathbf{y}^T \mathbf{A}_i \mathbf{y}}{E},
   }{%

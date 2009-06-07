@@ -6,7 +6,7 @@
   Returns a \code{qaptest} summary object
 }
 \usage{
-summary.qaptest(object, ...)
+\method{summary}{qaptest}(object, ...)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
@@ -27,7 +27,7 @@ summary.qaptest(object, ...)
 
 \seealso{ \code{\link{qaptest}} }
 
-\examples{
-
-}
+%\examples{
+%
+%}
 \keyword{ math }%-- one or more ...

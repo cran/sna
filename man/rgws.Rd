@@ -8,9 +8,9 @@
   \code{rgws} generates draws from the Watts-Strogatz rewired lattice model.  Given a set of input graphs, \code{rewire.ws} performs a (dyadic) rewiring of those graphs.
 }
 \usage{
-rgws(n, nv, d, z, p)
-rewire.ud(g, p)
-rewire.ws(g, p)
+rgws(n, nv, d, z, p, return.as.edgelist = FALSE)
+rewire.ud(g, p, return.as.edgelist = FALSE)
+rewire.ws(g, p, return.as.edgelist = FALSE)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -20,6 +20,7 @@ rewire.ws(g, p)
   \item{z}{ the nearest-neighbor threshold for local ties. }
   \item{p}{ the dyadic rewiring probability. }
   \item{g}{ a graph or graph stack. }
+  \item{return.as.edgelist}{ logical; should the resulting graphs be returned in edgelist form?}
 }
 \details{
   A Watts-Strogatz graph process generates a random graph via the following procedure.  First, a \code{d}-dimensional uniform lattice is generated, here with \code{nv} vertices per dimension (i.e., \code{nv^d} vertices total).  Next, all \code{z} neighbors are connected, based on geodesics of the underlying lattice.  Finally, each non-null dyad in the resulting augmented lattice is "rewired" with probability \code{p}, where the rewiring operation exchanges the initial dyad state with the state of a uniformly selected null dyad sharing exactly one endpoint with the original dyad.  (In the standard case, this is equivalent to choosing an endpoint of the dyad at random, and then transferring the dyadic edges to/from that endpoint to another randomly chosen vertex.  Hence the "rewiring" metaphor.)  For \code{p==0}, the W-S process generates (deterministic) uniform lattices, approximating a uniform G(N,M) process as \code{p} approaches 1.  Thus, \code{p} can be used to tune overall entropy of the process.  A well-known property of the W-S process is that (for large \code{nv^d} and small \code{p}) it generates draws with short expected mean geodesic distances (approaching those found in uniform graphs) while maintaining high levels of local "clustering" (i.e., transitivity).  It has thus been proposed as one potential mechanism for obtaining "small world" structures.
