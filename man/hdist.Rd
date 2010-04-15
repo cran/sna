@@ -28,11 +28,13 @@ Null hypothesis testing for Hamming distances is available via \code{\link{cugte
 A matrix of Hamming distances
 }
 \references{ 
-Banks, D., and Carley, K.M.  (1994).  ``Metric Inference for Social Networks.''  \emph{Journal of Classification}, 11(1), 121-49.
+Banks, D., and Carley, K.M.  (1994).  \dQuote{Metric Inference for Social Networks.}  \emph{Journal of Classification}, 11(1), 121-49.
 
-Butts, C.T., and Carley, K.M.  (2001).  ``Multivariate Methods for Interstructural Analysis.'' CASOS working paper, Carnegie Mellon University. 
+Butts, C.T. and Carley, K.M.  (2005).  \dQuote{Some Simple Algorithms for Structural Comparison.}  \emph{Computational and Mathematical Organization Theory,} 11(4), 291-305.
 
-Hamming, R.W. (1950). ``Error Detecting and Error Correcting Codes.'' \emph{Bell System Technical Journal,} 29, 147-160.
+Butts, C.T., and Carley, K.M.  (2001).  \dQuote{Multivariate Methods for Interstructural Analysis.}  CASOS Working Paper, Carnegie Mellon University. 
+
+Hamming, R.W. (1950). \dQuote{Error Detecting and Error Correcting Codes.} \emph{Bell System Technical Journal,} 29, 147-160.
 }
 
 \author{ Carter T. Butts \email{buttsc@uci.edu} }

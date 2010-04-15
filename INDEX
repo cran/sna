@@ -1,4 +1,5 @@
 add.isolates            Add Isolates to a Graph
+as.edgelist.sna         sna Coercion Functions
 bbnam                   Butts' (Hierarchical) Bayesian Network Accuracy
                         Model
 bbnam.bf                Estimate Bayes Factors for the bbnam
@@ -27,9 +28,9 @@ components              Find the Number of (Maximal) Components Within
 connectedness           Compute Graph Connectedness Scores
 consensus               Estimate a Consensus Structure from Multiple
                         Observations
+cug.test                Univariate Conditional Uniform Graph Tests
 cugtest                 Perform Conditional Uniform Graph (CUG)
                         Hypothesis Tests for Graph-Level Indices
-cug.test                Univariate Conditional Uniform Graph Tests
 cutpoints               Identify the Cutpoints of a Graph or Digraph
 degree                  Compute the Degree Centrality Scores of Network
                         Positions
@@ -67,15 +68,15 @@ geodist                 Fund the Numbers and Lengths of Geodesics Among
 gliop                   Return a Binary Operation on GLI Values
                         Computed on Two Graphs
 gplot                   Two-Dimensional Visualization of Graphs
-gplot3d                 Three-Dimensional Visualization of Graphs
-gplot3d.arrow           Add Arrows a Three-Dimensional Plot
-gplot3d.layout          Vertex Layout Functions for gplot3d
-gplot3d.loop            Add Loops to a Three-Dimensional Plot
 gplot.arrow             Add Arrows or Segments to a Plot
 gplot.layout            Vertex Layout Functions for gplot
 gplot.loop              Add Loops to a Plot
 gplot.target            Display a Graph in Target Diagram Form
 gplot.vertex            Add Vertices to a Plot
+gplot3d                 Three-Dimensional Visualization of Graphs
+gplot3d.arrow           Add Arrows a Three-Dimensional Plot
+gplot3d.layout          Vertex Layout Functions for gplot3d
+gplot3d.loop            Add Loops to a Three-Dimensional Plot
 graphcent               Compute the (Harary) Graph Centrality Scores of
                         Network Positions
 grecip                  Compute the Reciprocity of an Input Graph or

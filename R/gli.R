@@ -3,7 +3,7 @@
 # gli.R
 #
 # copyright (c) 2004, Carter T. Butts <buttsc@uci.edu>
-# Last Modified 3/28/09
+# Last Modified 6/25/09
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/sna package
@@ -58,19 +58,20 @@ centralization<-function(dat,FUN,g=NULL,mode="digraph",diag=FALSE,normalize=TRUE
 #connectedness - Find the Krackhardt connectedness of a graph or graph stack
 connectedness<-function(dat,g=NULL){
    #Pre-process the raw input
-   dat<-as.sociomatrix.sna(dat)
+   dat<-as.edgelist.sna(dat)
    if(is.list(dat)){
      if(is.null(g))
        g<-1:length(dat)
      return(sapply(dat[g],connectedness))
    }
    #End pre-processing
-   if((!is.null(g))&&(length(dim(dat))>2))
-     dat<-dat[g,,]
-   if(length(dim(dat))>2)
-     con<-apply(dat,1,function(x){r<-reachability(symmetrize(x,rule="weak")); gden(r,diag=FALSE)})
+   g<-symmetrize(dat,rule="weak",return.as.edgelist=TRUE)
+   n<-attr(g,"n")
+   m<-NROW(g)
+   if(n<=1)
+     con<-1
    else
-     con<-gden(reachability(symmetrize(dat,rule="weak")),diag=FALSE)
+     con<-.C("connectedness_R",as.double(g),as.integer(n),as.integer(m), con=as.double(0.0),PACKAGE="sna",NAOK=TRUE)$con
    #Return the result
    con
 }

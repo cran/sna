@@ -67,7 +67,7 @@ Carter T. Butts \email{buttsc@uci.edu}
 \section{Warning }{ The computational cost of calculating cliques grows very sharply in size and network density.  It is possible that the expected completion time for your calculation may exceed your life expectancy (and those of subsequent generations). }
 
 \seealso{
-\code{\link{dyad.census}}, \code{\link{triad.census}}, \code{\link{kcycle.census}, \code{\link{kpath.census}}}
+\code{\link{dyad.census}}, \code{\link{triad.census}}, \code{\link{kcycle.census}}, \code{\link{kpath.census}}
 }
 \examples{
 #Generate a fairly dense random graph

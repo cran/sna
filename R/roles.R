@@ -3,7 +3,7 @@
 # roles.R
 #
 # copyright (c) 2004, Carter T. Butts <buttsc@uci.edu>
-# Last Modified 6/6/09
+# Last Modified 4/8/10
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/sna package
@@ -404,6 +404,8 @@ redist<-function(dat, g=NULL, method=c("catrege"), mode="digraph", diag=FALSE, s
   }
   if(mode == "graph")
     d <- symmetrize(d)
+  if(m==1)
+    d<-array(d,dim=c(1,n,n))
   if (!diag)
     d <- diag.remove(d,0) #Currently, treat as zeros
   #Build the categorical matrix

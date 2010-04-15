@@ -43,7 +43,7 @@ Remember that bicomponents can intersect; when this occurs, the relevant vertice
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
 \seealso{
-\code{\link{component.dist}}, \code{\link{cutpoints}, \code{\link{symmetrize}}}
+\code{\link{component.dist}}, \code{\link{cutpoints}}, \code{\link{symmetrize}}
 }
 \examples{
 #Draw a moderately sparse graph

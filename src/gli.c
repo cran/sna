@@ -4,7 +4,7 @@
 # gli.c
 #
 # copyright (c) 2004, Carter T. Butts <buttsc@uci.edu>
-# Last Modified 1/18/09
+# Last Modified 6/25/09
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/sna package
@@ -65,6 +65,34 @@ gatekeeper, itinerant, and liason broker roles for each vertex.*/
           }
       }
   }
+}
+
+
+void connectedness_R(double *mat, int *n, int *m, double *con)
+/*Compute Krackhardt's connectedness for the graph in mat (which must be pre-
+symmetrized using mode=="weak", since the measure is semipath based).*/
+{
+  snaNet *g;
+  int i,*memb,*csize;
+
+  /*Calculate the weak components of g*/  
+  GetRNGstate();
+  g=elMatTosnaNet(mat,n,m);
+  PutRNGstate();
+  memb=undirComponents(g);
+
+  /*Tabulate the component sizes*/
+  csize=(int *)R_alloc(memb[0],sizeof(int));
+  for(i=0;i<memb[0];i++)
+    csize[i]=0;
+  for(i=0;i<*n;i++)
+    csize[memb[i+1]-1]++;
+  
+  /*Compute the connectedness score (density of the reachability matrix)*/
+  *con=0.0;
+  for(i=0;i<memb[0];i++)
+    *con+=csize[i]*(csize[i]-1.0)/2.0;
+  *con/=(*n)*(*n-1.0)/2.0;
 }
 
 

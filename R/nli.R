@@ -3,7 +3,7 @@
 # nli.R
 #
 # copyright (c) 2004, Carter T. Butts <buttsc@uci.edu>
-# Last Modified 5/1/09
+# Last Modified 6/25/09
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/sna package
@@ -43,6 +43,8 @@ betweenness<-function(dat,g=1,nodes=NULL,gmode="digraph",diag=FALSE,tmaxdev=FALS
         bet<-betweenness(star,g=1,nodes=1:n,gmode=gmode,diag=diag,tmaxdev=FALSE, cmode=cmode,geodist.precomp=NULL,rescale=FALSE,ignore.eval=ignore.eval)
         bet<-sum(max(bet)-bet)
       }
+      if(gmode=="graph")
+        cmode<-"undirected"
       bet<-switch(cmode,
          directed = (n-1)^2*(n-2),
          undirected = (n-1)^2*(n-2)/2,
@@ -135,6 +137,14 @@ closeness<-function(dat,g=1,nodes=NULL,gmode="digraph",diag=FALSE,tmaxdev=FALSE,
      return(sapply(dat[g],closeness,g=1,nodes=nodes,gmode=gmode,diag=diag, tmaxdev=tmaxdev,cmode=cmode,geodist.precomp=geodist.precomp,rescale=rescale,ignore.eval=ignore.eval))
    #End pre-processing
    n<-attr(dat,"n")
+   if(gmode=="graph"){
+     cmode<-switch(cmode,
+       directed = "undirected",
+       undirected = "undirected",
+       suminvdir = "siminvundir",
+       suminvundir = "suminvundir",
+     )
+   }
    if(tmaxdev){
       #We got off easy: just return the theoretical maximum deviation for the centralization routine
       clo<-switch(cmode,
@@ -216,13 +226,22 @@ degree<-function(dat,g=1,nodes=NULL,gmode="digraph",diag=FALSE,tmaxdev=FALSE,cmo
 
 
 #evcent - Find the eigenvector centralities of network positions
-evcent<-function(dat,g=1,nodes=NULL,gmode="digraph",diag=FALSE,tmaxdev=FALSE,rescale=FALSE,ignore.eval=FALSE,tol=1e-10){
+evcent<-function(dat,g=1,nodes=NULL,gmode="digraph",diag=FALSE,tmaxdev=FALSE,rescale=FALSE,ignore.eval=FALSE,tol=1e-10,maxiter=1e5,use.eigen=FALSE){
    #Pre-process the raw input
-   dat<-as.edgelist.sna(dat)
-   if(is.list(dat))
-     return(sapply(dat[g],evcent,g=1,nodes=nodes,gmode=gmode,diag=diag, tmaxdev=tmaxdev,rescale=rescale))
+   if(!use.eigen){
+     dat<-as.edgelist.sna(dat)
+     if(is.list(dat))
+       return(sapply(dat[g],evcent,g=1,nodes=nodes,gmode=gmode,diag=diag, tmaxdev=tmaxdev,rescale=rescale,maxiter=maxiter,use.eigen=use.eigen))
+   }else{
+     dat<-as.sociomatrix.sna(dat,simplify=FALSE)
+     if(is.list(dat))
+       return(sapply(dat[g],evcent,g=1,nodes=nodes,gmode=gmode,diag=diag, tmaxdev=tmaxdev,rescale=rescale,maxiter=maxiter,use.eigen=use.eigen))
+   }
    #End pre-processing
-   n<-attr(dat,"n")
+   if(use.eigen)
+     n<-NROW(dat)
+   else
+     n<-attr(dat,"n")
    if(tmaxdev){
       #We got off easy: just return the theoretical maximum deviation for the centralization routine
       if(gmode=="graph"){
@@ -232,10 +251,18 @@ evcent<-function(dat,g=1,nodes=NULL,gmode="digraph",diag=FALSE,tmaxdev=FALSE,res
    }else{
       if(is.null(nodes))        #Set up node list, if needed
         nodes<-1:n
-      if(!diag)
-         dat[dat[,1]==dat[,2],3]<-0
+      if(!diag){
+        if(use.eigen)
+          diag(dat)<-0
+        else
+          dat[dat[,1]==dat[,2],3]<-0
+      }
       #Do the computation
-      ev<-.C("evcent_R",as.double(dat),as.integer(n),as.integer(NROW(dat)), ev=as.double(rep(1,n)),as.double(tol),as.integer(1e4),as.integer(1),as.integer(ignore.eval),NAOK=TRUE,PACKAGE="sna")$ev
+      if(use.eigen){
+        ev<-eigen(dat)$vectors[,1]
+      }else{
+        ev<-.C("evcent_R",as.double(dat),as.integer(n),as.integer(NROW(dat)), ev=as.double(rep(1,n)),as.double(tol),as.integer(maxiter),as.integer(1),as.integer(ignore.eval),NAOK=TRUE,PACKAGE="sna")$ev
+      }
       if(rescale)
          ev<-ev/sum(ev)
       ev<-ev[nodes]

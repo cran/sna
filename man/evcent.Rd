@@ -7,7 +7,8 @@
 }
 \usage{
 evcent(dat, g=1, nodes=NULL, gmode="digraph", diag=FALSE,
-    tmaxdev=FALSE, rescale=FALSE, ignore.eval=FALSE, tol=1e-10)
+    tmaxdev=FALSE, rescale=FALSE, ignore.eval=FALSE, tol=1e-10,
+    maxiter=1e5, use.eigen=FALSE)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
@@ -20,9 +21,13 @@ evcent(dat, g=1, nodes=NULL, gmode="digraph", diag=FALSE,
   \item{rescale}{ if true, centrality scores are rescaled such that they sum to 1. }
   \item{ignore.eval}{ logical; should edge values be ignored?}
   \item{tol}{ convergence tolerance for the eigenvector computation.}
+  \item{maxiter}{ maximum iterations for eigenvector calculation.}
+  \item{use.eigen}{ logical; should we use R's \code{\link{eigen}} routine instead of the (faster but less robust) internal method?}
 }
 \details{
 Eigenvector centrality scores correspond to the values of the first eigenvector of the graph adjacency matrix; these scores may, in turn, be interpreted as arising from a reciprocal process in which the centrality of each actor is proportional to the sum of the centralities of those actors to whom he or she is connected.  In general, vertices with high eigenvector centralities are those which are connected to many other vertices which are, in turn, connected to many others (and so on).  (The perceptive may realize that this implies that the largest values will be obtained by individuals in large cliques (or high-density substructures).  This is also intelligible from an algebraic point of view, with the first eigenvector being closely related to the best rank-1 approximation of the adjacency matrix (a relationship which is easy to see in the special case of a diagonalizable symmetric real matrix via the \eqn{S \Lambda S^{-1}}{SLS^-1} decomposition).) 
+
+By default, a sparse-graph power method is used to obtain the principal eigenvector.  This procedure scales well, but may not converge in some cases.  In the event that the convergence objective set by \code{tol} is not obtained, \code{evcent} will return a warning message.  Correctives in this case include increasing \code{maxiter}, or setting \code{use.eigen} to \code{TRUE}.  The latter will cause \code{evcent} to use R's standard \code{\link{eigen}} method to calculate the principal eigenvector; this is far slower for sparse graphs, but is also more robust.
 
 The simple eigenvector centrality is generalized by the Bonacich power centrality measure; see \code{\link{bonpow}} for more details.
 }

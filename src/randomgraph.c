@@ -40,6 +40,8 @@ void bn_cftp_R(int *g, int *pn, double *pi, double *sigma, double *rho, double *
   lndblr = ((*rho<1.0) ? log(1.0-*rho) : -DBL_MAX);
   t=n*(n-1);
   maxiter=(int)(*pmaxiter);
+  if(maxiter<=0)
+    maxiter=INT_MAX;
   converged=0;
   r=(int *)R_alloc(t,sizeof(int));
   c=(int *)R_alloc(t,sizeof(int));

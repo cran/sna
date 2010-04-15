@@ -80,7 +80,11 @@ This list of algorithms is itself somewhat unstable: some additional techniques 
 \value{
 The estimated global optimum of \code{FUN} over the set of relabelings permitted by \code{exchange.list}
 }
-\references{ Butts, C.T., and Carley, K.M.  (2001).  ``Multivariate Methods for Interstructural Analysis.''  CASOS Working Paper, Carnegie Mellon University. }
+\references{ 
+Butts, C.T. and Carley, K.M.  (2005).  \dQuote{Some Simple Algorithms for Structural Comparison.}  \emph{Computational and Mathematical Organization Theory,} 11(4), 291-305.
+
+Butts, C.T., and Carley, K.M.  (2001).  \dQuote{Multivariate Methods for Interstructural Analysis.}  CASOS Working Paper, Carnegie Mellon University. 
+}
 \author{ Carter T. Butts \email{buttsc@uci.edu}  }
 %\note{  }
 

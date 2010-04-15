@@ -27,7 +27,7 @@ gplot3d.loop(a, radius, color = "white", alpha = 1)
 
 % ~Make other sections like Warning with \section{Warning }{....} ~
 
-\seealso{ \code{\link{gplot3d.arrow}}, \code{\link{gplot3d}}, \code{\link[rgl]{rgl}} }
+\seealso{ \code{\link{gplot3d.arrow}}, \code{\link{gplot3d}}, \code{\link[rgl]{rgl-package}} }
 %\examples{
 %}
 \keyword{ aplot }% at least one, from doc/KEYWORDS

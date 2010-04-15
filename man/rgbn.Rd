@@ -7,7 +7,7 @@
 }
 \usage{
 rgbn(n, nv, param = list(pi=0, sigma=0, rho=0, d=0.5),
-    burn = nv*nv*5*100, thin = nv*nv*5, maxiter = Inf,
+    burn = nv*nv*5*100, thin = nv*nv*5, maxiter = 1e7,
     method = c("mcmc","cftp"), return.as.edgelist = FALSE)
 }
 %- maybe also 'usage' for other objects documented here.
@@ -34,7 +34,7 @@ Pr(i->j) = 1 - (1-rho)^z (1-sigma)^y (1-pi)^x (1-d)
 
 where \eqn{x=1} iff \eqn{j \to i} (and 0 otherwise), \eqn{y} is the number of vertices \eqn{k \neq i,j}{k!=i,j} such that \eqn{k \to i, k \to j}{k->i, k->j}, and \eqn{z=1} iff \eqn{x=1} and \eqn{y>0} (and 0 otherwise).  Thus, \eqn{x} is the number of \emph{parent bias} events, \eqn{y} is the number of \emph{sibling bias} events, and \eqn{z} is the number of \emph{double role bias} events.  \eqn{d} is the probability of the baseline edge event; note that an edge arises if the baseline event or any bias event occurs, and all events are assumed conditionally independent.  Written in this way, it is clear that the edges of \eqn{G} are conditionally independent if they share no endpoint.  Thus, the above model is a subfamily of the Markov graphs.
 
-It should be noted that the above process is not entirely consistent with the tracing-based model, which is itself not uniformly well-specified in the literature.  For this reason, the local model is referred to here as a Skvoretz-Fararo graph process.  One significant advantage of this process is that it is well-defined, and easily simulated: the above equation can be used to form the basis of a Gibbs sampler, which is used by \eqn{rgbn} to take draws from the (local) biased net model.  Burn-in and thinning are controlled by the corresponding arguments; since degeneracy is common with models of this type, it is advisable to check for adequate mixing.  An alternative simulation strategy is the exact sampling procedure of Butts (2008), which employs a form of coupling from the past (CFTP).  The CFTP method generates exact, independent draws (up to numerical limits), but can be slow to attain coalescence.  Setting \code{maxiter<Inf} limits the search depth employed, at the possible cost of biasing the resulting sample.
+It should be noted that the above process is not entirely consistent with the tracing-based model, which is itself not uniformly well-specified in the literature.  For this reason, the local model is referred to here as a Skvoretz-Fararo graph process.  One significant advantage of this process is that it is well-defined, and easily simulated: the above equation can be used to form the basis of a Gibbs sampler, which is used by \eqn{rgbn} to take draws from the (local) biased net model.  Burn-in and thinning are controlled by the corresponding arguments; since degeneracy is common with models of this type, it is advisable to check for adequate mixing.  An alternative simulation strategy is the exact sampling procedure of Butts (2008), which employs a form of coupling from the past (CFTP).  The CFTP method generates exact, independent draws (up to numerical limits), but can be slow to attain coalescence.  Setting \code{maxiter} to smaller values limits the search depth employed, at the possible cost of biasing the resulting sample.
 }
 \value{
   An adjacency array containing the simulated graphs.

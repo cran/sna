@@ -4,7 +4,7 @@
 # cohesion.c
 #
 # copyright (c) 2007, Carter T. Butts <buttsc@uci.edu>
-# Last Modified 5/1/09
+# Last Modified 8/28/09
 # Licensed under the GNU General Public License version 2 (June, 1991)
 # or later
 #
@@ -70,7 +70,7 @@ digraphs) and bijoin points (articulation points in digraphs bijoin point).)
     if(((int)ep->val!=v)&&((int)ep->val!=parent[v])){
       vj=(int)ep->val;
       if(num[vj]==0){                     /*We're seeing vj for the first time*/
-        es->next=push(es->next,(double)(v+vj*n),NULL);   /*This is a tree edge*/
+        es->next=push(es->next,v+(double)vj*n,NULL);   /*This is a tree edge*/
         parent[vj]=v;
         bicomponentRecurse(g,complist,es,parent,num,back,dfn,vj);
         //Rprintf("Returned from bicomp recursion (%d to %d).\n",v,vj);
@@ -93,15 +93,15 @@ digraphs) and bijoin points (articulation points in digraphs bijoin point).)
           //Rprintf("\tFound backedge with (%d,%d); popping stack.\n",v,vj);
           for(es2=es->next;(es2!=NULL)&&(!flag);es2=es2->next){
             //Rprintf("\t\t(%d,%d)\n",(int)(es2->val) % n, (int)floor((es2->val)/((double)n)));
-            if((int)es2->val==v+vj*n) /*Check to see if we've pulled last edge*/
+            if(es2->val==(double)v+(double)vj*n) /*Check to see if we've pulled last edge*/
               flag++;
             if(!flag){
-              vert=((int)(es2->val)) % n;
+              vert=(int)fmod(es2->val,(double)n);
               if(!isinstack((element *)(cp->dp),vert)){
                 cp->dp=(void *)listInsert((element *)(cp->dp),vert,NULL);
                 cp->val++;
               }
-              vert=floor((es2->val)/((double)n));
+              vert=(int)floor((es2->val)/((double)n));
               if(!isinstack((element *)(cp->dp),vert)){
                 cp->dp=(void *)listInsert((element *)(cp->dp),vert,NULL);
                 cp->val++;
@@ -115,7 +115,7 @@ digraphs) and bijoin points (articulation points in digraphs bijoin point).)
         }
       }else if((num[vj]<num[v])&&(vj!=parent[v])){       /*This is a back edge*/
         //Rprintf("(%d,%d) is a back edge.  Pushing and setting back[%d]=%d\n",v,vj,v,MIN(num[vj],back[v]));
-        es->next=push(es->next,(double)(v+vj*n),NULL);
+        es->next=push(es->next,(double)v+(double)vj*n,NULL);
         back[v]=MIN(num[vj],back[v]);
       }
     }

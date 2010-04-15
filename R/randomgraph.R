@@ -3,7 +3,7 @@
 # randomgraph.R
 #
 # copyright (c) 2004, Carter T. Butts <buttsc@uci.edu>
-# Last Modified 6/7/09
+# Last Modified 4/14/10
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/sna package
@@ -68,7 +68,7 @@ rewire.ws<-function(g,p,return.as.edgelist=FALSE){
 
 
 #rgbn - Draw from a biased net model
-rgbn<-function(n,nv,param=list(pi=0,sigma=0,rho=0,d=0.5),burn=nv*nv*5*1e2,thin=nv*nv*5,maxiter=Inf,method=c("mcmc","cftp"),return.as.edgelist=FALSE){
+rgbn<-function(n,nv,param=list(pi=0,sigma=0,rho=0,d=0.5),burn=nv*nv*5*1e2,thin=nv*nv*5,maxiter=1e7,method=c("mcmc","cftp"),return.as.edgelist=FALSE){
   #Allocate memory for the graphs
   g<-array(0,dim=c(n,nv,nv))
   #Get the parameter vector

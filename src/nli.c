@@ -4,7 +4,7 @@
 # nli.c
 #
 # copyright (c) 2004, Carter T. Butts <buttsc@uci.edu>
-# Last Modified 3/25/09
+# Last Modified 6/25/09
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/sna package
@@ -303,7 +303,7 @@ if ignoreeval==1 (i.e., all edges are treated as 1.0).
     }
   }
   if(j==(*maxiter))
-    warning("Maximum iterations exceeded in evcent_R without convergence.  This matrix is pathological - try eigen().\n");
+    warning("Maximum iterations exceeded in evcent_R without convergence.  This matrix may be pathological - increase maxiter or try eigen().\n");
 }
 
 

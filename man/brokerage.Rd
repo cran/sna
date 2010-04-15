@@ -18,13 +18,13 @@ brokerage(g, cl)
 \details{
 Gould and Fernandez (following Marsden and others) describe \emph{brokerage} as the role played by a social actor who mediates contact between two alters.  More formally, vertex \eqn{v} is a broker for distinct vertices \eqn{a} and \eqn{b} iff \eqn{a \to v \to b}{a -> v -> b} and \eqn{a \not\to b}{a -!> b}.  Where actors belong to a priori distinct groups, group membership may be used to segment brokerage roles into particular types.  Let \eqn{A \to B \to C}{A -> B -> C} denote the two-path associated with a brokerage structure, such that some vertex from group \eqn{B} brokers the connection from some vertex from group \eqn{A} to a vertex in group \eqn{C}.  The types of brokerage roles defined by Gould and Fernandez (and their accompanying two-path structures) are then defined in terms of group membership as follows:
 
-\describe{
-  \item{\eqn{w_I}}{Coordinator role; the broker mediates contact between two individuals from his or her own group.  Two-path structure: \eqn{A \to A \to A}{A -> A -> A}}  
-  \item{\eqn{w_O}}{Itinerant broker role; the broker mediates contact between two individuals from a single group to which he or she does not belong.  Two-path structure: \eqn{A \to B \to A}{A -> B -> A}}  
-  \item{\eqn{b_{IO}}}{Gatekeeper role; the broker mediates an incoming contact from an out-group member to an in-group member.  Two-path structure: \eqn{A \to B \to B}{A -> B -> B}}  
-  \item{\eqn{b_{OI}}}{Representative role; the broker mediates an outgoing contact from an in-group member to an out-group member.  Two-path structure: \eqn{A \to A \to B}{A -> A -> B}}  
-  \item{\eqn{b_O}}{Liaison role; the broker mediates contact between two individuals from different groups, neither of which is the group to which he or she belongs.  Two-path structure: \eqn{A \to B \to C}{A -> B -> C}}  
-  \item{\eqn{t}}{Total (cumulative) brokerage role occupancy.  (Any of the above two-paths.)}  
+\itemize{
+  \item \eqn{w_I}: Coordinator role; the broker mediates contact between two individuals from his or her own group.  Two-path structure: \eqn{A \to A \to A}{A -> A -> A}  
+  \item \eqn{w_O}: Itinerant broker role; the broker mediates contact between two individuals from a single group to which he or she does not belong.  Two-path structure: \eqn{A \to B \to A}{A -> B -> A}  
+  \item \eqn{b_{IO}}: Gatekeeper role; the broker mediates an incoming contact from an out-group member to an in-group member.  Two-path structure: \eqn{A \to B \to B}{A -> B -> B}  
+  \item \eqn{b_{OI}}: Representative role; the broker mediates an outgoing contact from an in-group member to an out-group member.  Two-path structure: \eqn{A \to A \to B}{A -> A -> B}  
+  \item \eqn{b_O}: Liaison role; the broker mediates contact between two individuals from different groups, neither of which is the group to which he or she belongs.  Two-path structure: \eqn{A \to B \to C}{A -> B -> C}  
+  \item \eqn{t}: Total (cumulative) brokerage role occupancy.  (Any of the above two-paths.)   
 }
 
 The \emph{brokerage score} for a given vertex with respect to a given role is the number of ordered pairs having the appropriate group membership(s) brokered by said vertex.  \code{brokerage} computes the brokerage scores for each vertex, given an input graph and vector of class memberships.  Aggregate scores are also computed at the graph level, which correspond to the total frequency of each role type within the network structure.  Expectations and variances of the brokerage scores conditional on size and density are computed, along with approximate \eqn{z}-tests for incidence of brokerage.  (Note that the accuracy of the normality assumption is not known in the general case; see Gould and Fernandez (1989) for details.  Simulation-based tests may be desirable as an alternative.)

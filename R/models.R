@@ -3,7 +3,7 @@
 # models.R
 #
 # copyright (c) 2004, Carter T. Butts <buttsc@uci.edu>
-# Last Modified 5/1/09
+# Last Modified 6/10/09
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/sna package
@@ -117,9 +117,9 @@ bbnam.actor<-function(dat,nprior=0.5,emprior=c(1,11),epprior=c(1,11),diag=FALSE,
    }
    if((!is.matrix(epprior))||(NROW(epprior)!=n)||(NCOL(epprior)!=2)){
      if(length(epprior)==2)
-       emprior<-sapply(epprior,rep,n)
+       epprior<-sapply(epprior,rep,n)
      else
-       emprior<-matrix(epprior,n,2)
+       epprior<-matrix(epprior,n,2)
    }
    if(is.null(anames))
      anames<-paste("a",1:n,sep="")

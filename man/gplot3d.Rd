@@ -45,7 +45,7 @@ gplot3d(dat, g = 1, gmode = "digraph", diag = FALSE,
   \item{layout.par}{ list of parameters to the \code{\link{gplot.layout}} function specified in \code{mode}. }
 }
 \details{
-\code{gplot3d} is the three-dimensional companion to \code{gplot}.  As with the latter, clever manipulation of parameters can allow for a great deal of flexibility in the resulting display.  (Displays produced by \code{gplot3d} are also interactive, to the extent supported by \code{\link[rgl]{rgl}}.)  If vertex positions are not specified directly using \code{coord}, vertex layout is determined via one of the various available algorithms.  These should be specified via the \code{mode} argument; see \code{\link{gplot3d.layout}} for a full list.  User-supplied layout functions are also possible - see the aforementioned man page for details.
+\code{gplot3d} is the three-dimensional companion to \code{gplot}.  As with the latter, clever manipulation of parameters can allow for a great deal of flexibility in the resulting display.  (Displays produced by \code{gplot3d} are also interactive, to the extent supported by \code{\link[rgl:rgl-package]{rgl}}.)  If vertex positions are not specified directly using \code{coord}, vertex layout is determined via one of the various available algorithms.  These should be specified via the \code{mode} argument; see \code{\link{gplot3d.layout}} for a full list.  User-supplied layout functions are also possible - see the aforementioned man page for details.
 
 Note that where \code{gmode=="twomode"}, the supplied two-mode graph is converted to bipartite form prior to computing coordinates (assuming it is not in this form already).  It may be desirable to use parameters such as \code{vertex.col} to differentiate row and column vertices; by default, row vertices are colored red, and column vertices blue.
 }
@@ -59,9 +59,9 @@ Wasserman, S. and Faust, K.  (1994)  \emph{Social Network Analysis: Methods and 
 %\note{ ~~further notes~~ }
 
 % ~Make other sections like Warning with \section{Warning }{....} ~
-\section{Requires }{\code{\link[rgl]{rgl}}}
+\section{Requires }{\code{\link[rgl:rgl-package]{rgl}}}
 
-\seealso{ \code{\link{gplot}}, \code{\link{gplot3d.layout}}, \code{\link[rgl]{rgl}} }
+\seealso{ \code{\link{gplot}}, \code{\link{gplot3d.layout}}, \code{\link[rgl:rgl-package]{rgl}} }
 \examples{
 
 \dontrun{

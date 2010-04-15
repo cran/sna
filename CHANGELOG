@@ -1,5 +1,33 @@
 CHANGELOG:
 
+v2.1 - New Features, Changes, and Bug Fixes
+   Changes:
+     as.sociomatrix.sna and as.edgelist.sna are now treated as user-level
+       functions (and are documented as such)
+     betweenness and closeness now consistently enforce undirected behavior 
+       with gmode=="graph" (this will not generally be visible to the end
+       user)
+     connectedness now uses sparse graph methods (and is much, much faster)
+     gplot now defaults to boxed.labels=FALSE
+     rgbn now uses (and enforces) finite maxiter values
+   New Features:
+     evcent now allows user control over the number of iterations used in the
+       internal eigenvector calculation (previously fixed), and supports an
+       option for calculation using R's eigen() routine
+   Bug Fixes:
+     betweenness was not treating gmode=="graph" consistently with tmaxdev
+       in both states (causing inaccurate centralization results) [Submitted
+       by Natalie Cotton]
+     brokerage.Rd would produce an installation error on some platforms for
+       unknown reasons (seems to be an R issue, but man page formatting has
+       been changed to be rid of it)
+     bicomponent.dist was failing on very large graphs
+     gplot was not plotting label positions correctly for pos=5; also fixed
+       a bug with interactive selection by component [Fix by Alex Montgomery]
+     kcores processed ignore.eval incorrectly [Submitted by mpezz@tiscali.it]
+     redist failed when called with a single graph and mode="graph" [Submitted
+       by Greg Bigwood]
+
 v2.0 - New Functions, New Data Sets, New Features, Changes, and Bug Fixes
    Changes:
      The following functions now natively use sna edgelist format (and will

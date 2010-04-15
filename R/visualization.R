@@ -3,7 +3,7 @@
 # visualization.R
 #
 # copyright (c) 2004, Carter T. Butts <buttsc@uci.edu>
-# Last Modified 6/5/09
+# Last Modified 4/14/10
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/sna package
@@ -55,7 +55,7 @@
 
 
 #gplot - Two-dimensional graph visualization
-gplot<-function(dat,g=1,gmode="digraph",diag=FALSE,label=NULL,coord=NULL,jitter=TRUE,thresh=0,usearrows=TRUE,mode="fruchtermanreingold",displayisolates=TRUE,interactive=FALSE,interact.bycomp=FALSE,xlab=NULL,ylab=NULL,xlim=NULL,ylim=NULL,pad=0.2,label.pad=0.5,displaylabels=!is.null(label),boxed.labels=TRUE,label.pos=0,label.bg="white",vertex.sides=NULL,vertex.rot=0,arrowhead.cex=1,label.cex=1,loop.cex=1,vertex.cex=1,edge.col=1,label.col=1,vertex.col=NULL,label.border=1,vertex.border=1,edge.lty=1,label.lty=NULL,vertex.lty=1,edge.lwd=0,label.lwd=par("lwd"),edge.len=0.5,edge.curve=0.1,edge.steps=50,loop.steps=20,object.scale=0.01,uselen=FALSE,usecurve=FALSE,suppress.axes=TRUE,vertices.last=TRUE,new=TRUE,layout.par=NULL,...){
+gplot<-function(dat,g=1,gmode="digraph",diag=FALSE,label=NULL,coord=NULL,jitter=TRUE,thresh=0,usearrows=TRUE,mode="fruchtermanreingold",displayisolates=TRUE,interactive=FALSE,interact.bycomp=FALSE,xlab=NULL,ylab=NULL,xlim=NULL,ylim=NULL,pad=0.2,label.pad=0.5,displaylabels=!is.null(label),boxed.labels=FALSE,label.pos=0,label.bg="white",vertex.sides=NULL,vertex.rot=0,arrowhead.cex=1,label.cex=1,loop.cex=1,vertex.cex=1,edge.col=1,label.col=1,vertex.col=NULL,label.border=1,vertex.border=1,edge.lty=1,label.lty=NULL,vertex.lty=1,edge.lwd=0,label.lwd=par("lwd"),edge.len=0.5,edge.curve=0.1,edge.steps=50,loop.steps=20,object.scale=0.01,uselen=FALSE,usecurve=FALSE,suppress.axes=TRUE,vertices.last=TRUE,new=TRUE,layout.par=NULL,...){
    #Turn the annoying locator bell off, and remove recursion limit
    bellstate<-options()$locatorBell
    expstate<-options()$expression
@@ -300,6 +300,8 @@ gplot<-function(dat,g=1,gmode="digraph",diag=FALSE,label=NULL,coord=NULL,jitter=
            xhat[i] <- xoff[i]/roff[i]
            yhat[i] <- yoff[i]/roff[i]
          }
+         if (xhat[i]==0) xhat[i] <- .01 #jitter to avoid labels on points
+         if (yhat[i]==0) yhat[i] <- .01
        }
        xhat <- xhat[use]
        yhat <- yhat[use]
@@ -320,14 +322,14 @@ gplot<-function(dat,g=1,gmode="digraph",diag=FALSE,label=NULL,coord=NULL,jitter=
      lw<-strwidth(label[use],cex=label.cex)/2
      lh<-strheight(label[use],cex=label.cex)/2
      if(boxed.labels){
-       rect(x[use]+xhat*vertex.radius[use]-(lh*label.pad+lw)*((xhat<=0)*2),
-            y[use]+yhat*vertex.radius[use]-(lh*label.pad+lh)*((yhat<=0)*2),
-            x[use]+xhat*vertex.radius[use]+(lh*label.pad+lw)*((xhat>0)*2),
-            y[use]+yhat*vertex.radius[use]+(lh*label.pad+lh)*((yhat>0)*2),
-            col=label.bg,border=label.border,lty=label.lty,lwd=label.lwd)
+       rect(x[use]+xhat*vertex.radius[use]-(lh*label.pad+lw)*((xhat<0)*2+ (xhat==0)*1),
+         y[use]+yhat*vertex.radius[use]-(lh*label.pad+lh)*((yhat<0)*2+ (yhat==0)*1),
+         x[use]+xhat*vertex.radius[use]+(lh*label.pad+lw)*((xhat>0)*2+ (xhat==0)*1),
+         y[use]+yhat*vertex.radius[use]+(lh*label.pad+lh)*((yhat>0)*2+ (yhat==0)*1),
+         col=label.bg,border=label.border,lty=label.lty,lwd=label.lwd)
      }
-     text(x[use]+xhat*vertex.radius[use]+(lh*label.pad+lw)*((xhat>0)*2-1),
-          y[use]+yhat*vertex.radius[use]+(lh*label.pad+lh)*((yhat>0)*2-1),
+     text(x[use]+xhat*vertex.radius[use]+(lh*label.pad+lw)*((xhat>0)-(xhat<0)),
+          y[use]+yhat*vertex.radius[use]+(lh*label.pad+lh)*((yhat>0)-(yhat<0)),
           label[use],cex=label.cex,col=label.col,offset=0)         
    }
    #If interactive, allow the user to mess with things
@@ -385,7 +387,7 @@ gplot<-function(dat,g=1,gmode="digraph",diag=FALSE,label=NULL,coord=NULL,jitter=
          dx <- clickpos[1]-x[use][selvert]
          dy <- clickpos[2]-y[use][selvert]             
          comp.mem <- component.dist(d,connected="weak")$membership
-         same.comp <- comp.mem==comp.mem[selvert]
+         same.comp <- comp.mem[use]==comp.mem[use][selvert]
          x[use][same.comp] <- x[use][same.comp]+dx
          y[use][same.comp] <- y[use][same.comp]+dy
        } else {
