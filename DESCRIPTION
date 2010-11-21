@@ -1,10 +1,11 @@
 Package: sna
-Version: 2.2-0
+Version: 2.2-1
 Date: 2010-11-21
 Title: Tools for Social Network Analysis
 Author: Carter T. Butts <buttsc@uci.edu>
-Maintainer: Carter T. Butts <buttsc@uci.edu>
-Depends: R (>= 2.0.0), utils
+Maintainer: ORPHANED
+Depends: R (>= 2.0.0)
+Imports: utils
 Suggests: network, rgl, numDeriv, SparseM, statnet
 Description: A range of tools for social network analysis, including
         node and graph-level indices, structural distance and
@@ -12,7 +13,9 @@ Description: A range of tools for social network analysis, including
         modeling, random graph generation, and 2D/3D network
         visualization.
 License: GPL (>= 2)
-URL: http://erzuli.ss.uci.edu/R.stuff
-Packaged: 2012-10-29 08:59:46 UTC; ripley
+Packaged: 2012-12-21 19:20:35 UTC; ripley
+X-CRAN-Original-Maintainer: Carter T. Butts <buttsc@uci.edu>
+X-CRAN-Comment: Orphaned on 2012-12-21 as the maintainer failed to
+        respond to requests for an update for R >= 2.14.0
 Repository: CRAN
-Date/Publication: 2012-10-29 08:59:46
+Date/Publication: 2012-12-21 20:38:45
