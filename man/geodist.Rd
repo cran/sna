@@ -26,7 +26,7 @@ geodist(dat, inf.replace=Inf, count.paths=TRUE, predecessors=FALSE,
 A list containing:
 
   \item{counts}{If \code{count.paths==TRUE}, a matrix containing the number of geodesics between each pair of vertices}
-  \item{sigma}{A matrix containing the geodesic distances between each pair of vertices}
+  \item{gdist}{A matrix containing the geodesic distances between each pair of vertices}
   \item{predecessors}{If \code{predecessors}, a list whose ith element is a list of vectors, the jth of which contains the intervening vertices on all shortest paths from i to j}
 }
 \references{ 

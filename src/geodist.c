@@ -4,7 +4,7 @@
 # geodist.c
 #
 # copyright (c) 2004, Carter T. Butts <buttsc@uci.edu>
-# Last Modified 4/26/09
+# Last Modified 7/15/10
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/sna package
@@ -254,6 +254,7 @@ By the way, the various functions in this file should be rationalized -- geodist
   int n,i,j,k,checkna,calcpred,calcsig,*npred=NULL,vv,wv,pc=0;
   double *gd,*sigma=NULL;
   SEXP sgd,ssigma=R_NilValue,allpredl=R_NilValue,predl=R_NilValue,outlist,pl;
+  const void *vmax;
 
   /*Coerce inputs*/
   PROTECT(mat=coerceVector(mat,REALSXP)); pc++;
@@ -291,7 +292,6 @@ By the way, the various functions in this file should be rationalized -- geodist
         sigma[i+n*j]=0.0;
     }
   }
-  
   /*Solve the shortest path problem for each vertex*/
   for(i=0;i<n;i++){
     R_CheckUserInterrupt();
@@ -301,6 +301,7 @@ By the way, the various functions in this file should be rationalized -- geodist
         npred[j]=0;
       }
     }
+    vmax=vmaxget();   /*Set memory threshold, so that we can recycle later*/
     tovisit=enqueue(NULL,(double)i,NULL);
     last=tovisit;
     gd[i+i*n]=0.0;
@@ -360,6 +361,8 @@ By the way, the various functions in this file should be rationalized -- geodist
       SET_VECTOR_ELT(allpredl,i,predl);
       UNPROTECT(1);
     }
+    /*Unprotect locally allocated memory*/
+    vmaxset(vmax);
   }
   
   /*Prepare and return the results*/
@@ -389,6 +392,7 @@ Compute geodesics for the valued graph in mat.  The results are returned as a li
   int n,i,j,k,*x,vv,wv,*npred=NULL,pc=0,checkna,calcpred,calcsig;
   double ev,*gd,*sigma=NULL;
   SEXP sgd,ssigma=R_NilValue,allpredl=R_NilValue,predl=R_NilValue,outlist,pl;
+  const void *vmax;
   
   /*Coerce inputs*/
   PROTECT(mat=coerceVector(mat,REALSXP)); pc++;
@@ -430,6 +434,7 @@ Compute geodesics for the valued graph in mat.  The results are returned as a li
   /*Solve the shortest path problem for each vertex*/
   for(i=0;i<n;i++){
     R_CheckUserInterrupt();
+    vmax=vmaxget();   /*Set memory threshold, so that we can recycle later*/
     x=(int *)R_alloc(1,sizeof(int));
     x[0]=i;
     tovisit=listInsert(NULL,0.0,(void *)x);
@@ -528,6 +533,8 @@ Compute geodesics for the valued graph in mat.  The results are returned as a li
       SET_VECTOR_ELT(allpredl,i,predl);
       UNPROTECT(1);
     }
+    /*Unprotect locally allocated memory*/
+    vmaxset(vmax);
   }
   
   /*Prepare and return the results*/

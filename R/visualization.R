@@ -3,7 +3,7 @@
 # visualization.R
 #
 # copyright (c) 2004, Carter T. Butts <buttsc@uci.edu>
-# Last Modified 4/14/10
+# Last Modified 11/21/10
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/sna package
@@ -198,7 +198,7 @@ gplot<-function(dat,g=1,gmode="digraph",diag=FALSE,label=NULL,coord=NULL,jitter=
      }else
        edge.curve<-rep(0,length=NROW(d))
      dist<-((x[d[,1]]-x[d[,2]])^2+(y[d[,1]]-y[d[,2]])^2)^0.5  #Get the inter-point distances for curves
-     tl<-d.raw*dist   #Get rescaled edge lengths
+     tl<-d*dist   #Get rescaled edge lengths
      tl.max<-max(tl)  #Get maximum edge length
      for(i in 1:NROW(d))
        if(use[d[i,1]]&&use[d[i,2]]){  #Plot edges for displayed vertices
@@ -228,7 +228,7 @@ gplot<-function(dat,g=1,gmode="digraph",diag=FALSE,label=NULL,coord=NULL,jitter=
            }
          }else{        #Otherwise, use prespecified edge.curve
            if(e.curv.as.mult)    #If it's a scalar, multiply by edge str
-             e.curv<-c(e.curv,edge.curve[i]*d.raw[i])
+             e.curv<-c(e.curv,edge.curve[i]*dist[i])
            else
              e.curv<-c(e.curv,edge.curve[i])
          }
@@ -418,9 +418,9 @@ gplot.arrow<-function(x0,y0,x1,y1,length=0.1,angle=20,width=0.01,col=1,border=1,
         coord<-rbind(                    #Produce a "generic" version w/head
           c(-swid/2,toff),
           c(-swid/2,slen-0.5*ahlen-hoff),
-          c(-ahlen*sin(ahangle),slen-ahlen*cos(ahangle)-hoff),
+          c(-swid/2-ahlen*sin(ahangle),slen-ahlen*cos(ahangle)-hoff),
           c(0,slen-hoff),
-          c(ahlen*sin(ahangle),slen-ahlen*cos(ahangle)-hoff),
+          c(swid/2+ahlen*sin(ahangle),slen-ahlen*cos(ahangle)-hoff),
           c(swid/2,slen-0.5*ahlen-hoff),
           c(swid/2,toff),
           c(NA,NA)
@@ -435,14 +435,25 @@ gplot.arrow<-function(x0,y0,x1,y1,length=0.1,angle=20,width=0.01,col=1,border=1,
         )
       }
     }else{             #Curved edges
+      theta<-atan2(y1-y0,x1-x0)  #Adjust curved arrows to fix start/stop points
+      x0<-x0+cos(theta)*toff
+      x1<-x1-cos(theta)*hoff
+      y0<-y0+sin(theta)*toff
+      y1<-y1-sin(theta)*hoff
+      slen<-sqrt((x0-x1)^2+(y0-y1)^2)
+      hoff<-0
+      toff<-1
       if(ahead){    
         inc<-(0:csteps)/csteps
         coord<-rbind(
-          cbind(-curve*(1-(2*(inc-0.5))^2)-swid/2-sqrt(2)/2*(toff+inc*(hoff-toff)), inc*(slen-sqrt(2)/2*(hoff+toff)-ahlen*0.5)+sqrt(2)/2*toff),
-          c(ahlen*sin(-ahangle-pi/16)-sqrt(2)/2*hoff, slen-ahlen*cos(-ahangle-pi/16)-sqrt(2)/2*hoff),
+          cbind(
+          -curve*(1-(2*(inc-0.5))^2)-swid/2-sqrt(2)/2*(toff+inc*(hoff-toff)), 
+          inc*(slen-sqrt(2)/2*(hoff+toff)-ahlen*0.5)+sqrt(2)/2*toff),
+          c(-swid/2+ahlen*sin(-ahangle-pi/16)-sqrt(2)/2*hoff, slen-ahlen*cos(-ahangle-pi/16)-sqrt(2)/2*hoff),
           c(-sqrt(2)/2*hoff,slen-sqrt(2)/2*hoff),
-          c(ahlen*sin(ahangle-pi/16)-sqrt(2)/2*hoff, slen-ahlen*cos(ahangle-pi/16)-sqrt(2)/2*hoff),
-          cbind(-curve*(1-(2*(rev(inc)-0.5))^2)+swid/2-sqrt(2)/2*(toff+rev(inc)*(hoff-toff)), rev(inc)*(slen-sqrt(2)/2*(hoff+toff)-ahlen*0.5)+sqrt(2)/2*toff),
+          c(swid/2+ahlen*sin(ahangle-pi/16)-sqrt(2)/2*hoff, slen-ahlen*cos(ahangle-pi/16)-sqrt(2)/2*hoff),
+          cbind(-curve*(1-(2*(rev(inc)-0.5))^2)+swid/2-sqrt(2)/2*(toff+rev(inc)*(hoff-toff)),
+          rev(inc)*(slen-sqrt(2)/2*(hoff+toff)-ahlen*0.5)+sqrt(2)/2*toff),
           c(NA,NA)
         )
       }else{
@@ -570,9 +581,29 @@ gplot.layout.fruchtermanreingold<-function(d,layout.par){
   else
     cool.exp<-layout.par$cool.exp
   if(is.null(layout.par$repulse.rad))
-    repulse.rad<-area*n
+    repulse.rad<-area*log(n)
   else
     repulse.rad<-layout.par$repulse.rad
+  if(is.null(layout.par$ncell))
+    ncell<-ceiling(n^0.4)
+  else
+    ncell<-layout.par$ncell
+  if(is.null(layout.par$cell.jitter))
+    cell.jitter<-0.5
+  else
+    cell.jitter<-layout.par$cell.jitter
+  if(is.null(layout.par$cell.pointpointrad))
+    cell.pointpointrad<-0
+  else
+    cell.pointpointrad<-layout.par$cell.pointpointrad
+  if(is.null(layout.par$cell.pointcellrad))
+    cell.pointcellrad<-18
+  else
+    cell.pointcellrad<-layout.par$cell.pointcellrad
+  if(is.null(layout.par$cellcellcellrad))
+    cell.cellcellrad<-ncell^2
+  else
+    cell.cellcellrad<-layout.par$cell.cellcellrad
   if(is.null(layout.par$seed.coord)){
     tempa<-sample((0:(n-1))/n) #Set initial positions randomly on the circle
     x<-n/(2*pi)*sin(2*pi*tempa)
@@ -581,11 +612,10 @@ gplot.layout.fruchtermanreingold<-function(d,layout.par){
     x<-layout.par$seed.coord[,1]
     y<-layout.par$seed.coord[,2]
   }
-  #Symmetrize the graph, just in case
+  #Symmetrize the network, just in case
   d<-symmetrize(d,rule="weak",return.as.edgelist=TRUE) 
   #Perform the layout calculation
-  layout<-.C("gplot_layout_fruchtermanreingold_R", as.double(d), as.integer(n), as.integer(NROW(d)), as.integer(niter), as.double(max.delta), as.double(area), as.double(cool.exp), as.double(repulse.rad), x=as.double(x), y=as.double(y), PACKAGE="sna")
-#  layout<-.C("gplot_layout_fruchtermanreingold_R", as.integer(d), as.double(n), as.integer(niter), as.double(max.delta), as.double(area), as.double(cool.exp), as.double(repulse.rad), x=as.double(x), y=as.double(y), PACKAGE="sna")
+  layout<-.C("gplot_layout_fruchtermanreingold_R", as.double(d), as.double(n), as.double(NROW(d)), as.integer(niter), as.double(max.delta), as.double(area), as.double(cool.exp), as.double(repulse.rad), as.integer(ncell), as.double(cell.jitter), as.double(cell.pointpointrad), as.double(cell.pointcellrad), as.double(cell.cellcellrad), x=as.double(x), y=as.double(y), PACKAGE="sna")
   #Return the result
   cbind(layout$x,layout$y)
 }

@@ -508,7 +508,7 @@ void cutpointsDir_R(double *mat, int *n, int *m, int *cpstatus)
   int i,j,ccount,ccountwoi,tempideg,tempodeg;
   slelement *sep,*tempiel,*tempoel,**tempentries;
 
-//  Rprintf("Now in cutpointsDir_R.  Setting up snaNet\n");
+  //Rprintf("Now in cutpointsDir_R.  Setting up snaNet\n");
   /*Initialize sna internal network*/
   GetRNGstate();
   g=elMatTosnaNet(mat,n,m);
@@ -518,12 +518,12 @@ void cutpointsDir_R(double *mat, int *n, int *m, int *cpstatus)
   
   /*Walk the vertices, finding cutpoints by brute force*/
   ccount=numStrongComponents(g,n);
-//  Rprintf("Original number of components: %d\n",ccount);
+  //Rprintf("Original number of components: %d\n",ccount);
   for(i=0;i<*n;i++)
     if((g->indeg[i]>0)&&(g->outdeg[i]>0)){  /*Must be internal to a path*/
-//      Rprintf("\tEntering with %d\n",i);
+      //Rprintf("\tEntering with %d\n",i);
       /*Temporarily make i an isolate*/
-//      Rprintf("\tMoving out %d's edges\n",i);
+      //Rprintf("\tMoving out %d's edges\n",i);
       tempideg=g->indeg[i];
       tempodeg=g->outdeg[i];
       tempiel=g->iel[i];
@@ -533,20 +533,26 @@ void cutpointsDir_R(double *mat, int *n, int *m, int *cpstatus)
       g->iel[i]=NULL;
       g->oel[i]=NULL;
       tempentries=(slelement **)R_alloc(tempideg,sizeof(slelement *));
-//      Rprintf("\tMoving out %d edges pointing to %d\n",tempideg,i);
+      //Rprintf("\tMoving out %d edges pointing to %d\n",tempideg,i);
       if(tempiel==NULL)
         sep=NULL;
       else
         sep=tempiel->next[0];
       for(j=0;sep!=NULL;sep=sep->next[0]){  /*Remove edges pointing to i*/
+        //Rprintf("\t\t%d, about to do slistDelete\n",j);
         tempentries[j++]=slistDelete(g->oel[(int)(sep->val)],(double)i);
+        //Rprintf("\t\tSending vertex is %d\n",(int)(sep->val));
+        //Rprintf("\t\t%d, about to do decrement outdegrees\n",j);
         /*Decrement outdegree*/
+         //Rprintf("\t\toutdegree is %d\n", g->outdeg[(int)(sep->val)]);
         g->outdeg[(int)(sep->val)]--;
-//        Rprintf("\t%d -> %d [%.1f]\n",(int)(sep->val), (int)(tempentries[j-1]->val), *((double *)(tempentries[j-1]->dp)));
+        //Rprintf("\t\tnew outdegree is %d\n", g->outdeg[(int)(sep->val)]);
+        //Rprintf("\t%d -> %d [%.1f]\n",(int)(sep->val), (int)(tempentries[j-1]->val), *((double *)(tempentries[j-1]->dp)));
+        //Rprintf("\t\tfinished tracer\n");
       }
       /*Recalculate components (told you this was ugly!)*/
       ccountwoi=numStrongComponents(g,n)-1;  /*Remove 1 for i*/
-//      Rprintf("\tNumber of components w/out %d: %d\n",i,ccountwoi);
+      //Rprintf("\tNumber of components w/out %d: %d\n",i,ccountwoi);
       if(ccountwoi>ccount)
         cpstatus[i]++;
       /*Restore i to its former glory*/
@@ -554,7 +560,7 @@ void cutpointsDir_R(double *mat, int *n, int *m, int *cpstatus)
       g->outdeg[i]=tempodeg;
       g->iel[i]=tempiel;
       g->oel[i]=tempoel;
-//      Rprintf("\tRestoring edges to %d\n",i);
+      //Rprintf("\tRestoring edges to %d\n",i);
       if(tempiel==NULL)
         sep=NULL;
       else
@@ -563,7 +569,8 @@ void cutpointsDir_R(double *mat, int *n, int *m, int *cpstatus)
         g->oel[(int)(sep->val)]=slistInsert(g->oel[(int)(sep->val)],(double)i, tempentries[j++]->dp);
         /*Increment outdegree*/
         g->outdeg[(int)(sep->val)]++;
-//        Rprintf("\t%d -> %d [%.1f]\n",(int)(sep->val), (int)(tempentries[j-1]->val), *(double*)(tempentries[j-1]->dp));
+        //Rprintf("\t\tnew outdegree is %d\n", g->outdeg[(int)(sep->val)]);
+        //Rprintf("\t%d -> %d [%.1f]\n",(int)(sep->val), (int)(tempentries[j-1]->val), *(double*)(tempentries[j-1]->dp));
       }
     }    
   PutRNGstate();

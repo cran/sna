@@ -188,7 +188,7 @@ gden<-function(dat,g=NULL,diag=FALSE,mode="digraph",ignore.eval=FALSE){
        count<-sum(dat[,3])
      nt<-switch(mode,
        digraph=n*(n-1)-nmis+diag*n,
-       graph=n*(n-1)/2-nmis+diag*n,
+       graph=n*(n-1)-nmis+diag*n,
        hgraph=bip*(n-bip)-nmis,
        twomode=bip*(n-bip)-nmis
      )

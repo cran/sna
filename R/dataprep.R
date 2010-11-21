@@ -3,7 +3,7 @@
 # dataprep.R
 #
 # copyright (c) 2004, Carter T. Butts <buttsc@uci.edu>
-# Last Modified 06/05/09
+# Last Modified 11/21/10
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/sna package
@@ -300,23 +300,30 @@ as.sociomatrix.sna<-function(x, attrname=NULL, simplify=TRUE, force.bipartite=FA
     attr(g,"bipartite")<-bip
   }else{
     #Coerce to adjacency matrix form -- by now, no other classes involved
+    n<-attr(x,"n")                        #Grab attributes before they get lost
+    bip<-attr(x,"bipartite")
+    vnam<-attr(x,"vnames")
     if(is.array(x)&&(length(dim(x))==2))  #Quick diversion for 2-d arrays
       x<-as.matrix(x)
     if(is.data.frame(x))                  #Coerce data frames to matrices
       x<-as.matrix(x)
     if(is.matrix(x)){
-      if((NCOL(x)%in%c(2,3))&&(!is.null(attr(x,"n")))){     #sna edgelist
+      if((NCOL(x)%in%c(2,3))&&(!is.null(n))){     #sna edgelist
         if(NCOL(x)==2)
           x<-cbind(x,rep(1,NROW(x)))
-        g<-matrix(0,attr(x,"n"),attr(x,"n"))
+        g<-matrix(0,n,n)
         if(NROW(x)>0)
           g[x[,1:2,drop=FALSE]]<-x[,3]
-      }else if(force.bipartite||(!is.null(attr(x,"bipartite")))|| (NROW(x)!=NCOL(x))){    #Bipartite adjmat
+        rownames(g)<-vnam
+        colnames(g)<-vnam
+      }else if(force.bipartite||(!is.null(bip))||(NROW(x)!=NCOL(x))){    #Bipartite adjmat
         nr<-NROW(x)
         nc<-NCOL(x)
         g<-matrix(0,nr+nc,nr+nc)
         g[1:nr,(nr+1):(nr+nc)]<-x
         g[(nr+1):(nr+nc),1:nr]<-t(x)
+        rownames(g)<-vnam
+        colnames(g)<-vnam
       }else{                                             #Regular adjmat
         g<-x
       }  
@@ -583,7 +590,14 @@ gvectorize<-function(mats,mode="digraph",diag=FALSE,censor.as.na=TRUE){
          d<-diag.remove(d)
       out<-apply(d,1,as.vector)
    }else{   #Otherwise, vectorize only the useful parts
-      mask<-apply(d,1,lower.tri,diag=diag)
+      if(mode=="graph")
+        mask<-apply(d,1,lower.tri,diag=diag)
+      else{
+        if(diag)
+          mask<-matrix(TRUE,nr=dim(d)[2]*dim(d)[3],nc=dim(d)[1])
+        else
+          mask<-apply(d,1,function(z){diag(NROW(z))==0})
+      }
       out<-apply(d,1,as.vector)
       if(m==1)
          out<-out[mask]

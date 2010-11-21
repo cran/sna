@@ -4,7 +4,7 @@
 # layout.h
 #
 # copyright (c) 2004, Carter T. Butts <buttsc@uci.edu>
-# Last Modified 4/3/09
+# Last Modified 11/21/10
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/sna package
@@ -43,7 +43,12 @@ int poledgecross(double ra, double ta, double rb, double tb, double rc, double t
 
 void gplot_layout_target_R(int *d, double *pn, int *pniter, double *elen, double *radii, int *core, double *pdisconst, double *pcrossconst, double *prepconst, double *pminpdis, double *pinitemp, double *pcoolexp, double *pmaxdelta, double *theta);
 
-void gplot_layout_fruchtermanreingold_R(double *d, int *pn, int *pm, int *pniter, double *pmaxdelta, double *pvolume, double *pcoolexp, double *prepulserad, double *x, double *y);
+void gplot_layout_fruchtermanreingold_R(double *d, double *pn, double *pm, 
+int *pniter, double *pmaxdelta, double *pvolume, double *pcoolexp, double 
+*prepulserad, int *pncell, double *pcjit, double *pcppr, double *pcpcr, double
+*pcccr, double *x, double *y);
+
+void gplot_layout_fruchtermanreingold_old_R(double *d, int *pn, int *pm, int *pniter, double *pmaxdelta, double *pvolume, double *pcoolexp, double *prepulserad, double *x, double *y);  /*Deprecated code, to be removed*/
 
 void gplot_layout_kamadakawai_R(int *pn, int *pniter, double *elen, double *pinitemp, double *pcoolexp, double *pkkconst, double *psigma, double *x, double *y);
 

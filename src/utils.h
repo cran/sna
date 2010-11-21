@@ -4,7 +4,7 @@
 # utils.h
 #
 # copyright (c) 2006, Carter T. Butts <buttsc@uci.edu>
-# Last Modified 6/6/09
+# Last Modified 11/21/10
 # Licensed under the GNU General Public License version 2 (June, 1991) or
 # later.
 # Portions taken from the NetStat library by Carter T. Butts (2002)
@@ -92,6 +92,20 @@ typedef struct dtelementtype{
    int dim;
    struct dtelementtype **next;
 } dtelement;
+
+
+/*Simple list structures to be used for temporary storage of vertex sets.*/
+typedef struct vlisttype{
+  long int v;
+  struct vlisttype *next;
+} vlist;
+
+typedef struct vcelltype{
+  int id;
+  double count,xm,ym;
+  struct vlisttype *memb;
+  struct vcelltype *next;
+} vcell;
 
 
 /*INTERNAL ROUTINES---------------------------------------------------------*/

@@ -1,5 +1,28 @@
 CHANGELOG:
 
+v2.2 - Changes and Bug Fixes
+   Changes:
+     as.sociomatrix.sna should now handle the new network edgelist format
+       more gracefully; note, however, that edgelists for undirected graphs
+       are still handled differently in network and sna, so one is usually
+       better off coercing directly with as.edgelist.sna, rather than first
+       going through as.matrix
+     geodist now uses memory more efficiently, and should perform better on
+       large graphs
+     gplot now has some refinements to the placement of curved edges and to
+       arrow widths [contibuted by Alex Montgomery]
+     gplot.layout.fruchtermanreingold now uses an approximating backend
+       (ported from network) which can greatly reduce layout time in large
+       graphs (at some aesthetic cost); traditional results can still be
+       obtained by appropriate choice of layout parameters
+   Bug Fixes:
+     cutpoints failed with connected="strong" when called with a graph
+       containing loops [Submitted by Ben Madin]
+     gden could return twice the density when called with mode="graph"
+       [Submitted by Zack Almquist]
+     gvectorize was censoring the upper triangle when called with
+       censor.as.na=FALSE and mode="digraph" [Submitted by Zack Almquist]
+       
 v2.1 - New Features, Changes, and Bug Fixes
    Changes:
      as.sociomatrix.sna and as.edgelist.sna are now treated as user-level

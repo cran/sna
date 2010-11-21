@@ -31,14 +31,22 @@ C_C(v) = (|V(G)|-1)/sum( d(v,i), i in V(G), i!=v )}
 
 where \eqn{d(i,j)}{d(i,j)} is the geodesic distance between i and j (where defined).  Closeness is ill-defined on disconnected graphs; in such cases, this routine substitutes \code{Inf}.  It should be understood that this modification is not canonical (though it is common), but can be avoided by not attempting to measure closeness on disconnected graphs in the first place!  Intuitively, closeness provides an index of the extent to which a given vertex has short paths to all other vertices in the graph; this is one reasonable measure of the extent to which a vertex is in the ``middle'' of a given structure.
 
-An alternate form of closeness (whose origin is obscure) is obtained by taking the sum of the inverse distances to each vertex, i.e.
+An alternate form of closeness (apparently due to Gil and Schmidt (1996)) is obtained by taking the sum of the inverse distances to each vertex, i.e.
 \deqn{C_C(v) = \frac{\sum_{i : i \neq v} \frac{1}{d(v,i)}}{\left|V\left(G\right)\right|-1}.}{%
-C_C(v) = sum( 1/d(v,i), i in V(G), i!=v )/(|V(G)|-1).}  This measure correlates well with the standard form of closeness where both are well-defined, but lacks the latter's pathological behavior on disconnected graphs.  Computation of alternate closeness may be performed via the argument \code{cmode="suminvdir"} (directed case) and \code{cmode="suminvundir"} (undirected case).  The corresponding arguments \code{cmode="directed"} and \code{cmode="undirected"} return the standard closeness scores in the directed or undirected cases (respectively).
+C_C(v) = sum( 1/d(v,i), i in V(G), i!=v )/(|V(G)|-1).}  This measure correlates well with the standard form of closeness where both are well-defined, but lacks the latter's pathological behavior on disconnected graphs.  Computation of alternate closeness may be performed via the argument \code{cmode="suminvdir"} (directed case) and \code{cmode="suminvundir"} (undirected case).  The corresponding arguments \code{cmode="directed"} and \code{cmode="undirected"} return the standard closeness scores in the directed or undirected cases (respectively).  Although treated here as a measure of closeness, this index was originally intended to capture power or efficacy; in its original form, the Gil-Schmidt power index is a renormalized version of the above.  Specifically, let \eqn{R(v,G)} be the set of vertices reachable by \eqn{v} in \eqn{V\setminus v}{V \ v}.  Then the Gil-Schmidt power index is defined as
+\deqn{C_{GS}(v) = \frac{\sum_{i \in R(v,G)} \frac{1}{d(v,i)}}{|R(v,G)|}.}{%
+C_GS(v) = sum( 1/d(v,i), i in R(v,G) )/|R(v,G)|.}
+This may be obtained via the argument \code{cmode="gil-schmidt"}.
 }
 \value{
 A vector, matrix, or list containing the closeness scores (depending on the number and size of the input graphs).
 }
-\references{Freeman, L.C.  (1979).  ``Centrality in Social Networks I: Conceptual Clarification.'' \emph{Social Networks}, 1, 215-239. }
+\references{Freeman, L.C.  (1979).  \dQuote{Centrality in Social Networks I: Conceptual Clarification.} \emph{Social Networks}, 1, 215-239. 
+
+Gil, J. and Schmidt, S.  (1996).  \dQuote{The Origin of the Mexican Network of Power}.  Proceedings of the International Social Network Conference, Charleston, SC, 22-25.
+
+Sinclair, P.A.  (2007).  \dQuote{}  \emph{Social Networks}, 29, 81-92.
+}
 \author{ Carter T. Butts, \email{buttsc@uci.edu} }
 \note{ Judicious use of \code{geodist.precomp} can save a great deal of time when computing multiple path-based indices on the same network. }
 

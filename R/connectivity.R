@@ -3,7 +3,7 @@
 # connectivity.R
 #
 # copyright (c) 2004, Carter T. Butts <buttsc@uci.edu>
-# Last Modified 5/2/09
+# Last Modified 11/21/10
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/sna package
@@ -213,9 +213,11 @@ cutpoints<-function(dat,mode="digraph",connected=c("strong","weak","recursive"),
    #Pre-process the raw input
    dat<-as.edgelist.sna(dat)
    if(is.list(dat))
-     return(lapply(dat,cutpoints,mode=mode,return.indicator=return.indicator))
+     return(lapply(dat,cutpoints,mode=mode,connected=connected, return.indicator=return.indicator))
    #End pre-processing
    n<-attr(dat,"n")
+   dat<-dat[dat[,1]!=dat[,2],]   #Remove any loops, lest they break things
+   attr(dat,"n")<-n
    cp<-rep(0,n)
    if(mode=="graph")
      cp<-.C("cutpointsUndir_R",as.double(dat),as.integer(n), as.integer(NROW(dat)),cp=as.integer(cp),NAOK=TRUE,PACKAGE="sna")$cp

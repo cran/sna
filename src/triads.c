@@ -261,7 +261,9 @@ This routine may be called from R using .C.
 
   /*Form the snaNet and initialize t*/
   GetRNGstate();
+  //Rprintf("Building network, %d vertices and %d edges\n",*n,*m);
   g=elMatTosnaNet(mat,n,m);
+  //Rprintf("Build complete.  Proceeding.\n");
   PutRNGstate();
   t[0]=t[1]=0.0;
 
