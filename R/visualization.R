@@ -88,7 +88,7 @@ gplot<-function(dat,g=1,gmode="digraph",diag=FALSE,label=NULL,coord=NULL,jitter=
      Rn <- attr(d,"bipartite")
      if (is.null(vertex.col)) vertex.col <- c(rep(2,Rn),rep(4,n-Rn))
      if (is.null(vertex.sides)) vertex.sides <- c(rep(8,Rn),rep(4,n-Rn))
-   } 
+   }
    if (is.null(vertex.col)) vertex.col <- 2
    if (is.null(vertex.sides)) vertex.sides <- 8
    #Remove missing edges
@@ -116,7 +116,7 @@ gplot<-function(dat,g=1,gmode="digraph",diag=FALSE,label=NULL,coord=NULL,jitter=
       y<-jitter(y)
    }
    #Which nodes should we use?
-   use<-displayisolates|(!is.isolate(d,ego=1:n))   
+   use<-displayisolates|(!is.isolate(d,ego=1:n))
    #Deal with axis labels
    if(is.null(xlab))
      xlab=""
@@ -177,7 +177,7 @@ gplot<-function(dat,g=1,gmode="digraph",diag=FALSE,label=NULL,coord=NULL,jitter=
      if(length(dim(edge.lwd))==2){
        edge.lwd<-edge.lwd[d[,1:2]]
        e.lwd.as.mult<-FALSE
-     }else{ 
+     }else{
        if(length(edge.lwd)==1)
          e.lwd.as.mult<-TRUE
        else
@@ -188,7 +188,7 @@ gplot<-function(dat,g=1,gmode="digraph",diag=FALSE,label=NULL,coord=NULL,jitter=
        if(length(dim(edge.curve))==2){
          edge.curve<-edge.curve[d[,1:2]]
          e.curv.as.mult<-FALSE
-       }else{ 
+       }else{
          if(length(edge.curve)==1)
            e.curv.as.mult<-TRUE
          else
@@ -202,10 +202,10 @@ gplot<-function(dat,g=1,gmode="digraph",diag=FALSE,label=NULL,coord=NULL,jitter=
      tl.max<-max(tl)  #Get maximum edge length
      for(i in 1:NROW(d))
        if(use[d[i,1]]&&use[d[i,2]]){  #Plot edges for displayed vertices
-         px0<-c(px0,as.real(x[d[i,1]]))  #Store endpoint coordinates
-         py0<-c(py0,as.real(y[d[i,1]]))
-         px1<-c(px1,as.real(x[d[i,2]]))
-         py1<-c(py1,as.real(y[d[i,2]]))
+         px0<-c(px0,as.double(x[d[i,1]]))  #Store endpoint coordinates
+         py0<-c(py0,as.double(y[d[i,1]]))
+         px1<-c(px1,as.double(x[d[i,2]]))
+         py1<-c(py1,as.double(y[d[i,2]]))
          e.toff<-c(e.toff,vertex.radius[d[i,1]]) #Store endpoint offsets
          e.hoff<-c(e.hoff,vertex.radius[d[i,2]])
          e.col<-c(e.col,edge.col[i])    #Store other edge attributes
@@ -220,11 +220,11 @@ gplot<-function(dat,g=1,gmode="digraph",diag=FALSE,label=NULL,coord=NULL,jitter=
          e.diag<-c(e.diag,d[i,1]==d[i,2])  #Is this a loop?
          e.rad<-c(e.rad,vertex.radius[d[i,1]]*loop.cex[d[i,1]])
          if(uselen){   #Should we base curvature on interpoint distances?
-           if(tl[i]>0){ 
+           if(tl[i]>0){
              e.len<-dist[i]*tl.max/tl[i]
              e.curv<-c(e.curv,edge.len*sqrt((e.len/2)^2-(dist[i]/2)^2))
            }else{
-             e.curv<-c(e.curv,0)   
+             e.curv<-c(e.curv,0)
            }
          }else{        #Otherwise, use prespecified edge.curve
            if(e.curv.as.mult)    #If it's a scalar, multiply by edge str
@@ -240,7 +240,7 @@ gplot<-function(dat,g=1,gmode="digraph",diag=FALSE,label=NULL,coord=NULL,jitter=
    }
    #Plot standard (i.e., non-loop) edges
    if(length(px0)>0){  #If edges are present, remove loops from consideration
-     px0<-px0[!e.diag] 
+     px0<-px0[!e.diag]
      py0<-py0[!e.diag]
      px1<-px1[!e.diag]
      py1<-py1[!e.diag]
@@ -266,7 +266,7 @@ gplot<-function(dat,g=1,gmode="digraph",diag=FALSE,label=NULL,coord=NULL,jitter=
    #Plot vertex labels, if needed
    if(displaylabels&(!all(label==""))&(!all(use==FALSE))){
      if (label.pos==0){
-       xhat <- yhat <- rhat <- rep(0,n) 
+       xhat <- yhat <- rhat <- rep(0,n)
        #Set up xoff yoff and roff when we get odd vertices
        xoff <- x[use]-mean(x[use])
        yoff <- y[use]-mean(y[use])
@@ -330,7 +330,7 @@ gplot<-function(dat,g=1,gmode="digraph",diag=FALSE,label=NULL,coord=NULL,jitter=
      }
      text(x[use]+xhat*vertex.radius[use]+(lh*label.pad+lw)*((xhat>0)-(xhat<0)),
           y[use]+yhat*vertex.radius[use]+(lh*label.pad+lh)*((yhat>0)-(yhat<0)),
-          label[use],cex=label.cex,col=label.col,offset=0)         
+          label[use],cex=label.cex,col=label.col,offset=0)
    }
    #If interactive, allow the user to mess with things
    if(interactive&&((length(x)>0)&&(!all(use==FALSE)))){
@@ -385,7 +385,7 @@ gplot<-function(dat,g=1,gmode="digraph",diag=FALSE,label=NULL,coord=NULL,jitter=
        #Set the coordinates accordingly
        if (interact.bycomp) {
          dx <- clickpos[1]-x[use][selvert]
-         dy <- clickpos[2]-y[use][selvert]             
+         dy <- clickpos[2]-y[use][selvert]
          comp.mem <- component.dist(d,connected="weak")$membership
          same.comp <- comp.mem[use]==comp.mem[use][selvert]
          x[use][same.comp] <- x[use][same.comp]+dx
@@ -411,10 +411,10 @@ gplot.arrow<-function(x0,y0,x1,y1,length=0.1,angle=20,width=0.01,col=1,border=1,
   if(length(x0)==0)   #Leave if there's nothing to do
     return;
   #Introduce a function to make coordinates for a single polygon
-  make.coords<-function(x0,y0,x1,y1,ahangle,ahlen,swid,toff,hoff,ahead, curve,csteps){ 
+  make.coords<-function(x0,y0,x1,y1,ahangle,ahlen,swid,toff,hoff,ahead, curve,csteps){
     slen<-sqrt((x0-x1)^2+(y0-y1)^2)  #Find the total length
     if(curve==0){         #Straight edges
-      if(ahead){    
+      if(ahead){
         coord<-rbind(                    #Produce a "generic" version w/head
           c(-swid/2,toff),
           c(-swid/2,slen-0.5*ahlen-hoff),
@@ -443,11 +443,11 @@ gplot.arrow<-function(x0,y0,x1,y1,length=0.1,angle=20,width=0.01,col=1,border=1,
       slen<-sqrt((x0-x1)^2+(y0-y1)^2)
       hoff<-0
       toff<-1
-      if(ahead){    
+      if(ahead){
         inc<-(0:csteps)/csteps
         coord<-rbind(
           cbind(
-          -curve*(1-(2*(inc-0.5))^2)-swid/2-sqrt(2)/2*(toff+inc*(hoff-toff)), 
+          -curve*(1-(2*(inc-0.5))^2)-swid/2-sqrt(2)/2*(toff+inc*(hoff-toff)),
           inc*(slen-sqrt(2)/2*(hoff+toff)-ahlen*0.5)+sqrt(2)/2*toff),
           c(-swid/2+ahlen*sin(-ahangle-pi/16)-sqrt(2)/2*hoff, slen-ahlen*cos(-ahangle-pi/16)-sqrt(2)/2*hoff),
           c(-sqrt(2)/2*hoff,slen-sqrt(2)/2*hoff),
@@ -487,7 +487,7 @@ gplot.arrow<-function(x0,y0,x1,y1,length=0.1,angle=20,width=0.01,col=1,border=1,
   edge.steps<-rep(edge.steps,length=n)
   #Obtain coordinates
   coord<-vector()
-  for(i in 1:n)  
+  for(i in 1:n)
     coord<-rbind(coord,make.coords(x0[i],y0[i],x1[i],y1[i],angle[i],length[i], width[i],offset.tail[i],offset.head[i],arrowhead[i],curve[i],edge.steps[i]))
   coord<-coord[-NROW(coord),]
   #Draw polygons
@@ -517,7 +517,7 @@ gplot.layout.circle<-function(d,layout.par){
 
 
 #gplot.layout.circrand - Random circular layout for gplot
-gplot.layout.circrand<-function(d,layout.par){ 
+gplot.layout.circrand<-function(d,layout.par){
   if(is.null(layout.par))
     layout.par<-list()
   layout.par$dist="uniang"
@@ -527,7 +527,7 @@ gplot.layout.circrand<-function(d,layout.par){
 
 #gplot.layout.eigen - Place vertices based on the first two eigenvectors of
 #an adjacency matrix
-gplot.layout.eigen<-function(d,layout.par){     
+gplot.layout.eigen<-function(d,layout.par){
   d<-as.sociomatrix.sna(d)
   if(is.list(d))
     d<-d[[1]]
@@ -613,7 +613,7 @@ gplot.layout.fruchtermanreingold<-function(d,layout.par){
     y<-layout.par$seed.coord[,2]
   }
   #Symmetrize the network, just in case
-  d<-symmetrize(d,rule="weak",return.as.edgelist=TRUE) 
+  d<-symmetrize(d,rule="weak",return.as.edgelist=TRUE)
   #Perform the layout calculation
   layout<-.C("gplot_layout_fruchtermanreingold_R", as.double(d), as.double(n), as.double(NROW(d)), as.integer(niter), as.double(max.delta), as.double(area), as.double(cool.exp), as.double(repulse.rad), as.integer(ncell), as.double(cell.jitter), as.double(cell.pointpointrad), as.double(cell.pointcellrad), as.double(cell.cellcellrad), x=as.double(x), y=as.double(y), PACKAGE="sna")
   #Return the result
@@ -701,7 +701,7 @@ gplot.layout.kamadakawai<-function(d,layout.par){
 
 #gplot.layout.mds - Place vertices based on metric multidimensional scaling
 #of a distance matrix
-gplot.layout.mds<-function(d,layout.par){     
+gplot.layout.mds<-function(d,layout.par){
   d<-as.sociomatrix.sna(d)
   if(is.list(d))
     d<-d[[1]]
@@ -740,10 +740,10 @@ gplot.layout.mds<-function(d,layout.par){
 }
 
 
-#gplot.layout.princoord - Place using the eigenstructure of the correlation 
+#gplot.layout.princoord - Place using the eigenstructure of the correlation
 #matrix among concatenated rows/columns (principal coordinates by position
 #similarity)
-gplot.layout.princoord<-function(d,layout.par){     
+gplot.layout.princoord<-function(d,layout.par){
   d<-as.sociomatrix.sna(d)
   if(is.list(d))
     d<-d[[1]]
@@ -762,7 +762,7 @@ gplot.layout.princoord<-function(d,layout.par){
   #Find the correlation/covariance matrix
   if(is.null(layout.par$cor)||layout.par$cor)
     cd<-cor(vm,use="pairwise.complete.obs")
-  else    
+  else
     cd<-cov(vm,use="pairwise.complete.obs")
   cd<-replace(cd,is.na(cd),0)
   #Obtain the eigensolution
@@ -774,7 +774,7 @@ gplot.layout.princoord<-function(d,layout.par){
 
 
 #gplot.layout.random - Random layout for gplot
-gplot.layout.random<-function(d,layout.par){     
+gplot.layout.random<-function(d,layout.par){
   d<-as.edgelist.sna(d)
   if(is.list(d))
     d<-d[[1]]
@@ -806,7 +806,7 @@ gplot.layout.rmds<-function(d,layout.par){
 }
 
 
-#gplot.layout.segeo - Layout method (structural equivalence in geodesic 
+#gplot.layout.segeo - Layout method (structural equivalence in geodesic
 #distances) for gplot
 gplot.layout.segeo<-function(d,layout.par){
   if(is.null(layout.par))
@@ -872,12 +872,12 @@ gplot.layout.spring<-function(d,layout.par){
   ds<-symmetrize(d,"weak")            #Symmetrize/dichotomize the graph
   kfr<-ep[5]                          #Set initial friction level
   niter<-1                            #Set the iteration counter
-  #Simulate, with increasing friction, until motion stops    
+  #Simulate, with increasing friction, until motion stops
   repeat{
     niter<-niter+1                    #Update the iteration counter
     dis<-as.matrix(dist(cbind(x,y)))  #Get inter-point distances
     #Get angles relative to the positive x direction
-    theta<-acos(t(outer(x,x,"-"))/dis)*sign(t(outer(y,y,"-"))) 
+    theta<-acos(t(outer(x,x,"-"))/dis)*sign(t(outer(y,y,"-")))
     #Compute spring forces; note that we assume a base spring coefficient
     #of ep[3] units ("pseudo-Newtons/quasi-meter"?), with an equilibrium
     #extension of ep[2] units for all springs
@@ -894,7 +894,7 @@ gplot.layout.spring<-function(d,layout.par){
     #motion is roughly modeled on the sliding of flat objects across
     #a uniform surface (e.g., spring-connected cylinders across a table).
     #We assume that the coefficients of static and kinetic friction are
-    #the same, which should only trouble you if you are under the 
+    #the same, which should only trouble you if you are under the
     #delusion that this is a simulation rather than a graph drawing
     #exercise (in which case you should be upset that I'm not using
     #Runge-Kutta or the like!).
@@ -1028,7 +1028,7 @@ gplot.loop<-function(x0,y0,length=0.1,angle=10,width=0.01,col=1,border=1,lty=1,o
       x0.arrow <- x0.loop+(r0.loop+swid/2)*cos(ang2)
       y0.arrow <- y0.loop+(r0.loop+swid/2)*sin(ang2)
       coord<-rbind(
-        cbind(x0.loop+(r0.loop+swid/2)*cos(ang), 
+        cbind(x0.loop+(r0.loop+swid/2)*cos(ang),
           y0.loop+(r0.loop+swid/2)*sin(ang)),
         cbind(x0.arrow+ahlen*cos(ang2-pi/2),
           y0.arrow+ahlen*sin(ang2-pi/2)),
@@ -1065,7 +1065,7 @@ gplot.loop<-function(x0,y0,length=0.1,angle=10,width=0.01,col=1,border=1,lty=1,o
   offset<-rep(offset,length=n)
   #Obtain coordinates
   coord<-vector()
-  for(i in 1:n)  
+  for(i in 1:n)
     coord<-rbind(coord,make.coords(x0[i],y0[i],xctr,yctr,angle[i],length[i], width[i],offset[i],rad[i],arrowhead[i]))
   coord<-coord[-NROW(coord),]
   #Draw polygons
@@ -1128,7 +1128,7 @@ gplot.vertex<-function(x,y,radius=1,sides=4,border=1,col=2,lty=NULL,rot=0,...){
   #Introduce a function to make coordinates for a single polygon
   make.coords<-function(x,y,r,s,rot){
     ang<-(1:s)/s*2*pi+rot*2*pi/360
-    rbind(cbind(x+r*cos(ang),y+r*sin(ang)),c(NA,NA))  
+    rbind(cbind(x+r*cos(ang),y+r*sin(ang)),c(NA,NA))
   }
   #Prep the vars
   n<-length(x)
@@ -1204,7 +1204,7 @@ gplot3d<-function(dat,g=1,gmode="digraph",diag=FALSE,label=NULL,coord=NULL,jitte
       z<-jitter(z)
    }
    #Which nodes should we use?
-   use<-displayisolates|(!is.isolate(d,ego=1:n))   
+   use<-displayisolates|(!is.isolate(d,ego=1:n))
    #Deal with axis labels
    if(is.null(xlab))
      xlab=""
@@ -1218,7 +1218,7 @@ gplot3d<-function(dat,g=1,gmode="digraph",diag=FALSE,label=NULL,coord=NULL,jitte
      if(!suppress.axes)      #Plot axes, if desired
        rgl.bbox(xlab=xlab,ylab=ylab,zlab=zlab);
    }
-   rgl.bg(col=bg.col)  
+   rgl.bg(col=bg.col)
    #Plot vertices
    temp<-as.matrix(dist(cbind(x[use],y[use],z[use])))
    diag(temp)<-Inf
@@ -1256,13 +1256,13 @@ gplot3d<-function(dat,g=1,gmode="digraph",diag=FALSE,label=NULL,coord=NULL,jitte
    }
    if(length(dim(edge.alpha))==2){
      edge.alpha<-edge.alpha[d[,1:2]]
-   }else{ 
+   }else{
      edge.alpha<-rep(edge.alpha,length=NROW(d))
    }
    for(i in 1:NROW(d))
      if(use[d[i,1]]&&use[d[i,2]]){    #Plot edges for displayed vertices
-       pt<-rbind(pt,as.real(c(x[d[i,1]],y[d[i,1]],z[d[i,1]]))) #Store endpoint coordinates
-       ph<-rbind(ph,as.real(c(x[d[i,2]],y[d[i,2]],z[d[i,2]])))
+       pt<-rbind(pt,as.double(c(x[d[i,1]],y[d[i,1]],z[d[i,1]]))) #Store endpoint coordinates
+       ph<-rbind(ph,as.double(c(x[d[i,2]],y[d[i,2]],z[d[i,2]])))
          e.col<-c(e.col,edge.col[i])    #Store other edge attributes
          e.alpha<-c(e.alpha,edge.alpha[i])
          e.lwd<-c(e.lwd,edge.lwd[i])
@@ -1275,7 +1275,7 @@ gplot3d<-function(dat,g=1,gmode="digraph",diag=FALSE,label=NULL,coord=NULL,jitte
    }
    #Plot standard (i.e., non-loop) edges
    if(m>0){  #If edges are present, remove loops from consideration
-     pt<-pt[!e.diag,] 
+     pt<-pt[!e.diag,]
      ph<-ph[!e.diag,]
      e.alpha<-e.alpha[!e.diag]
      e.lwd<-e.lwd[!e.diag]
@@ -1302,8 +1302,8 @@ gplot3d.arrow<-function(a,b,radius,color="white",alpha=1){
     xos<-radius*sin(pi/8)
     yos<-radius*cos(pi/8)
     basetri<-rbind(         #Create single offset triangle, pointing +z
-      c(-xos,-yos,0), 
-      c(0,0,alen), 
+      c(-xos,-yos,0),
+      c(0,0,alen),
       c(xos,-yos,0)
     )
     coord<-vector()
@@ -1325,9 +1325,9 @@ gplot3d.arrow<-function(a,b,radius,color="white",alpha=1){
   }
   #Expand argument vectors if needed
   if(is.null(dim(a))){
-    a<-matrix(a,nc=3)
-    b<-matrix(b,nc=3)
-  }  
+    a<-matrix(a,ncol=3)
+    b<-matrix(b,ncol=3)
+  }
   n<-NROW(a)
   radius<-rep(radius,length=n)
   color<-rep(color,length=n)
@@ -1354,7 +1354,7 @@ gplot3d.layout.adj<-function(d,layout.par){
 
 #gplot3d.layout.eigen - Place vertices based on the first three eigenvectors of
 #an adjacency matrix
-gplot3d.layout.eigen<-function(d,layout.par){     
+gplot3d.layout.eigen<-function(d,layout.par){
   d<-as.sociomatrix.sna(d)
   if(is.list(d))
     d<-d[[1]]
@@ -1515,7 +1515,7 @@ gplot3d.layout.kamadakawai<-function(d,layout.par){
 
 #gplot3d.layout.mds - Place vertices based on metric multidimensional scaling
 #of a distance matrix
-gplot3d.layout.mds<-function(d,layout.par){     
+gplot3d.layout.mds<-function(d,layout.par){
   d<-as.sociomatrix.sna(d)
   if(is.list(d))
     d<-d[[1]]
@@ -1554,10 +1554,10 @@ gplot3d.layout.mds<-function(d,layout.par){
 }
 
 
-#gplot3d.layout.princoord - Place using the eigenstructure of the correlation 
+#gplot3d.layout.princoord - Place using the eigenstructure of the correlation
 #matrix among concatenated rows/columns (principal coordinates by position
 #similarity)
-gplot3d.layout.princoord<-function(d,layout.par){     
+gplot3d.layout.princoord<-function(d,layout.par){
   d<-as.sociomatrix.sna(d)
   if(is.list(d))
     d<-d[[1]]
@@ -1576,7 +1576,7 @@ gplot3d.layout.princoord<-function(d,layout.par){
   #Find the correlation/covariance matrix
   if(is.null(layout.par$cor)||layout.par$cor)
     cd<-cor(vm,use="pairwise.complete.obs")
-  else    
+  else
     cd<-cov(vm,use="pairwise.complete.obs")
   cd<-replace(cd,is.na(cd),0)
   #Obtain the eigensolution
@@ -1589,7 +1589,7 @@ gplot3d.layout.princoord<-function(d,layout.par){
 
 
 #gplot3d.layout.random - Layout method (random placement) for gplot3d
-gplot3d.layout.random<-function(d,layout.par){     
+gplot3d.layout.random<-function(d,layout.par){
   d<-as.edgelist.sna(d)
   if(is.list(d))
     d<-d[[1]]
@@ -1611,7 +1611,7 @@ gplot3d.layout.random<-function(d,layout.par){
 }
 
 
-#gplot3d.layout.rmds - Layout method (MDS of euclidean row distances) for 
+#gplot3d.layout.rmds - Layout method (MDS of euclidean row distances) for
 #gplot3d
 gplot3d.layout.rmds<-function(d,layout.par){
   if(is.null(layout.par))
@@ -1646,57 +1646,57 @@ gplot3d.layout.seham<-function(d,layout.par){
 }
 
 
-#gplot3d.loop - Draw a three-dimensional "loop" at position a, with specified 
+#gplot3d.loop - Draw a three-dimensional "loop" at position a, with specified
 #characteristics.
 gplot3d.loop<-function(a,radius,color="white",alpha=1){
   #First, define an internal routine to make triangle coords
   make.coords<-function(a,radius){
     coord<-rbind(
       cbind(
-        a[1]+c(0,-radius/2,0), 
-        a[2]+c(0,radius/2,radius/2), 
+        a[1]+c(0,-radius/2,0),
+        a[2]+c(0,radius/2,radius/2),
         a[3]+c(0,0,radius/4),
         c(NA,NA,NA)
       ),
       cbind(
-        a[1]+c(0,-radius/2,0), 
-        a[2]+c(0,radius/2,radius/2), 
+        a[1]+c(0,-radius/2,0),
+        a[2]+c(0,radius/2,radius/2),
         a[3]+c(0,0,-radius/4),
         c(NA,NA,NA)
       ),
       cbind(
-        a[1]+c(0,radius/2,0), 
-        a[2]+c(0,radius/2,radius/2), 
+        a[1]+c(0,radius/2,0),
+        a[2]+c(0,radius/2,radius/2),
         a[3]+c(0,0,radius/4),
         c(NA,NA,NA)
       ),
       cbind(
-        a[1]+c(0,radius/2,0), 
-        a[2]+c(0,radius/2,radius/2), 
+        a[1]+c(0,radius/2,0),
+        a[2]+c(0,radius/2,radius/2),
         a[3]+c(0,0,-radius/4),
         c(NA,NA,NA)
       ),
       cbind(
-        a[1]+c(0,-radius/2,0), 
-        a[2]+c(radius,radius/2,radius/2), 
+        a[1]+c(0,-radius/2,0),
+        a[2]+c(radius,radius/2,radius/2),
         a[3]+c(0,0,radius/4),
         c(NA,NA,NA)
       ),
       cbind(
-        a[1]+c(0,-radius/2,0), 
-        a[2]+c(radius,radius/2,radius/2), 
+        a[1]+c(0,-radius/2,0),
+        a[2]+c(radius,radius/2,radius/2),
         a[3]+c(0,0,-radius/4),
         c(NA,NA,NA)
       ),
       cbind(
-        a[1]+c(0,radius/2,0), 
-        a[2]+c(radius,radius/2,radius/2), 
+        a[1]+c(0,radius/2,0),
+        a[2]+c(radius,radius/2,radius/2),
         a[3]+c(0,0,radius/4),
         c(NA,NA,NA)
       ),
       cbind(
-        a[1]+c(0,radius/2,0), 
-        a[2]+c(radius,radius/2,radius/2), 
+        a[1]+c(0,radius/2,0),
+        a[2]+c(radius,radius/2,radius/2),
         a[3]+c(0,0,-radius/4),
         c(NA,NA,NA)
       )
@@ -1704,8 +1704,8 @@ gplot3d.loop<-function(a,radius,color="white",alpha=1){
   }
   #Expand argument vectors if needed
   if(is.null(dim(a))){
-    a<-matrix(a,nc=3)
-  }  
+    a<-matrix(a,ncol=3)
+  }
   n<-NROW(a)
   radius<-rep(radius,length=n)
   color<-rep(color,length=n)
@@ -1719,10 +1719,10 @@ gplot3d.loop<-function(a,radius,color="white",alpha=1){
 }
 
 
-#plot.sociomatrix - An odd sort of plotting routine; plots a matrix (e.g., a 
-#Bernoulli graph density, or a set of adjacencies) as an image.  Very handy for 
+#plot.sociomatrix - An odd sort of plotting routine; plots a matrix (e.g., a
+#Bernoulli graph density, or a set of adjacencies) as an image.  Very handy for
 #visualizing large valued matrices...
-plot.sociomatrix<-function(x,labels=NULL,drawlab=TRUE,diaglab=TRUE,drawlines=TRUE,xlab=NULL,ylab=NULL,cex.lab=1,...){       
+plot.sociomatrix<-function(x,labels=NULL,drawlab=TRUE,diaglab=TRUE,drawlines=TRUE,xlab=NULL,ylab=NULL,cex.lab=1,...){
    #Begin preprocessing
    if((!(class(x)%in%c("matrix","array","data.frame")))||(length(dim(x))>2))
      x<-as.sociomatrix.sna(x)
@@ -1739,7 +1739,7 @@ plot.sociomatrix<-function(x,labels=NULL,drawlab=TRUE,diaglab=TRUE,drawlines=TRU
      else
        labels[[1]]<-rownames(x)
    }
-   if(is.null(labels[[2]])){ 
+   if(is.null(labels[[2]])){
      if(is.null(colnames(x)))
        labels[[2]]<-1:dim(x)[2]
      else

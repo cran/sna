@@ -1,7 +1,7 @@
 7dc1a94a308cb8ec40b81a9c376c738d *CONTRIBUTORS
 9ba5884ddab488cf320c3989f1c882ff *COPYING
 a41b4a28da314852962a1aa9c6e49534 *ChangeLog
-ff0c9c4f01a8d792b1c804299a857d6b *DESCRIPTION
+0dbfc310fdee0ac4bcd30a8c7b4dd370 *DESCRIPTION
 4afcba807dbe3ac044e626952117c0e2 *INDEX
 df86f4b2b0a23fe7d2c943c3b5e116f8 *NAMESPACE
 468fbdaef052883a99e55b9981d38ee2 *R/connectivity.R
@@ -16,7 +16,7 @@ c35d573249057e02eb52fe1040afe0a9 *R/permutation.R
 47d2d16c931e889c5e08edcf26dfa1e7 *R/randomgraph.R
 e2ee32378c97fa096d064713def629b8 *R/roles.R
 647644838a3178651454ac807f3820a0 *R/sna-operators.R
-85a9b866e310f1f41857657281a4abf0 *R/visualization.R
+22a9c1fe23b78495b42d3e513544ddf1 *R/visualization.R
 417b3ab638faeb3dcffecab3b7592f55 *data/coleman.RData
 d0d2b588bf2ad1a69f2ce1cde9f6535a *man/add.isolates.Rd
 8c55a95054368e16d2871b916524dc33 *man/bbnam.Rd
