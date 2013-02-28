@@ -3,7 +3,7 @@
 # sna-operators.R
 #
 # copyright (c) 2004, Carter T. Butts <buttsc@uci.edu>
-# Last Modified 6/7/09
+# Last Modified 2/27/13
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/sna package
@@ -56,7 +56,7 @@ gapply<-function(X,MARGIN,STATS,FUN,...,mode="digraph",diag=FALSE,distance=1,thr
     X[lower.tri(X)]<-FALSE
   #Extract the relevant stats
   if(!is.matrix(STATS))
-    STATS<-matrix(STATS,nc=1)
+    STATS<-matrix(STATS,ncol=1)
   if(length(MARGIN)==1){
     if(MARGIN==1)
       stats<-apply(X,1,function(x){STATS[x,]})

@@ -1,6 +1,7 @@
 \name{sna-coercion}
 \alias{as.edgelist.sna}
 \alias{as.sociomatrix.sna}
+\alias{is.edgelist.sna}
 %- Also NEED an `\alias' for EACH other topic documented here.
 \title{ sna Coercion Functions }
 \description{
@@ -9,7 +10,8 @@
 \usage{
 as.sociomatrix.sna(x, attrname=NULL, simplify=TRUE, force.bipartite=FALSE)
 as.edgelist.sna(x, attrname = NULL, as.digraph = TRUE, 
-    suppress.diag = FALSE, force.bipartite = FALSE) 
+    suppress.diag = FALSE, force.bipartite = FALSE)
+is.edgelist.sna(x)
 }
 \arguments{
   \item{x}{network data in any of several acceptable forms (see below).}
@@ -26,6 +28,8 @@ The \code{\link{sna}} coercion functions are normally called internally within u
 \code{as.sociomatrix.sna} takes one or more input graphs, and returns them in adjacency matrix (and/or array) form.  If \code{simplify==TRUE}, consolidation of matrices having the same dimensions into adjacency arrays is attempted; otherwise, elements are returned as lists of matrices/arrays.
 
 \code{as.edgelist.sna} takes one or more input graphs, and returns them in \code{sna} edgelist form -- i.e., a three-column matrix whose rows represent edges, and whose columns contain (respectively) the sender, receiver, and value of each edge.  (Undirected graphs are generally assumed to be coded as fully mutual digraphs; edges may be listed in any order.)  \code{sna} edgelists must also carry an attribute named \code{n} indicating the number of vertices in the graph, and may optionally contain the attributes \code{vnames} (carrying a vector of vertex names, in order) and/or \code{bipartite} (optionally, containing the number of row vertices in a two-mode network).  If the bipartite attribute is present and non-false, vertices whose numbers are less than or equal to the attribute value are taken to belong to the first mode (i.e., row vertices), and those of value greater than the attribute are taken to belong to the second mode (i.e., column vertices).  Note that the \code{bipartite} attribute is not strictly necessary to represent two-mode data, and may not be utilized by all \code{\link{sna}} functions.
+
+\code{is.edgelist.sna} returns \code{TRUE} if its argument is a \code{sna} edgelist, or \code{FALSE} otherwise; if called with a list, this check is performed (recursively) on the list elements.
 
 Data for \code{sna} coercion routines may currently consist of any combination of standard or sparse (via \code{SparseM}) adjacency matrices or arrays, \code{\link[network]{network}} objects, or \code{sna} edgelists.  If multiple items are given, they must be contained within a \code{\link{list}}.  Where adjacency arrays are specified, they must be in three-dimensional form, with dimensions given in graph/sender/receiver order.  Matrices or arrays having different numbers of rows and columns are taken to be two-mode adjacency structures, and are treated accordingly; setting \code{force.bipartite} will cause square matrices to be treated in similar fashion.  In the case of \code{\link[network]{network}} or \code{sna} edgelist matrices, bipartition information is normally read from the object's internal properties.
 }

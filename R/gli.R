@@ -3,7 +3,7 @@
 # gli.R
 #
 # copyright (c) 2004, Carter T. Butts <buttsc@uci.edu>
-# Last Modified 6/25/09
+# Last Modified 2/27/13
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/sna package
@@ -113,7 +113,7 @@ dyad.census<-function(dat,g=NULL){
      man<-intcalc(dat)
    }
    if(length(man)==3)
-     man<-matrix(man,nr=1)
+     man<-matrix(man,nrow=1)
    colnames(man)<-c("Mut","Asym","Null")
    #Return the result
    man
@@ -200,7 +200,7 @@ gden<-function(dat,g=NULL,diag=FALSE,mode="digraph",ignore.eval=FALSE){
 
 
 #grecip - Compute the reciprocity of an input graph or graph stack.
-grecip<-function(dat,g=NULL,measure=c("dyadic","dyadic.nonnull","edgewise","edgewise.lrr")){
+grecip<-function(dat,g=NULL,measure=c("dyadic","dyadic.nonnull","edgewise","edgewise.lrr","correlation")){
   #Pre-process the raw input
   dat<-as.edgelist.sna(dat)
   if(is.list(dat)){
@@ -208,19 +208,135 @@ grecip<-function(dat,g=NULL,measure=c("dyadic","dyadic.nonnull","edgewise","edge
       dat<-dat[g]
   }
   #End pre-processing
-  dc<-dyad.census(dat)   #Obtain the dyad census for all specified graphs
-  #Return the appropriate measure
-  switch(match.arg(measure),
-    dyadic=(dc[,1]+dc[,3])/(dc[,1]+dc[,2]+dc[,3]),
-    dyadic.nonnull=dc[,1]/(dc[,1]+dc[,2]),
-    edgewise=2*dc[,1]/(2*dc[,1]+dc[,2]),
-    edgewise.lrr=log(dc[,1]*(dc[,1]+dc[,2]+dc[,3])/(dc[,1]+dc[,2]/2)^2)
-  )
+  if(match.arg(measure)=="correlation"){       #Correlation measure
+    if(!is.list(dat))                            #For simplicity, coerce to list
+      dat<-list(dat)
+    recip<-sapply(dat,function(z){             #Compute the measure
+      n<-attr(z,"n")                           #Get counts
+      nd<-choose(n,2)
+      ne<-nd*2
+      z<-z[z[,1]!=z[,2],,drop=FALSE]             #Remove loops
+      #Handle a zillion special cases
+      if(n<2){                                     #Only defined if n>1
+        return(NA)
+      }else if(n==2){                              #No var for n=2, make 0/1
+        if(NROW(z)==0)
+          return(1)
+        else if(any(is.na(z[,3])))
+          return(NA)
+        else if(NROW(z)==1){
+          if(z[1,3]!=0)
+            return(0)
+          else
+            return(1)
+        }else
+          return((z[1,3]==z[2,3])+0)
+      }
+      #More general case
+      if(NROW(z)>0){                             #Process edges
+        emiss<-sum(is.na(z[,3]))                   #Missing edge count
+        gm<-sum(z[,3],na.rm=TRUE)/(ne-emiss)       #Get graph mean and var
+        gv<-(sum((z[,3]-gm)^2,na.rm=TRUE)+(ne-NROW(z))*gm^2)/(ne-emiss-1)
+        if(gv==0)                                  #If var 0, treat as corr 1
+          return(1)
+        dc<-.C("dyadcode_R",as.double(z),as.integer(n),as.integer(NROW(z)), dc=as.double(rep(0,NROW(z))),PACKAGE="sna",NAOK=TRUE)$dc
+        odc<-order(dc)
+        zv<-z[odc,3]-gm  #Order by dyad ID, subtract graph mean
+        dc<-dc[odc]
+        dsum<-0          #Compute the product-moment correlation
+        dmiss<-0
+        dcount<-0
+        i<-1
+        while(i<=length(zv)){
+          if((i<length(zv))&&(dc[i]==dc[i+1])){    #Two obs per dyad
+            if(is.na(zv[i])||is.na(zv[i+1]))
+              dmiss<-dmiss+1
+            else{
+              dsum<-dsum+zv[i]*zv[i+1]
+              dcount<-dcount+1
+            }
+            i<-i+2
+          }else{                 #One obs per dyad (other is 0, by defn)
+            if(is.na(zv[i]))
+              dmiss<-dmiss+1
+            else{
+              dsum<-dsum-gm*zv[i]
+              dcount<-dcount+1
+            }
+            i<-i+1
+          }
+        }
+        return(2*(dsum+gm^2*(nd-dcount-dmiss))/((2*nd-2*dmiss-1)*gv))
+      }else{
+        return(1)                                #All zeros - treat as corr 1
+      }
+    })
+  }else{                                       #All other measures
+    dc<-dyad.census(dat)   #Obtain the dyad census for all specified graphs
+    #Compute the appropriate measure
+    recip<-switch(match.arg(measure),
+      dyadic=(dc[,1]+dc[,3])/(dc[,1]+dc[,2]+dc[,3]),
+      dyadic.nonnull=dc[,1]/(dc[,1]+dc[,2]),
+      edgewise=2*dc[,1]/(2*dc[,1]+dc[,2]),
+      edgewise.lrr=log(dc[,1]*(dc[,1]+dc[,2]+dc[,3])/(dc[,1]+dc[,2]/2)^2)
+    )
+  }
+  #Return the result
+  recip
 }
 
 
 #gtrans - Compute the transitivity of an input graph or graph stack.
-gtrans<-function(dat,g=NULL,diag=FALSE,mode="digraph",measure=c("weak","strong","weakcensus","strongcensus"),use.adjacency=TRUE){
+gtrans<-function(dat,g=NULL,diag=FALSE,mode="digraph",measure=c("weak","strong","weakcensus","strongcensus","rank","correlation"),use.adjacency=TRUE){
+  #Perform some very crude triage - if we know the data format, and if
+  #adjacency processing is obviously a bad idea, default back to edgelists
+  if(use.adjacency&&(!(match.arg(measure)%in%c("correlation","rank")))){
+    adjisok<-function(z){       #Is it OK to use adjacency (as far as we know?)
+      if(is.edgelist.sna(z)){
+        if(attr(z,"n")>40000)
+          FALSE
+        else if((attr(z,"n")>1000)&&(NROW(z)/attr(z,"n")^2<0.5))
+          FALSE
+        else
+          TRUE
+      }else if(class(z)=="matrix"){
+        if(NCOL(z)>1000)
+          FALSE
+        else
+          TRUE
+      }else if(class(z)=="array"){
+        if(dim(z)[2]>1000)
+          FALSE
+        else
+          TRUE
+      }else if(class(z)=="network"){
+        require(network)
+        if(network.size(z)>40000)
+          FALSE
+        else if((network.size(z)>1000)&& (network.edgecount(z)/network.size(z)^2<0.5))
+          FALSE
+        else
+          TRUE
+      }else
+        TRUE
+    }
+    if(class(dat)=="list")
+      adjcheck<-sapply(dat,adjisok)
+    else
+      adjcheck<-adjisok(dat)
+    if(any(!adjcheck)){
+      use.adjacency<-FALSE
+      warning("gtrans called with use.adjacency=TRUE, but your data looks too large for that to work well.  Overriding to edgelist method.")
+    }
+  }
+  if(use.adjacency&&(match.arg(measure)=="rank")){ #Only edgelist for rank
+    use.adjacency<-FALSE
+  }
+  #End crude triage
+  if((!use.adjacency)&&(match.arg(measure)=="correlation")){
+    warning("Currently, non-adjacency computation for the correlation measure is not supported.  Defaulting to use.adjacency==TRUE in gtrans.\n")
+    use.adjacency<-TRUE
+  }
   if(use.adjacency){  #Use adjacency matrix - much faster for n<1000 or dense
     #Pre-process the raw input
     dat<-as.sociomatrix.sna(dat)
@@ -254,8 +370,12 @@ gtrans<-function(dat,g=NULL,diag=FALSE,mode="digraph",measure=c("weak","strong",
     t<-vector()
     for(i in 1:gn){
        #Prepare the transitivity test matrices
-       dsqt<-(d[i,,]%*%d[i,,])
-       dt<-d[i,,]>0
+       if(match.arg(measure)!="correlation"){
+         dt<-d[i,,]!=0
+       }else{
+         dt<-d[i,,]
+       }
+       dsqt<-(dt%*%dt)
        #NA the diagonal, if needed
        if(!diag){
           diag(dt)<-NA
@@ -266,7 +386,16 @@ gtrans<-function(dat,g=NULL,diag=FALSE,mode="digraph",measure=c("weak","strong",
           strong=sum(dt*dsqt+(!dt)*(NCOL(d[i,,])-2-dsqt),na.rm=TRUE) / (choose(NCOL(d[i,,]),3)*6),
           strongcensus=sum(dt*dsqt+(!dt)*(NCOL(d[i,,])-2-dsqt),na.rm=TRUE),
           weak=sum(dt*dsqt,na.rm=TRUE)/sum(dsqt,na.rm=TRUE),
-          weakcensus=sum(dt*dsqt,na.rm=TRUE)
+          weakcensus=sum(dt*dsqt,na.rm=TRUE),
+          correlation=(function(x,y){
+            tv<-var(x,use="pairwise.complete.obs")* var(y,use="pairwise.complete.obs")
+            if(is.na(tv))
+              NA
+            else if(tv==0)
+              all(x==y,na.rm=TRUE)+0
+            else
+              cor(x,y,use="pairwise.complete.obs")
+          })(x=as.vector(dt),y=as.vector(dsqt))
        )
        if(is.nan(t[i]))  #By convention, map undefined case to 1
          t[i]<-1
@@ -284,14 +413,17 @@ gtrans<-function(dat,g=NULL,diag=FALSE,mode="digraph",measure=c("weak","strong",
     #End pre-processing
     if(attr(dat,"n")<3)          #Consider vacuously transitive if n<3
       return(1)
-    measure<-match.arg(measure)
-    if(measure%in%c("weak","weakcensus"))
-      weak<-1
-    else
-      weak<-0
-    gt<-.C("transitivity_R",as.double(dat),as.integer(attr(dat,"n")), as.integer(NROW(dat)),gt=as.double(c(0,0)),as.integer(weak),as.integer(1),NAOK=TRUE,PACKAGE="sna")$gt
-    if(measure%in%c("weak","strong")){
-      if(gt[2]==0)                 #By convention, return 1 if no preconditions
+    meas<-switch(match.arg(measure),
+      "strong"=0,
+      "strongcensus"=0,
+      "weak"=1,
+      "weakcensus"=1,
+      "rank"=2,
+      "correlation"=3
+    )
+    gt<-.C("transitivity_R",as.double(dat),as.integer(attr(dat,"n")), as.integer(NROW(dat)),gt=as.double(c(0,0)),as.integer(meas),as.integer(1),NAOK=TRUE,PACKAGE="sna")$gt
+    if(match.arg(measure)%in%c("weak","strong","rank")){
+      if(gt[2]==0)              #By convention, return 1 if no preconditions
         1
       else
         gt[1]/gt[2]
@@ -400,7 +532,7 @@ triad.census<-function(dat,g=NULL,mode=c("digraph","graph")){
      dat<-list(dat)
    rnam<-names(dat)
    gm<-as.integer(switch(match.arg(mode),graph=0,digraph=1))
-   tcm<-matrix(nr=length(dat),nc=length(tc))
+   tcm<-matrix(nrow=length(dat),ncol=length(tc))
    for(i in 1:length(dat)){
      n<-as.integer(attr(dat[[i]],"n"))
      m<-as.integer(NROW(dat[[i]]))

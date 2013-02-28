@@ -4,7 +4,7 @@
 # triads.h
 #
 # copyright (c) 2004, Carter T. Butts <buttsc@uci.edu>
-# Last Modified 3/27/09
+# Last Modified 6/26/11
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/sna package
@@ -33,7 +33,7 @@ int triad_classify_el(snaNet *g, int i, int j, int k, int gm, int checkmissing);
 
 /*R-CALLABLE ROUTINES-------------------------------------------------------*/
 
-void transitivity_R(double *mat, int *n, int *m, double *t, int *weak, int *checkna);
+void transitivity_R(double *mat, int *n, int *m, double *t, int *meas, int *checkna);
 
 void triad_census_R(double *g, int *n, int *m, double *t, int *gm, int *checkna);
 

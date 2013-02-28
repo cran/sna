@@ -3,7 +3,7 @@
 # randomgraph.R
 #
 # copyright (c) 2004, Carter T. Butts <buttsc@uci.edu>
-# Last Modified 4/14/10
+# Last Modified 2/27/13
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/sna package
@@ -121,7 +121,7 @@ rgnm<-function(n,nv,m,mode="digraph",diag=FALSE,return.as.edgelist=FALSE){
       if(m>0)
         stop("Too many edges requested in rgnm.")
       else{
-        mat<-matrix(nr=0,nc=3)
+        mat<-matrix(nrow=0,ncol=3)
         attr(mat,"n")<-0
       }
       g[[i]]<-mat
@@ -129,10 +129,10 @@ rgnm<-function(n,nv,m,mode="digraph",diag=FALSE,return.as.edgelist=FALSE){
       if(m>diag)
         stop("Too many edges requested in rgnm.")
       if(diag){
-        mat<-matrix(c(1,1,1),nr=1,nc=3)
+        mat<-matrix(c(1,1,1),nrow=1,ncol=3)
         attr(mat,"n")<-1
       }else{
-        mat<-matrix(nr=0,nc=3)
+        mat<-matrix(nrow=0,ncol=3)
         attr(mat,"n")<-1
       }
       g[[i]]<-mat
@@ -149,7 +149,7 @@ rgnm<-function(n,nv,m,mode="digraph",diag=FALSE,return.as.edgelist=FALSE){
           mat<-rbind(mat,mat[mat[,1]!=mat[,2],c(2,1,3),drop=FALSE])
         attr(mat,"n")<-nv
       }else{
-        mat<-matrix(nr=0,nc=3)
+        mat<-matrix(nrow=0,ncol=3)
         attr(mat,"n")<-nv
       }
       g[[i]]<-mat

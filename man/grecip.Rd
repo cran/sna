@@ -7,16 +7,22 @@
 }
 \usage{
 grecip(dat, g = NULL, measure = c("dyadic", "dyadic.nonnull",
-    "edgewise", "edgewise.lrr"))
+    "edgewise", "edgewise.lrr", "correlation"))
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
   \item{dat}{ one or more input graphs. }
   \item{g}{ a vector indicating which graphs to evaluate (optional). }
-  \item{measure}{ one of \code{"dyadic"} (default), \code{"dyadic.nonnull"}, \code{"edgewise"}, or \code{"edgewise.lrr"}. }
+  \item{measure}{ one of \code{"dyadic"} (default), \code{"dyadic.nonnull"}, \code{"edgewise"}, \code{"edgewise.lrr"}, or \code{"correlation"}. }
 }
 \details{
-  The dyadic reciprocity of a graph is the proportion of dyads which are symmetric; this is computed and returned by \code{grecip} for the graphs indicated.  (\code{dyadic.nonnull} returns the ratio of mutuals to non-null dyads.)  Note that the dyadic reciprocity is distinct from the \emph{edgewise} or \emph{tie reciprocity}, which is the proportion of \emph{edges} which are reciprocated.  This latter form may be obtained by setting \code{measure="edgewise"}.  Setting \code{measure="edgewise.lrr"} returns the log of the ratio of the edgewise reciprocity to the density; this is measure (called \eqn{r_4} by Butts (2008)) can be interpreted as the relative log-odds of an edge given a reciprocation, versus the baseline probability of an edge.
+The dyadic reciprocity of a graph is the proportion of dyads which are symmetric; this is computed and returned by \code{grecip} for the graphs indicated.  (\code{dyadic.nonnull} returns the ratio of mutuals to non-null dyads.)  Note that the dyadic reciprocity is distinct from the \emph{edgewise} or \emph{tie reciprocity}, which is the proportion of \emph{edges} which are reciprocated.  This latter form may be obtained by setting \code{measure="edgewise"}.  Setting \code{measure="edgewise.lrr"} returns the log of the ratio of the edgewise reciprocity to the density; this is measure (called \eqn{r_4} by Butts (2008)) can be interpreted as the relative log-odds of an edge given a reciprocation, versus the baseline probability of an edge.  Finally, \code{measure="correlation"} returns the correlation between within-dyad edge values, where this is defined by
+  \deqn{\frac{2\sum_{\{i,j\}} (Y_{ij}-\mu_G)(Y_{ji}-\mu_G)}{(2N_d-1) \sigma^2_G}}{%
+    2*(sum_{i,j} (Y_ij-mu_G)*(Y_ji-mu_G))/((2*N_d-1)*sigma^2_G)
+  }
+with \eqn{Y} being the graph adjacency matrix, \eqn{\mu_G}{mu_G} being the mean non-loop edge value, \eqn{\sigma^2_G}{sigma^2_G} being the variance of non-loop edge values, and \eqn{N_d} being the number of dyads.  (Note that this quantity is unaffected by dyad orientation.)  The correlation measure may be interpreted as the net tendency for edges of similar relative value (with respect to the mean edge value) to occur within the same dyads.  For dichotomous data, adjacencies are interpreted as having values of 0 (no edge present) or 1 (edge present), but edge values are used where supplied.  In cases where all edge values are identical (e.g., the complete or empty graph), the correlation reciprocity is taken to be 1 by definition.
+
+Note that \code{grecip} calculates values based on non-missing data; dyads containing missing data are removed from consideration when calculating reciprocity scores (except for the correlation measure, which uses non-missing edges within missing dyads when calculating the graph mean and variance).
 }
 \value{
   The graph reciprocity value(s)

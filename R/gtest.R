@@ -3,7 +3,7 @@
 # gtest.R
 #
 # copyright (c) 2004, Carter T. Butts <buttsc@uci.edu>
-# Last Modified 6/7/09
+# Last Modified 2/27/13
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/sna package
@@ -62,7 +62,7 @@ cug.test<-function(dat,FUN,mode=c("digraph","graph"),cmode=c("size","edges","dya
     #Generate randomization functions
     getstat<-function(d){do.call(fun,c(list(d),FUN.args))}
     drawrep<-switch(cmode,
-      size=function(n,...){rgraph(n,1,mode=mode,diag=diag,tp=0.5, return.as.edgelist=TRUE)},
+      size=function(n,...){rgraph(n,1,mode=mode,diag=diag,tprob=0.5, return.as.edgelist=TRUE)},
       edges=function(n,m,...){rgnm(n=1,nv=n,m=m,mode=mode,diag=diag, return.as.edgelist=TRUE)},
       dyad.census=function(n,dc,...){rguman(n=1,nv=n,mut=dc[1],asym=dc[2], null=dc[3],method="exact",return.as.edgelist=TRUE)},
     )
@@ -81,7 +81,7 @@ cug.test<-function(dat,FUN,mode=c("digraph","graph"),cmode=c("size","edges","dya
     cmode<-match.arg(cmode)
     getstat<-function(d){do.call(fun,c(list(d),FUN.args))}
     drawrep<-switch(cmode,
-      size=function(n,...){rgraph(n,1,mode=mode,diag=diag,tp=0.5)},
+      size=function(n,...){rgraph(n,1,mode=mode,diag=diag,tprob=0.5)},
       edges=switch(mode,
         digraph=function(n,...){g<-dat; 
           g[upper.tri(g,diag=diag)|lower.tri(g)]<- sample(g[upper.tri(g,diag=diag)|lower.tri(g)]); g

@@ -3,7 +3,7 @@
 # connectivity.R
 #
 # copyright (c) 2004, Carter T. Butts <buttsc@uci.edu>
-# Last Modified 11/21/10
+# Last Modified 2/27/13
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/sna package
@@ -530,7 +530,7 @@ maxflow<-function(dat,src=NULL,sink=NULL,ignore.eval=FALSE){
     sink<-1:n
   else
     sink<-sink[(sink>0)&(sink<=n)]
-  fmat<-matrix(nr=length(src),nc=length(sink))
+  fmat<-matrix(nrow=length(src),ncol=length(sink))
   for(i in 1:length(src))
     for(j in 1:length(sink))
       fmat[i,j]<-.C("maxflow_EK_R",as.double(dat),as.integer(NROW(dat)), as.integer(src[i]-1),as.integer(sink[j]-1),flow=as.double(0),NAOK=TRUE,PACKAGE="sna")$flo

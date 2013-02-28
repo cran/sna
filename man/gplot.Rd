@@ -7,20 +7,20 @@
 }
 \usage{
 gplot(dat, g = 1, gmode = "digraph", diag = FALSE, 
-    label = NULL, coord = NULL, jitter = TRUE, thresh = 0,
-    usearrows = TRUE, mode = "fruchtermanreingold", 
+    label = NULL, coord = NULL, jitter = TRUE, thresh = 0, 
+    thresh.absval=TRUE, usearrows = TRUE, mode = "fruchtermanreingold", 
     displayisolates = TRUE, interactive = FALSE, interact.bycomp = FALSE,
     xlab = NULL, ylab = NULL, xlim = NULL, ylim = NULL, pad = 0.2, 
     label.pad = 0.5, displaylabels = !is.null(label), boxed.labels = FALSE, 
-    label.pos = 0, label.bg = "white", vertex.sides = NULL, vertex.rot = 0,
-    arrowhead.cex = 1, label.cex = 1, loop.cex = 1, vertex.cex = 1,
-    edge.col = 1, label.col = 1, vertex.col = NULL, label.border = 1,
-    vertex.border = 1, edge.lty = 1, label.lty = NULL, vertex.lty = 1,
-    edge.lwd = 0, label.lwd = par("lwd"), edge.len = 0.5, 
-    edge.curve = 0.1, edge.steps = 50, loop.steps = 20, 
-    object.scale = 0.01, uselen = FALSE, usecurve = FALSE,
-    suppress.axes = TRUE, vertices.last = TRUE, new = TRUE, 
-    layout.par = NULL, ...)
+    label.pos = 0, label.bg = "white", vertex.enclose = FALSE, 
+    vertex.sides = NULL, vertex.rot = 0, arrowhead.cex = 1, label.cex = 1, 
+    loop.cex = 1, vertex.cex = 1, edge.col = 1, label.col = 1, 
+    vertex.col = NULL, label.border = 1, vertex.border = 1, edge.lty = NULL,
+    edge.lty.neg=2, label.lty = NULL, vertex.lty = 1, edge.lwd = 0, 
+    label.lwd = par("lwd"), edge.len = 0.5, edge.curve = 0.1, 
+    edge.steps = 50, loop.steps = 20, object.scale = 0.01, uselen = FALSE, 
+    usecurve = FALSE, suppress.axes = TRUE, vertices.last = TRUE, 
+    new = TRUE, layout.par = NULL, ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -31,7 +31,8 @@ gplot(dat, g = 1, gmode = "digraph", diag = FALSE,
   \item{label}{ a vector of vertex labels, if desired; defaults to the vertex index number. }
   \item{coord}{ user-specified vertex coordinates, in an NCOL(dat)x2 matrix.  Where this is specified, it will override the \code{mode} setting. }
   \item{jitter}{ boolean; should the output be jittered? }
-  \item{thresh}{ real number indicating the lower threshold for tie values.  Only ties of value >\code{thresh} are displayed.  By default, \code{thresh}=0.}
+  \item{thresh}{ real number indicating the lower threshold for tie values.  Only ties of value >\code{thresh} (by default in absolute value - see \code{thresh.absval})are displayed.  By default, \code{thresh}=0.}
+  \item{thresh.absval}{ boolean; should the absolute value of edge weights be used when thresholding?  (Defaults to TRUE; setting to FALSE leads to thresholding by signed weights.)}
   \item{usearrows}{ boolean; should arrows (rather than line segments) be used to indicate edges? }
   \item{mode}{ the vertex placement algorithm; this must correspond to a \code{\link{gplot.layout}} function. }
   \item{displayisolates}{ boolean; should isolates be displayed? }
@@ -47,7 +48,8 @@ gplot(dat, g = 1, gmode = "digraph", diag = FALSE,
   \item{boxed.labels}{ boolean; place vertex labels within boxes? }
   \item{label.pos}{ position at which labels should be placed, relative to vertices.  \code{0} results in labels which are placed away from the center of the plotting region; \code{1}, \code{2}, \code{3}, and \code{4} result in labels being placed below, to the left of, above, and to the right of vertices (respectively); and \code{label.pos>=5} results in labels which are plotted with no offset (i.e., at the vertex positions). }
   \item{label.bg}{ background color for label boxes (if \code{boxed.labels==TRUE}); may be a vector, if boxes are to be of different colors.}
-  \item{vertex.sides}{ number of polygon sides for vertices; may be given as a vector, if vertices are to be of different types.  By default, 8 sides are used (or 8 and 4, for two-mode data).}
+  \item{vertex.enclose}{ boolean; should vertices be enclosed within circles?  (Can increase legibility for polygonal vertices.)}
+  \item{vertex.sides}{ number of polygon sides for vertices; may be given as a vector, if vertices are to be of different types.  By default, 50 sides are used (or 50 and 4, for two-mode data).}
   \item{vertex.rot}{ angle of rotation for vertices (in degrees); may be given as a vector, if vertices are to be rotated differently. }
   \item{arrowhead.cex}{ expansion factor for edge arrowheads.}
   \item{label.cex}{ character expansion factor for label text. }
@@ -58,7 +60,8 @@ gplot(dat, g = 1, gmode = "digraph", diag = FALSE,
   \item{vertex.col}{ color for vertices; may be given as a vector, if vertices are to be of different colors.  By default, red is used (or red and blue, for two-mode data).}
   \item{label.border}{ label border colors (if \code{boxed.labels==TRUE}); may be given as a vector, if label boxes are to have different colors. }
   \item{vertex.border}{ border color for vertices; may be given as a vector, if vertex borders are to be of different colors. }
-  \item{edge.lty}{ line type for edge borders; may be given as a vector or adjacency matrix, if edge borders are to have different line types. }
+  \item{edge.lty}{ line type for (positive weight) edges; may be given as a vector or adjacency matrix, if edges are to have different line types. }
+  \item{edge.lty.neg}{ line type for negative weight edges, if any; may be given as per \code{edge.lty}.} 
   \item{label.lty}{ line type for label boxes (if \code{boxed.labels==TRUE}); may be given as a vector, if label boxes are to have different line types. }
   \item{vertex.lty}{ line type for vertex borders; may be given as a vector or adjacency matrix, if vertex borders are to have different line types. }
   \item{edge.lwd}{ line width scale for edges; if set greater than 0, edge widths are scaled by \code{edge.lwd*dat}.  May be given as a vector or adjacency matrix, if edges are to have different line widths. }
@@ -79,7 +82,7 @@ gplot(dat, g = 1, gmode = "digraph", diag = FALSE,
 \details{
 \code{gplot} is the standard network visualization tool within the \code{sna} library.  By means of clever selection of display parameters, a fair amount of display flexibility can be obtained.  Graph layout -- if not specified directly using \code{coord} -- is determined via one of the various available algorithms.  These should be specified via the \code{mode} argument; see \code{\link{gplot.layout}} for a full list.  User-supplied layout functions are also possible -- see the aforementioned man page for details.
 
-Note that where \code{gmode=="twomode"}, the supplied two-mode network is converted to bipartite form prior to computing coordinates (if not in that form already).  \code{vertex.col} or other settings may be used to differentiate row and column vertices -- by default, row vertices are drawn as red octagons, and column vertices are rendered as blue squares.  If \code{interactive==TRUE}, then the user may modify the initial graph layout by selecting an individual vertex and then clicking on the location to which this vertex is to be moved; this process may be repeated until the layout is satisfactory.  If \code{interact.bycomp==TRUE} as well, the vertex and all other vertices in the same component as that vertex are moved together.
+Note that where \code{gmode=="twomode"}, the supplied two-mode network is converted to bipartite form prior to computing coordinates (if not in that form already).  \code{vertex.col} or other settings may be used to differentiate row and column vertices -- by default, row vertices are drawn as red circles, and column vertices are rendered as blue squares.  If \code{interactive==TRUE}, then the user may modify the initial graph layout by selecting an individual vertex and then clicking on the location to which this vertex is to be moved; this process may be repeated until the layout is satisfactory.  If \code{interact.bycomp==TRUE} as well, the vertex and all other vertices in the same component as that vertex are moved together.
 }
 \value{
 A two-column matrix containing the vertex positions as x,y coordinates.  

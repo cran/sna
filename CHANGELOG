@@ -1,5 +1,46 @@
 CHANGELOG:
 
+v2.3
+   Bug Fixes:
+     Various changes to R caused installation and loading problems (including
+       invocation of the help browser on load) that have been fixed
+   Changes:
+     gtrans now attempts to perform reasonable triage when 
+       use.adjacency==TRUE; specifically, if it can easily identify the 
+       input data type, it will override the use of the adjacency method for 
+       cases in which its use would obviously be a very bad idea.  This will 
+       have no effect for those with smaller graphs, or who use 
+       use.adjacency==FALSE, but will improve performance for those with 
+       large, sparse graphs who never got around to noticing the 
+       use.adjacency argument
+     as.edgelist.sna uses new network package coercion option, the main 
+       effect of which is to ensure that missingness is preserved during 
+       coercion; previously, this information was lost (not exactly a bug, 
+       but an unfortunate and sometimes unexpected consequence of the way 
+       that the network package handled edgelist coercion and the fact that 
+       sna relied on it); network v1.7 or later is required for this 
+       functionality, with old behavior preserved for network <=v1.6
+     gplot now uses 50-sided vertices by default (except for two-mode data, 
+       which now by default uses a combination of 4 and 50 sided vertices
+     gplot now uses edge line types to alter the way lines are drawn
+       rather than borders, as before) [contributed by Alex Montgomery]
+     gplot now automagically scales objects based on the number of vertices
+       in the graph 
+   New Functions:
+     is.edgelist.sna - Check to see if a given object is an sna edgelist
+   New Features:
+     gplot now supports a feature (vertex.enclose) to enclose vertices 
+       within circles for greater visibility [contributed by Alex 
+       Montgomery]
+     gplot now supports an argument (thresh.absval) to control whether edge
+       values are thresholded by absolute (default) or signed value
+     gplot now allows edge border line types to be set differently for
+       positive and negative edges [contributed by Alex Montgomery]
+     grecip now supports a correlation-based measure inspired by the
+       work of David Dekker
+     gtrans now supports rank-order and correlation-based measures for
+       valued data (the last implementing a proposal of David Dekker) 
+
 v2.2 - Changes and Bug Fixes
    Changes:
      as.sociomatrix.sna should now handle the new network edgelist format

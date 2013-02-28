@@ -4,7 +4,7 @@
 # triads.c
 #
 # copyright (c) 2004, Carter T. Butts <buttsc@uci.edu>
-# Last Modified 3/27/09
+# Last Modified 2/27/13
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/sna package
@@ -240,13 +240,15 @@ This routine may be called from R using .C.
 }
 
 
-void transitivity_R(double *mat, int *n, int *m, double *t, int *weak, int *checkna)
+void transitivity_R(double *mat, int *n, int *m, double *t, int *meas, int *checkna)
 /*
 Compute transitivity information for the (edgelist) network in mat.  This is
 stored in t, with t[0] being the number of ordered triads at risk for
 transitivity, and t[1] being the number satisfying the condition.  The 
-definition used is controled by weak, with weak==1 implying the weak condition
-(a->b->c => a->c) and weak==0 implying the strong condition (a->b->c <=>a->c).
+definition used is controlled by meas, with meas==1 implying the weak condition
+(a->b->c => a->c), meas==0 implying the strong condition (a->b->c <=>a->c), 
+meas==2 implying the rank condition (a->c >= min(a->b,b->c)), and meas==3
+implying Dekker's correlation measure (cor(a->c,a->b*b->c)).
 If checkna==0, the measures are computed without missingness checks (i.e.,
 treating NA edges as present).  If checkna==1, any triad containing missing
 edges is omitted from the total count.  Finally, if checkna==2, missing edges
@@ -268,37 +270,60 @@ This routine may be called from R using .C.
   t[0]=t[1]=0.0;
 
   /*Get the transitivity information*/
-  if(*weak){                              /*"Weak" form: i->j->k => i->k*/
-    for(i=0;i<g->n;i++){
-      for(jp=snaFirstEdge(g,i,1);jp!=NULL;jp=jp->next[0]){
-        if((i!=(int)(jp->val))&&((*checkna==0)||(!ISNAN(*((double *)(jp->dp)))))){ /*Case 1 acts like case 2 here*/
-          for(kp=snaFirstEdge(g,(int)(jp->val),1);kp!=NULL;kp=kp->next[0]){
-            if(((int)(jp->val)!=(int)(kp->val))&&(i!=(int)(kp->val))&& ((*checkna==0)||(!ISNAN(*((double *)(kp->dp)))))){
-              sik=snaIsAdjacent(i,(int)(kp->val),g,*checkna);
-              if(!IISNA(sik)){  /*Not counting in case 1 (but am in case 2)*/
-                t[0]+=sik;
-                t[1]++;
+  switch(*meas){
+    case 0:                    /*"Strong" form: i->j->k <=> i->k*/
+      for(i=0;i<g->n;i++)
+        for(j=0;j<g->n;j++)
+          if(i!=j){
+            for(k=0;k<g->n;k++)
+              if((j!=k)&&(i!=k)){
+                sij=snaIsAdjacent(i,j,g,*checkna);
+                sjk=snaIsAdjacent(j,k,g,*checkna);
+                sik=snaIsAdjacent(i,k,g,*checkna);
+                if(!(IISNA(sij)||IISNA(sjk)||IISNA(sik))){
+                  t[0]+=sij*sjk*sik+(1-sij*sjk)*(1-sik);
+                  t[1]++;
+                }
+              }
+        }
+      break;
+    case 1:                      /*"Weak" form: i->j->k => i->k*/
+      for(i=0;i<g->n;i++){
+        for(jp=snaFirstEdge(g,i,1);jp!=NULL;jp=jp->next[0]){
+          if((i!=(int)(jp->val))&&((*checkna==0)||(!ISNAN(*((double *)(jp->dp)))))){ /*Case 1 acts like case 2 here*/
+            for(kp=snaFirstEdge(g,(int)(jp->val),1);kp!=NULL;kp=kp->next[0]){
+              if(((int)(jp->val)!=(int)(kp->val))&&(i!=(int)(kp->val))&& ((*checkna==0)||(!ISNAN(*((double *)(kp->dp)))))){
+                sik=snaIsAdjacent(i,(int)(kp->val),g,*checkna);
+                if(!IISNA(sik)){  /*Not counting in case 1 (but am in case 2)*/
+                  t[0]+=sik;
+                  t[1]++;
+                }
               }
             }
           }
         }
       }
-    }
-  }else{                                  /*"Strong" form: i->j->k <=> i->k*/
-    for(i=0;i<g->n;i++)
-      for(j=0;j<g->n;j++)
-        if(i!=j){
-          for(k=0;k<g->n;k++)
-            if((j!=k)&&(i!=k)){
-              sij=snaIsAdjacent(i,j,g,*checkna);
-              sjk=snaIsAdjacent(j,k,g,*checkna);
-              sik=snaIsAdjacent(i,k,g,*checkna);
-              if(!(IISNA(sij)||IISNA(sjk)||IISNA(sik))){
-                t[0]+=sij*sjk*sik+(1-sij*sjk)*(1-sik);
-                t[1]++;
+      break;
+    case 2:                    /*"Rank" form: i->k >= min(i->j,j->k)*/
+      for(i=0;i<g->n;i++){
+        for(jp=snaFirstEdge(g,i,1);jp!=NULL;jp=jp->next[0]){
+          if((i!=(int)(jp->val))&&((*checkna==0)||(!ISNAN(*((double *)(jp->dp)))))){ /*Case 1 acts like case 2 here*/
+            for(kp=snaFirstEdge(g,(int)(jp->val),1);kp!=NULL;kp=kp->next[0]){
+              if(((int)(jp->val)!=(int)(kp->val))&&(i!=(int)(kp->val))&& ((*checkna==0)||(!ISNAN(*((double *)(kp->dp)))))){
+                sik=snaIsAdjacent(i,(int)(kp->val),g,*checkna);
+                if(!IISNA(sik)){  /*Not counting in case 1 (but am in case 2)*/
+                  t[0]+=sik;
+                  t[1]++;
+                }
               }
             }
+          }
+        }
       }
+      break;
+    case 3:                    /*"Corr" form: corr(i->k, i->j * j->k)*/
+      error("Edgelist computation not currently supported for correlation measure in gtrans.\n");
+      break;
   }
 }
 

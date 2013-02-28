@@ -3,7 +3,7 @@
 # dataprep.R
 #
 # copyright (c) 2004, Carter T. Butts <buttsc@uci.edu>
-# Last Modified 11/21/10
+# Last Modified 2/27/13
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/sna package
@@ -22,6 +22,7 @@
 #   gt
 #   gvectorize
 #   interval.graph
+#   is.edgelist.sna
 #   lower.tri.remove
 #   make.stochastic
 #   nties
@@ -73,27 +74,31 @@ as.edgelist.sna<-function(x, attrname=NULL, as.digraph=TRUE, suppress.diag=FALSE
   #Begin with network objects
   if(class(x)=="network"){
     require("network")  #Must have network library to process network objects
-    out<-as.matrix.network.edgelist(x,attrname=attrname)
-    if(NCOL(out)==2)                        #If needed, add edge values
-      out<-cbind(out,rep(1,NROW(out)))
-    if(suppress.diag&&has.loops(x))
-      out<-out[!(out[,1]==out[,2]),]
-    if((!is.directed(x))&&as.digraph){
-      if(has.loops(x)){
-        temp<-out[,1]==out[,2]
-        if(any(temp)){
-          temp2<-out[temp,]
-          out<-out[!temp,]
-          out<-rbind(out,out[,c(2,1,3)])
-          out<-rbind(out,temp2)
+    out<-as.matrix.network.edgelist(x,attrname=attrname,as.sna.edgelist=TRUE)
+    #This should be fine unless we have an old version of network (<1.7);
+    #here, we perform triage for old style objects.
+    if(!("as.sna.edgelist"%in%names(formals(as.matrix.network.edgelist)))){
+      if(NCOL(out)==2)                        #If needed, add edge values
+        out<-cbind(out,rep(1,NROW(out)))
+      if(suppress.diag&&has.loops(x))
+        out<-out[!(out[,1]==out[,2]),]
+      if((!is.directed(x))&&as.digraph){
+        if(has.loops(x)){
+          temp<-out[,1]==out[,2]
+          if(any(temp)){
+            temp2<-out[temp,]
+            out<-out[!temp,]
+            out<-rbind(out,out[,c(2,1,3)])
+            out<-rbind(out,temp2)
+          }else
+            out<-rbind(out,out[,c(2,1,3)])
         }else
           out<-rbind(out,out[,c(2,1,3)])
-      }else
-        out<-rbind(out,out[,c(2,1,3)])
+      }
+      attr(out,"n")<-network.size(x)
+      attr(out,"vnames")<-network.vertex.names(x)
     }
-    attr(out,"n")<-network.size(x)
-    attr(out,"vnames")<-network.vertex.names(x)
-    if(is.bipartite(x))
+    if(is.bipartite(x)) #Unneeded for new objects, but does no harm
       attr(out,"bipartite")<-get.network.attribute(x,"bipartite")
     else if(force.bipartite)
       out<-as.edgelist.sna(out,attrname=attrname,as.digraph=as.digraph, suppress.diag=suppress.diag,force.bipartite=force.bipartite)
@@ -594,7 +599,7 @@ gvectorize<-function(mats,mode="digraph",diag=FALSE,censor.as.na=TRUE){
         mask<-apply(d,1,lower.tri,diag=diag)
       else{
         if(diag)
-          mask<-matrix(TRUE,nr=dim(d)[2]*dim(d)[3],nc=dim(d)[1])
+          mask<-matrix(TRUE,nrow=dim(d)[2]*dim(d)[3],ncol=dim(d)[1])
         else
           mask<-apply(d,1,function(z){diag(NROW(z))==0})
       }
@@ -642,6 +647,23 @@ interval.graph<-function(slist,type="simple",diag=FALSE){
       o$graph<-diag.remove(o$graph,remove.val=0)
    #Return the data structure
    o
+}
+
+
+#is.edgelist.sna - check to see if a data object is an sna edgelist
+is.edgelist.sna<-function(x){
+  if(class(x)=="list")
+    return(sapply(x,is.edgelist.sna))
+  if(!(class(x)%in%c("matrix","array")))
+    FALSE
+  else if(length(dim(x))!=2)
+    FALSE
+  else if(dim(x)[2]!=3)
+    FALSE
+  else if(is.null(attr(x,"n")))
+    FALSE
+  else
+    TRUE
 }
 
 

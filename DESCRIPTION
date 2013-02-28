@@ -1,21 +1,21 @@
 Package: sna
-Version: 2.2-2
-Date: 2010-11-21
+Version: 2.3-1
+Date: 2013-02-28
 Title: Tools for Social Network Analysis
 Author: Carter T. Butts <buttsc@uci.edu>
-Maintainer: ORPHANED
-Depends: R (>= 2.0.0)
-Imports: utils
-Suggests: network, rgl, numDeriv, SparseM, statnet
+Maintainer: Carter T. Butts <buttsc@uci.edu>
+Authors@R: person(given=c("Carter", "T."), family="Butts",
+        role=c("aut","cre","cph"), email = "buttsc@uci.edu")
+Depends: R (>= 2.0.0), utils
+Suggests: network, rgl, numDeriv, SparseM
 Description: A range of tools for social network analysis, including
         node and graph-level indices, structural distance and
-        covariance methods, structural equivalence detection, p*
-        modeling, random graph generation, and 2D/3D network
+        covariance methods, structural equivalence detection, network
+        regression, random graph generation, and 2D/3D network
         visualization.
 License: GPL (>= 2)
-Packaged: 2013-01-10 18:18:05 UTC; ripley
-X-CRAN-Original-Maintainer: Carter T. Butts <buttsc@uci.edu>
-X-CRAN-Comment: Orphaned on 2012-12-21 as the maintainer failed to
-        respond to requests for an update for R >= 2.14.0
+URL: http://www.statnet.org
+Packaged: 2013-03-01 01:45:14 UTC; buttsc
+NeedsCompilation: yes
 Repository: CRAN
-Date/Publication: 2013-01-10 19:22:42
+Date/Publication: 2013-03-02 17:15:39

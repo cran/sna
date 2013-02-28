@@ -3,7 +3,7 @@
 # nli.R
 #
 # copyright (c) 2004, Carter T. Butts <buttsc@uci.edu>
-# Last Modified 6/25/09
+# Last Modified 2/27/13
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/sna package
@@ -395,7 +395,7 @@ infocent <- function(dat,g=1,nodes=NULL,gmode="digraph",diag=FALSE,cmode="weak",
    #End pre-processing
    if(tmaxdev){  #If necessary, return the theoretical maximum deviation
       #We don't know the real maximum value...return the lone dyad instead
-      m<-matrix(0,nr=dim(dat)[2],nc=dim(dat)[2])
+      m<-matrix(0,nrow=dim(dat)[2],ncol=dim(dat)[2])
       m[1,2]<-1
       m[2,1]<-1
       IC<-infocent(m,1,rescale=rescale)  #Get ICs for dyad

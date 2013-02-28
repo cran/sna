@@ -3,7 +3,7 @@
 # models.R
 #
 # copyright (c) 2004, Carter T. Butts <buttsc@uci.edu>
-# Last Modified 6/10/09
+# Last Modified 2/27/13
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/sna package
@@ -506,12 +506,12 @@ bn<-function(dat,method=c("mple.triad","mple.dyad","mple.edge","mtle"),param.see
   )
   #Extract the necessary sufficient statistics
   if(match.arg(method)%in%c("mple.edge","mple.dyad")){  #Use dyad census stats
-    stats<-matrix(0,nr=n-1,nc=4)
-    stats<-matrix(.C("bn_dyadstats_R",as.integer(dat),as.double(n), stats=as.double(stats),PACKAGE="sna")$stats,nc=4)
+    stats<-matrix(0,nrow=n-1,ncol=4)
+    stats<-matrix(.C("bn_dyadstats_R",as.integer(dat),as.double(n), stats=as.double(stats),PACKAGE="sna")$stats,ncol=4)
     stats<-stats[apply(stats[,2:4],1,sum)>0,]  #Strip uneeded rows
   }else if(match.arg(method)=="mple.triad"){          #Use full dyad stats
-    stats<-matrix(0,nr=n,nc=n)
-    stats<-matrix(.C("bn_triadstats_R",as.integer(dat),as.double(n), stats=as.double(stats),PACKAGE="sna")$stats,nr=n,nc=n)
+    stats<-matrix(0,nrow=n,ncol=n)
+    stats<-matrix(.C("bn_triadstats_R",as.integer(dat),as.double(n), stats=as.double(stats),PACKAGE="sna")$stats,nrow=n,ncol=n)
   }else if(match.arg(method)=="mtle"){                #Use triad census stats
     stats<-as.vector(triad.census(dat))  #Obtain triad census
   }
@@ -1468,7 +1468,7 @@ netlm<-function(y,x,intercept=TRUE,mode="digraph",diag=FALSE,nullhyp=c("qap", "q
     for(i in 2:length(glist))
       x<-cbind(x,gvectorize(glist[[i]],mode=mode,diag=diag,censor.as.na=TRUE))
     if(!is.matrix(x))
-      x<-matrix(x,nc=1)
+      x<-matrix(x,ncol=1)
     mis<-is.na(y)|apply(is.na(x),1,any)
     if(!rety){
       if(tstat=="beta")
@@ -1539,7 +1539,7 @@ netlm<-function(y,x,intercept=TRUE,mode="digraph",diag=FALSE,nullhyp=c("qap", "q
         #Modify the focal x
         gr[[i+1]]<-switch(nullhyp,
           cugtie<-rgraph(n,mode=mode,diag=diag,replace=FALSE,tielist=g[[i+1]]),
-          cugden<-rgraph(n,tp=gden(g[[i+1]],mode=mode,diag=diag),mode=mode, diag=diag),
+          cugden<-rgraph(n,tprob=gden(g[[i+1]],mode=mode,diag=diag),mode=mode, diag=diag),
           cuguman<-(function(dc,n){rguman(1,n,mut=x[1],asym=x[2],null=x[3], method="exact")})(dyad.census(g[[i+1]]),n)
         )
         #Fit model with modified x
@@ -1645,7 +1645,7 @@ netlogit<-function(y,x,intercept=TRUE,mode="digraph",diag=FALSE,nullhyp=c("qap",
     for(i in 2:length(glist))
       x<-cbind(x,gvectorize(glist[[i]],mode=mode,diag=diag,censor.as.na=TRUE))
     if(!is.matrix(x))
-      x<-matrix(x,nc=1)
+      x<-matrix(x,ncol=1)
     mis<-is.na(y)|apply(is.na(x),1,any)
     glm.fit(x[!mis,],y[!mis],family=binomial(),intercept=FALSE)
   }
@@ -1656,7 +1656,7 @@ netlogit<-function(y,x,intercept=TRUE,mode="digraph",diag=FALSE,nullhyp=c("qap",
     for(i in 2:length(glist))
       x<-cbind(x,gvectorize(glist[[i]],mode=mode,diag=diag,censor.as.na=TRUE))
     if(!is.matrix(x))
-      x<-matrix(x,nc=1)
+      x<-matrix(x,ncol=1)
     mis<-is.na(y)|apply(is.na(x),1,any)
     list(qr(x[!mis,],tol=tol),y[!mis])
   }
@@ -1728,7 +1728,7 @@ netlogit<-function(y,x,intercept=TRUE,mode="digraph",diag=FALSE,nullhyp=c("qap",
         #Modify the focal x
         gr[[i+1]]<-switch(nullhyp,
           cugtie<-rgraph(n,mode=mode,diag=diag,replace=FALSE,tielist=g[[i+1]]),
-          cugden<-rgraph(n,tp=gden(g[[i+1]],mode=mode,diag=diag),mode=mode, diag=diag),
+          cugden<-rgraph(n,tprob=gden(g[[i+1]],mode=mode,diag=diag),mode=mode, diag=diag),
           cuguman<-(function(dc,n){rguman(1,n,mut=x[1],asym=x[2],null=x[3], method="exact")})(dyad.census(g[[i+1]]),n)
         )
         #Fit model with modified x
@@ -2025,7 +2025,7 @@ plot.lnam<-function(x,...){
    qqline(r)
    #Plot an influence diagram
    if(!(is.null(x$W1)&&is.null(x$W2))){
-      inf<-matrix(0,nc=x$df.total,nr=x$df.total)
+      inf<-matrix(0,ncol=x$df.total,nrow=x$df.total)
       if(!is.null(x$W1))
          inf<-inf+qr.solve(diag(x$df.total)-apply(sweep(x$W1,1,x$rho1,"*"), c(2,3),sum))
       if(!is.null(x$W2))
@@ -2155,7 +2155,7 @@ print.bbnam.pooled<-function(x,...){
 print.bn<-function(x, digits=max(4,getOption("digits")-3), ...){
   cat("\nBiased Net Model\n\n")
   cat("Parameters:\n\n")
-  cmat<-matrix(c(x$d,x$pi,x$sigma,x$rho),nc=1)
+  cmat<-matrix(c(x$d,x$pi,x$sigma,x$rho),ncol=1)
   colnames(cmat)<-"Estimate"
   rownames(cmat)<-c("d","pi","sigma","rho")
   printCoefmat(cmat,digits=digits,...)
@@ -2261,7 +2261,7 @@ print.netlm<-function(x,...){
    adj.r.squared<-1-(1-r.squared)*((qn-df.int)/rdf)
    sigma<-sqrt(resvar)
    cat("\nResidual standard error:",format(sigma,digits=4),"on",rdf,"degrees of freedom\n")
-   cat("F-statistic:",formatC(fstatistic[1],digits=4),"on",fstatistic[2],"and", fstatistic[3],"degrees of freedom, p-value:",formatC(1-pf(fstatistic[1],fstatistic[2],fstatistic[3]),dig=4),"\n")
+   cat("F-statistic:",formatC(fstatistic[1],digits=4),"on",fstatistic[2],"and", fstatistic[3],"degrees of freedom, p-value:",formatC(1-pf(fstatistic[1],fstatistic[2],fstatistic[3]),digits=4),"\n")
    cat("Multiple R-squared:",format(r.squared,digits=4),"\t")
    cat("Adjusted R-squared:",format(adj.r.squared,digits=4),"\n")
    cat("\n")
@@ -2434,7 +2434,7 @@ print.summary.bbnam.pooled<-function(x,...){
 print.summary.bn<-function(x, digits=max(4,getOption("digits")-3), signif.stars=getOption("show.signif.stars"), ...){
   cat("\nBiased Net Model\n\n")
   cat("\nParameters:\n\n")
-  cmat<-matrix(c(x$d,x$pi,x$sigma,x$rho),nc=1)
+  cmat<-matrix(c(x$d,x$pi,x$sigma,x$rho),ncol=1)
   colnames(cmat)<-"Estimate"
   rownames(cmat)<-c("d","pi","sigma","rho")
   printCoefmat(cmat,digits=digits,...)
@@ -2646,7 +2646,7 @@ print.summary.netlm<-function(x,...){
    cat("\nResidual standard error:",format(sigma,digits=4),"on",rdf,"degrees of freedom\n")
    cat("Multiple R-squared:",format(r.squared,digits=4),"\t")
    cat("Adjusted R-squared:",format(adj.r.squared,digits=4),"\n")
-   cat("F-statistic:",formatC(fstatistic[1],digits=4),"on",fstatistic[2],"and", fstatistic[3],"degrees of freedom, p-value:",formatC(1-pf(fstatistic[1],fstatistic[2],fstatistic[3]),dig=4),"\n")
+   cat("F-statistic:",formatC(fstatistic[1],digits=4),"on",fstatistic[2],"and", fstatistic[3],"degrees of freedom, p-value:",formatC(1-pf(fstatistic[1],fstatistic[2],fstatistic[3]),digits=4),"\n")
    #Test diagnostics
    cat("\n\nTest Diagnostics:\n\n")
    cat("\tNull Hypothesis:",x$nullhyp,"\n")
