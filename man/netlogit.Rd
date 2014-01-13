@@ -55,6 +55,7 @@ Note that interpretation of quantiles for single coefficients can be complex in 
 \seealso{ \code{\link{glm}}, \code{\link{netlm}} }
 
 \examples{
+\dontrun{
 #Create some input graphs
 x<-rgraph(20,4)
 
@@ -69,6 +70,7 @@ nl<-netlogit(y,x,reps=100)
 
 #Examine the results
 summary(nl)
+}
 }
 \keyword{ regression }%-- one or more ...
 \keyword{ math }

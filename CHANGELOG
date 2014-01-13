@@ -1,5 +1,19 @@
 CHANGELOG:
 
+v2.3-2
+   Bug Fixes:
+     Documentation for brokerage had Representative and Gatekeeper roles
+       reversed.  (Actual program output was correctly labeled.)  [submitted
+       by Lorien Jasny and others]
+     gplot gave a harmless but annoying warning when invoked in R>3.0
+       [submitted by Gen Kobayashi]
+   Changes:
+     Per request from CRAN, the non-standard CONTRIBUTORS file has been
+       removed.  Major contributors are cited on the respective man pages,
+       and minor contributors (e.g., of bug fixes) in this ChangeLog.  If
+       there is strong interest in bringing the file back (I had no desire
+       to pull it!), please email me and I'll see what can be done
+
 v2.3
    Bug Fixes:
      Various changes to R caused installation and loading problems (including

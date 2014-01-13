@@ -172,7 +172,7 @@ gplot<-function(dat,g=1,gmode="digraph",diag=FALSE,label=NULL,coord=NULL,jitter=
 #AHM bugfix begin: label attributes weren't being filled out or restricted with [use]
    label.bg <- rep(label.bg,length=n)
    label.border <- rep(label.border,length=n)
-   label.lty <- rep(label.lty,length=n)
+   if(!is.null(label.lty)) {label.lty <- rep(label.lty,length=n)}
    label.lwd <- rep(label.lwd,length=n)
    label.col <- rep(label.col,length=n)
    label.cex <- rep(label.cex,length=n)

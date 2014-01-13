@@ -1,7 +1,6 @@
-7dc1a94a308cb8ec40b81a9c376c738d *CONTRIBUTORS
 9ba5884ddab488cf320c3989f1c882ff *COPYING
-9a79742394392ab2d688f253831402ee *ChangeLog
-3f23ceee7342f36fdc20897659cf4b83 *DESCRIPTION
+ddd4d6e84baf7a6fae4e24ab9f41d3ab *ChangeLog
+6d6fdfba0b5da796ea019d92fc020bd5 *DESCRIPTION
 4afcba807dbe3ac044e626952117c0e2 *INDEX
 b6b4f40b425aaa0b40b3aeea4deb3783 *NAMESPACE
 be477927527b29bd413c3b5537305e34 *R/connectivity.R
@@ -16,7 +15,7 @@ c35d573249057e02eb52fe1040afe0a9 *R/permutation.R
 c29c45cb960908ee7ff544137473ef12 *R/randomgraph.R
 e2ee32378c97fa096d064713def629b8 *R/roles.R
 7fa8500237c9dad7c06e7fb82c324521 *R/sna-operators.R
-c3601760677842b00d4e4ee4090e58ee *R/visualization.R
+8838837746c59f81e0b444430de71d7f *R/visualization.R
 5debdb4b0ad3734e8c9473f00e57f193 *R/zzz.R
 417b3ab638faeb3dcffecab3b7592f55 *data/coleman.RData
 d0d2b588bf2ad1a69f2ce1cde9f6535a *man/add.isolates.Rd
@@ -28,7 +27,7 @@ c09e7005bc9696a74dc19f6aabc8e7b1 *man/betweenness.Rd
 42e5477572b4ff8369ab1ca451855175 *man/blockmodel.expand.Rd
 327269b67a045e3b37067e05e774920f *man/bn.Rd
 1e136bce98ffd4836cf69a7434f76a63 *man/bonpow.Rd
-b792b77394a537565688326f278319be *man/brokerage.Rd
+7e515e1f7555c8db4a62efbd6e6175b9 *man/brokerage.Rd
 99d1cb6a307893121697ee6e6215c1e7 *man/centralgraph.Rd
 17546902d32e493121d44e5510f9cd67 *man/centralization.Rd
 c2356c4f67540ff5e164a227c0ad109c *man/clique.census.Rd
@@ -98,7 +97,7 @@ bdee13ab2c40d0284cf868d6a0285e23 *man/lower.tri.remove.Rd
 0f745dd851b2dfa3916da637505f9155 *man/neighborhood.Rd
 86802da92fcf5291f469541b5e5765f0 *man/netcancor.Rd
 1527eb0a635e527b0f40c1d92037b093 *man/netlm.Rd
-b22137f498d3fed658e27bf64942c7a1 *man/netlogit.Rd
+ce5054e46d8b11d1759461a61fdf520e *man/netlogit.Rd
 88e1a9f7fd5f63bcdb675523e2179da2 *man/npostpred.Rd
 e3b9937479169f9289688e3d30234e12 *man/nties.Rd
 f086fc55aa2519e31ca5f0f1b6201942 *man/numperm.Rd

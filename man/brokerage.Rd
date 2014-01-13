@@ -21,8 +21,8 @@ Gould and Fernandez (following Marsden and others) describe \emph{brokerage} as 
 \itemize{
   \item \eqn{w_I}: Coordinator role; the broker mediates contact between two individuals from his or her own group.  Two-path structure: \eqn{A \to A \to A}{A -> A -> A}  
   \item \eqn{w_O}: Itinerant broker role; the broker mediates contact between two individuals from a single group to which he or she does not belong.  Two-path structure: \eqn{A \to B \to A}{A -> B -> A}  
-  \item \eqn{b_{IO}}: Gatekeeper role; the broker mediates an incoming contact from an out-group member to an in-group member.  Two-path structure: \eqn{A \to B \to B}{A -> B -> B}  
-  \item \eqn{b_{OI}}: Representative role; the broker mediates an outgoing contact from an in-group member to an out-group member.  Two-path structure: \eqn{A \to A \to B}{A -> A -> B}  
+  \item \eqn{b_{IO}}: Representative role; the broker mediates an incoming contact from an out-group member to an in-group member.  Two-path structure: \eqn{A \to B \to B}{A -> B -> B}  
+  \item \eqn{b_{OI}}: Gatekeeper role; the broker mediates an outgoing contact from an in-group member to an out-group member.  Two-path structure: \eqn{A \to A \to B}{A -> A -> B}  
   \item \eqn{b_O}: Liaison role; the broker mediates contact between two individuals from different groups, neither of which is the group to which he or she belongs.  Two-path structure: \eqn{A \to B \to C}{A -> B -> C}  
   \item \eqn{t}: Total (cumulative) brokerage role occupancy.  (Any of the above two-paths.)   
 }
