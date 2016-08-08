@@ -1,5 +1,60 @@
 CHANGELOG:
 
+v.2.4
+   New Functions:
+     component.size.byvertex - Compute component sizes by vertex
+     gilschmidt - Compute the Gil-Schmidt power centrality index
+   New Features:
+     netlogit now supports use of the z-statistic for QAP and CUG tests
+     closeness now computes the normalized Gil-Schmidt index.  (This was
+       previously advertised, but not actually supported.)
+     component.largest now allows subgraphs to be returned in edgelist form
+     is.isolate now processes more than one graph a time, if desired
+     reachability now supports edgelist output (this is usually recommended)
+       and removal of missing edges
+     Various component.* functions are now more efficient for large graphs
+       for many types of connectivity
+     Efficiency gains for isolates, is.isolate, reachability, and some other 
+       functions on large, sparse, graphs
+     geodist now supports an na.omit option
+     rgbn now supports satiation and truncated sibling effects
+   Bug Fixes:
+     kcycle.census and kpath.census were not propagating maxlen arguments when
+       called with lists of graphs
+     clique.census was producing a segfault when called with a matrix
+       containing NAs
+     event2dichot didn't preserve row/column names [reported by Katherina
+       Bohlecarbonell] 
+     geodist could produce a segfault when called with unignored negative
+       edge values (which was documented to be verboten, but was not 
+       internally checked); an error message is now returned  [submitted by
+       Skye Bender-deMoll]
+     Various fixes in bbnam, including: bbnam could fail when the number of
+       informants did not equal the number of nodes; errors could occur with
+       undirected models; and the code also now automatically overrides the
+       potential scale reduction measure argument when reps==1 (since this
+       cannot be computed with only one chain)
+     prestige did not handle the nodes argument correctly for some measures
+       [submitted by Skye Bender-deMoll]
+     netlogit and netlm had a bug leading CUG tests to fail in some cases
+       [submitted by Christian Steglich)
+     gtrans with measure=="rank" yielded incorrect results in some cases
+       [submitted by Chris Marcum]
+     as.edgelist.sna now accepts objects with multiple classes, which fixes
+       some errors with use in complex settings [submitted by Skye
+       Bender-deMoll]
+     closeness provided an incorrect tmaxdev for mode suminvundir [submitted
+       by John Skvoretz]
+     structdist could give incorrect results with gmode=="graph" [submitted
+       by John Skvoretz]
+  Changes:
+    Various NAMESPACE changes made, to comply with the ever-changing world
+       of CRAN  [contributed by Skye Bender-deMoll]
+    sna now Depends on network and statnet.common, resolving the %c% operator conflict
+       [suggested by Skye Bender-deMoll]
+    netlogit now uses the z statistic by default for Monte Carlo tests
+       (formerly, the coefficient was used)
+
 v2.3-2
    Bug Fixes:
      Documentation for brokerage had Representative and Gatekeeper roles

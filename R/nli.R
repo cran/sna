@@ -3,7 +3,7 @@
 # nli.R
 #
 # copyright (c) 2004, Carter T. Butts <buttsc@uci.edu>
-# Last Modified 2/27/13
+# Last Modified 8/5/16
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/sna package
@@ -143,6 +143,7 @@ closeness<-function(dat,g=1,nodes=NULL,gmode="digraph",diag=FALSE,tmaxdev=FALSE,
        undirected = "undirected",
        suminvdir = "siminvundir",
        suminvundir = "suminvundir",
+       "gil-schmidt" = "gil-schmidt"
      )
    }
    if(tmaxdev){
@@ -151,7 +152,8 @@ closeness<-function(dat,g=1,nodes=NULL,gmode="digraph",diag=FALSE,tmaxdev=FALSE,
          directed = (n-1)*(1-1/n),    #Depends on n subst for max distance
          undirected = (n-2)*(n-1)/(2*n-3),
          suminvdir = (n-1)*(n-1),
-         suminvundir = (n-2-(n-2)/2)*(n-1),
+         suminvundir = n-1-n/2,
+         "gil-schmidt" = (n-1)*(gmode=="digraph")+(n-2)/2*(gmode=="graph")
       )
    }else{
       #First, prepare the data
@@ -169,7 +171,14 @@ closeness<-function(dat,g=1,nodes=NULL,gmode="digraph",diag=FALSE,tmaxdev=FALSE,
         directed = (n-1)/rowSums(gd$gdist,na.rm=TRUE),
         undirected = (n-1)/rowSums(gd$gdist,na.rm=TRUE),
         suminvdir = rowSums(1/gd$gdist,na.rm=TRUE)/(n-1),
-        suminvundir = rowSums(1/gd$gdist,na.rm=TRUE)/(n-1)
+        suminvundir = rowSums(1/gd$gdist,na.rm=TRUE)/(n-1),
+        "gil-schmidt" = apply(gd$gdist,1,function(z){
+          ids<-sum(1/z,na.rm=TRUE)
+          r<-sum(z<Inf,na.rm=TRUE)
+          gs<-ids/r
+          gs[r==0]<-0
+          gs
+        })
       )
       if(rescale)
          clo<-clo/sum(clo)
@@ -343,6 +352,32 @@ flowbet<-function(dat,g=1,nodes=NULL,gmode="digraph",diag=FALSE,tmaxdev=FALSE,cm
 }
 
 
+#gilschmidt - Compute the Gil-Schmidt power centrality index
+gilschmidt <- function(dat,g=1,nodes=NULL,gmode="digraph",diag=FALSE,tmaxdev=FALSE,normalize=TRUE){
+  #Pre-process the input
+  dat<-as.edgelist.sna(dat)
+  if(is.list(dat)){
+    return(sapply(dat[g],gilschmidt,normalize=normalize))
+  }
+  #End pre-processing
+  g<-dat
+  n<-attr(g,"n")
+  #See if we only need to return the theoretical max deviation from the maximum
+  if(tmaxdev){
+    if(gmode=="digraph")
+      return(n-1)
+    else
+      return((n-2)/2)
+  }
+  #No such luck.  Well, let's compute.
+  gs<-.C("gilschmidt_R",as.double(g),as.integer(n), as.integer(NROW(g)), scores=double(n), as.integer(normalize), PACKAGE="sna", NAOK=TRUE)$scores
+  gs[is.nan(gs)]<-0
+  if(is.null(nodes))
+    nodes<-1:n
+  gs[nodes]
+}
+
+
 #graphcent - Find the graph centralities of network positions
 graphcent<-function(dat,g=1,nodes=NULL,gmode="digraph",diag=FALSE,tmaxdev=FALSE,cmode="directed",geodist.precomp=NULL,rescale=FALSE,ignore.eval=TRUE){
    #Pre-process the raw input
@@ -483,29 +518,29 @@ loadcent<-function(dat,g=1,nodes=NULL,gmode="digraph",diag=FALSE,tmaxdev=FALSE,c
 #prestige - Find actor prestige scores from one of several measures
 prestige<-function(dat,g=1,nodes=NULL,gmode="digraph",diag=FALSE,cmode="indegree",tmaxdev=FALSE,rescale=FALSE,tol=1e-7){
    #Pre-process the raw input
-   dat<-as.sociomatrix.sna(dat)
+   dat<-as.edgelist.sna(dat)
    if(is.list(dat))
      return(sapply(dat[g],prestige,g=1,nodes=nodes,gmode=gmode,diag=diag, cmode=cmode,tmaxdev=tmaxdev,rescale=rescale,tol=tol))
-   else if((length(g)>1)&&(length(dim(dat))>2))
-     return(apply(dat[g,,],1,prestige,g=1,nodes=nodes,gmode=gmode,diag=diag, cmode=cmode,tmaxdev=tmaxdev,rescale=rescale,tol=tol))
    #End pre-processing
+   n<-attr(dat,"n")
    if(tmaxdev){
       #We got off easy: just return the theoretical maximum deviation for the centralization routine
-      n<-dim(dat)[2]
+      h<-matrix(nrow=0,ncol=3)
+      attr(h,"n")<-n
       if(cmode=="indegree")
-         p<-degree(dat=matrix(nrow=n,ncol=n),g=1,tmaxdev=TRUE,gmode=gmode,diag=diag,cmode="indegree",rescale=FALSE)
+         p<-degree(dat=h,g=1,tmaxdev=TRUE,gmode=gmode,diag=diag,cmode="indegree",rescale=FALSE)
       else if(cmode=="indegree.rownorm")
-         p<-degree(dat=matrix(nrow=n,ncol=n),g=1,tmaxdev=TRUE,gmode=gmode,diag=diag,cmode="indegree",rescale=FALSE)
+         p<-degree(dat=h,g=1,tmaxdev=TRUE,gmode=gmode,diag=diag,cmode="indegree",rescale=FALSE)
       else if(cmode=="indegree.rowcolnorm")
-         p<-degree(dat=matrix(nrow=n,ncol=n),g=1,tmaxdev=TRUE,gmode=gmode,diag=diag,cmode="indegree",rescale=FALSE)
+         p<-degree(dat=h,g=1,tmaxdev=TRUE,gmode=gmode,diag=diag,cmode="indegree",rescale=FALSE)
       else if(cmode=="eigenvector")
-         p<-evcent(dat=matrix(nrow=n,ncol=n),g=1,tmaxdev=TRUE,gmode=gmode,diag=diag)
+         p<-evcent(dat=h,g=1,tmaxdev=TRUE,gmode=gmode,diag=diag)
       else if(cmode=="eigenvector.rownorm")
-         p<-evcent(dat=matrix(nrow=n,ncol=n),g=1,tmaxdev=TRUE,gmode=gmode,diag=diag)
+         p<-evcent(dat=h,g=1,tmaxdev=TRUE,gmode=gmode,diag=diag)
       else if(cmode=="eigenvector.colnorm")
-         p<-evcent(dat=matrix(nrow=n,ncol=n),g=1,tmaxdev=TRUE,gmode=gmode,diag=diag)
+         p<-evcent(dat=h,g=1,tmaxdev=TRUE,gmode=gmode,diag=diag)
       else if(cmode=="eigenvector.rowcolnorm")
-         p<-evcent(dat=matrix(nrow=n,ncol=n),g=1,tmaxdev=TRUE,gmode=gmode,diag=diag)
+         p<-evcent(dat=h,g=1,tmaxdev=TRUE,gmode=gmode,diag=diag)
       else if(cmode=="domain"){
          p<-(n-1)^2
       }else if(cmode=="domain.proximity"){
@@ -514,24 +549,30 @@ prestige<-function(dat,g=1,nodes=NULL,gmode="digraph",diag=FALSE,cmode="indegree
          stop(paste("Cmode",cmode,"unknown.\n"))      
    }else{
       #First, prepare the data
-      if(length(dim(dat))>2)
-         d<-dat[g,,]
-      else
-         d<-dat
-      n<-dim(d)[1]
       if(is.null(nodes))        #Set up node list, if needed
         nodes<-1:n
-      if(!diag)
-         diag(d)<-0
+      if(cmode%in%c("eigenvector")){
+        td<-dat
+        if(!diag){
+           td<-td[td[,1]!=td[,2],c(2,1,3),drop=FALSE]
+           attr(td,"n")<-attr(dat,"n")
+        }
+      }else if(cmode%in%c("indegree.rownorm","indegree.colnorm","indegree.rowcolnorm", "eigenvector.rownorm","eigenvector.colnorm","eigenvector.rowcolnorm", "domain","domain.proximity")){
+        d<-dat
+        if(!diag){
+           d<-d[d[,1]!=d[,2],,drop=FALSE]
+           attr(d,"n")<-attr(dat,"n")
+        }
+      }
       #Now, perform the computation
       if(cmode=="indegree")
-         p<-degree(dat=dat,g=g,nodes=nodes,gmode=gmode,diag=diag,cmode="indegree",rescale=FALSE)
+         p<-degree(dat=dat,g=g,gmode=gmode,diag=diag,cmode="indegree",rescale=FALSE)
       else if(cmode=="indegree.rownorm")
-         p<-degree(dat=make.stochastic(d,mode="row"),g=1,nodes=nodes,gmode=gmode,diag=diag,cmode="indegree",rescale=FALSE)
+         p<-degree(dat=make.stochastic(d,mode="row"),g=1,gmode=gmode,diag=diag,cmode="indegree",rescale=FALSE)
       else if(cmode=="indegree.rowcolnorm")
-         p<-degree(dat=make.stochastic(d,mode="rowcol"),g=1,nodes=nodes,gmode=gmode,diag=diag,cmode="indegree",rescale=FALSE)
+         p<-degree(dat=make.stochastic(d,mode="rowcol"),g=1,gmode=gmode,diag=diag,cmode="indegree",rescale=FALSE)
       else if(cmode=="eigenvector")
-         p<-eigen(t(d))$vector[,1]      
+         p<-evcent(td)
       else if(cmode=="eigenvector.rownorm")
          p<-eigen(t(make.stochastic(d,mode="row")))$vector[,1]      
       else if(cmode=="eigenvector.colnorm")

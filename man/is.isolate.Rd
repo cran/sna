@@ -12,7 +12,7 @@ is.isolate(dat, ego, g=1, diag=FALSE)
 \arguments{
   \item{dat}{ one or more input graphs. }
   \item{ego}{ index of the vertex (or a vector of vertices) to check. }
-  \item{g}{ which graph should be examined? }
+  \item{g}{ which graph(s) should be examined? }
   \item{diag}{ boolean indicating whether adjacency matrix diagonals (i.e., loops) contain meaningful data. }
 }
 \details{

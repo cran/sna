@@ -3,7 +3,7 @@
 # sna-operators.R
 #
 # copyright (c) 2004, Carter T. Butts <buttsc@uci.edu>
-# Last Modified 2/27/13
+# Last Modified 7/18/16
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/sna package
@@ -20,12 +20,18 @@
 #
 ######################################################################
 
+# GENERIC IS NOW PROVIDED BY network PACKAGE
+# generic for the c operator
+#"%c%"<-function(e1,e2){
+#  UseMethod("%c%",e1)
+#}
+
 
 #%c% - Composition of two adjacancy matrices
-"%c%"<-function(x,y){
+"%c%.matrix"<-function(e1,e2){
   #Pre-process the raw input
-  x<-as.sociomatrix.sna(x)
-  y<-as.sociomatrix.sna(y)
+  x<-as.sociomatrix.sna(e1)
+  y<-as.sociomatrix.sna(e2)
   if(!(is.matrix(x)&&is.matrix(y)))
     stop("Single graphs required for composition.")
   #End pre-processing

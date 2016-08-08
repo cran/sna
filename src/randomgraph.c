@@ -4,7 +4,7 @@
 # randomgraph.c
 #
 # copyright (c) 2004, Carter T. Butts <buttsc@uci.edu>
-# Last Modified 4/10/09
+# Last Modified 1/16/16
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/sna package
@@ -21,10 +21,10 @@
 #include <R_ext/Utils.h>
 #include "randomgraph.h"
 
-void bn_cftp_R(int *g, int *pn, double *pi, double *sigma, double *rho, double *d, int *pmaxiter)
+void bn_cftp_R(int *g, int *pn, double *pi, double *sigma, double *rho, double *d, int *pmaxiter, int *sibdichot)
 {
   int *lparents,*uparents,lec,uec;
-  double lne,lnpar,lnsib,lndblr,ep,*coins,*ctemp;
+  double *lne,lnpar,lnsib,lndblr,ep,*coins,*ctemp;
   int ostate,*lb,*ub,converged,mismatch,t,maxiter,n,i,j,k,x,*r,*c,*temp;
   
   /*Initialize various things*/
@@ -34,7 +34,10 @@ void bn_cftp_R(int *g, int *pn, double *pi, double *sigma, double *rho, double *
   uparents=(int *)R_alloc(n*n,sizeof(int));
   lb=(int *)R_alloc(n*n,sizeof(int));
   ub=(int *)R_alloc(n*n,sizeof(int));
-  lne = ((*d<1.0) ? log(1.0-*d) : -DBL_MAX);       /*Consider refining...*/
+  lne=(double *)R_alloc(n*n,sizeof(double));
+  for(i=0;i<n;i++)                                    /*Consider refining...*/
+    for(j=0;j<n;j++)  
+      lne[i+j*n] = ((d[i+j*n]<1.0) ? log(1.0-d[i+j*n]) : -DBL_MAX); 
   lnpar = ((*pi<1.0) ? log(1.0-*pi) : -DBL_MAX);
   lnsib = ((*sigma<1.0) ? log(1.0-*sigma) : -DBL_MAX);
   lndblr = ((*rho<1.0) ? log(1.0-*rho) : -DBL_MAX);
@@ -54,31 +57,6 @@ void bn_cftp_R(int *g, int *pn, double *pi, double *sigma, double *rho, double *
     coins[i]=runif(0.0,1.0);
   }
  
-  /*If base rate is 0, return*/
-  if(lne==0.0){
-    for(i=0;i<n;i++){
-      for(j=0;j<n;j++){
-        g[i+j*n]=0;
-      }
-    }
-    PutRNGstate();
-    return;
-  }     
-  /*Ditto if base rate is 1*/
-  if(*d==1.0){
-    for(i=0;i<n;i++){
-      for(j=0;j<n;j++){
-        if(i!=j){
-          g[i+j*n]=1;
-        }else{
-          g[i+j*n]=0;
-        }
-      }
-    }
-    PutRNGstate();
-    return;
-  }     
-
   /*Run the CFTP loop*/
   Rprintf("t=%d, maxiter=%d, converged=%d\n",t,maxiter,converged);
   while((!converged)&&(t<maxiter)){
@@ -109,7 +87,10 @@ void bn_cftp_R(int *g, int *pn, double *pi, double *sigma, double *rho, double *
       if(!converged){
         /*Update lower bound*/
         ostate=lb[j+k*n];
-        ep=1.0-exp(lne+lb[k+j*n]*lnpar+lparents[j+k*n]*lnsib+ lb[k+j*n]*lparents[j+k*n]*lndblr);
+        if(*sibdichot)
+          ep=1.0-exp(lne[j+k*n]+lb[k+j*n]*lnpar+(lparents[j+k*n]>0)*lnsib+ lb[k+j*n]*(lparents[j+k*n]>0)*lndblr);
+        else
+          ep=1.0-exp(lne[j+k*n]+lb[k+j*n]*lnpar+lparents[j+k*n]*lnsib+ lb[k+j*n]*lparents[j+k*n]*lndblr);
         if(coins[t+i]<=ep){
           lb[j+k*n]=1;    /*Set the edge*/
           /*If something has changed update the parent count*/
@@ -137,7 +118,10 @@ void bn_cftp_R(int *g, int *pn, double *pi, double *sigma, double *rho, double *
         }
         /*Update upper bound*/
         ostate=ub[j+k*n];
-        ep=1.0-exp(lne+ub[k+j*n]*lnpar+uparents[j+k*n]*lnsib+ ub[k+j*n]*uparents[j+k*n]*lndblr);
+        if(*sibdichot)
+          ep=1.0-exp(lne[j+k*n]+ub[k+j*n]*lnpar+(uparents[j+k*n]>0)*lnsib+ ub[k+j*n]*(uparents[j+k*n]>0)*lndblr);
+        else
+          ep=1.0-exp(lne[j+k*n]+ub[k+j*n]*lnpar+uparents[j+k*n]*lnsib+ ub[k+j*n]*uparents[j+k*n]*lndblr);
         if(coins[t+i]<=ep){
           ub[j+k*n]=1;    /*Set the edge*/
           /*If something has changed update the parent count*/
@@ -182,7 +166,10 @@ void bn_cftp_R(int *g, int *pn, double *pi, double *sigma, double *rho, double *
       }else{
         /*Update g*/
         ostate=g[j+k*n];
-        ep=1.0-exp(lne+g[k+j*n]*lnpar+lparents[j+k*n]*lnsib+ g[k+j*n]*lparents[j+k*n]*lndblr);
+        if(*sibdichot)
+          ep=1.0-exp(lne[j+k*n]+g[k+j*n]*lnpar+(lparents[j+k*n]>0)*lnsib+ g[k+j*n]*(lparents[j+k*n]>0)*lndblr);
+        else
+          ep=1.0-exp(lne[j+k*n]+g[k+j*n]*lnpar+lparents[j+k*n]*lnsib+ g[k+j*n]*lparents[j+k*n]*lndblr);
         if(coins[t+i]<=ep){
           g[j+k*n]=1;    /*Set the edge*/
           /*If something has changed update the parent count*/
@@ -248,10 +235,10 @@ void bn_cftp_R(int *g, int *pn, double *pi, double *sigma, double *rho, double *
 }
 
 
-void bn_mcmc_R(int *g, double *pn, double *pdraws, double *pburn, int *pthin, double *pi, double *sigma, double *rho, double *d)
+void bn_mcmc_R(int *g, double *pn, double *pdraws, double *pburn, int *pthin, double *pi, double *sigma, double *rho, double *d, double *delta, int *sibdichot)
 {
-  long int n,i,j,k,x,draws,burn,bc,*parents;
-  double lne,lnpar,lnsib,lndblr,ep;
+  long int n,i,j,k,x,draws,burn,bc,*parents,*odeg;
+  double *lne,lnpar,lnsib,lndblr,ep,lnsat;
   int thin,tc,ostate;
   
   /*Initialize various things*/
@@ -261,16 +248,22 @@ void bn_mcmc_R(int *g, double *pn, double *pdraws, double *pburn, int *pthin, do
   thin=(int)*pthin;
   GetRNGstate();
   parents=(long int *)R_alloc(n*n,sizeof(long int));
+  odeg=(long int *)R_alloc(n,sizeof(long int));
+  lne=(double *)R_alloc(n*n,sizeof(double));
   for(i=0;i<n;i++){
+    odeg[i]=0;
     for(j=0;j<n;j++){
       g[i*draws+j*n*draws]=0;
       parents[i+j*n]=0;
     }    
-  }  
-  lne = ((*d<1.0) ? log(1.0-*d) : -DBL_MAX);       /*Consider refining...*/
+  }
+  for(i=0;i<n;i++)                                    /*Consider refining...*/
+    for(j=0;j<n;j++)  
+      lne[i+j*n] = ((d[i+j*n]<1.0) ? log(1.0-d[i+j*n]) : -DBL_MAX); 
   lnpar = ((*pi<1.0) ? log(1.0-*pi) : -DBL_MAX);
   lnsib = ((*sigma<1.0) ? log(1.0-*sigma) : -DBL_MAX);
   lndblr = ((*rho<1.0) ? log(1.0-*rho) : -DBL_MAX);
+  lnsat = ((*delta<1.0) ? log(1.0-*delta) : -DBL_MAX);
 
   /*Run the MCMC loop*/
   bc=0;
@@ -291,11 +284,16 @@ void bn_mcmc_R(int *g, double *pn, double *pdraws, double *pburn, int *pthin, do
     /*Rprintf("\tDrawing and updating\n");*/
     /*Redraw the edge from the full conditional*/
     ostate=g[i+j*draws+k*n*draws];
-    ep=1.0-exp(lne+g[i+k*draws+j*n*draws]*lnpar+parents[j+k*n]*lnsib+ g[i+k*draws+j*n*draws]*parents[j+k*n]*lndblr);
+    if(*sibdichot)
+      ep=1.0-exp(lne[j+k*n]+g[i+k*draws+j*n*draws]*lnpar+(parents[j+k*n]>0)*lnsib+ g[i+k*draws+j*n*draws]*(parents[j+k*n]>0)*lndblr);
+    else
+      ep=1.0-exp(lne[j+k*n]+g[i+k*draws+j*n*draws]*lnpar+parents[j+k*n]*lnsib+ g[i+k*draws+j*n*draws]*parents[j+k*n]*lndblr);
+    ep*=exp(odeg[j]*lnsat);
     if(runif(0.0,1.0)<=ep){
       g[i+j*draws+k*n*draws]=1;    /*Set the edge*/
-      /*If something has changed update the parent count*/
+      /*If something has changed update the parent count and outdegree count*/
       if(ostate==0){
+        odeg[j]++;
         /*Rprintf("\tAdded edge update\n");*/
         for(x=0;x<n;x++)
           if((g[i+j*draws+x*n*draws])&&(j!=x)&&(x!=k)){
@@ -309,8 +307,9 @@ void bn_mcmc_R(int *g, double *pn, double *pdraws, double *pburn, int *pthin, do
       }
     }else{
       g[i+j*draws+k*n*draws]=0;   /*Unset the edge*/
-      /*If something has changed update the parent count*/
+      /*If something has changed update the parent and outdegree count*/
       if(ostate==1){
+        odeg[j]--;
         /*Rprintf("\tDeleted edge update\n");*/
         for(x=0;x<n;x++)
           if((g[i+j*draws+x*n*draws])&&(j!=x)&&(x!=k)){

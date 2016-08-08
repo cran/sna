@@ -3,7 +3,7 @@
 # models.R
 #
 # copyright (c) 2004, Carter T. Butts <buttsc@uci.edu>
-# Last Modified 2/27/13
+# Last Modified 7/18/16
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/sna package
@@ -102,6 +102,8 @@ bbnam.actor<-function(dat,nprior=0.5,emprior=c(1,11),epprior=c(1,11),diag=FALSE,
    if(length(dim(dat))==2)
      dat<-array(dat,dim=c(1,NROW(dat),NCOL(dat)))
    #First, collect some basic model parameters and do other "setup" stuff
+   if(reps==1)
+     compute.sqrtrhat<-FALSE  #Can't use Rhat if we have only one chain!
    m<-dim(dat)[1]
    n<-dim(dat)[2]
    d<-dat
@@ -109,17 +111,17 @@ bbnam.actor<-function(dat,nprior=0.5,emprior=c(1,11),epprior=c(1,11),diag=FALSE,
    out<-list()
    if((!is.matrix(nprior))||(NROW(nprior)!=n)||(NCOL(nprior)!=n))
      nprior<-matrix(nprior,n,n)
-   if((!is.matrix(emprior))||(NROW(emprior)!=n)||(NCOL(emprior)!=2)){
+   if((!is.matrix(emprior))||(NROW(emprior)!=m)||(NCOL(emprior)!=2)){
      if(length(emprior)==2)
-       emprior<-sapply(emprior,rep,n)
+       emprior<-sapply(emprior,rep,m)
      else
-       emprior<-matrix(emprior,n,2)
+       emprior<-matrix(emprior,m,2)
    }
-   if((!is.matrix(epprior))||(NROW(epprior)!=n)||(NCOL(epprior)!=2)){
+   if((!is.matrix(epprior))||(NROW(epprior)!=m)||(NCOL(epprior)!=2)){
      if(length(epprior)==2)
-       epprior<-sapply(epprior,rep,n)
+       epprior<-sapply(epprior,rep,m)
      else
-       epprior<-matrix(epprior,n,2)
+       epprior<-matrix(epprior,m,2)
    }
    if(is.null(anames))
      anames<-paste("a",1:n,sep="")
@@ -153,6 +155,8 @@ bbnam.actor<-function(dat,nprior=0.5,emprior=c(1,11),epprior=c(1,11),diag=FALSE,
          pygt<-apply(d*(1-em.a)+(1-d)*em.a,c(2,3),prod,na.rm=TRUE)
          pygnt<-apply(d*ep.a+(1-d)*(1-ep.a),c(2,3),prod,na.rm=TRUE)
          tieprob<-(nprior*pygt)/(nprior*pygt+(1-nprior)*pygnt)
+         if(mode=="graph")
+           tieprob[upper.tri(tieprob)]<-t(tieprob)[upper.tri(tieprob)]
          #Draw Bernoulli graph
          a[i,j,,]<-rgraph(n,1,tprob=tieprob,mode=mode,diag=diag)
          if(!quiet)
@@ -225,20 +229,21 @@ bbnam.bf<-function(dat,nprior=0.5,em.fp=0.5,ep.fp=0.5,emprior.pooled=c(1,11),epp
      stop("All bbnam.bf input graphs must be of the same order.")
    if(length(dim(dat))==2)
      dat<-array(dat,dim=c(1,NROW(dat),NCOL(dat)))
-   n<-dim(dat)[1]
+   m<-dim(dat)[1]
+   n<-dim(dat)[2]
    if((!is.matrix(nprior))||(NROW(nprior)!=n)||(NCOL(nprior)!=n))
      nprior<-matrix(nprior,n,n)
-   if((!is.matrix(emprior.actor))||(NROW(emprior.actor)!=n)|| (NCOL(emprior.actor)!=2)){
+   if((!is.matrix(emprior.actor))||(NROW(emprior.actor)!=m)|| (NCOL(emprior.actor)!=2)){
      if(length(emprior.actor)==2)
-       emprior.actor<-sapply(emprior.actor,rep,n)
+       emprior.actor<-sapply(emprior.actor,rep,m)
      else
-       emprior.actor<-matrix(emprior.actor,n,2)
+       emprior.actor<-matrix(emprior.actor,m,2)
    }
-   if((!is.matrix(epprior.actor))||(NROW(epprior.actor)!=n)|| (NCOL(epprior.actor)!=2)){
+   if((!is.matrix(epprior.actor))||(NROW(epprior.actor)!=m)|| (NCOL(epprior.actor)!=2)){
      if(length(epprior.actor)==2)
-       epprior.actor<-sapply(epprior.actor,rep,n)
+       epprior.actor<-sapply(epprior.actor,rep,m)
      else
-       epprior.actor<-matrix(epprior.actor,n,2)
+       epprior.actor<-matrix(epprior.actor,m,2)
    }
    d<-dat
    if(!diag)
@@ -373,6 +378,8 @@ bbnam.pooled<-function(dat,nprior=0.5,emprior=c(1,11),epprior=c(1,11), diag=FALS
    if(length(dim(dat))==2)
      dat<-array(dat,dim=c(1,NROW(dat),NCOL(dat)))
    #First, collect some basic model parameters and do other "setup" stuff
+   if(reps==1)
+     compute.sqrtrhat<-FALSE  #Can't use Rhat if we have only one chain!
    m<-dim(dat)[1]
    n<-dim(dat)[2]
    d<-dat
@@ -412,6 +419,8 @@ bbnam.pooled<-function(dat,nprior=0.5,emprior=c(1,11),epprior=c(1,11), diag=FALS
          pygt<-apply(d*(1-em.a)+(1-d)*em.a,c(2,3),prod,na.rm=TRUE)
          pygnt<-apply(d*ep.a+(1-d)*(1-ep.a),c(2,3),prod,na.rm=TRUE)
          tieprob<-(nprior*pygt)/(nprior*pygt+(1-nprior)*pygnt)
+         if(mode=="graph")
+           tieprob[upper.tri(tieprob)]<-t(tieprob)[upper.tri(tieprob)]
          #Draw Bernoulli graph
          a[i,j,,]<-rgraph(n,1,tprob=tieprob,mode=mode,diag=diag)
          if(!quiet)
@@ -1048,7 +1057,7 @@ lnam<-function(y,x=NULL,W1=NULL,W2=NULL,theta.seed=NULL,null.model=c("meanstd","
   }
   #Calculate the expected Fisher information matrix for a fitted model
   infomat<-function(parm){     #Numerical version (requires numDeriv)
-    require(numDeriv)
+    requireNamespace('numDeriv')
     locnll<-function(par){
       #Prepare ll elements according to which parameters are present
       if(nw1>0){
@@ -1076,7 +1085,7 @@ lnam<-function(y,x=NULL,W1=NULL,W2=NULL,theta.seed=NULL,null.model=c("meanstd","
       n/2*(log(2*pi)+log(par[m]))+ t(W1ay-Xb)%*%tpW2a%*%(W1ay-Xb)/(2*par[m]) -ladetW1a-ladetW2a
     }
     #Return the information matrix
-    hessian(locnll,c(parm$beta,parm$rho1,parm$rho2,parm$sigmasq)) 
+    numDeriv::hessian(locnll,c(parm$beta,parm$rho1,parm$rho2,parm$sigmasq)) 
   }
   #How many data points are there?
   n<-length(y)
@@ -1538,9 +1547,9 @@ netlm<-function(y,x,intercept=TRUE,mode="digraph",diag=FALSE,nullhyp=c("qap", "q
       for(j in 1:reps){
         #Modify the focal x
         gr[[i+1]]<-switch(nullhyp,
-          cugtie<-rgraph(n,mode=mode,diag=diag,replace=FALSE,tielist=g[[i+1]]),
-          cugden<-rgraph(n,tprob=gden(g[[i+1]],mode=mode,diag=diag),mode=mode, diag=diag),
-          cuguman<-(function(dc,n){rguman(1,n,mut=x[1],asym=x[2],null=x[3], method="exact")})(dyad.census(g[[i+1]]),n)
+          cugtie=rgraph(n,mode=mode,diag=diag,replace=FALSE,tielist=g[[i+1]]),
+          cugden=rgraph(n,tprob=gden(g[[i+1]],mode=mode,diag=diag),mode=mode, diag=diag),
+          cuguman=(function(dc,n){rguman(1,n,mut=dc[1],asym=dc[2],null=dc[3], method="exact")})(dyad.census(g[[i+1]]),n)
         )
         #Fit model with modified x
         repdist[j,i]<-gfit(gr,mode=mode,diag=diag,tol=tol,rety=FALSE, tstat=tstat)[i]
@@ -1637,7 +1646,7 @@ netlm<-function(y,x,intercept=TRUE,mode="digraph",diag=FALSE,nullhyp=c("qap", "q
 #binomial/logit GLM.  It's also frighteningly slow, since it's essentially a 
 #front end to the builtin GLM routine with a bunch of network hypothesis testing
 #stuff thrown in for good measure.
-netlogit<-function(y,x,intercept=TRUE,mode="digraph",diag=FALSE,nullhyp=c("qap", "qapspp","qapy","qapx","qapallx","cugtie","cugden","cuguman","classical"), tol=1e-7,reps=1000){
+netlogit<-function(y,x,intercept=TRUE,mode="digraph",diag=FALSE,nullhyp=c("qap", "qapspp","qapy","qapx","qapallx","cugtie","cugden","cuguman","classical"), test.statistic=c("z-value","beta"), tol=1e-7,reps=1000){
   #Define an internal routine to quickly fit logit models to graphs
   gfit<-function(glist,mode,diag){
     y<-gvectorize(glist[[1]],mode=mode,diag=diag,censor.as.na=TRUE)
@@ -1687,6 +1696,13 @@ netlogit<-function(y,x,intercept=TRUE,mode="digraph",diag=FALSE,nullhyp=c("qap",
   fit$coefficients<-fit.base$coefficients
   fit$fitted.values<-fit.base$fitted.values
   fit$residuals<-fit.base$residuals
+  fit$se<-sqrt(diag(chol2inv(fit.base$qr$qr)))
+  tstat<-match.arg(test.statistic)
+  fit$test.statistic<-tstat
+  if(tstat=="beta")
+    fit$tstat<-fit$coefficients
+  else if(tstat=="z-value")
+    fit$tstat<-fit$coefficients/fit$se
   fit$linear.predictors<-fit.base$linear.predictors
   fit$n<-length(fit.base$y)
   fit$df.model<-fit.base$rank
@@ -1727,19 +1743,23 @@ netlogit<-function(y,x,intercept=TRUE,mode="digraph",diag=FALSE,nullhyp=c("qap",
       for(j in 1:reps){
         #Modify the focal x
         gr[[i+1]]<-switch(nullhyp,
-          cugtie<-rgraph(n,mode=mode,diag=diag,replace=FALSE,tielist=g[[i+1]]),
-          cugden<-rgraph(n,tprob=gden(g[[i+1]],mode=mode,diag=diag),mode=mode, diag=diag),
-          cuguman<-(function(dc,n){rguman(1,n,mut=x[1],asym=x[2],null=x[3], method="exact")})(dyad.census(g[[i+1]]),n)
+          cugtie=rgraph(n,mode=mode,diag=diag,replace=FALSE,tielist=g[[i+1]]),
+          cugden=rgraph(n,tprob=gden(g[[i+1]],mode=mode,diag=diag),mode=mode, diag=diag),
+          cuguman=(function(dc,n){rguman(1,n,mut=dc[1],asym=dc[2],null=dc[3], method="exact")})(dyad.census(g[[i+1]]),n)
         )
         #Fit model with modified x
-        repdist[j,i]<-gfit(gr,mode=mode,diag=diag)$coef[i]
+        repfit<-gfit(gr,mode=mode,diag=diag)
+        if(tstat=="beta")
+          repdist[j,i]<-repfit$coef[i]
+        else
+          repdist[j,i]<-repfit$coef[i]/sqrt(diag(chol2inv(repfit$qr$qr)))[i]
       }
     }
     #Prepare output
     fit$dist<-repdist
-    fit$pleeq<-apply(sweep(fit$dist,2,fit$coefficients,"<="),2,mean)
-    fit$pgreq<-apply(sweep(fit$dist,2,fit$coefficients,">="),2,mean)
-    fit$pgreqabs<-apply(sweep(abs(fit$dist),2,abs(fit$coefficients),">="),2, mean)
+    fit$pleeq<-apply(sweep(fit$dist,2,fit$tstat,"<="),2,mean)
+    fit$pgreq<-apply(sweep(fit$dist,2,fit$tstat,">="),2,mean)
+    fit$pgreqabs<-apply(sweep(abs(fit$dist),2,abs(fit$tstat),">="),2, mean)
   }else if(nullhyp=="qapy"){
     #Generate replicates for each predictor
     repdist<-matrix(0,reps,nx)
@@ -1747,13 +1767,17 @@ netlogit<-function(y,x,intercept=TRUE,mode="digraph",diag=FALSE,nullhyp=c("qap",
     for(i in 1:reps){
       gr[[1]]<-rmperm(g[[1]])  #Permute y
       #Fit the model under replication
-      repdist[i,]<-gfit(gr,mode=mode,diag=diag)$coef
+      repfit<-gfit(gr,mode=mode,diag=diag)
+      if(tstat=="beta")
+        repdist[i,]<-repfit$coef
+      else
+        repdist[i,]<-repfit$coef/sqrt(diag(chol2inv(repfit$qr$qr)))
     }
     #Prepare output
     fit$dist<-repdist
-    fit$pleeq<-apply(sweep(fit$dist,2,fit$coefficients,"<="),2,mean)
-    fit$pgreq<-apply(sweep(fit$dist,2,fit$coefficients,">="),2,mean)
-    fit$pgreqabs<-apply(sweep(abs(fit$dist),2,abs(fit$coefficients),">="),2, mean)
+    fit$pleeq<-apply(sweep(fit$dist,2,fit$tstat,"<="),2,mean)
+    fit$pgreq<-apply(sweep(fit$dist,2,fit$tstat,">="),2,mean)
+    fit$pgreqabs<-apply(sweep(abs(fit$dist),2,abs(fit$tstat),">="),2, mean)
   }else if(nullhyp=="qapx"){
     #Generate replicates for each predictor
     repdist<-matrix(0,reps,nx)
@@ -1762,14 +1786,18 @@ netlogit<-function(y,x,intercept=TRUE,mode="digraph",diag=FALSE,nullhyp=c("qap",
       for(j in 1:reps){
         gr[[i+1]]<-rmperm(gr[[i+1]]) #Modify the focal x
         #Fit model with modified x
-        repdist[j,i]<-gfit(gr,mode=mode,diag=diag)$coef[i]
+        repfit<-gfit(gr,mode=mode,diag=diag)
+        if(tstat=="beta")
+          repdist[j,i]<-repfit$coef[i]
+        else
+          repdist[j,i]<-repfit$coef[i]/sqrt(diag(chol2inv(repfit$qr$qr)))[i]
       }
     }
     #Prepare output
     fit$dist<-repdist
-    fit$pleeq<-apply(sweep(fit$dist,2,fit$coefficients,"<="),2,mean)
-    fit$pgreq<-apply(sweep(fit$dist,2,fit$coefficients,">="),2,mean)
-    fit$pgreqabs<-apply(sweep(abs(fit$dist),2,abs(fit$coefficients),">="),2, mean)
+    fit$pleeq<-apply(sweep(fit$dist,2,fit$tstat,"<="),2,mean)
+    fit$pgreq<-apply(sweep(fit$dist,2,fit$tstat,">="),2,mean)
+    fit$pgreqabs<-apply(sweep(abs(fit$dist),2,abs(fit$tstat),">="),2, mean)
   }else if(nullhyp=="qapallx"){
     #Generate replicates for each predictor
     repdist<-matrix(0,reps,nx)
@@ -1778,13 +1806,17 @@ netlogit<-function(y,x,intercept=TRUE,mode="digraph",diag=FALSE,nullhyp=c("qap",
       for(j in 1:nx)
         gr[[1+j]]<-rmperm(g[[1+j]])  #Permute each x
       #Fit the model under replication
-      repdist[i,]<-gfit(gr,mode=mode,diag=diag)$coef
+      repfit<-gfit(gr,mode=mode,diag=diag)
+      if(tstat=="beta")
+        repdist[i,]<-repfit$coef
+      else
+        repdist[i,]<-repfit$coef/sqrt(diag(chol2inv(repfit$qr$qr)))
     }
     #Prepare output
     fit$dist<-repdist
-    fit$pleeq<-apply(sweep(fit$dist,2,fit$coefficients,"<="),2,mean)
-    fit$pgreq<-apply(sweep(fit$dist,2,fit$coefficients,">="),2,mean)
-    fit$pgreqabs<-apply(sweep(abs(fit$dist),2,abs(fit$coefficients),">="),2, mean)
+    fit$pleeq<-apply(sweep(fit$dist,2,fit$tstat,"<="),2,mean)
+    fit$pgreq<-apply(sweep(fit$dist,2,fit$tstat,">="),2,mean)
+    fit$pgreqabs<-apply(sweep(abs(fit$dist),2,abs(fit$tstat),">="),2, mean)
   }else if((nullhyp=="qap")||(nullhyp=="qapspp")){
     xsel<-matrix(TRUE,n,n)
     if(!diag)
@@ -1801,14 +1833,19 @@ netlogit<-function(y,x,intercept=TRUE,mode="digraph",diag=FALSE,nullhyp=c("qap",
       if(mode=="graph")
         xres[upper.tri(xres)]<-t(xres)[upper.tri(xres)]
       #Draw replicate coefs using permuted x residuals
-      for(j in 1:reps)
-        repdist[j,i]<-gfit(c(g[-(1+i)],list(rmperm(xres))),mode=mode, diag=diag)$coef[nx]
+      for(j in 1:reps){
+        repfit<-gfit(c(g[-(1+i)],list(rmperm(xres))),mode=mode, diag=diag)
+        if(tstat=="beta")
+          repdist[j,i]<-repfit$coef[nx]
+        else
+          repdist[j,i]<-repfit$coef[nx]/sqrt(diag(chol2inv(repfit$qr$qr)))[nx]
+      }
     }
     #Prepare output
     fit$dist<-repdist
-    fit$pleeq<-apply(sweep(fit$dist,2,fit$coefficients,"<="),2,mean)
-    fit$pgreq<-apply(sweep(fit$dist,2,fit$coefficients,">="),2,mean)
-    fit$pgreqabs<-apply(sweep(abs(fit$dist),2,abs(fit$coefficients),">="),2, mean)
+    fit$pleeq<-apply(sweep(fit$dist,2,fit$tstat,"<="),2,mean)
+    fit$pgreq<-apply(sweep(fit$dist,2,fit$tstat,">="),2,mean)
+    fit$pgreqabs<-apply(sweep(abs(fit$dist),2,abs(fit$tstat),">="),2, mean)
   }
   #Finalize the results
   fit$nullhyp<-nullhyp

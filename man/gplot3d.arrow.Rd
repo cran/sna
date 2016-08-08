@@ -3,7 +3,7 @@
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{ Add Arrows a Three-Dimensional Plot }
 \description{
-  \code{gplot3d.arrow} draws an arrow between two pairs of points..
+  \code{gplot3d.arrow} draws an arrow between two pairs of points.
 }
 \usage{
 gplot3d.arrow(a, b, radius, color = "white", alpha = 1)

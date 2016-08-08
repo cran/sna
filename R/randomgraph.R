@@ -3,7 +3,7 @@
 # randomgraph.R
 #
 # copyright (c) 2004, Carter T. Butts <buttsc@uci.edu>
-# Last Modified 2/27/13
+# Last Modified 5/11/15
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/sna package
@@ -68,25 +68,42 @@ rewire.ws<-function(g,p,return.as.edgelist=FALSE){
 
 
 #rgbn - Draw from a biased net model
-rgbn<-function(n,nv,param=list(pi=0,sigma=0,rho=0,d=0.5),burn=nv*nv*5*1e2,thin=nv*nv*5,maxiter=1e7,method=c("mcmc","cftp"),return.as.edgelist=FALSE){
+rgbn<-function(n,nv,param=list(pi=0,sigma=0,rho=0,d=0.5,delta=0),burn=nv*nv*5*1e2,thin=nv*nv*5,maxiter=1e7,method=c("mcmc","cftp"),dichotomize.sib.effects=FALSE,return.as.edgelist=FALSE){
   #Allocate memory for the graphs
   g<-array(0,dim=c(n,nv,nv))
   #Get the parameter vector
   p<-rep(0,4)
   if(!is.null(param$pi))
-    p[1]<-param$pi
+    p[1]<-param$pi[1]
   if(!is.null(param$sigma))
-    p[2]<-param$sigma
+    p[2]<-param$sigma[1]
   if(!is.null(param$rho))
-    p[3]<-param$rho
-  if(!is.null(param$d))
-    p[4]<-param$d
+    p[3]<-param$rho[1]
+  if(!is.null(param$delta))
+    p[4]<-param$delta[1]
+  if((p[4]>0)&&(match.arg(method)=="cftp"))
+    stop("Satiation parameter (delta) not supported with CFTP at present; use MCMC instead.\n")
+  if(!is.null(param$d)){
+    d<-matrix(param$d,nv,nv)
+  }else
+    d<-matrix(0,nv,nv)
   #Take the draws
   if(match.arg(method)=="mcmc")
-    g<-array(.C("bn_mcmc_R",g=as.integer(g),as.double(nv),as.double(n), as.double(burn),as.integer(thin),as.double(p[1]),as.double(p[2]),as.double(p[3]),as.double(p[4]), PACKAGE="sna")$g,dim=c(n,nv,nv))
+    g<-array(.C("bn_mcmc_R",g=as.integer(g),as.double(nv),as.double(n), as.double(burn),as.integer(thin),as.double(p[1]),as.double(p[2]),as.double(p[3]),as.double(d), as.double(p[4]),as.integer(dichotomize.sib.effects),PACKAGE="sna")$g,dim=c(n,nv,nv))
   else{
-    for(i in 1:n){
-      g[i,,]<-matrix(.C("bn_cftp_R",g=as.integer(g[i,,]),as.integer(nv), as.double(p[1]),as.double(p[2]),as.double(p[3]),as.double(p[4]), as.integer(maxiter),PACKAGE="sna",NAOK=TRUE)$g,nv,nv)
+    if(any(d>0)){        #If d==0, just return empty graphs
+      if(all(d==1)){     #If d==1, just return complete graphs (no delta support yet!)
+        for(i in 1:n){
+          g[i,,]<-1
+          diag(g[i,,])<-0
+        }
+      }else{             #OK, a nontrivial case.  Let's go for it.
+        d[d==0]<-1e-10     #CFTP algorithm not so happy with 0s
+        d[d==1]<-1-1e-10   #Doesn't like exact 1s, either
+        for(i in 1:n){
+          g[i,,]<-matrix(.C("bn_cftp_R",g=as.integer(g[i,,]),as.integer(nv), as.double(p[1]),as.double(p[2]),as.double(p[3]),as.double(d), as.integer(maxiter),as.integer(dichotomize.sib.effects),PACKAGE="sna",NAOK=TRUE)$g,nv,nv)
+        }
+      }
     }
   }
   #Return the result
@@ -100,7 +117,13 @@ rgbn<-function(n,nv,param=list(pi=0,sigma=0,rho=0,d=0.5),burn=nv*nv*5*1e2,thin=n
   }
 }
 
-
+#r[i]=1-u^i
+#p r[1]^(n-1)
+#p^2 (n-1)C1 (1-r[1]) r[2]^(n-2)
+#p^3 (n-1)C2 (1-r[1])(1-r[2]) r[3]^(n-3)
+#...
+#p^i (n-1)C(i-1) r[i]^(n-i) prod_j=1^{i-1} (1-r[j])
+# = p^i (n-1)C(i-1) (1-u^i)^(n-i) u^{i(i-1)/2}
 #rgmn - Draw a density-conditioned graph
 rgnm<-function(n,nv,m,mode="digraph",diag=FALSE,return.as.edgelist=FALSE){
   #Allocate the graph stack

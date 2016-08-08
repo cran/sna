@@ -10,7 +10,8 @@ Compute Cycle Census Information
 }
 \usage{
 clique.census(dat, mode = "digraph", tabulate.by.vertex = TRUE,
-    clique.comembership = c("none", "sum", "bysize"), enumerate = TRUE)
+    clique.comembership = c("none", "sum", "bysize"), enumerate = TRUE,
+    na.omit = TRUE)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -28,6 +29,9 @@ the type of clique co-membership information to be tabulated, if any.  \code{"su
 }
   \item{enumerate}{
 logical; should an enumeration of all maximal cliques be returned?
+}
+  \item{na.omit}{
+logical; should missing edges be omitted?
 }
 }
 \details{

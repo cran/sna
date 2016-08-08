@@ -184,8 +184,8 @@ prior to calling this routine.
     ywid=(ymax-ymin)/((double)ncell);
     vcells=NULL;
     for(j=0;j<n;j++){   /*Assign each vertex to a cell*/
-      jx=MAX(MIN(x[j]+rnorm(0.0,xwid*cjit),xmax),xmin);  /*Jitter for memb*/
-      jy=MAX(MIN(y[j]+rnorm(0.0,ywid*cjit),ymax),ymin);
+      jx=MAX(MIN(x[j]+rnorm(0.0,xwid*cjit),xmax-1e-6*xwid),xmin+1e-6*xwid);  /*Jitter for memb*/
+      jy=MAX(MIN(y[j]+rnorm(0.0,ywid*cjit),ymax-1e-6*ywid),ymin+1e-6*ywid);
       cellid[j]=(int)(floor((jx-xmin)/xwid)+ncell*floor((jy-ymin)/ywid));
       /*Find j's cell (or create an entry, if not already present)*/
       for(p=vcells;(p!=NULL)&&(p->next!=NULL)&&(p->id!=cellid[j]);p=p->next);

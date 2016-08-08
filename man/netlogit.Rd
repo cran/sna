@@ -7,9 +7,9 @@
 }
 \usage{
 netlogit(y, x, intercept=TRUE, mode="digraph", diag=FALSE,
-     nullhyp=c("qap", "qapspp", "qapy", "qapx", "qapallx", 
-    "cugtie", "cugden", "cuguman", "classical"), tol=1e-7,
-    reps=1000)
+    nullhyp=c("qap", "qapspp", "qapy", "qapx", "qapallx", 
+    "cugtie", "cugden", "cuguman", "classical"), test.statistic = 
+    c("z-value","beta"), tol=1e-7, reps=1000)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
@@ -19,6 +19,7 @@ netlogit(y, x, intercept=TRUE, mode="digraph", diag=FALSE,
   \item{mode}{ string indicating the type of graph being evaluated.  \code{"digraph"} indicates that edges should be interpreted as directed; \code{"graph"} indicates that edges are undirected.  \code{mode} is set to \code{"digraph"} by default. }
   \item{diag}{  boolean indicating whether or not the diagonal should be treated as valid data.  Set this true if and only if the data can contain loops.  \code{diag} is \code{FALSE} by default. }
   \item{nullhyp}{ string indicating the particular null hypothesis against which to test the observed estimands. }
+  \item{test.statistic}{string indicating the test statistic to be used for the Monte Carlo procedures.}
   \item{tol}{ tolerance parameter for \code{qr.solve}. }
   \item{reps}{ integer indicating the number of draws to use for quantile estimation.  (Relevant to the null hypothesis test only -- the analysis itself is unaffected by this parameter.)  Note that, as for all Monte Carlo procedures, convergence is slower for more extreme quantiles.  By default, \code{reps}=1000. }
 }
@@ -36,12 +37,18 @@ Because of the frequent presence of row/column/block autocorrelation in network 
   \item{\code{cugtie}}{conditional uniform graph test, controlling for order and tie distribution.}
   \item{\code{qap}}{QAP permutation test (see \code{\link{qaptest}}); currently identical to \code{qapspp}. }
   \item{\code{qapallx}}{QAP permutation test, using independent x-permutations.}
-  \item{\code{qapspp}}{QAP permutation test, using Dekker's "semi-partialling plus" procedure. }
+  \item{\code{qapspp}}{QAP permutation test, using Dekker's \dQuote{semi-partialling plus} procedure. }
   \item{\code{qapx}}{QAP permutation test, using (single) x-permutations.}
   \item{\code{qapy}}{QAP permutation test, using y-permutations.}
 }
 
-Note that interpretation of quantiles for single coefficients can be complex in the presence of multicollinearity or third variable effects.  Although \code{qapspp} is known to be robust to these conditions in the OLS case, there are no equivalent results for logistic regression.  Caution is thus advised.  Reasonable printing and summarizing of \code{netlogit} objects is provided by \code{\link{print.netlogit}} and \code{\link{summary.netlogit}}, respectively.  No plot methods exist at this time.
+Note that interpretation of quantiles for single coefficients can be complex in the presence of multicollinearity or third variable effects.  Although \code{qapspp} is known to be robust to these conditions in the OLS case, there are no equivalent results for logistic regression.  Caution is thus advised.  
+
+The statistic to be employed in the above tests may be selected via \code{test.statistic}.  By default, the z-statistic (rather than estimated coefficient) is used, as this is more approximately pivotal; coefficient-based tests are not recommended for QAP null hypotheses, although they are provided here for legacy purposes.
+
+Reasonable printing and summarizing of \code{netlogit} objects is provided by \code{\link{print.netlogit}} and \code{\link{summary.netlogit}}, respectively.  No plot methods exist at this time.
+
+
 }
 \value{
   An object of class \code{netlogit}

@@ -3,7 +3,7 @@
 # gmultiv.R
 #
 # copyright (c) 2004, Carter T. Butts <buttsc@uci.edu>
-# Last Modified 4/30/09
+# Last Modified 8/5/16
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/sna package
@@ -655,12 +655,6 @@ structdist<-function(dat,g1=NULL,g2=NULL,normalize=FALSE,diag=FALSE,mode="digrap
    gn<-dim(dat)[1]
    gn1<-length(g1)
    gn2<-length(g2)
-   #Scrap the diagonals, if required
-   if(!diag)
-      d<-diag.remove(d)
-   #Now, get rid of the upper triangle if these are simple graphs
-   if(mode=="graph")
-      d<-upper.tri.remove(d)
    #If exchange list is a single number or vector, expand it via replication in a reasonable manner
    if(is.null(dim(exchange.list))){       #Exchange list was given as a single number or vector
       if(length(exchange.list)==1){             #Single number case
@@ -674,23 +668,34 @@ structdist<-function(dat,g1=NULL,g2=NULL,normalize=FALSE,diag=FALSE,mode="digrap
    hd<-matrix(nrow=gn1,ncol=gn2)
    rownames(hd)<-g1
    colnames(hd)<-g2
+   if(mode=="graph"){
+      if(diag)
+        dfun<-function(m1,m2){sum(abs(m1-m2),na.rm=TRUE)/2+sum(abs(diag(m1)-diag(m2)),na.rm=TRUE)/2}
+      else
+        dfun<-function(m1,m2){dm<-abs(m1-m2); sum(dm[diag(NROW(dm))==0],na.rm=TRUE)/2}
+   }else{
+      if(diag)
+        dfun<-function(m1,m2){sum(abs(m1-m2),na.rm=TRUE)}
+      else
+        dfun<-function(m1,m2){dm<-abs(m1-m2); sum(dm[diag(NROW(dm))==0],na.rm=TRUE)}
+   }
    if(method=="exhaustive"){
       for(i in 1:gn1)
          for(j in 1:gn2)
-            hd[i,j]<-lab.optimize.exhaustive(d[g1[i],,],d[g2[j],,],function(m1,m2){sum(abs(m1-m2),na.rm=TRUE)},exchange.list=el[c(g1[i],g2[j]),],seek="min")
+            hd[i,j]<-lab.optimize.exhaustive(d[g1[i],,],d[g2[j],,],dfun,exchange.list=el[c(g1[i],g2[j]),],seek="min")
    }else if(method=="anneal"){
       for(i in 1:gn1)
          for(j in 1:gn2){
-            hd[i,j]<-lab.optimize.anneal(d[g1[i],,],d[g2[j],,],function(m1,m2){sum(abs(m1-m2),na.rm=TRUE)},exchange.list=el[c(g1[i],g2[j]),],seek="min",prob.init=prob.init,prob.decay=prob.decay,freeze.time=freeze.time,full.neighborhood=full.neighborhood)
+            hd[i,j]<-lab.optimize.anneal(d[g1[i],,],d[g2[j],,],dfun,exchange.list=el[c(g1[i],g2[j]),],seek="min",prob.init=prob.init,prob.decay=prob.decay,freeze.time=freeze.time,full.neighborhood=full.neighborhood)
          }
    }else if(method=="hillclimb"){
       for(i in 1:gn1)
          for(j in 1:gn2)
-            hd[i,j]<-lab.optimize.hillclimb(d[g1[i],,],d[g2[j],,],function(m1,m2){sum(abs(m1-m2),na.rm=TRUE)},exchange.list=el[c(g1[i],g2[j]),],seek="min")
+            hd[i,j]<-lab.optimize.hillclimb(d[g1[i],,],d[g2[j],,],dfun,exchange.list=el[c(g1[i],g2[j]),],seek="min")
    }else if(method=="mc"){
       for(i in 1:gn1)
          for(j in 1:gn2)
-            hd[i,j]<-lab.optimize.mc(d[g1[i],,],d[g2[j],,],function(m1,m2){sum(abs(m1-m2),na.rm=TRUE)},exchange.list=el[c(g1[i],g2[j]),],seek="min",draws=reps)
+            hd[i,j]<-lab.optimize.mc(d[g1[i],,],d[g2[j],,],dfun,exchange.list=el[c(g1[i],g2[j]),],seek="min",draws=reps)
    }else if(method=="ga"){
       #This is broken right now - exit with a warning
       stop("Sorry, GA mode is not currently supported.\n")
@@ -701,7 +706,7 @@ structdist<-function(dat,g1=NULL,g2=NULL,normalize=FALSE,diag=FALSE,mode="digrap
             d2<-d[g2[j],order(el[2,]),order(el[2,])]  #Reorder d2
             if(any(el[1,]!=el[2,]))  #Make sure the exlist is legal
                stop("Illegal exchange list; lists must be comparable!\n")
-            hd[i,j]<-sum(abs(d1-d2),na.rm=TRUE)
+            hd[i,j]<-dfun(d1,d2)
          }
    }else{
       cat("Method",method,"not implemented yet.\n")

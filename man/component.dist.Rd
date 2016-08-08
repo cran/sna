@@ -13,13 +13,15 @@ component.dist(dat, connected=c("strong","weak","unilateral",
      "recursive"))
 
 component.largest(dat, connected=c("strong","weak","unilateral",
-     "recursive"), result = c("membership", "graph"))
+     "recursive"), result = c("membership", "graph"), return.as.edgelist =
+     FALSE)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
   \item{dat}{ one or more input graphs. }
   \item{connected}{ a string selecting strong, weak, unilateral or recursively connected components; by default, \code{"strong"} components are used.}
   \item{result}{ a string indicating whether a vector of membership indicators or the induced subgraph of the component should be returned. }
+  \item{return.as.edgelist}{ logical; if \code{result=="graph"}, should the resulting structure be returned in edgelist form?}
 }
 \details{
 Components are maximal sets of mutually connected vertices; depending on the definition of ``connected'' one employs, one can arrive at several types of components.  Those supported here are as follows (in increasing order of restrictiveness):
@@ -45,12 +47,12 @@ For \code{component.dist}, a list containing:
 
 If multiple input graphs are given, the return value is a list of lists.
 
-For \code{component.largest}, either a \code{logical} vector of component membership indicators or the adjacency matrix of the subgraph induced by the largest component(s) is returned.  If multiple graphs were given as input, a list of results is returned.
+For \code{component.largest}, either a \code{logical} vector of component membership indicators or the adjacency matrix/edgelist of the subgraph induced by the largest component(s) is returned.  If multiple graphs were given as input, a list of results is returned.
 }
 \references{ West, D.B.  (1996).  \emph{Introduction to Graph Theory.}  Upper Saddle River, N.J.: Prentice Hall.}
 \author{ Carter T. Butts \email{buttsc@uci.edu} }
 
-\section{Note}{Unilaterally connected component partitions may not be well-defined, since it is possible for a given vertex to be unilaterally connected to two vertices which are not unilaterally connected with one another.  Consider, for instance, the graph \eqn{a \rightarrow b \leftarrow c \rightarrow d}{a->b<-c<-d}.  In this case, the maximal unilateral components are \eqn{ab} and \eqn{bcd}, with vertex \eqn{b} properly belonging to both components.  For such graphs, a unique partition of vertices by component does not exist, and we ``solve'' the problem by allocating each ``problem vertex'' to one of its components on an essentially arbitrary basis.  (\code{component.dist} generates a warning when this occurs.)  It is recommended that the \code{unilateral} option be avoided where possible.
+\section{Note}{Unilaterally connected component partitions may not be well-defined, since it is possible for a given vertex to be unilaterally connected to two vertices that are not unilaterally connected with one another.  Consider, for instance, the graph \eqn{a \rightarrow b \leftarrow c \rightarrow d}{a->b<-c<-d}.  In this case, the maximal unilateral components are \eqn{ab} and \eqn{bcd}, with vertex \eqn{b} properly belonging to both components.  For such graphs, a unique partition of vertices by component does not exist, and we ``solve'' the problem by allocating each ``problem vertex'' to one of its components on an essentially arbitrary basis.  (\code{component.dist} generates a warning when this occurs.)  It is recommended that the \code{unilateral} option be avoided where possible.
 
 Do not make the mistake of assuming that the subgraphs returned by \code{component.largest} are necessarily connected.  This is \emph{usually} the case, but depends upon the uniqueness of the largest component.
 }

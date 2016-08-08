@@ -1,18 +1,18 @@
 \name{sna.operators}
 \alias{sna.operators}
-\alias{\%c\%}
+\alias{\%c\%.matrix}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{ Graphical Operators }
 \description{
  These operators allow for algebraic manupulation of graph adjacency matrices.
 }
 \usage{
-x \%c\% y
+\method{\%c\%}{matrix}(e1,e2)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{x}{ an (unvalued) adjacency matrix. }
-  \item{y}{ another (unvalued) adjacency matrix. }
+  \item{e1}{ an (unvalued) adjacency matrix. }
+  \item{e2}{ another (unvalued) adjacency matrix. }
 }
 \details{
   Currently, only one operator is supported.  \code{x \%c\% y} returns the adjacency matrix of the composition of graphs with adjacency matrices \code{x} and \code{y} (respectively).  (Note that this may contain loops.)

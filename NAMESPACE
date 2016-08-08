@@ -1,8 +1,75 @@
-# Export all names
-exportPattern(".")
-
 # Import all packages listed as Imports or Depends
 import(
-  utils
+  utils,
+  statnet.common,
+  network,
+  stats,
+  graphics
 )
+
+importFrom("grDevices", "dev.interactive", "gray")
+
+# Export everything but the %c% operators
+exportPattern("^[^%]")
+export('%c%.matrix')  # I think this is missed by the pattern above
+
+S3method(as.edgelist,sna)
+S3method('%c%','matrix') 
+S3method(coef,bn)
+S3method(coef,lnam) 
+S3method(plot,bbnam) 
+S3method(plot,bbnam.actor)
+S3method(plot,bbnam.fixed )
+S3method(plot,bbnam.pooled)
+S3method(plot,blockmodel )
+S3method(plot,bn)
+S3method(plot,cug.test )
+S3method(plot,cugtest )
+S3method(plot,equiv.clust )
+S3method(plot,lnam )
+S3method(plot,qaptest)
+S3method(plot,sociomatrix )
+S3method(print,bayes.factor )
+S3method(print,bbnam )
+S3method(print,bbnam.actor)
+S3method(print,bbnam.fixed )
+S3method(print,bbnam.pooled )
+S3method(print,blockmodel )
+S3method(print,bn)
+S3method(print,cug.test )
+S3method(print,cugtest )
+S3method(print,equiv.clust )
+S3method(print,lnam)
+S3method(print,netcancor )
+S3method(print,netlm )
+S3method(print,netlogit )
+S3method(print,qaptest)
+S3method(print,summary.bayes.factor )
+S3method(print,summary.bbnam)
+S3method(print,summary.bbnam.actor )
+S3method(print,summary.bbnam.fixed)
+S3method(print,summary.bbnam.pooled )
+S3method(print,summary.blockmodel )
+S3method(print,summary.bn)
+S3method(print,summary.brokerage )
+S3method(print,summary.cugtest )
+S3method(print,summary.lnam)
+S3method(print,summary.netcancor )
+S3method(print,summary.netlm )
+S3method(print,summary.netlogit)
+S3method(print,summary.qaptest )
+S3method(summary,bayes.factor )
+S3method(summary,bbnam)
+S3method(summary,bbnam.actor )
+S3method(summary,bbnam.fixed )
+S3method(summary,bbnam.pooled)
+S3method(summary,blockmodel )
+S3method(summary,bn )
+S3method(summary,brokerage )
+S3method(summary,cugtest)
+S3method(summary,lnam )
+S3method(summary,netcancor )
+S3method(summary,netlm )
+S3method(summary,netlogit)
+S3method(summary,qaptest)
 

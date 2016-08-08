@@ -3,7 +3,7 @@
 # dataprep.R
 #
 # copyright (c) 2004, Carter T. Butts <buttsc@uci.edu>
-# Last Modified 2/27/13
+# Last Modified 7/19/16
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/sna package
@@ -36,44 +36,29 @@
 
 #add.isolates - Add isolates to one or more graphs
 add.isolates<-function(dat,n,return.as.edgelist=FALSE){
-  if(!return.as.edgelist){
-    #Pre-process the raw input
-    dat<-as.sociomatrix.sna(dat)
-    if(is.list(dat))
-      return(lapply(dat,add.isolates,n=n,return.as.edgelist=return.as.edgelist))
-    #End pre-processing
-    if(length(dim(dat))>2){
-      d<-array(dim=c(dim(dat)[1],dim(dat)[2]+n,dim(dat)[3]+n))
-      d[,,]<-0
-      for(i in 1:dim(dat)[1])
-         d[i,1:dim(dat)[2],1:dim(dat)[2]]<-dat[i,,]
-    }else{
-      d<-matrix(nrow=dim(dat)[1]+n,ncol=dim(dat)[2]+n)
-      d[,]<-0
-      d[1:dim(dat)[2],1:dim(dat)[2]]<-dat
-    }   
-    d
-  }else{
-    #Pre-process the raw input
-    dat<-as.edgelist.sna(dat)
-    if(is.list(dat))
-      return(lapply(dat,add.isolates,n=n,return.as.edgelist=return.as.edgelist))
-    #End pre-processing
-    attr(dat,"n")<-attr(dat,"n")+n
+  dat<-as.edgelist.sna(dat)
+  if(is.list(dat))
+    return(lapply(dat,add.isolates,n=n,return.as.edgelist=return.as.edgelist))
+  #End pre-processing
+  attr(dat,"n")<-attr(dat,"n")+n
+  if(return.as.edgelist)
     dat
-  }
+  else
+    as.sociomatrix(dat)
 }
 
 
 #Force the input into edgelist form.  Network size, directedness, and vertex
 #names are stored as attributes, since they cannot otherwise be included
-as.edgelist.sna<-function(x, attrname=NULL, as.digraph=TRUE, suppress.diag=FALSE, force.bipartite=FALSE){
+as.edgelist.sna<-function(x, attrname=NULL, as.digraph=TRUE, suppress.diag=FALSE, force.bipartite=FALSE,...){
   #In case of lists, process independently
-  if(is.list(x)&&(!(class(x)%in%c("network","matrix.csr","matrix.csc", "matrix.ssr","matrix.ssc", "matrix.hb","data.frame"))))
+  # but this is tricky, since a 'network' object is also a list
+  if((is.list(x)&&!any(class(x)=='network') )&&(!(any(class(x)%in%c("network","matrix.csr","matrix.csc", "matrix.ssr","matrix.ssc", "matrix.hb","data.frame"))))){
+    # call this function on each element of the list and return as a list
     return(lapply(x,as.edgelist.sna, attrname=attrname,  as.digraph=as.digraph, suppress.diag=suppress.diag, force.bipartite=force.bipartite))
+  }
   #Begin with network objects
-  if(class(x)=="network"){
-    require("network")  #Must have network library to process network objects
+  if(any(class(x)=="network")){
     out<-as.matrix.network.edgelist(x,attrname=attrname,as.sna.edgelist=TRUE)
     #This should be fine unless we have an old version of network (<1.7);
     #here, we perform triage for old style objects.
@@ -105,7 +90,7 @@ as.edgelist.sna<-function(x, attrname=NULL, as.digraph=TRUE, suppress.diag=FALSE
   } else
   #Not a network -- is this a sparse matrix (from SparseM)?
   if(class(x)%in%c("matrix.csr","matrix.csc","matrix.ssr","matrix.ssc", "matrix.hb")){
-    require("SparseM")   #Need SparseM for this
+    requireNamespace("SparseM")   #Need SparseM for this
     if(force.bipartite||(!is.null(attr(x,"bipartite")))|| (x@dimension[1]!=x@dimension[2])){
       nr<-x@dimension[1]
       nc<-x@dimension[2]
@@ -291,15 +276,15 @@ as.edgelist.sna<-function(x, attrname=NULL, as.digraph=TRUE, suppress.diag=FALSE
 #wrapper to the network function as.sociomatrix, for global happiness.
 as.sociomatrix.sna<-function(x, attrname=NULL, simplify=TRUE, force.bipartite=FALSE){
   #If passed a list, operate on each element
-  if(is.list(x)&&(!(class(x)%in%c("network","matrix.csr","matrix.csc", "matrix.ssr","matrix.ssc", "matrix.hb","data.frame")))){
+  # but 'network' is also a list
+  if((is.list(x)&&!any(class(x)=='network'))&&(!(class(x)%in%c("network","matrix.csr","matrix.csc", "matrix.ssr","matrix.ssc", "matrix.hb","data.frame")))){
     g<-lapply(x,as.sociomatrix.sna,attrname=attrname,simplify=simplify, force.bipartite=force.bipartite)
     #Otherwise, start with network
-  }else if(class(x)=="network"){
-    require("network")  #Must have network library to process network objects
+  }else if(any(class(x)=="network")){
     g<-as.sociomatrix(x, attrname=attrname, simplify=simplify)
   #Not a network -- is this a sparse matrix (from SparseM)?
   }else if(class(x)%in%c("matrix.csr","matrix.csc","matrix.ssr","matrix.ssc", "matrix.hb")){
-    require("SparseM")   #Need SparseM for this
+    requireNamespace("SparseM")   #Need SparseM for this
     bip<-attr(x,"bipartite")
     g<-as.matrix(x)      #Coerce to matrix form, and pass on
     attr(g,"bipartite")<-bip
@@ -472,6 +457,8 @@ event2dichot<-function(m,method="quantile",thresh=0.5,leq=FALSE){
    if(is.list(m))
      return(lapply(m,event2dichot,method=method,thresh=thresh,leq=leq))
    #End pre-processing
+   rnam<-rownames(m)
+   cnam<-colnames(m)
    if(method=="quantile"){
       q<-quantile(m,thresh,na.rm=TRUE, names=FALSE)
       out<-as.numeric(m>q)
@@ -533,6 +520,9 @@ event2dichot<-function(m,method="quantile",thresh=0.5,leq=FALSE){
    else
       if(dim(out)!=dim(m))
          out<-array(out,dim=dim(m))
+   #Restore labels and return
+   rownames(out)<-rnam
+   colnames(out)<-cnam
    out
 }
 

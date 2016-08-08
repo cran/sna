@@ -3,7 +3,7 @@
 # visualization.R
 #
 # copyright (c) 2004, Carter T. Butts <buttsc@uci.edu>
-# Last Modified 2/28/13
+# Last Modified 7/18/16
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/sna package
@@ -1221,7 +1221,7 @@ gplot.vertex<-function(x,y,radius=1,sides=4,border=1,col=2,lty=NULL,rot=0,...){
 #gplot3d - Three-dimensional graph visualization
 gplot3d<-function(dat,g=1,gmode="digraph",diag=FALSE,label=NULL,coord=NULL,jitter=TRUE,thresh=0,mode="fruchtermanreingold",displayisolates=TRUE,displaylabels=!missing(label),xlab=NULL,ylab=NULL,zlab=NULL,vertex.radius=NULL,absolute.radius=FALSE,label.col="gray50",edge.col="black",vertex.col=NULL,edge.alpha=1,vertex.alpha=1,edge.lwd=NULL,suppress.axes=TRUE,new=TRUE,bg.col="white",layout.par=NULL){
    #Require that rgl be loaded
-   require(rgl)
+   requireNamespace('rgl')
    #Extract the graph to be displayed
    d<-as.edgelist.sna(dat,force.bipartite=(gmode=="twomode"))
    if(is.list(d))
@@ -1285,11 +1285,11 @@ gplot3d<-function(dat,g=1,gmode="digraph",diag=FALSE,label=NULL,coord=NULL,jitte
      zlab=""
    #Create the base plot, if needed
    if(new){  #If new==FALSE, we add to the existing plot; else create a new one
-     rgl.clear()
+     rgl::rgl.clear()
      if(!suppress.axes)      #Plot axes, if desired
-       rgl.bbox(xlab=xlab,ylab=ylab,zlab=zlab);
+       rgl::rgl.bbox(xlab=xlab,ylab=ylab,zlab=zlab);
    }
-   rgl.bg(color=bg.col)  
+   rgl::rgl.bg(color=bg.col)  
    #Plot vertices
    temp<-as.matrix(dist(cbind(x[use],y[use],z[use])))
    diag(temp)<-Inf
@@ -1303,7 +1303,7 @@ gplot3d<-function(dat,g=1,gmode="digraph",diag=FALSE,label=NULL,coord=NULL,jitte
    vertex.col<-rep(vertex.col,length=n)
    vertex.alpha<-rep(vertex.alpha,length=n)
    if(!all(use==FALSE))
-     rgl.spheres(x[use],y[use],z[use],radius=vertex.radius[use], color=vertex.col[use], alpha=vertex.alpha[use])
+     rgl::rgl.spheres(x[use],y[use],z[use],radius=vertex.radius[use], color=vertex.col[use], alpha=vertex.alpha[use])
    #Generate the edges and their attributes
    pt<-vector()   #Create position vectors (tail, head)
    ph<-vector()
@@ -1357,7 +1357,7 @@ gplot3d<-function(dat,g=1,gmode="digraph",diag=FALSE,label=NULL,coord=NULL,jitte
    }
    #Plot vertex labels, if needed
    if(displaylabels&(!all(label==""))&(!all(use==FALSE))){
-     rgl.texts(x[use]-vertex.radius[use],y[use],z[use],label[use], color=label.col)
+     rgl::rgl.texts(x[use]-vertex.radius[use],y[use],z[use],label[use], color=label.col)
    }
    #Return the vertex positions, should they be needed
    invisible(cbind(x,y,z))
@@ -1408,7 +1408,7 @@ gplot3d.arrow<-function(a,b,radius,color="white",alpha=1){
   for(i in 1:n)
     coord<-rbind(coord,make.coords(a[i,],b[i,],radius[i]))
   #Draw the triangles
-  rgl.triangles(coord[,1],coord[,2],coord[,3],color=rep(color,each=24), alpha=rep(alpha,each=24))
+  rgl::rgl.triangles(coord[,1],coord[,2],coord[,3],color=rep(color,each=24), alpha=rep(alpha,each=24))
 }
 
 
@@ -1786,7 +1786,7 @@ gplot3d.loop<-function(a,radius,color="white",alpha=1){
   for(i in 1:n)
     coord<-rbind(coord,make.coords(a[i,],radius[i]))
   #Plot the triangles
-  rgl.triangles(coord[,1],coord[,2],coord[,3],color=rep(color,each=24), alpha=rep(alpha,each=24))
+  rgl::rgl.triangles(coord[,1],coord[,2],coord[,3],color=rep(color,each=24), alpha=rep(alpha,each=24))
 }
 
 

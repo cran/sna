@@ -54,5 +54,6 @@ void evcent_R(double *mat, int *n, int *m, double *ev, double *tol, int *maxiter
 void stresscent_R(double *g, double *pn, double *stress, double *gd, 
 double *sigma);
 
+void gilschmidt_R(double *mat, int *n, int *m, double *scores, int *normalize);
 
 #endif

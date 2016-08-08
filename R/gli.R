@@ -3,7 +3,7 @@
 # gli.R
 #
 # copyright (c) 2004, Carter T. Butts <buttsc@uci.edu>
-# Last Modified 2/27/13
+# Last Modified 7/18/16
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/sna package
@@ -309,8 +309,7 @@ gtrans<-function(dat,g=NULL,diag=FALSE,mode="digraph",measure=c("weak","strong",
           FALSE
         else
           TRUE
-      }else if(class(z)=="network"){
-        require(network)
+      }else if(any(class(z)=="network")){
         if(network.size(z)>40000)
           FALSE
         else if((network.size(z)>1000)&& (network.edgecount(z)/network.size(z)^2<0.5))

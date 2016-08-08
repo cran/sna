@@ -9,8 +9,8 @@
 }
 \usage{
 as.sociomatrix.sna(x, attrname=NULL, simplify=TRUE, force.bipartite=FALSE)
-as.edgelist.sna(x, attrname = NULL, as.digraph = TRUE, 
-    suppress.diag = FALSE, force.bipartite = FALSE)
+\method{as.edgelist}{sna}(x, attrname = NULL, as.digraph = TRUE, 
+    suppress.diag = FALSE, force.bipartite = FALSE, ...)
 is.edgelist.sna(x)
 }
 \arguments{
@@ -20,6 +20,7 @@ is.edgelist.sna(x)
   \item{force.bipartite}{logical; should the data be interpreted as bipartite (with rows and columns representing different data modes)?}
   \item{as.digraph}{logical; should \code{\link[network]{network}} objects be coded as digraphs, regardless of object properties?  (Recommended)}
   \item{suppress.diag}{logical; should loops be suppressed?}
+  \item{...}{ additional arguments to \code{sna.edgelist} (currently ignored). }
 }
 %- maybe also `usage' for other objects documented here.
 \details{

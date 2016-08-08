@@ -4,7 +4,7 @@
 # nli.c
 #
 # copyright (c) 2004, Carter T. Butts <buttsc@uci.edu>
-# Last Modified 6/25/09
+# Last Modified 7/18/16
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/sna package
@@ -304,6 +304,37 @@ if ignoreeval==1 (i.e., all edges are treated as 1.0).
   }
   if(j==(*maxiter))
     warning("Maximum iterations exceeded in evcent_R without convergence.  This matrix may be pathological - increase maxiter or try eigen().\n");
+}
+
+
+void gilschmidt_R(double *mat, int *n, int *m, double *scores, int *normalize)
+{
+  snaNet *g;
+  double *gd,*sigma;
+  element **pred,*ptr;
+  int i,*npred;
+    
+  /*Initialize sna internal network*/
+  GetRNGstate();
+  g=elMatTosnaNet(mat,n,m);
+  PutRNGstate();
+
+  /*Initialize various other things*/
+  gd=(double *)R_alloc(*n,sizeof(double));
+  sigma=(double *)R_alloc(*n,sizeof(double));
+  pred=(element **)R_alloc(*n,sizeof(element *));
+  npred=(int *)R_alloc(*n,sizeof(int));
+
+  /*Now, find the unnormalized GS score for each vertex*/
+  for(i=0;i<*n;i++){
+    scores[i]=0.0;
+    spsp(i,g,gd,sigma,pred,npred,0);
+    for(ptr=pred[i];ptr!=NULL;ptr=ptr->next)  /*Walk those ego can reach*/
+      if((int)ptr->val!=i)
+        scores[i]+=1.0/gd[(int)ptr->val];     /*Increment as 1/dist*/
+    if(*normalize)
+      scores[i]/=npred[i]-1.0;
+  }
 }
 
 

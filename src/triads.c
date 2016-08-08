@@ -258,8 +258,9 @@ This routine may be called from R using .C.
 */
 {
   int i,j,k,sij,sjk,sik;
+  double ev;
   snaNet *g;
-  slelement *jp,*kp;
+  slelement *jp,*kp,*ikp;
 
   /*Form the snaNet and initialize t*/
   GetRNGstate();
@@ -312,8 +313,16 @@ This routine may be called from R using .C.
               if(((int)(jp->val)!=(int)(kp->val))&&(i!=(int)(kp->val))&& ((*checkna==0)||(!ISNAN(*((double *)(kp->dp)))))){
                 sik=snaIsAdjacent(i,(int)(kp->val),g,*checkna);
                 if(!IISNA(sik)){  /*Not counting in case 1 (but am in case 2)*/
-                  t[0]+=sik;
-                  t[1]++;
+                  if(sik){
+                    ikp=slistSearch(g->oel[i],kp->val); /*We already verified that it is here*/
+                    ev=*((double *)(ikp->dp));
+                  }else{
+                    ev=0.0;
+                  }
+                  if((*checkna==0)||(!ISNAN(ev))){
+                    t[0]+=(ev>=MIN(*((double *)(kp->dp)),*((double *)(jp->dp))));
+                    t[1]++;
+                  }
                 }
               }
             }

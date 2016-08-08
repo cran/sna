@@ -35,8 +35,8 @@ An alternate form of closeness (apparently due to Gil and Schmidt (1996)) is obt
 \deqn{C_C(v) = \frac{\sum_{i : i \neq v} \frac{1}{d(v,i)}}{\left|V\left(G\right)\right|-1}.}{%
 C_C(v) = sum( 1/d(v,i), i in V(G), i!=v )/(|V(G)|-1).}  This measure correlates well with the standard form of closeness where both are well-defined, but lacks the latter's pathological behavior on disconnected graphs.  Computation of alternate closeness may be performed via the argument \code{cmode="suminvdir"} (directed case) and \code{cmode="suminvundir"} (undirected case).  The corresponding arguments \code{cmode="directed"} and \code{cmode="undirected"} return the standard closeness scores in the directed or undirected cases (respectively).  Although treated here as a measure of closeness, this index was originally intended to capture power or efficacy; in its original form, the Gil-Schmidt power index is a renormalized version of the above.  Specifically, let \eqn{R(v,G)} be the set of vertices reachable by \eqn{v} in \eqn{V\setminus v}{V \ v}.  Then the Gil-Schmidt power index is defined as
 \deqn{C_{GS}(v) = \frac{\sum_{i \in R(v,G)} \frac{1}{d(v,i)}}{|R(v,G)|}.}{%
-C_GS(v) = sum( 1/d(v,i), i in R(v,G) )/|R(v,G)|.}
-This may be obtained via the argument \code{cmode="gil-schmidt"}.
+C_GS(v) = sum( 1/d(v,i), i in R(v,G) )/|R(v,G)|,}
+with \eqn{C_{GS}}{C_GS} defined to be 0 for vertices with no outneighbors.  This may be obtained via the argument \code{cmode="gil-schmidt"}.
 }
 \value{
 A vector, matrix, or list containing the closeness scores (depending on the number and size of the input graphs).
@@ -45,7 +45,7 @@ A vector, matrix, or list containing the closeness scores (depending on the numb
 
 Gil, J. and Schmidt, S.  (1996).  \dQuote{The Origin of the Mexican Network of Power}.  Proceedings of the International Social Network Conference, Charleston, SC, 22-25.
 
-Sinclair, P.A.  (2007).  \dQuote{}  \emph{Social Networks}, 29, 81-92.
+Sinclair, P.A.  (2009).  \dQuote{Network Centralization with the Gil Schmidt Power Centrality Index}  \emph{Social Networks}, 29, 81-92.
 }
 \author{ Carter T. Butts, \email{buttsc@uci.edu} }
 \note{ Judicious use of \code{geodist.precomp} can save a great deal of time when computing multiple path-based indices on the same network. }

@@ -3,7 +3,7 @@
 # connectivity.R
 #
 # copyright (c) 2004, Carter T. Butts <buttsc@uci.edu>
-# Last Modified 2/27/13
+# Last Modified 7/19/16
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/sna package
@@ -14,9 +14,10 @@
 # Contents:
 #  bicomponent.dist
 #  clique.census
-#  component
 #  component.dist
 #  component.largest
+#  component.size.byvertex
+#  components
 #  cutpoints
 #  geodist
 #  isolates
@@ -79,17 +80,23 @@ bicomponent.dist<-function(dat,symmetrize=c("strong","weak")){
 
 
 #clique.census - Enumerate all maximal cliques
-clique.census<-function(dat,mode="digraph",tabulate.by.vertex=TRUE,clique.comembership=c("none","sum","bysize"),enumerate=TRUE){
+clique.census<-function(dat,mode="digraph",tabulate.by.vertex=TRUE,clique.comembership=c("none","sum","bysize"),enumerate=TRUE, na.omit=TRUE){
   #Pre-process the raw input
   dat<-as.edgelist.sna(dat)
   if(is.list(dat))
-    return(lapply(dat,clique.census,mode=mode, tabulate.by.vertex=tabulate.by.vertex,clique.comembership=clique.comembership,enumerate=enumerate))
+    return(lapply(dat,clique.census,mode=mode, tabulate.by.vertex=tabulate.by.vertex,clique.comembership=clique.comembership,enumerate=enumerate, na.omit=na.omit))
   #End pre-processing
   n<-attr(dat,"n")
   if(is.null(attr(dat,"vnames")))
     vnam<-paste("v",1:n,sep="")
   else
     vnam<-attr(dat,"vnames")
+  if(na.omit)
+    dat<-dat[!is.na(dat[,3]),,drop=FALSE]  #Drop any edges with NAs
+  else
+    dat[is.na(dat[,3]),3]<-1               #Else, recode to safe values
+  dat<-dat[dat[,1]!=dat[,2],]              #Remove loops
+  attr(dat,"n")<-n
   #If called with a digraph, symmetrize
   if(mode=="digraph")
     dat<-symmetrize(dat,rule="strong",return.as.edgelist=TRUE)
@@ -133,70 +140,123 @@ clique.census<-function(dat,mode="digraph",tabulate.by.vertex=TRUE,clique.comemb
 #by the eponymous parameter given to the symmetrize command.
 component.dist<-function(dat,connected=c("strong","weak","unilateral","recursive")){
    #Pre-process the raw input
-   dat<-as.sociomatrix.sna(dat)
+   if(match.arg(connected)%in%c("strong","weak","recursive"))
+     dat<-as.edgelist.sna(dat)
+   else
+     dat<-as.sociomatrix.sna(dat)
    if(is.list(dat))
      return(lapply(dat,component.dist,connected=connected))
    else if(length(dim(dat))>2)
      return(apply(dat,1,component.dist,connected=connected))
    #End pre-processing
    #Begin routine
-   n<-dim(dat)[2]
-   #Symmetrize dat based on the connectedness rule
-   if(any(dat!=t(dat)))  #Don't bother with this unless we need to do so
-      dat<-switch(match.arg(connected),
-         "weak"=symmetrize(dat,rule="weak"),
-         "unilateral"=reachability(dat),
-         "strong"=symmetrize(reachability(dat),rule="strong"),
-         "recursive"=symmetrize(dat,rule="strong")
-      )
-   #Warn of non-uniqueness in the unilateral case, if need be
-   if(match.arg(connected)=="unilateral")
-      if(any(dat!=t(dat)))
-         warning("Nonunique unilateral component partition detected in component.dist.  Problem vertices will be arbitrarily assigned to one of their components.\n")
-   #Perform initial setup
-   membership<-rep(0,n)
-   #Call the C routine, which performs a fast BFS
-   membership<-.C("component_dist_R",as.double(dat),as.double(n), membership=as.double(membership),PACKAGE="sna")$membership
+   #Proceed depending on the rule being used
+   if(match.arg(connected)%in%c("strong","weak","recursive")){ #Strong, weak, recursive
+     n<-attr(dat,"n")
+     #Preprocess as needed
+     dat<-switch(match.arg(connected),
+       "weak"=symmetrize(dat,rule="weak",return.as.edgelist=TRUE),
+       "strong"=symmetrize(reachability(dat,return.as.edgelist=TRUE),rule="strong", return.as.edgelist=TRUE),
+       "recursive"=symmetrize(dat,rule="strong",return.as.edgelist=TRUE)
+     )
+     #Find the component information using the leanest available method
+     memb<-.C("undirComponents_R",as.double(dat),as.integer(n),as.integer(NROW(dat)), memb=integer(n+1),PACKAGE="sna",NAOK=TRUE)$memb
+     csize<-tabulate(memb[-1],memb[1])
+     cdist<-rep(0,n)
+     cdist[1:max(csize)]<-tabulate(csize,max(csize))
+     memb<-memb[-1]
+   }else{                                          #Unilateral
+     n<-dim(dat)[2]
+     dat<-reachability(dat)
+     #Warn of non-uniqueness in the unilateral case, if need be
+     if(any(dat!=t(dat)))
+       warning("Nonunique unilateral component partition detected in component.dist.  Problem vertices will be arbitrarily assigned to one of their components.\n")
+     #Find the membership information using a not-too-shabby method
+     memb<-.C("component_dist_R",as.double(dat),as.double(n), memb=as.double(rep(0,n)),PACKAGE="sna",NAOK=TRUE)$memb
+     csize<-tabulate(memb,max(memb))
+     cdist<-rep(0,n)
+     cdist[1:max(csize)]<-tabulate(csize,max(csize))
+   }
    #Return the results
-   o<-list()
-   o$membership<-membership          #Copy memberships
-   o$csize<-vector()
-   for(i in 1:max(membership))           #Extract component sizes
-      o$csize[i]<-length(membership[membership==i])
-   o$cdist<-vector()
-   for(i in 1:n)                                     #Find component size distribution
-      o$cdist[i]<-length(o$csize[o$csize==i])
+   o<-list(membership=memb,csize=csize,cdist=cdist)
    o
 }
 
 
 #component.largest - Extract the largest component from a graph
-component.largest<-function(dat,connected=c("strong","weak","unilateral", "recursive"), result=c("membership","graph")){
+component.largest<-function(dat,connected=c("strong","weak","unilateral", "recursive"), result=c("membership","graph"),return.as.edgelist=FALSE){
     #Deal with network, array, or list data
-    dat <- as.sociomatrix.sna(dat)
+    dat <- as.edgelist.sna(dat)
     if (is.list(dat))
         return(lapply(dat, component.largest, connected = connected, result = result))
-    else if (length(dim(dat)) > 2)
-        return(apply(dat, 1, component.dist, connected = connected, result = result))
-    #We now have a single matrix.  Proceed accordingly.
+    #We now have a single graph.  Proceed accordingly.
+    if(attr(dat,"n")==1){
+      if(match.arg(result)=="membership"){
+        return(TRUE)
+      }else{
+        if(return.as.edgelist)
+          return(dat)
+        else
+          return(as.sociomatrix.sna(dat))
+      }
+    }
     cd<-component.dist(dat,connected=connected)
     lgcmp<-which(cd$csize==max(cd$csize))  #Get largest component(s)
     #Return the appropriate result
-    switch(match.arg(result),
-        membership=cd$membership%in%lgcmp,
-        graph=dat[cd$membership%in%lgcmp,cd$membership%in%lgcmp]
-    )
+    if(match.arg(result)=="membership"){
+      cd$membership%in%lgcmp
+    }else{
+      tokeep<-which(cd$membership%in%lgcmp)
+      ovn<-attr(dat,"vnames")
+      if(is.null(ovn))
+        ovn<-1:attr(dat,"n")
+      if(return.as.edgelist){
+        sel<-rowSums(apply(dat,1:2,function(z){z%in%tokeep}))==2
+        dat<-dat[sel,,drop=FALSE]
+        if(NROW(dat)>0){
+          dat[,1:2]<-apply(dat,1:2,function(z){match(z,tokeep)})
+        }
+        attr(dat,"n")<-length(tokeep)
+        attr(dat,"vnames")<-ovn[tokeep]
+        dat
+      }else{
+        as.sociomatrix.sna(dat)[tokeep,tokeep,drop=FALSE]
+      }
+    }
 }
+
+
+#component.size.byvertex
+component.size.byvertex<-function(dat, connected=c("strong","weak","unilateral","recursive")){
+  #Pre-process the input
+  g<-as.edgelist.sna(dat)
+  if(is.list(g)){
+    return(lapply(g,component.size.byvertex,connected=connected))
+  }
+  #End pre-processing
+  if(match.arg(connected)%in%c("weak","recursive")){ #We have a shortcut for these cases! 
+    if(match.arg(connected)=="weak")
+      rule<-"weak"
+    else
+      rule<-"strong"
+    g<-symmetrize(g,rule=rule, return.as.edgelist=TRUE) #Must symmetrize!
+    cs<-.C("compsizes_R",as.double(g),as.integer(attr(g,"n")),as.integer(NROW(g)), csizes=integer(attr(g,"n")),PACKAGE="sna",NAOK=TRUE)$csizes
+  }else{                                            #No shortcut.  Sad!
+    cd<-component.dist(dat,connected=match.arg(connected))
+    cs<-cd$csize[cd$membership]
+  }
+  #Return the results
+  cs
+}
+
 
 
 #components - Find the number of (maximal) components within a given graph
 components<-function(dat,connected="strong",comp.dist.precomp=NULL){
    #Pre-process the raw input
-   dat<-as.sociomatrix.sna(dat)
+   dat<-as.edgelist.sna(dat)
    if(is.list(dat))
      return(lapply(dat,components,connected=connected, comp.dist.precomp=comp.dist.precomp))
-   else if(length(dim(dat))>2)
-     return(apply(dat,1,components,connected=connected, comp.dist.precomp=comp.dist.precomp))
    #End pre-processing
    #Use component.dist to get the distribution
    if(!is.null(comp.dist.precomp))
@@ -249,20 +309,28 @@ cutpoints<-function(dat,mode="digraph",connected=c("strong","weak","recursive"),
 #although calculations are done on the edgelist (which should save some time).
 #Both valued and unvalued variants are possible -- don't use the valued 
 #version unless you need to, since it can be considerably slower.
-geodist<-function(dat,inf.replace=Inf,count.paths=TRUE,predecessors=FALSE,ignore.eval=TRUE){
+geodist<-function(dat,inf.replace=Inf,count.paths=TRUE,predecessors=FALSE,ignore.eval=TRUE, na.omit=TRUE){
    #Pre-process the raw input
    dat<-as.edgelist.sna(dat)
    if(is.list(dat))
      return(lapply(dat,geodist,inf.replace=inf.replace,ignore.eval=ignore.eval))
    #End pre-processing
    n<-attr(dat,"n")
+   if(na.omit)
+     sel<-!is.na(dat[,3])
+   else
+     sel<-rep(TRUE,NROW(dat))
+   dat<-dat[(dat[,1]!=dat[,2])&sel,,drop=FALSE]
    m<-NROW(dat)
    #Initialize the matrices
    #Perform the calculation
    if(ignore.eval)
      geo<-.Call("geodist_R",dat,n,m,as.integer(1),count.paths,predecessors, NAOK=TRUE, PACKAGE="sna")
-   else
+   else{
+     if(any(dat[!is.na(dat[,3]),3]<0))
+       stop("Negative edge values not currently supported in geodist; transform or otherwise alter them to ensure that they are nonnegative.")
      geo<-.Call("geodist_val_R",dat,n,m,as.integer(1),count.paths,predecessors, NAOK=TRUE, PACKAGE="sna")
+   }
    #Return the results
    o<-list()
    if(count.paths)
@@ -278,55 +346,42 @@ geodist<-function(dat,inf.replace=Inf,count.paths=TRUE,predecessors=FALSE,ignore
 #isolates - Returns a list of the isolates in a given graph or stack
 isolates<-function(dat,diag=FALSE){
    #Pre-process the raw input
-   dat<-as.sociomatrix.sna(dat)
+   dat<-as.edgelist.sna(dat)
    if(is.list(dat))
      return(lapply(dat,isolates,diag))
    #End pre-processing
-   if(length(dim(dat))>2){
-      o<-vector()
-      for(g in 1:dim(dat)[1])
-         o<-c(o,list(seq(1:dim(dat)[2])[is.isolate(dat,g=g,ego=1:dim(dat)[2],diag=diag)]))
-   }else
-      o<-seq(1:dim(dat)[2])[is.isolate(dat,ego=1:dim(dat)[2],diag=diag)]
-   o
+   n<-attr(dat,"n")
+   if(!diag){
+     dat<-dat[dat[,1]!=dat[,2],,drop=FALSE]
+   }
+   which(tabulate(as.vector(dat[,1:2]),n)==0)
 }
 
 
 #is.connected - Determine whether or not one or more graphs are connected
 is.connected<-function(g,connected="strong",comp.dist.precomp=NULL){
   #Pre-process the raw input
-  g<-as.sociomatrix.sna(g)
+  g<-as.edgelist.sna(g)
   if(is.list(g))
     return(lapply(g,is.connected,connected=connected, comp.dist.precomp=comp.dist.precomp))
   #End pre-processing
   #Calculate numbers of components
-  if(is.matrix(g)){
-    comp<-components(g,connected=connected,comp.dist.precomp=comp.dist.precomp)
-  }else{
-    comp<-apply(g,1,components,connected=connected)
-  }
-  #Return the result
-  comp==1
+  components(g,connected=connected,comp.dist.precomp=comp.dist.precomp)==1
 }
 
 
 #is.isolate - Returns TRUE iff ego is an isolate
 is.isolate<-function(dat,ego,g=1,diag=FALSE){
    #Pre-process the raw input
-   dat<-as.sociomatrix.sna(dat)
+   dat<-as.edgelist.sna(dat)
    if(is.list(dat))
-     return(is.isolate(dat[[g]],ego=ego,g=1,diag=diag))
+     return(lapply(dat[g],is.isolate,ego=ego,g=1,diag=diag))
    #End pre-processing
-   if(length(dim(dat))>2)
-      d<-dat[g,,]
-   else
-      d<-dat
    if(!diag)
-      diag(d)<-NA
-   o<-vector()
-   for(i in 1:length(ego))
-      o<-c(o,all(is.na(d[ego[i],])|(d[ego[i],]==0))&all(is.na(d[,ego[i]])|(d[,ego[i]]==0)))
-   o   
+      dat<-dat[dat[,1]!=dat[,2],,drop=FALSE]
+   dat<-dat[!is.na(dat[,3]),,drop=FALSE]
+   noniso<-unique(c(dat[,1],dat[,2]))
+   !(ego%in%noniso)
 }
 
 
@@ -364,7 +419,7 @@ kcycle.census<-function(dat,maxlen=3,mode="digraph",tabulate.by.vertex=TRUE,cycl
   #Pre-process the raw input
   dat<-as.edgelist.sna(dat)
   if(is.list(dat))
-    return(lapply(dat,kcycle.census,mode=mode, tabulate.by.vertex=tabulate.by.vertex,cycle.comembership=cycle.comembership))
+    return(lapply(dat,kcycle.census,maxlen=maxlen,mode=mode, tabulate.by.vertex=tabulate.by.vertex,cycle.comembership=cycle.comembership))
   #End pre-processing
   n<-attr(dat,"n")
   if(is.null(maxlen))
@@ -430,7 +485,7 @@ kpath.census<-function(dat,maxlen=3,mode="digraph",tabulate.by.vertex=TRUE,path.
   #Pre-process the raw input
   dat<-as.edgelist.sna(dat)
   if(is.list(dat))
-    return(lapply(dat,kpath.census,mode=mode, tabulate.by.vertex=tabulate.by.vertex,path.comembership=path.comembership, dyadic.tabulation=dyadic.tabulation))
+    return(lapply(dat,kpath.census,maxlen=maxlen,mode=mode, tabulate.by.vertex=tabulate.by.vertex,path.comembership=path.comembership, dyadic.tabulation=dyadic.tabulation))
   #End pre-processing
   n<-attr(dat,"n")
   if(is.null(maxlen))
@@ -591,22 +646,42 @@ neighborhood<-function(dat,order,neighborhood.type=c("in","out","total"),mode="d
 
 
 #reachability - Find the reachability matrix of a graph.
-reachability<-function(dat,geodist.precomp=NULL){
+reachability<-function(dat,geodist.precomp=NULL,return.as.edgelist=FALSE,na.omit=TRUE){
    #Pre-process the raw input
-   dat<-as.sociomatrix.sna(dat)
-   if(is.list(dat))
-     return(lapply(dat,reachability,geodist.precomp=geodist.precomp))
-   else if(length(dim(dat))>2)
-#     return(apply(dat,1,reachability,geodist.precomp=geodist.precomp))
-     return(unlist(apply(dat,1,function(x,geodist.precomp){list(reachability(x, geodist.precomp=geodist.precomp))},geodist.precomp=geodist.precomp),recursive=FALSE))
+   if(!is.null(geodist.precomp)){ #Might as well use a matrix, and not repeat the BFS!
+     dat<-as.sociomatrix.sna(dat)
+     if(is.list(dat))
+       return(lapply(dat,reachability,geodist.precomp=geodist.precomp, return.as.edgelist=return.as.edgelist,na.omit=na.omit))
+     else if(length(dim(dat))>2)
+       return(unlist(apply(dat,1,function(x,geodist.precomp,return.as.edgelist,na.omit){list(reachability(x, geodist.precomp=geodist.precomp, return.as.edgelist=return.as.edgelist, na.omit=na.omit))}, geodist.precomp=geodist.precomp, return.as.edgelist=return.as.edgelist, na.omit=na.omit),recursive=FALSE))
+   }else{                         #Starting from scratch - use the sparse version
+     dat<-as.edgelist.sna(dat)
+     if(is.list(dat))
+       return(lapply(dat,reachability,geodist.precomp=geodist.precomp, return.as.edgelist=return.as.edgelist,na.omit=na.omit))
+   }
    #End pre-processing
-   #Get the counts matrix
-   if(is.null(geodist.precomp))
-      cnt<-geodist(dat)$counts
-   else
-      cnt<-geodist.precomp$counts
-   #Dichotomize and return
-   apply(cnt>0,c(1,2),as.numeric)
+   if(!is.null(geodist.precomp)){
+     #Get the counts matrix
+     cnt<-geodist.precomp$counts
+     #Dichotomize and return
+     if(!return.as.edgelist)
+       apply(cnt>0,c(1,2),as.numeric)
+     else
+       as.edgelist.sna(apply(cnt>0,c(1,2),as.numeric))
+   }else{
+     n<-attr(dat,"n")
+     if(na.omit)
+       sel<-!is.na(dat[,3])
+     else
+       sel<-rep(TRUE,NROW(dat))
+     dat<-dat[(dat[,1]!=dat[,2])&sel,,drop=FALSE]
+     m<-NROW(dat)
+     rg<-.Call("reachability_R",dat,n,m,PACKAGE="sna")
+     if(return.as.edgelist)
+       rg
+     else
+       as.sociomatrix.sna(rg)
+   }
 }
 
 
