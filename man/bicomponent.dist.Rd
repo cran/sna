@@ -1,6 +1,7 @@
 \name{bicomponent.dist}
 \Rdversion{1.1}
 \alias{bicomponent.dist}
+\alias{bicomponents_R}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
 Calculate the Bicomponents of a Graph

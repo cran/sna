@@ -1,5 +1,6 @@
 \name{triad.census}
 \alias{triad.census}
+\alias{triad_census_R}
 %- Also NEED an `\alias' for EACH other topic documented here.
 \title{ Compute the Davis and Leinhardt Triad Census }
 \description{

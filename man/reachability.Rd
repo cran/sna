@@ -1,5 +1,6 @@
 \name{reachability}
 \alias{reachability}
+\alias{reachability_R}
 %- Also NEED an `\alias' for EACH other topic documented here.
 \title{ Find the Reachability Matrix of a Graph }
 \description{

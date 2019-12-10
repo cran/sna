@@ -1,5 +1,6 @@
 \name{triad.classify}
 \alias{triad.classify}
+\alias{triad_classify_R}
 %- Also NEED an `\alias' for EACH other topic documented here.
 \title{ Compute the Davis and Leinhardt Classification of a Given Triad }
 \description{

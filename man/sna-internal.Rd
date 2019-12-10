@@ -6,6 +6,10 @@
 \alias{logSum}
 \alias{logMean}
 \alias{logSub}
+\alias{aggarray3d_R}
+\alias{dyadcode_R}
+\alias{logadd_R}
+\alias{logsub_R}
 %- Also NEED an `\alias' for EACH other topic documented here.
 \title{ Internal sna Functions }
 \description{

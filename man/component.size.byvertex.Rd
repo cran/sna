@@ -1,5 +1,6 @@
 \name{component.size.byvertex}
 \alias{component.size.byvertex}
+\alias{compsizes_R}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
 Get Component Sizes, by Vertex

@@ -4,7 +4,7 @@
 # utils.c
 #
 # copyright (c) 2006, Carter T. Butts <buttsc@uci.edu>
-# Last Modified 6/6/09
+# Last Modified 6/6/17
 # Licensed under the GNU General Public License version 2 (June, 1991)
 # later.
 # Portions taken from the NetStat library by Carter T. Butts (2002)
@@ -502,6 +502,29 @@ return rval;
 element *push(element *head, double val, void *dp)
 /*Adds element with value val to the stack, returning the head 
 pointer.*/
+{
+element *newnode;
+
+/*Create the new entry*/
+newnode=(element *)R_alloc(1,sizeof(struct elementtype));
+
+newnode->val=val;   /*Set the element value*/
+newnode->dp=dp;
+
+/*Set the next pointer equal to the current first entry (if any)*/
+newnode->next=head;
+
+/*Place the new node at the head of the stack*/
+head=newnode;
+
+return head;
+}
+
+
+element *pushCalloc(element *head, double val, void *dp)
+/*Adds element with value val to the stack, returning the head 
+pointer.  This function uses Calloc for memory allocation, and it must be
+manually deallocated with Free.  Do not use with stackdel et al!*/
 {
 element *newnode;
 

@@ -3,7 +3,7 @@
 # gli.R
 #
 # copyright (c) 2004, Carter T. Butts <buttsc@uci.edu>
-# Last Modified 7/18/16
+# Last Modified 12/4/19
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/sna package
@@ -299,17 +299,17 @@ gtrans<-function(dat,g=NULL,diag=FALSE,mode="digraph",measure=c("weak","strong",
           FALSE
         else
           TRUE
-      }else if(class(z)=="matrix"){
+      }else if(inherits(z,"matrix")){
         if(NCOL(z)>1000)
           FALSE
         else
           TRUE
-      }else if(class(z)=="array"){
+      }else if(inherits(z,"array")){
         if(dim(z)[2]>1000)
           FALSE
         else
           TRUE
-      }else if(any(class(z)=="network")){
+      }else if(inherits(z,"network")){
         if(network.size(z)>40000)
           FALSE
         else if((network.size(z)>1000)&& (network.edgecount(z)/network.size(z)^2<0.5))
@@ -319,7 +319,7 @@ gtrans<-function(dat,g=NULL,diag=FALSE,mode="digraph",measure=c("weak","strong",
       }else
         TRUE
     }
-    if(class(dat)=="list")
+    if(is.list(dat))
       adjcheck<-sapply(dat,adjisok)
     else
       adjcheck<-adjisok(dat)

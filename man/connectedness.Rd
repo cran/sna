@@ -1,5 +1,6 @@
 \name{connectedness}
 \alias{connectedness}
+\alias{connectedness_R}
 %- Also NEED an `\alias' for EACH other topic documented here.
 \title{ Compute Graph Connectedness Scores }
 \description{

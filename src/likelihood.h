@@ -1,7 +1,7 @@
 /*
 ######################################################################
 #
-# randomgraph.h
+# likelihood.h
 #
 # copyright (c) 2004, Carter T. Butts <buttsc@uci.edu>
 # Last Modified 3/10/05

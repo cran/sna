@@ -1,5 +1,6 @@
 \name{gplot.target}
 \alias{gplot.target}
+\alias{gplot_layout_target_R}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{ Display a Graph in Target Diagram Form }
 \description{

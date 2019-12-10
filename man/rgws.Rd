@@ -2,6 +2,8 @@
 \alias{rgws}
 \alias{rewire.ws}
 \alias{rewire.ud}
+\alias{udrewire_R}
+\alias{wsrewire_R}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{ Draw From the Watts-Strogatz Rewiring Model }
 \description{

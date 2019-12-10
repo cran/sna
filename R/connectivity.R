@@ -325,11 +325,11 @@ geodist<-function(dat,inf.replace=Inf,count.paths=TRUE,predecessors=FALSE,ignore
    #Initialize the matrices
    #Perform the calculation
    if(ignore.eval)
-     geo<-.Call("geodist_R",dat,n,m,as.integer(1),count.paths,predecessors, NAOK=TRUE, PACKAGE="sna")
+     geo<-.Call("geodist_R",dat,n,m,as.integer(1),count.paths,predecessors, PACKAGE="sna")
    else{
      if(any(dat[!is.na(dat[,3]),3]<0))
        stop("Negative edge values not currently supported in geodist; transform or otherwise alter them to ensure that they are nonnegative.")
-     geo<-.Call("geodist_val_R",dat,n,m,as.integer(1),count.paths,predecessors, NAOK=TRUE, PACKAGE="sna")
+     geo<-.Call("geodist_val_R",dat,n,m,as.integer(1),count.paths,predecessors, PACKAGE="sna")
    }
    #Return the results
    o<-list()

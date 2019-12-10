@@ -1,6 +1,7 @@
 \name{clique.census}
 \Rdversion{1.1}
 \alias{clique.census}
+\alias{cliques_R}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
 Compute Cycle Census Information

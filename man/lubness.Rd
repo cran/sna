@@ -1,5 +1,6 @@
 \name{lubness}
 \alias{lubness}
+\alias{lubness_con_R}
 %- Also NEED an `\alias' for EACH other topic documented here.
 \title{ Compute Graph LUBness Scores }
 \description{

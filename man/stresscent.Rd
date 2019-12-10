@@ -1,5 +1,6 @@
 \name{stresscent}
 \alias{stresscent}
+\alias{stresscent_R}
 %- Also NEED an `\alias' for EACH other topic documented here.
 \title{ Compute the Stress Centrality Scores of Network Positions }
 \description{

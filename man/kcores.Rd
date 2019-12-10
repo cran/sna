@@ -1,6 +1,7 @@
 \name{kcores}
 \Rdversion{1.1}
 \alias{kcores}
+\alias{kcores_R}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
 Compute the k-Core Structure of a Graph

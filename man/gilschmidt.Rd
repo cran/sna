@@ -1,5 +1,6 @@
 \name{gilschmidt}
 \alias{gilschmidt}
+\alias{gilschmidt_R}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
 Compute the Gil-Schmidt Power Index

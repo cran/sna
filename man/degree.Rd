@@ -1,5 +1,6 @@
 \name{degree}
 \alias{degree}
+\alias{degree_R}
 %- Also NEED an `\alias' for EACH other topic documented here.
 \title{ Compute the Degree Centrality Scores of Network Positions }
 \description{

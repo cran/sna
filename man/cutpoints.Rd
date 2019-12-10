@@ -1,6 +1,9 @@
 \name{cutpoints}
 \Rdversion{1.1}
 \alias{cutpoints}
+\alias{cutpointsDir_R}
+\alias{cutpointsUndir_R}
+
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
 Identify the Cutpoints of a Graph or Digraph

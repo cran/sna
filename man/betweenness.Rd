@@ -1,5 +1,6 @@
 \name{betweenness}
 \alias{betweenness}
+\alias{betweenness_R}
 %- Also NEED an `\alias' for EACH other topic documented here.
 \title{ Compute the Betweenness Centrality Scores of Network Positions }
 \description{

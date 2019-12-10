@@ -3,7 +3,7 @@
 # visualization.R
 #
 # copyright (c) 2004, Carter T. Butts <buttsc@uci.edu>
-# Last Modified 7/18/16
+# Last Modified 12/4/19
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/sna package
@@ -123,7 +123,7 @@ gplot<-function(dat,g=1,gmode="digraph",diag=FALSE,label=NULL,coord=NULL,jitter=
       y<-coord[,2]
    }else{   #Otherwise, use the specified layout function
      layout.fun<-try(match.fun(paste("gplot.layout.",mode,sep="")),silent=TRUE)
-     if(class(layout.fun)=="try-error")
+     if(inherits(layout.fun,"try-error"))
        stop("Error in gplot: no layout function for mode ",mode)
      temp<-layout.fun(d,layout.par)
      x<-temp[,1]
@@ -1261,7 +1261,7 @@ gplot3d<-function(dat,g=1,gmode="digraph",diag=FALSE,label=NULL,coord=NULL,jitte
       z<-coord[,3]
    }else{   #Otherwise, use the specified layout function
      layout.fun<-try(match.fun(paste("gplot3d.layout.",mode,sep="")), silent=TRUE)
-     if(class(layout.fun)=="try-error")
+     if(inherits(layout.fun,"try-error"))
        stop("Error in gplot3d: no layout function for mode ",mode)
      temp<-layout.fun(d,layout.par)
      x<-temp[,1]
@@ -1793,9 +1793,9 @@ gplot3d.loop<-function(a,radius,color="white",alpha=1){
 #plot.sociomatrix - An odd sort of plotting routine; plots a matrix (e.g., a 
 #Bernoulli graph density, or a set of adjacencies) as an image.  Very handy for 
 #visualizing large valued matrices...
-plot.sociomatrix<-function(x,labels=NULL,drawlab=TRUE,diaglab=TRUE,drawlines=TRUE,xlab=NULL,ylab=NULL,cex.lab=1,...){       
+plot.sociomatrix<-function(x, labels=NULL, drawlab=TRUE, diaglab=TRUE, drawlines=TRUE, xlab=NULL, ylab=NULL, cex.lab=1, font.lab=1, col.lab=1, scale.values=TRUE, cell.col=gray, ...){       
    #Begin preprocessing
-   if((!(class(x)%in%c("matrix","array","data.frame")))||(length(dim(x))>2))
+   if((!inherits(x,c("matrix","array","data.frame")))||(length(dim(x))>2))
      x<-as.sociomatrix.sna(x)
    if(is.list(x))
      x<-x[[1]]
@@ -1816,7 +1816,10 @@ plot.sociomatrix<-function(x,labels=NULL,drawlab=TRUE,diaglab=TRUE,drawlines=TRU
      else
        labels[[2]]<-colnames(x)
    }
-   d<-1-(x-min(x,na.rm=TRUE))/(max(x,na.rm=TRUE)-min(x,na.rm=TRUE))
+   if(scale.values)
+     d<-1-(x-min(x,na.rm=TRUE))/(max(x,na.rm=TRUE)-min(x,na.rm=TRUE))
+   else
+     d<-x
    if(is.null(xlab))
      xlab<-""
    if(is.null(ylab))
@@ -1824,15 +1827,15 @@ plot.sociomatrix<-function(x,labels=NULL,drawlab=TRUE,diaglab=TRUE,drawlines=TRU
    plot(1,1,xlim=c(0,o+1),ylim=c(n+1,0),type="n",axes=FALSE,xlab=xlab,ylab=ylab, ...)
    for(i in 1:n)
       for(j in 1:o)
-         rect(j-0.5,i+0.5,j+0.5,i-0.5,col=gray(d[i,j]),xpd=TRUE, border=drawlines)
+         rect(j-0.5,i+0.5,j+0.5,i-0.5,col=cell.col(d[i,j]),xpd=TRUE, border=drawlines)
    rect(0.5,0.5,o+0.5,n+0.5,col=NA,xpd=TRUE)
    if(drawlab){
-      text(rep(0,n),1:n,labels[[1]],cex=cex.lab)
-      text(1:o,rep(0,o),labels[[2]],cex=cex.lab)
+      text(rep(0,n),1:n,labels[[1]],cex=cex.lab,font=font.lab,col=col.lab)
+      text(1:o,rep(0,o),labels[[2]],cex=cex.lab,font=font.lab,col=col.lab)
    }
    if((n==o)&(drawlab)&(diaglab))
       if(all(labels[[1]]==labels[[2]]))
-         text(1:o,1:n,labels[[1]],cex=cex.lab)
+         text(1:o,1:n,labels[[1]],cex=cex.lab,font=font.lab,col=col.lab)
 }
 
 

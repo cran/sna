@@ -1,6 +1,20 @@
 CHANGELOG:
-
-v.2.4
+v2.5
+   New Features:
+     plot.sociomatrix now allows an arbitrary cell color function to be
+       supplied, and supports more label options
+   Bug Fixes:
+     Documentation for brokerage had "representative" and "gatekeeper" names
+       swapped; note that this did not affect the function itself [submitted
+       by Ho Young Yoon]
+     Annoying tracer messages have been removed from the component finding
+       algorithm.  (This was not originally seen as a bug, but became 
+       sufficiently aggravating to be viewed as one.)
+     rgnmix was not returning edgelists when asked to do so in some cases
+   Changes:
+     Class processing was modified to comply with upcoming R changes
+     Explcit registration now used for C-level functions, per CRAN dictum
+v2.4
    New Functions:
      component.size.byvertex - Compute component sizes by vertex
      gilschmidt - Compute the Gil-Schmidt power centrality index

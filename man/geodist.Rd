@@ -1,5 +1,8 @@
 \name{geodist}
 \alias{geodist}
+\alias{geodist_R}
+\alias{geodist_adj_R}
+\alias{geodist_val_R}
 %- Also NEED an `\alias' for EACH other topic documented here.
 \title{ Fund the Numbers and Lengths of Geodesics Among Nodes in a Graph }
 \description{

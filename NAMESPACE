@@ -73,3 +73,5 @@ S3method(summary,netlm )
 S3method(summary,netlogit)
 S3method(summary,qaptest)
 
+useDynLib(sna, .registration = TRUE)
+

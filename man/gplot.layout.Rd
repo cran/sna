@@ -17,6 +17,9 @@
 \alias{gplot.layout.spring}
 \alias{gplot.layout.springrepulse}
 \alias{gplot.layout.target}
+\alias{gplot_layout_fruchtermanreingold_R}
+\alias{gplot_layout_fruchtermanreingold_old_R}
+\alias{gplot_layout_kamadakawai_R}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{ Vertex Layout Functions for gplot }
 \description{

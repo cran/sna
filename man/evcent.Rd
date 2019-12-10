@@ -1,5 +1,6 @@
 \name{evcent}
 \alias{evcent}
+\alias{evcent_R}
 %- Also NEED an `\alias' for EACH other topic documented here.
 \title{ Find Eigenvector Centrality Scores of Network Positions }
 \description{

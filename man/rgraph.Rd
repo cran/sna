@@ -1,5 +1,6 @@
 \name{rgraph}
 \alias{rgraph}
+\alias{rgbern_R}
 %- Also NEED an `\alias' for EACH other topic documented here.
 \title{ Generate Bernoulli Random Graphs }
 \description{

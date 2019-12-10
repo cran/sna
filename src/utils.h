@@ -4,7 +4,7 @@
 # utils.h
 #
 # copyright (c) 2006, Carter T. Butts <buttsc@uci.edu>
-# Last Modified 11/21/10
+# Last Modified 06/06/17
 # Licensed under the GNU General Public License version 2 (June, 1991) or
 # later.
 # Portions taken from the NetStat library by Carter T. Butts (2002)
@@ -140,6 +140,8 @@ element *listInsert(element *head, double val, void *dp);
 element pop(element *head);
 
 element *push(element *head, double val, void *dp);
+
+element *pushCalloc(element *head, double val, void *dp);
 
 element *clearstack(element *head);
 

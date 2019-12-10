@@ -9,6 +9,11 @@
 \alias{print.bn}
 \alias{print.summary.bn}
 \alias{summary.bn}
+\alias{bn_dyadstats_R}
+\alias{bn_lpl_dyad_R}
+\alias{bn_lpl_triad_R}
+\alias{bn_ptriad_R}
+\alias{bn_triadstats_R}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{ Fit a Biased Net Model }
 \description{

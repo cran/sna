@@ -3,7 +3,7 @@
 # roles.R
 #
 # copyright (c) 2004, Carter T. Butts <buttsc@uci.edu>
-# Last Modified 4/8/10
+# Last Modified 12/4/19
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/sna package
@@ -29,9 +29,9 @@
 #blockmodel - Generate blockmodels based on partitions of network positions
 blockmodel<-function(dat,ec,k=NULL,h=NULL,block.content="density",plabels=NULL,glabels=NULL,rlabels=NULL,mode="digraph",diag=FALSE){
    #First, extract the blocks
-   if(class(ec)=="equiv.clust")
+   if(inherits(ec,"equiv.clust"))
      b<-cutree(ec$cluster,k,h)
-   else if(class(ec)=="hclust")
+   else if(inherits(ec,"hclust"))
      b<-cutree(ec,k,h)
    else
      b<-ec
@@ -50,13 +50,13 @@ blockmodel<-function(dat,ec,k=NULL,h=NULL,block.content="density",plabels=NULL,g
       d<-diag.remove(d)
    #Get labels
    if(is.null(plabels)){
-     if(class(ec)=="equiv.clust")
+     if(inherits(ec,"equiv.clust"))
        plabels<-ec$plabels
      else
        plabels<-1:length(b)
    }
    if(is.null(glabels)){
-     if(class(ec)=="equiv.clust")
+     if(inherits(ec,"equiv.clust"))
        glabels<-ec$glabels
      else
        glabels<-1:length(b)
@@ -103,9 +103,9 @@ blockmodel<-function(dat,ec,k=NULL,h=NULL,block.content="density",plabels=NULL,g
             }
          }
    #Prepare the output object
-   if(class(ec)=="equiv.clust")
+   if(inherits(ec,"equiv.clust"))
      pord<-ec$cluster$order
-   else if(class(ec)=="hclust")
+   else if(inherits(ec,"hclust"))
      pord<-ec$order
    else
      pord<-order(ec)
@@ -131,16 +131,16 @@ blockmodel<-function(dat,ec,k=NULL,h=NULL,block.content="density",plabels=NULL,g
    o$plabels<-plabels[pord]
    o$glabels<-glabels
    o$rlabels<-rlabels
-   o$cluster.method<-switch(class(ec),
+   o$cluster.method<-switch(class(ec)[1],
      equiv.clust=ec$cluster.method,
      hclust=ec$method,
      "Prespecified"
    )
-   o$equiv.fun<-switch(class(ec),
+   o$equiv.fun<-switch(class(ec)[1],
      equiv.clust=ec$equiv.fun,
      "None"
    )
-   o$equiv.metric<-switch(class(ec),
+   o$equiv.metric<-switch(class(ec)[1],
      equiv.clust=ec$metric,
      "None"
    )

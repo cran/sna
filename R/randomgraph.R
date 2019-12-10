@@ -3,7 +3,7 @@
 # randomgraph.R
 #
 # copyright (c) 2004, Carter T. Butts <buttsc@uci.edu>
-# Last Modified 5/11/15
+# Last Modified 12/4/19
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/sna package
@@ -200,7 +200,7 @@ rgnm<-function(n,nv,m,mode="digraph",diag=FALSE,return.as.edgelist=FALSE){
 rgnmix<-function (n, tv, mix, mode="digraph", diag=FALSE, method=c("probability", "exact"), return.as.edgelist=FALSE) 
 {
   if(match.arg(method)=="probability"){ #If method==probability, call rgraph
-    return(rgraph(n=length(tv),m=n,tprob=mix[tv,tv],mode=mode,diag=diag))
+    return(rgraph(n=length(tv),m=n,tprob=mix[tv,tv],mode=mode,diag=diag,return.as.edgelist=return.as.edgelist))
   }else{  #Otherwise, use the exact method
     g<-array(0,dim=c(n,length(tv),length(tv)))
     if(is.character(tv)){

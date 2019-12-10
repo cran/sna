@@ -1,5 +1,6 @@
 \name{gtrans}
 \alias{gtrans}
+\alias{transitivity_R}
 %- Also NEED an `\alias' for EACH other topic documented here.
 \title{ Compute the Transitivity of an Input Graph or Graph Stack }
 \description{

@@ -1,5 +1,7 @@
 \name{rgbn}
 \alias{rgbn}
+\alias{bn_cftp_R}
+\alias{bn_mcmc_R}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{ Draw from a Skvoretz-Fararo Biased Net Process }
 \description{
@@ -48,13 +50,13 @@ Pr(i->j | G_{-ij}) apx (1-delta)^w [1 - (1-rho)^z (1-sigma)^y (1-pi)^x (1-d_{ij}
 
 where \eqn{w} is the outdegree of \eqn{i} in \eqn{G_{-ij}} and \eqn{\delta}{delta} is the probability of the satiation event.  The net effect of satiation is to suppress edge formation (in roughly geometric fashion) on high degree nodes.  This may be useful in preventing degeneracy when using sigma and rho effects.  Degeneracy can also be reduced by employing the \code{dichotomize.sib.effects} argument, which counts only the first shared partner's contribution towards sibling and double role effects.
 
-It should be noted that the above process is not entirely consistent with the tracing-based model, which is itself not uniformly well-specified in the literature.  For this reason, the local model is referred to here as a Skvoretz-Fararo graph process.  One significant advantage of this process is that it is well-defined, and easily simulated: the above equation can be used to form the basis of a (pseudo-) Gibbs sampler, which is used by \eqn{rgbn} to take draws from the (local) biased net model.  Burn-in and thinning are controlled by the corresponding arguments; since degeneracy is common with models of this type, it is advisable to check for adequate mixing.  An alternative simulation strategy is the exact sampling procedure of Butts (2009), which employs a form of coupling from the past (CFTP).  The CFTP method generates exact, independent draws from the equilibrium distribution of the biased net process (up to numerical limits), but can be slow to attain coalescence (and does not currently support satiation events).  Setting \code{maxiter} to smaller values limits the search depth employed, at the possible cost of biasing the resulting sample.
+It should be noted that the above process is not entirely consistent with the tracing-based model, which is itself not uniformly well-specified in the literature.  For this reason, the local model is referred to here as a Skvoretz-Fararo graph process.  One significant advantage of this process is that it is well-defined, and easily simulated: the above equation can be used to form the basis of a (pseudo-) Gibbs sampler, which is used by \eqn{rgbn} to take draws from the (local) biased net model.  Burn-in and thinning are controlled by the corresponding arguments; since degeneracy is common with models of this type, it is advisable to check for adequate mixing.  An alternative simulation strategy is the exact sampling procedure of Butts (2018), which employs a form of coupling from the past (CFTP).  The CFTP method generates exact, independent draws from the equilibrium distribution of the biased net process (up to numerical limits), but can be slow to attain coalescence (and does not currently support satiation events).  Setting \code{maxiter} to smaller values limits the search depth employed, at the possible cost of biasing the resulting sample.
 }
 \value{
   An adjacency array containing the simulated graphs.
 }
 \references{ 
-Butts, C.T.  (2009).  \dQuote{A Perfect Sampling Method for Exponential Random Graph Models}.  Working paper, University of California, Irvine.
+Butts, C.T.  (2018).  \dQuote{A Perfect Sampling Method for Exponential Family Random Graph Models.} \emph{Journal of Mathematical Sociology}, 42(1), 17-36.
 
 Rapoport, A.  (1957).  \dQuote{A Contribution to the Theory of Random and Biased Nets.}  \emph{Bulletin of Mathematical Biophysics,} 15, 523-533.
 

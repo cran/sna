@@ -1,6 +1,8 @@
 \name{component.dist}
 \alias{component.dist}
 \alias{component.largest}
+\alias{undirComponents_R}
+\alias{component_dist_R}
 %- Also NEED an `\alias' for EACH other topic documented here.
 \title{ Calculate the Component Size Distribution of a Graph }
 \description{

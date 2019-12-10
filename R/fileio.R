@@ -3,7 +3,7 @@
 # fileio.R
 #
 # copyright (c) 2004, Carter T. Butts <buttsc@uci.edu>
-# Last Modified 7/18/16
+# Last Modified 12/4/19
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/sna package
@@ -121,7 +121,7 @@ write.dl<-function(x,file,vertex.lab=NULL,matrix.lab=NULL){
 
 #write.nos - Write a graph or graph stack in Neo-OrgStat format
 write.nos<-function(x,file,row.col=NULL,col.col=NULL){
-  if(is.list(x)||(any(class(x)=="network")))
+  if(is.list(x)||inherits(x,"network"))
     x<-as.sociomatrix.sna(x)
   if(is.list(x))
     stop("NOS format requires all graphs to be of identical order.")

@@ -1,6 +1,8 @@
 \name{kpath.census}
 \alias{kpath.census}
 \alias{kcycle.census}
+\alias{cycleCensus_R}
+\alias{pathCensus_R}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{ Compute Path or Cycle Census Information }
 \description{

@@ -3,7 +3,7 @@
 # nli.R
 #
 # copyright (c) 2004, Carter T. Butts <buttsc@uci.edu>
-# Last Modified 8/5/16
+# Last Modified 12/9/19
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/sna package
@@ -76,7 +76,7 @@ betweenness<-function(dat,g=1,nodes=NULL,gmode="digraph",diag=FALSE,tmaxdev=FALS
         precomp<-FALSE
       }
       #Do the computation
-      bet<-.Call("betweenness_R",dat,n,NROW(dat),meas,precomp,ignore.eval, geodist.precomp$gdist,geodist.precomp$counts,geodist.precomp$predecessors,NAOK=TRUE,PACKAGE="sna")
+      bet<-.Call("betweenness_R",dat,n,NROW(dat),meas,precomp,ignore.eval, geodist.precomp$gdist,geodist.precomp$counts,geodist.precomp$predecessors,PACKAGE="sna")
       if((cmode=="undirected")||(gmode=="graph"))
          bet<-bet/2
       #Return the results
@@ -505,7 +505,7 @@ loadcent<-function(dat,g=1,nodes=NULL,gmode="digraph",diag=FALSE,tmaxdev=FALSE,c
         precomp<-FALSE
       }
       #Do the computation (we use the betweenness routine, oddly)
-      lc<-.Call("betweenness_R",dat,n,NROW(dat),8,precomp,ignore.eval, geodist.precomp$gdist,geodist.precomp$counts,geodist.precomp$predecessors,NAOK=TRUE,PACKAGE="sna")
+      lc<-.Call("betweenness_R",dat,n,NROW(dat),8,precomp,ignore.eval, geodist.precomp$gdist,geodist.precomp$counts,geodist.precomp$predecessors,PACKAGE="sna")
       #Return the results
       if(rescale)
          lc<-lc/sum(lc)
@@ -628,7 +628,7 @@ stresscent<-function(dat,g=1,nodes=NULL,gmode="digraph",diag=FALSE,tmaxdev=FALSE
         precomp<-FALSE
       }
       #Do the computation (we use the betweenness routine, oddly)
-      str<-.Call("betweenness_R",dat,n,NROW(dat),7,precomp,ignore.eval, geodist.precomp$gdist,geodist.precomp$counts,geodist.precomp$predecessors,NAOK=TRUE,PACKAGE="sna")
+      str<-.Call("betweenness_R",dat,n,NROW(dat),7,precomp,ignore.eval, geodist.precomp$gdist,geodist.precomp$counts,geodist.precomp$predecessors,PACKAGE="sna")
       if(cmode=="undirected")
          str<-str/2
       #Return the results

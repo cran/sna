@@ -1,6 +1,7 @@
 \name{maxflow}
 \Rdversion{1.1}
 \alias{maxflow}
+\alias{maxflow_EK_R}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
 Calculate Maximum Flows Between Vertices

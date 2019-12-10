@@ -73,7 +73,7 @@ Note that the format of this stack is distinctive.  The head element that is ret
   char *vis;
   element *tovis=NULL,cur,*reach;
   slelement *ep;
-  
+
   /*Initialize visit list and the reach list*/  
   reach=(element *)R_alloc(1,sizeof(element));  /*Head node*/
   reach->next=NULL;                             /*First neighbor*/
@@ -266,7 +266,8 @@ void undirComponentsNoRecurse(snaNet *g, int *memb)
   int i;
   element *tovis=NULL,*cur;
   slelement *ep;
-  
+  void *vmax; 
+
   /*Initialize*/
   for(i=0;i<g->n+1;i++)
     memb[i]=0;
@@ -274,8 +275,9 @@ void undirComponentsNoRecurse(snaNet *g, int *memb)
   /*Perform a DFS to find the components; memb[i+1] is ith membership (1,...)*/
   for(i=0;i<g->n;i++)
     if(memb[i+1]==0){    /*If we've not seen vertex i, start tracin'*/
+      vmax=vmaxget();                      /*Record the current mem stack state*/
       memb[0]++;                           /*Increment the component count*/
-      tovis=push(tovis,(double)i,NULL);    /*Push to tovist, start the BFS*/
+      tovis=push(NULL,(double)i,NULL);     /*Push to tovis, start the BFS*/
       memb[i+1]=memb[0];
       while(tovis!=NULL){
         /*Pop the node to visit*/
@@ -288,6 +290,8 @@ void undirComponentsNoRecurse(snaNet *g, int *memb)
             memb[(int)(ep->val)+1]=memb[0];
           }
       }
+      /*Free the stack*/
+      vmaxset(vmax);
     }
 }
 
@@ -398,7 +402,7 @@ Compute reachability digraph for the (di)graph in mat.  The results are returned
   for(i=0;i<n;i++){
     rl[i]=BFS_unord(g,&n,i,0);     /*Get reach stack*/
     rm+=(int)(rl[i]->val);         /*Increment reachability graph edge count*/
-    Rprintf("Node %d, Reach %d, Total %d\n",i+1,(int)(rl[i]->val),rm);
+    /*Rprintf("Node %d, Reach %d, Total %d\n",i+1,(int)(rl[i]->val),rm);*/
   }
 
   /*Write the reachability edge list*/

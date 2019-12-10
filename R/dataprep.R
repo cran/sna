@@ -3,7 +3,7 @@
 # dataprep.R
 #
 # copyright (c) 2004, Carter T. Butts <buttsc@uci.edu>
-# Last Modified 7/19/16
+# Last Modified 12/4/19
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/sna package
@@ -53,12 +53,12 @@ add.isolates<-function(dat,n,return.as.edgelist=FALSE){
 as.edgelist.sna<-function(x, attrname=NULL, as.digraph=TRUE, suppress.diag=FALSE, force.bipartite=FALSE,...){
   #In case of lists, process independently
   # but this is tricky, since a 'network' object is also a list
-  if((is.list(x)&&!any(class(x)=='network') )&&(!(any(class(x)%in%c("network","matrix.csr","matrix.csc", "matrix.ssr","matrix.ssc", "matrix.hb","data.frame"))))){
+  if((is.list(x)&&!inherits(x,"network") )&&(!inherits(x,c("network","matrix.csr","matrix.csc", "matrix.ssr","matrix.ssc", "matrix.hb","data.frame")))){
     # call this function on each element of the list and return as a list
     return(lapply(x,as.edgelist.sna, attrname=attrname,  as.digraph=as.digraph, suppress.diag=suppress.diag, force.bipartite=force.bipartite))
   }
   #Begin with network objects
-  if(any(class(x)=="network")){
+  if(inherits(x,"network")){
     out<-as.matrix.network.edgelist(x,attrname=attrname,as.sna.edgelist=TRUE)
     #This should be fine unless we have an old version of network (<1.7);
     #here, we perform triage for old style objects.
@@ -89,25 +89,25 @@ as.edgelist.sna<-function(x, attrname=NULL, as.digraph=TRUE, suppress.diag=FALSE
       out<-as.edgelist.sna(out,attrname=attrname,as.digraph=as.digraph, suppress.diag=suppress.diag,force.bipartite=force.bipartite)
   } else
   #Not a network -- is this a sparse matrix (from SparseM)?
-  if(class(x)%in%c("matrix.csr","matrix.csc","matrix.ssr","matrix.ssc", "matrix.hb")){
+  if(inherits(x,c("matrix.csr","matrix.csc","matrix.ssr","matrix.ssc", "matrix.hb"))){
     requireNamespace("SparseM")   #Need SparseM for this
     if(force.bipartite||(!is.null(attr(x,"bipartite")))|| (x@dimension[1]!=x@dimension[2])){
       nr<-x@dimension[1]
       nc<-x@dimension[2]
       val<-x@ra
-      if((!suppress.diag)&&(class(x)%in%c("matrix.ssr","matrix.ssc"))){
+      if((!suppress.diag)&&inherits(x,c("matrix.ssr","matrix.ssc"))){
         snd<-rep(1:nr,each=diff(x@ia))
         rec<-nr+x@ja
         out<-cbind(snd,rec,val)
         out<-rbind(out,out[,c(2,1,3)])
       }else{
-        snd<-switch(class(x),
+        snd<-switch(class(x)[1],
           matrix.csr=rep(1:nr,each=diff(x@ia)),
           matrix.csc=x@ja,
           matrix.ssr=c(rep(1:nr,each=diff(x@ia)),x@ja),
           matrix.ssc=c(x@ja,rep(1:nr,each=diff(x@ia)))
         )
-        rec<-switch(class(x),
+        rec<-switch(class(x)[1],
           matrix.csr=nr+x@ja,
           matrix.csc=rep(nr+(1:nc),each=diff(x@ia)),
           matrix.ssr=c(nr+x@ja,rep(1:n,each=diff(x@ia))),
@@ -122,7 +122,7 @@ as.edgelist.sna<-function(x, attrname=NULL, as.digraph=TRUE, suppress.diag=FALSE
     }else{
       n<-x@dimension[1]
       val<-x@ra
-      if((!suppress.diag)&&(class(x)%in%c("matrix.ssr","matrix.ssc"))){
+      if((!suppress.diag)&&inherits(x,c("matrix.ssr","matrix.ssc"))){
         snd<-rep(1:n,times=diff(x@ia))
         rec<-x@ja
         temp<-snd==rec
@@ -132,13 +132,13 @@ as.edgelist.sna<-function(x, attrname=NULL, as.digraph=TRUE, suppress.diag=FALSE
         out<-rbind(out,out[,c(2,1,3)])
         out<-rbind(out,temp2)
       }else{
-        snd<-switch(class(x),
+        snd<-switch(class(x)[1],
           matrix.csr=rep(1:n,times=diff(x@ia)),
           matrix.csc=x@ja,
           matrix.ssr=c(rep(1:n,times=diff(x@ia)),x@ja),
           matrix.ssc=c(x@ja,rep(1:n,times=diff(x@ia)))
         )
-        rec<-switch(class(x),
+        rec<-switch(class(x)[1],
           matrix.csr=x@ja,
           matrix.csc=rep(1:n,times=diff(x@ia)),
           matrix.ssr=c(x@ja,rep(1:n,times=diff(x@ia))),
@@ -277,13 +277,13 @@ as.edgelist.sna<-function(x, attrname=NULL, as.digraph=TRUE, suppress.diag=FALSE
 as.sociomatrix.sna<-function(x, attrname=NULL, simplify=TRUE, force.bipartite=FALSE){
   #If passed a list, operate on each element
   # but 'network' is also a list
-  if((is.list(x)&&!any(class(x)=='network'))&&(!(class(x)%in%c("network","matrix.csr","matrix.csc", "matrix.ssr","matrix.ssc", "matrix.hb","data.frame")))){
+  if((is.list(x)&&!inherits(x,"network"))&&(!inherits(x, c("network","matrix.csr","matrix.csc", "matrix.ssr","matrix.ssc", "matrix.hb","data.frame")))){
     g<-lapply(x,as.sociomatrix.sna,attrname=attrname,simplify=simplify, force.bipartite=force.bipartite)
     #Otherwise, start with network
-  }else if(any(class(x)=="network")){
+  }else if(inherits(x,"network")){
     g<-as.sociomatrix(x, attrname=attrname, simplify=simplify)
   #Not a network -- is this a sparse matrix (from SparseM)?
-  }else if(class(x)%in%c("matrix.csr","matrix.csc","matrix.ssr","matrix.ssc", "matrix.hb")){
+  }else if(inherits(x, c("matrix.csr","matrix.csc","matrix.ssr","matrix.ssc", "matrix.hb"))){
     requireNamespace("SparseM")   #Need SparseM for this
     bip<-attr(x,"bipartite")
     g<-as.matrix(x)      #Coerce to matrix form, and pass on
@@ -642,9 +642,9 @@ interval.graph<-function(slist,type="simple",diag=FALSE){
 
 #is.edgelist.sna - check to see if a data object is an sna edgelist
 is.edgelist.sna<-function(x){
-  if(class(x)=="list")
+  if(is.list(x))
     return(sapply(x,is.edgelist.sna))
-  if(!(class(x)%in%c("matrix","array")))
+  if(!inherits(x,c("matrix","array")))
     FALSE
   else if(length(dim(x))!=2)
     FALSE
