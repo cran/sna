@@ -3,7 +3,7 @@
 # gli.R
 #
 # copyright (c) 2004, Carter T. Butts <buttsc@uci.edu>
-# Last Modified 12/4/19
+# Last Modified 6/10/20
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/sna package
@@ -319,7 +319,7 @@ gtrans<-function(dat,g=NULL,diag=FALSE,mode="digraph",measure=c("weak","strong",
       }else
         TRUE
     }
-    if(is.list(dat))
+    if(is.list(dat)&&(!inherits(dat,"network")))
       adjcheck<-sapply(dat,adjisok)
     else
       adjcheck<-adjisok(dat)

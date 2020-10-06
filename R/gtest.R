@@ -3,7 +3,7 @@
 # gtest.R
 #
 # copyright (c) 2004, Carter T. Butts <buttsc@uci.edu>
-# Last Modified 2/27/13
+# Last Modified 10/5/20
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/sna package
@@ -280,6 +280,8 @@ print.summary.qaptest<-function(x,...){
 #qaptest - Generate a QAP test object
 qaptest<-function(dat,FUN,reps=1000,...){
    out<-list()
+   #Coerce to sociomatrix form - rmperm is going to do that anyway....
+   dat<-as.sociomatrix(dat)
    #First, find the test value for fun on dat
    fun<-match.fun(FUN)
    out$testval<-fun(dat,...)

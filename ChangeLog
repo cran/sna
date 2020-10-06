@@ -1,4 +1,17 @@
 CHANGELOG:
+v2.6
+   New Functions:
+     simmelian - Compute Simmelian ties from an input digraph
+   Bug Fixes and New Functions:
+     gtrans produced warnings (and occasionally failed) with network
+       objects or lists thereof when use.adjacency=TRUE was set
+     redist was failing when called with a non-trivial seed partition
+     qaptest did not coerce inputs to sociomatrices when calculating the 
+       observed value of the test statistic, but then passed to rmperm which
+       did so for replications; this was usually harmless, but could in some
+       cases lead to problems for some input types and some statistics.  New
+       behavior is to always coerce to matrix form.
+     gplot.target produced spurious warning messages
 v2.5
    New Features:
      plot.sociomatrix now allows an arbitrary cell color function to be

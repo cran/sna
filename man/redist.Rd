@@ -74,6 +74,13 @@ g.re<-redist(g)
 
 #Plot a metric MDS of vertex positions in two dimensions
 plot(cmdscale(as.dist(g.re)))
+
+#What if there were already something known to be different about
+#the first five vertices?
+sp<-rep(1:2,times=c(5,15))            #Create "seed" partition
+g.spre<-redist(g,seed.partition=sp)   #Get new RE distances
+g.spre
+plot.sociomatrix(g.spre)              #Note the blocking! 
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.

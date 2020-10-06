@@ -3,7 +3,7 @@
 # connectivity.R
 #
 # copyright (c) 2004, Carter T. Butts <buttsc@uci.edu>
-# Last Modified 7/19/16
+# Last Modified 8/14/20
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/sna package
@@ -29,6 +29,7 @@
 #  maxflow
 #  neighborhood
 #  reachability
+#  simmelian
 #  structure.statistics
 #
 ######################################################################
@@ -682,6 +683,40 @@ reachability<-function(dat,geodist.precomp=NULL,return.as.edgelist=FALSE,na.omit
      else
        as.sociomatrix.sna(rg)
    }
+}
+
+
+#Function to compute the Simmelian ties for one or more input networks.
+#  Arguments:
+#    dat - one or more input networks, in any form recognized by as.edgelist.sna
+#    dichotomize - logical; should we report whether each dyad has a Simmelian tie?
+#        Otherwise, the count of three-clique co-memberships for each dyad is used as
+#        an edge value.
+#    return.as.edgelist - logical; return the result as an sna edgelist?
+#
+#  Return value:
+#    Either an adjacency matrix or sna edgelist containing the Simmelian tie structure;
+#    if multiple networks are supplied, a list of results is returned.
+#
+simmelian<-function(dat, dichotomize=TRUE, return.as.edgelist=FALSE){
+  #Regularize the inputs
+  dat <- as.edgelist.sna(dat)
+  if(is.list(dat))
+    return(lapply(dat, simmelian, dichotomize = dichotomize))
+  #Symmetrize the network
+  g <- symmetrize(dat, rule="strong", return.as.edgelist=TRUE)
+  #Compute the 3-cycle co-memberships
+  ccen <- kcycle.census(g, mode="graph", tabulate.by.vertex=FALSE, cycle.comembership="bylength")
+  if(dichotomize)
+    comemb <- ccen$cycle.comemb[2,,]>0
+  else
+    comemb <- ccen$cycle.comemb[2,,]
+  diag(comemb) <- 0
+  #Return the result
+  if(return.as.edgelist)
+    as.edgelist.sna(comemb)
+  else
+    comemb
 }
 
 

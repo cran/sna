@@ -3,7 +3,7 @@
 # dataprep.R
 #
 # copyright (c) 2004, Carter T. Butts <buttsc@uci.edu>
-# Last Modified 12/4/19
+# Last Modified 6/10/20
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/sna package
@@ -642,7 +642,7 @@ interval.graph<-function(slist,type="simple",diag=FALSE){
 
 #is.edgelist.sna - check to see if a data object is an sna edgelist
 is.edgelist.sna<-function(x){
-  if(is.list(x))
+  if(is.list(x)&&(!inherits(x,"network")))
     return(sapply(x,is.edgelist.sna))
   if(!inherits(x,c("matrix","array")))
     FALSE

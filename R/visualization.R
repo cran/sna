@@ -3,7 +3,7 @@
 # visualization.R
 #
 # copyright (c) 2004, Carter T. Butts <buttsc@uci.edu>
-# Last Modified 12/4/19
+# Last Modified 10/5/20
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/sna package
@@ -447,7 +447,7 @@ gplot<-function(dat,g=1,gmode="digraph",diag=FALSE,label=NULL,coord=NULL,jitter=
 #gplot.arrow - Custom arrow-drawing method for gplot
 gplot.arrow<-function(x0,y0,x1,y1,length=0.1,angle=20,width=0.01,col=1,border=1,lty=1,offset.head=0,offset.tail=0,arrowhead=TRUE,curve=0,edge.steps=50,...){
   if(length(x0)==0)   #Leave if there's nothing to do
-    return;
+    return();
   #Introduce a function to make coordinates for a single polygon
   make.coords<-function(x0,y0,x1,y1,ahangle,ahlen,swid,toff,hoff,ahead,curve,csteps,lty){ 
 	if (lty=="blank"|lty==0) return(c(NA,NA)) #AHM leave if lty is "blank"
@@ -1080,7 +1080,7 @@ gplot.layout.target<-function(d,layout.par){
 #gplot.loop - Custom loop-drawing method for gplot
 gplot.loop<-function(x0,y0,length=0.1,angle=10,width=0.01,col=1,border=1,lty=1,offset=0,edge.steps=10,radius=1,arrowhead=TRUE,xctr=0,yctr=0,...){
   if(length(x0)==0)   #Leave if there's nothing to do
-    return;
+    return();
   #Introduce a function to make coordinates for a single polygon
   make.coords<-function(x0,y0,xctr,yctr,ahangle,ahlen,swid,off,rad,ahead){
     #Determine the center of the plot
@@ -1165,6 +1165,7 @@ gplot.target<-function(dat,x,circ.rad=(1:10)/10,circ.col="blue",circ.lwd=1,circ.
   cl$circ.col<-NULL
   cl$circ.lwd<-NULL
   cl$circ.lty<-NULL
+  cl$circ.lab<-NULL
   cl$circ.lab.theta<-NULL
   cl$circ.lab.col<-NULL
   cl$circ.lab.cex<-NULL

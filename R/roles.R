@@ -3,7 +3,7 @@
 # roles.R
 #
 # copyright (c) 2004, Carter T. Butts <buttsc@uci.edu>
-# Last Modified 12/4/19
+# Last Modified 1/28/20
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/sna package
@@ -451,10 +451,16 @@ redist<-function(dat, g=NULL, method=c("catrege"), mode="digraph", diag=FALSE, s
           }
       part1<-part2
     }
+    imax<-function(i,j){  #Get the maximum iteration in which i and j were together (or 0 if never)
+      if(any(outpart[,i]==outpart[,j]))
+        max((1:NROW(outpart))[outpart[,i]==outpart[,j]])
+      else
+        0
+    }
     eq<-matrix(0,n,n)
     for(i in 1:n)
       for(j in 1:n)
-        eq[i,j]<-max((1:NROW(outpart))[outpart[,i]==outpart[,j]])
+        eq[i,j]<-imax(i,j)
   }
   #Transform and rescale to distance form if required
   if(!code.diss)
