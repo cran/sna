@@ -32,13 +32,7 @@ To get started with \code{sna}, try obtaining viewing the list of available func
 }
 \author{ Carter T. Butts \email{buttsc@uci.edu} }
 \note{
-If you use this package and/or software manual in your work, a citation would be appreciated.  References to the current versions are:
-
-Butts, Carter T.  (2016).  \dQuote{sna: Tools for Social Network Analysis.}  R package version 2.4.
-
-Butts, Carter T.  (2016).  \dQuote{Software Manual for the R sna Package.}  R package version 2.4.
-
-See also the following paper, which explores the package in some detail:
+If you use this package and/or software manual in your work, a citation would be appreciated.  The \code{link{citation}} function has helpful information in this regard.  See also the following paper, which explores the package in some detail:
 
 Butts, Carter T.  (2008).  \dQuote{Social Network Analysis with sna.}  \emph{Journal of Statistical Software}, 24(6).
 

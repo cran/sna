@@ -1,4 +1,18 @@
 CHANGELOG:
+v2.7
+   Changes:
+     rgnm should now be much, much faster on large sparse graphs
+     The default ncell value for the Fruchterman-Reingold layout has been
+       changed from N^0.4 to N^0.5; this produces nicer layouts, though it
+       does add to the computational cost.  If your layout is taking too
+       long, consider setting ncell accordingly using the layout.par
+       argument to gplot.  If you are seeing random outlying vertices,
+       or other anomalies, try increasing ncell further.
+   Bug Fixes:
+     rgnm was not handling loops properly [submitted by Gilad Ravid]
+     logSum returned NaN when called w/two leading -Inf values [submitted
+       by Fan Yin]
+     Changed man page code for CRAN compliance
 v2.6
    New Functions:
      simmelian - Compute Simmelian ties from an input digraph

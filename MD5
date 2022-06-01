@@ -1,6 +1,6 @@
 9ba5884ddab488cf320c3989f1c882ff *COPYING
-6b9c335425fc852fbfcb87211b9406b8 *ChangeLog
-544312fdac21f24a9c9e8a2485ef2948 *DESCRIPTION
+d27305ddf5eb97227588a7e072287432 *ChangeLog
+8adb4a8754718aad903c25998e35740e *DESCRIPTION
 4afcba807dbe3ac044e626952117c0e2 *INDEX
 98acd659dc2a3896479842d132ce04b5 *NAMESPACE
 c727c14353e34c0fda7cb7d6c94572ba *R/connectivity.R
@@ -12,10 +12,10 @@ ddfe7205ee74edeb4b17512969f43070 *R/gli.R
 f49456351e9f661135fd19e80aa85c31 *R/models.R
 efd7acb5c1bcc2e0e67aa842823fc6b5 *R/nli.R
 c35d573249057e02eb52fe1040afe0a9 *R/permutation.R
-dbb2b3bdcd143bb4eabad9d15f3103ff *R/randomgraph.R
+8c8bf5bf998fa188a83a969fa7389c68 *R/randomgraph.R
 84703f37e4ea6c0c4167a06d3a839123 *R/roles.R
 0f55038d7ad4aff421f43e851529634c *R/sna-operators.R
-ab24e2f0723673d5d9107e11ca301ebb *R/visualization.R
+a18e5a43f6017b266a262a73d721fe8c *R/visualization.R
 5debdb4b0ad3734e8c9473f00e57f193 *R/zzz.R
 417b3ab638faeb3dcffecab3b7592f55 *data/coleman.RData
 d0d2b588bf2ad1a69f2ce1cde9f6535a *man/add.isolates.Rd
@@ -64,7 +64,7 @@ cdd3c4e722fbb2d5575dec3851940e65 *man/gilschmidt.Rd
 71f64aab86ae2e5c5d190e1d58bcdc91 *man/gliop.Rd
 27879a02825dfc9a3a18eab48f7d5d09 *man/gplot.Rd
 63dfc674d1d76800880b154526762d2d *man/gplot.arrow.Rd
-6eeb493dc1b9f6bd2085918add0604ec *man/gplot.layout.Rd
+51b80832632f4197591e0d4c09e5e51e *man/gplot.layout.Rd
 f18bb78f2e13f37b0498d07c0e159968 *man/gplot.loop.Rd
 a6cb1599334f568bd68bc57d617c0e4d *man/gplot.target.Rd
 35fabddb77f71d466d0d64a8440c0b9b *man/gplot.vertex.Rd
@@ -131,7 +131,7 @@ aee57815ba34fa9760671a33d577bece *man/print.summary.netcancor.Rd
 ee843a50fb36e01a87006d45c0e1ceec *man/print.summary.netlm.Rd
 8feeeaf4160b4ae732ce04b85078b3e6 *man/print.summary.netlogit.Rd
 45b7d396449e5fbb71df931a834b5ed4 *man/print.summary.qaptest.Rd
-0ee11f85643fdb5725fdeb705735f904 *man/pstar.Rd
+9c8d983a2399b9b31f4c39b9ac7cd29d *man/pstar.Rd
 b998e9a8fe3293dd7b076b839211bbc2 *man/qaptest.Rd
 ca2b59aebcae210dc09c1c534f2128c6 *man/reachability.Rd
 9ba3a90b1bd2d9159dd9cb9899788613 *man/read.dot.Rd
@@ -150,9 +150,9 @@ bac6e23361646f61e281d9b1ecbe4682 *man/sdmat.Rd
 072d4579f8e817d65b7500c21d0cef29 *man/simmelian.Rd
 dab502c90beb4920cdbb5ebe1ed759f2 *man/sna-coercion.Rd
 2612a6d8d8ac193ced95d72c9932a050 *man/sna-defunct.Rd
-6223b48db7b22234ac56b1499dd87192 *man/sna-deprecated.Rd
+1b5bd86e9dd621ebea9f1747d26cddf0 *man/sna-deprecated.Rd
 5c422d15e4140edaafde5496de37f93a *man/sna-internal.Rd
-1253febdc2a11e1fde8d4c87e06fcc73 *man/sna.Rd
+4d0069ff9188542df0669209df303dc9 *man/sna.Rd
 c6da10c0b52e898e149793df017c17ba *man/sna.operators.Rd
 71a6e6e5fd32209adea054ce43fbe9fa *man/sr2css.Rd
 1e0979cc439cd88b573bc0a2685b739b *man/stackcount.Rd
@@ -195,5 +195,5 @@ a89fc92690a52abefb26df755e6f51a2 *src/nli.c
 5e9cc9cfbf7968c58a34704d73bdea7e *src/randomgraph.h
 c4dff7011facd52fc54f958e997d1ec3 *src/triads.c
 784cc9187adfa29c8e8c02d053578a66 *src/triads.h
-5a5a32aa3f1b9c0587e1c41546472335 *src/utils.c
+a8b126f8d009580b318617a73cce93f2 *src/utils.c
 8bf40b968d70c8314052152f2b12194b *src/utils.h

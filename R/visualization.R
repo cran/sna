@@ -3,7 +3,7 @@
 # visualization.R
 #
 # copyright (c) 2004, Carter T. Butts <buttsc@uci.edu>
-# Last Modified 10/5/20
+# Last Modified 5/8/22
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/sna package
@@ -656,7 +656,7 @@ gplot.layout.fruchtermanreingold<-function(d,layout.par){
   else
     repulse.rad<-layout.par$repulse.rad
   if(is.null(layout.par$ncell))
-    ncell<-ceiling(n^0.4)
+    ncell<-ceiling(n^0.5)
   else
     ncell<-layout.par$ncell
   if(is.null(layout.par$cell.jitter))

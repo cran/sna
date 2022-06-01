@@ -23,10 +23,12 @@ pstar(dat, effects=c("choice", "mutuality", "density", "reciprocity",
   \item{mode}{ \code{"digraph"} if \code{dat} is directed, else \code{"graph"} }
 }
 \details{
-p* (also called the Exponential Random Graph (ERG) family) is an exponential family specification for network data.  Under p*, it is assumed that 
+The Exponential Family-Random Graph Model (ERGM) family, referred to as \dQuote{p*} in older literature, is an exponential family specification for network data.  In this specification, it is assumed that 
 \deqn{p(G=g) \propto \exp(\beta_0 \gamma_0(g) + \beta_1 \gamma_1(g) + \dots)}{%
 p(G=g) propto exp(beta_0 gamma_0(g) + beta_1 gamma_1(g) + \dots)}
-for all g, where the betas represent real coefficients and the gammas represent functions of g.  Unfortunately, the unknown normalizing factor in the above expression makes evaluation difficult in the general case.  One solution to this problem is to operate instead on the edgewise log odds; in this case, the p* MLE can be approximated by a logistic regression of each edge on the \emph{differences} in the gamma scores induced by the presence and absence of said edge in the graph (conditional on all other edges).  It is this approximation (known as autologistic regression, or maximum pseudo-likelihood estimation) which is employed here.  
+for all g, where the betas represent real coefficients and the gammas represent functions of g.  Unfortunately, the unknown normalizing factor in the above expression makes evaluation difficult in the general case.  One solution to this problem is to operate instead on the edgewise log odds; in this case, the ERGM/p* MLE can be approximated by a logistic regression of each edge on the \emph{differences} in the gamma scores induced by the presence and absence of said edge in the graph (conditional on all other edges).  It is this approximation (known as autologistic regression, or maximum pseudo-likelihood estimation) that is employed here.  
+
+Note that ERGM modeling is considerably more advanced than it was when this function was created, and estimation by MPLE is now used only in special cases.  Guidelines for model specification and assessment have also evolved.  The \code{ergm} package within the \code{statnet} library reflects the current state of the art, and use of the \code{ergm()} function in said library is highly recommended.  This function is retained primarily as a legacy tool, for users who are nostalgic for 2000-vintage ERGM (\dQuote{p*}) modeling experience.  Caveat emptor.
 
 Using the \code{effects} argument, a range of different potential parameters can be estimated.  The network measure associated with each is, in turn, the edge-perturbed difference in:
 \enumerate{
@@ -68,9 +70,9 @@ Using the \code{effects} argument, a range of different potential parameters can
 
 \item \code{lubness}: the Krackhardt LUBness of the graph
 }
-(Note that some of these do differ somewhat from the common p* parameter formulation, e.g. quantities such as density and reciprocity are computed as per the \code{\link{gden}} and \code{\link{grecip}} functions rather than via the unnormalized "choice" and "mutual" quantities one often finds in the p* literature.)  \emph{Please do not attempt to use all effects simultaneously!!!}  In addition to the above, the user may specify a matrix of individual attributes whose absolute dyadic differences are to be used as predictors, as well as a matrix of individual memberships whose dyadic categorical similarities (same/different) are used in the same manner.
+(Note that some of these do differ somewhat from the common specifications employed in the older p* literature, e.g. quantities such as density and reciprocity are computed as per the \code{\link{gden}} and \code{\link{grecip}} functions rather than via the unnormalized "choice" and "mutual" quantities that were generally used.)  \emph{Please do not attempt to use all effects simultaneously!!!}  In addition to the above, the user may specify a matrix of individual attributes whose absolute dyadic differences are to be used as predictors, as well as a matrix of individual memberships whose dyadic categorical similarities (same/different) are used in the same manner.
 
-Although the p* framework is quite versatile in its ability to accommodate a range of structural predictors, it should be noted that the \emph{substantial} collinearity of many of the standard p* predictors can lead to very unstable model fits.  Measurement and specification errors compound this problem; thus, it is somewhat risky to use p* in an exploratory capacity (i.e., when there is little prior knowledge to constrain choice of parameters).  While raw instability due to multicollinearity should decline with graph size, improper specification will still result in biased coefficient estimates so long as an omitted predictor correlates with an included predictor.  Caution is advised.
+Although the ERGM framework is quite versatile in its ability to accommodate a range of structural predictors, it should be noted that the \emph{substantial} collinearity of many of the terms provided here can lead to very unstable model fits.  Measurement and specification errors compound this problem, as does the use of the MPLE; thus, it is somewhat risky to use \code{pstar} in an exploratory capacity (i.e., when there is little prior knowledge to constrain choice of parameters).  While raw instability due to multicollinearity should decline with graph size, improper specification will still result in biased coefficient estimates so long as an omitted predictor correlates with an included predictor.  Moreover, many models created using these effects are at risk of degeneracy, which is difficult to assess without simulation-based model assessment.  Caution is advised - or, better, use of the \code{ergm} package.
 }
 \value{
 A \code{\link{glm}} object
@@ -82,13 +84,14 @@ Holland, P.W., and Leinhardt, S. (1981).  ``An Exponential Family of Probability
 Wasserman, S., and Pattison, P. (1996).  ``Logit Models and Logistic Regressions for Social Networks:  I.  An introduction to Markov Graphs and p*.''  \emph{Psychometrika,} 60, 401-426.
  }
 \author{ Carter T. Butts \email{buttsc@uci.edu} }
-\note{ In the long run, support will be included for p* models involving arbitrary functions (much like the system used with \code{\link{cugtest}} and \code{\link{qaptest}}).}
+\note{ This is a legacy function - use of the \code{ergm} package is now strongly advised.}
 
 \section{WARNING }{Estimation of p* models by maximum pseudo-likelihood is now known to be a dangerous practice.  Use at your own risk.} 
 
 \seealso{ \code{\link{eval.edgeperturbation}} }
 
 \examples{
+\dontrun{
 #Create a graph with expansiveness and popularity effects
 in.str<-rnorm(20,0,3)
 out.str<-rnorm(20,0,3)
@@ -107,6 +110,7 @@ p3<-pstar(g,effects=c("outdegree","indegree","mutuality"))
 extractAIC(p1)
 extractAIC(p2)
 extractAIC(p3)
+}
 }
 \keyword{ models }
 \keyword{ multivariate }

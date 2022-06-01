@@ -4,7 +4,7 @@
 # utils.c
 #
 # copyright (c) 2006, Carter T. Butts <buttsc@uci.edu>
-# Last Modified 6/6/17
+# Last Modified 12/13/20
 # Licensed under the GNU General Public License version 2 (June, 1991)
 # later.
 # Portions taken from the NetStat library by Carter T. Butts (2002)
@@ -60,13 +60,13 @@ void logadd_R(double *lvals, int *n, double *lsum)
 {
   int i;
   
-  if(*n==1){
-    *lsum=lvals[0];
+  *lsum=lvals[0];  /*Initialize with the first value*/
+  if(*n==1){       /*If that's all there is, return*/
     return;
   }
-  *lsum=logspace_add(lvals[0],lvals[1]);
-  for(i=2;i<*n;i++)
-    *lsum=logspace_add(*lsum,lvals[i]);
+  for(i=1;i<*n;i++)  /*Otherwise, add the remaining entries*/
+    if(lvals[i]!=R_NegInf)   /*We can avoid issues/save time this way....*/
+      *lsum=logspace_add(*lsum,lvals[i]);
 }
 
 

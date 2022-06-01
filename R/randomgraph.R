@@ -3,7 +3,7 @@
 # randomgraph.R
 #
 # copyright (c) 2004, Carter T. Butts <buttsc@uci.edu>
-# Last Modified 12/4/19
+# Last Modified 11/26/20
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/sna package
@@ -126,32 +126,24 @@ rgbn<-function(n,nv,param=list(pi=0,sigma=0,rho=0,d=0.5,delta=0),burn=nv*nv*5*1e
 # = p^i (n-1)C(i-1) (1-u^i)^(n-i) u^{i(i-1)/2}
 #rgmn - Draw a density-conditioned graph
 rgnm<-function(n,nv,m,mode="digraph",diag=FALSE,return.as.edgelist=FALSE){
-  #Allocate the graph stack
+  #Allocate the graph stack and related things
   g<-vector(mode="list",n)
-  #Draw numbers for edge placement
-  if(mode=="graph"){
-    enum<-matrix(1:nv^2,nv,nv)
-    enum<-enum[lower.tri(enum,diag=diag)]
-  }else if(mode=="digraph"){
-    enum<-matrix(1:nv^2,nv,nv)
-    diag(enum)<-NA
-    enum<-enum[!is.na(enum)]
-  }else
-    stop("Unsupported mode in rgnm.")
-  #Place the edges
+  nv<-rep(nv,length=n)
+  m<-rep(m,length=n)
+  #Create the graphs
   for(i in 1:n){
-    if(nv==0){
-      if(m>0)
+    if(nv[i]==0){        #Degenerate null graph
+      if(m[i]>0)
         stop("Too many edges requested in rgnm.")
       else{
         mat<-matrix(nrow=0,ncol=3)
         attr(mat,"n")<-0
       }
       g[[i]]<-mat
-    }else if(nv==1){
-      if(m>diag)
+    }else if(nv[i]==1){  #Isolate (perhaps w/loop)
+      if(m[i]>diag)
         stop("Too many edges requested in rgnm.")
-      if(diag){
+      if(m[i]==1){
         mat<-matrix(c(1,1,1),nrow=1,ncol=3)
         attr(mat,"n")<-1
       }else{
@@ -159,22 +151,48 @@ rgnm<-function(n,nv,m,mode="digraph",diag=FALSE,return.as.edgelist=FALSE){
         attr(mat,"n")<-1
       }
       g[[i]]<-mat
-    }else{
-      if(m>0){
-        if(length(enum)>1)
-          el<-sample(enum,m)
-        else
-          el<-enum
-        head<-((el-1)%/%nv)+1
-        tail<-((el-1)%%nv)+1
-        mat<-cbind(tail,head,rep(1,m))
-        if(mode=="graph")
-          mat<-rbind(mat,mat[mat[,1]!=mat[,2],c(2,1,3),drop=FALSE])
-        attr(mat,"n")<-nv
-      }else{
-        mat<-matrix(nrow=0,ncol=3)
-        attr(mat,"n")<-nv
-      }
+    }else if(m[i]==0){   #Empty graph
+      mat<-matrix(nrow=0,ncol=3)
+      attr(mat,"n")<-nv[i]
+      g[[i]]<-mat
+    }else{               #Everything else
+      if(mode=="digraph"){
+        if(diag){          #Digraph w/loops
+	  if(m[i]>nv[i]^2)
+            stop("Too many edges requested in rgnm.")
+          j<-sample(nv[i]^2,m[i])
+          r<-((j-1)%%nv[i])+1
+          c<-((j-1)%/%nv[i])+1
+	  mat<-cbind(r,c,rep(1,m[i]))
+	}else{             #Digraph, no loops
+	  if(m[i]>nv[i]*(nv[i]-1))
+            stop("Too many edges requested in rgnm.")
+          j<-sample(nv[i]*(nv[i]-1),m[i])
+          c<-((j-1)%/%(nv[i]-1))+1
+          r<-(((j-1)%%(nv[i]-1))+1)+((((j-1)%%(nv[i]-1))+1)>(c-1))
+	  mat<-cbind(r,c,rep(1,m[i]))
+	}
+      }else if(mode=="graph"){
+        if(diag){          #Unirected graph, w/loops
+	  if(m[i]>nv[i]*(nv[i]+1)/2)
+            stop("Too many edges requested in rgnm.")
+          j<-sample(nv[i]*(nv[i]+1)/2,m[i])
+          c<-nv[i]-floor(sqrt(1/4+2*(nv[i]*(nv[i]+1)/2-j))-1/2)
+          r<-j+nv[i]-c*(nv[i]+1)+c*(c+1)/2
+	  mat<-cbind(r,c,rep(1,m[i]))
+	  mat<-rbind(mat,cbind(c,r,rep(1,m[i])))
+	}else{             #Undirected graph, no loops
+	  if(m[i]>nv[i]*(nv[i]-1)/2)
+            stop("Too many edges requested in rgnm.")
+          j<-sample(nv[i]*(nv[i]-1)/2,m[i])
+          c<-nv[i]-1-floor(sqrt(1/4+2*(choose(nv[i],2)-j))-1/2)
+          r<-j-(c-1)*nv[i]+c*(c-1)/2+c
+	  mat<-cbind(r,c,rep(1,m[i]))
+	  mat<-rbind(mat,cbind(c,r,rep(1,m[i])))
+	}
+      }else
+        stop("Unsupported mode in rgnm.")
+      attr(mat,"n")<-nv[i]   #Set graph size
       g[[i]]<-mat
     }
   }

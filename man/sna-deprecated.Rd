@@ -13,9 +13,11 @@
 \details{
 The following \code{sna} functions are currently deprecated:
 
-\describe{
-\item{ }{None.}
-}
+None at this time.
+
+%\describe{
+%\item{None. }{None at this time.}
+%}
 
 The original help pages for these functions can be found at \code{help("oldName-deprecated")}.  Please avoid using them, since they will disappear....
 }
