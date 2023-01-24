@@ -1,4 +1,11 @@
 CHANGELOG:
+v2.7-1
+   Changes:
+     gplot3d has been modified to comply with upcoming rgl changes [thanks
+       to Duncan Murdoch for the heads-up]; this shouldn't change much at
+       the user level, but some things may render slightly differently.
+   Bug Fixes:
+     Corrected documentation features that were not CRAN compliant
 v2.7
    Changes:
      rgnm should now be much, much faster on large sparse graphs

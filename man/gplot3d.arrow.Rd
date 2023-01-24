@@ -17,7 +17,7 @@ gplot3d.arrow(a, b, radius, color = "white", alpha = 1)
   \item{alpha}{ alpha (transparency) value(s) for arrows.  (May be a vector.) }
 }
 \details{
-  \code{gplot3d.arrow} draws one or more three-dimensional "arrows" from the points given in \code{a} to those given in \code{b}.  Note that the "arrows" are really cones, narrowing in the direction of the destination point.  
+  \code{gplot3d.arrow} draws one or more three-dimensional \dQuote{arrows} from the points given in \code{a} to those given in \code{b}.  Note that the \dQuote{arrows} are really cones, narrowing in the direction of the destination point.  
 }
 \value{
   None.
@@ -28,7 +28,7 @@ gplot3d.arrow(a, b, radius, color = "white", alpha = 1)
 
 % ~Make other sections like Warning with \section{Warning }{....} ~
 
-\seealso{ \code{\link{gplot3d}}, \code{\link{gplot3d.loop}}, \code{\link[rgl:primitive]{rgl.primitive}} }
+\seealso{ \code{\link{gplot3d}}, \code{\link{gplot3d.loop}} }
 %\examples{
 %}
 \keyword{ aplot }% at least one, from doc/KEYWORDS

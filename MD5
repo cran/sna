@@ -1,6 +1,6 @@
 9ba5884ddab488cf320c3989f1c882ff *COPYING
-d27305ddf5eb97227588a7e072287432 *ChangeLog
-8adb4a8754718aad903c25998e35740e *DESCRIPTION
+b0d2130f055bf8750c8b2a3ef8fa5ab4 *ChangeLog
+dd7a638c14267358dc4e4835c25615f4 *DESCRIPTION
 4afcba807dbe3ac044e626952117c0e2 *INDEX
 98acd659dc2a3896479842d132ce04b5 *NAMESPACE
 c727c14353e34c0fda7cb7d6c94572ba *R/connectivity.R
@@ -15,7 +15,7 @@ c35d573249057e02eb52fe1040afe0a9 *R/permutation.R
 8c8bf5bf998fa188a83a969fa7389c68 *R/randomgraph.R
 84703f37e4ea6c0c4167a06d3a839123 *R/roles.R
 0f55038d7ad4aff421f43e851529634c *R/sna-operators.R
-a18e5a43f6017b266a262a73d721fe8c *R/visualization.R
+6dab7afa48eb90aeaf58360cfc1def4e *R/visualization.R
 5debdb4b0ad3734e8c9473f00e57f193 *R/zzz.R
 417b3ab638faeb3dcffecab3b7592f55 *data/coleman.RData
 d0d2b588bf2ad1a69f2ce1cde9f6535a *man/add.isolates.Rd
@@ -64,13 +64,13 @@ cdd3c4e722fbb2d5575dec3851940e65 *man/gilschmidt.Rd
 71f64aab86ae2e5c5d190e1d58bcdc91 *man/gliop.Rd
 27879a02825dfc9a3a18eab48f7d5d09 *man/gplot.Rd
 63dfc674d1d76800880b154526762d2d *man/gplot.arrow.Rd
-51b80832632f4197591e0d4c09e5e51e *man/gplot.layout.Rd
+00f70e95a56657384fe51e9147cb9eee *man/gplot.layout.Rd
 f18bb78f2e13f37b0498d07c0e159968 *man/gplot.loop.Rd
 a6cb1599334f568bd68bc57d617c0e4d *man/gplot.target.Rd
 35fabddb77f71d466d0d64a8440c0b9b *man/gplot.vertex.Rd
 9269b7e898095a1873be367148c3de48 *man/gplot3d.Rd
-15cbb22b608f2c37e44a9a839a8dcac2 *man/gplot3d.arrow.Rd
-cdf89a7bd4dd977cd8a66280b1576926 *man/gplot3d.layout.Rd
+ad99c894f55a04face687bf57152d4e2 *man/gplot3d.arrow.Rd
+e2fbced413db02fd7ea349d5690713e3 *man/gplot3d.layout.Rd
 0576491bdec44440d105faea0fd587d5 *man/gplot3d.loop.Rd
 fe9c4db1860281622959effe44067ac0 *man/graphcent.Rd
 3473e4b3cf2e84b819d30e14e37ba6e2 *man/grecip.Rd

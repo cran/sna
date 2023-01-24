@@ -1,16 +1,16 @@
 Package: sna
-Version: 2.7
-Date: 2022-05-09
+Version: 2.7-1
+Date: 2023-01-24
 Title: Tools for Social Network Analysis
 Authors@R: person(given=c("Carter", "T."), family="Butts", role=c("aut","cre","cph"), email = "buttsc@uci.edu")
 Depends: R (>= 2.0.0), utils, statnet.common, network
 Suggests: rgl, numDeriv, SparseM
 Description: A range of tools for social network analysis, including node and graph-level indices, structural distance and covariance methods, structural equivalence detection, network regression, random graph generation, and 2D/3D network visualization.
 License: GPL (>= 2)
-URL: http://statnet.org
+URL: https://statnet.org
 NeedsCompilation: yes
-Packaged: 2022-05-10 00:09:17 UTC; buttsc
+Packaged: 2023-01-24 06:04:48 UTC; buttsc
 Author: Carter T. Butts [aut, cre, cph]
 Maintainer: Carter T. Butts <buttsc@uci.edu>
 Repository: CRAN
-Date/Publication: 2022-06-01 05:40:02 UTC
+Date/Publication: 2023-01-24 08:30:05 UTC

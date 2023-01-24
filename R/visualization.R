@@ -3,7 +3,7 @@
 # visualization.R
 #
 # copyright (c) 2004, Carter T. Butts <buttsc@uci.edu>
-# Last Modified 5/8/22
+# Last Modified 1/23/23
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/sna package
@@ -1286,11 +1286,11 @@ gplot3d<-function(dat,g=1,gmode="digraph",diag=FALSE,label=NULL,coord=NULL,jitte
      zlab=""
    #Create the base plot, if needed
    if(new){  #If new==FALSE, we add to the existing plot; else create a new one
-     rgl::rgl.clear()
+     rgl::clear3d()
      if(!suppress.axes)      #Plot axes, if desired
-       rgl::rgl.bbox(xlab=xlab,ylab=ylab,zlab=zlab);
+       rgl::bbox3d(xlab=xlab,ylab=ylab,zlab=zlab);
    }
-   rgl::rgl.bg(color=bg.col)  
+   rgl::bg3d(color=bg.col)  
    #Plot vertices
    temp<-as.matrix(dist(cbind(x[use],y[use],z[use])))
    diag(temp)<-Inf
@@ -1304,7 +1304,7 @@ gplot3d<-function(dat,g=1,gmode="digraph",diag=FALSE,label=NULL,coord=NULL,jitte
    vertex.col<-rep(vertex.col,length=n)
    vertex.alpha<-rep(vertex.alpha,length=n)
    if(!all(use==FALSE))
-     rgl::rgl.spheres(x[use],y[use],z[use],radius=vertex.radius[use], color=vertex.col[use], alpha=vertex.alpha[use])
+     rgl::spheres3d(x[use],y[use],z[use],radius=vertex.radius[use], color=vertex.col[use], alpha=vertex.alpha[use])
    #Generate the edges and their attributes
    pt<-vector()   #Create position vectors (tail, head)
    ph<-vector()
@@ -1358,7 +1358,7 @@ gplot3d<-function(dat,g=1,gmode="digraph",diag=FALSE,label=NULL,coord=NULL,jitte
    }
    #Plot vertex labels, if needed
    if(displaylabels&(!all(label==""))&(!all(use==FALSE))){
-     rgl::rgl.texts(x[use]-vertex.radius[use],y[use],z[use],label[use], color=label.col)
+     rgl::texts3d(x[use]-vertex.radius[use],y[use],z[use],label[use], color=label.col)
    }
    #Return the vertex positions, should they be needed
    invisible(cbind(x,y,z))
@@ -1409,7 +1409,7 @@ gplot3d.arrow<-function(a,b,radius,color="white",alpha=1){
   for(i in 1:n)
     coord<-rbind(coord,make.coords(a[i,],b[i,],radius[i]))
   #Draw the triangles
-  rgl::rgl.triangles(coord[,1],coord[,2],coord[,3],color=rep(color,each=24), alpha=rep(alpha,each=24))
+  rgl::triangles3d(coord[,1],coord[,2],coord[,3],color=rep(color,each=24), alpha=rep(alpha,each=24))
 }
 
 
@@ -1787,7 +1787,7 @@ gplot3d.loop<-function(a,radius,color="white",alpha=1){
   for(i in 1:n)
     coord<-rbind(coord,make.coords(a[i,],radius[i]))
   #Plot the triangles
-  rgl::rgl.triangles(coord[,1],coord[,2],coord[,3],color=rep(color,each=24), alpha=rep(alpha,each=24))
+  rgl::triangles3d(coord[,1],coord[,2],coord[,3],color=rep(color,each=24), alpha=rep(alpha,each=24))
 }
 
 
