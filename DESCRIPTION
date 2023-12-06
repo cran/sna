@@ -1,6 +1,6 @@
 Package: sna
-Version: 2.7-1
-Date: 2023-01-24
+Version: 2.7-2
+Date: 2023-12-05
 Title: Tools for Social Network Analysis
 Authors@R: person(given=c("Carter", "T."), family="Butts", role=c("aut","cre","cph"), email = "buttsc@uci.edu")
 Depends: R (>= 2.0.0), utils, statnet.common, network
@@ -9,8 +9,8 @@ Description: A range of tools for social network analysis, including node and gr
 License: GPL (>= 2)
 URL: https://statnet.org
 NeedsCompilation: yes
-Packaged: 2023-01-24 06:04:48 UTC; buttsc
+Packaged: 2023-12-05 21:42:37 UTC; buttsc
 Author: Carter T. Butts [aut, cre, cph]
 Maintainer: Carter T. Butts <buttsc@uci.edu>
 Repository: CRAN
-Date/Publication: 2023-01-24 08:30:05 UTC
+Date/Publication: 2023-12-06 05:20:02 UTC

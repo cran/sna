@@ -6,6 +6,7 @@
 # copyright (c) 2004, Carter T. Butts <buttsc@uci.edu>
 # Last Modified 7/18/16
 # Licensed under the GNU General Public License version 2 (June, 1991)
+# or later.
 #
 # Part of the R/sna package
 #

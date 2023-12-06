@@ -1,4 +1,7 @@
 CHANGELOG:
+v2.7-2
+   Bug Fixes:
+     Corrected a formatting issue that was generating a compile warning.
 v2.7-1
    Changes:
      gplot3d has been modified to comply with upcoming rgl changes [thanks

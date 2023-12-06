@@ -6,7 +6,8 @@
 # copyright (c) 2006, Carter T. Butts <buttsc@uci.edu>
 # Last Modified 12/13/20
 # Licensed under the GNU General Public License version 2 (June, 1991)
-# later.
+# or later.
+#
 # Portions taken from the NetStat library by Carter T. Butts (2002)
 #  (self-licensed under GPL)
 #
