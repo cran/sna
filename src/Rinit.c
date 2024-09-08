@@ -4,7 +4,7 @@
 # Rinit.c
 #
 # copyright (c) 2019, Carter T. Butts <buttsc@uci.edu>
-# Last Modified 12/9/19
+# Last Modified 8/01/24
 # Licensed under the GNU General Public License version 2 (June, 1991)
 # or later.
 #
@@ -77,7 +77,7 @@ static R_CMethodDef CEntries[] = {
   CALLDEF(cycleCensus_R,9),                    /*paths.h*/
   CALLDEF(pathCensus_R,11),
   CALLDEF(bn_cftp_R,8),                        /*randomgraph.h*/
-  CALLDEF(bn_mcmc_R,11),
+  CALLDEF(bn_mcmc_R,13),
   CALLDEF(udrewire_R,4),
   CALLDEF(wsrewire_R,5),
   CALLDEF(transitivity_R,6),                   /*triads.h*/

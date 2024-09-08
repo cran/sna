@@ -4,7 +4,7 @@
 # randomgraph.c
 #
 # copyright (c) 2004, Carter T. Butts <buttsc@uci.edu>
-# Last Modified 1/16/16
+# Last Modified 9/07/24
 # Licensed under the GNU General Public License version 2 (June, 1991)
 # or later.
 #
@@ -236,11 +236,11 @@ void bn_cftp_R(int *g, int *pn, double *pi, double *sigma, double *rho, double *
 }
 
 
-void bn_mcmc_R(int *g, double *pn, double *pdraws, double *pburn, int *pthin, double *pi, double *sigma, double *rho, double *d, double *delta, int *sibdichot)
+void bn_mcmc_R(int *g, double *pn, double *pdraws, double *pburn, int *pthin, double *pi, double *sigma, double *rho, double *d, double *delta, double *epsilon, int *sibdichot, double *maxedge)
 {
   long int n,i,j,k,x,draws,burn,bc,*parents,*odeg;
-  double *lne,lnpar,lnsib,lndblr,ep,lnsat;
-  int thin,tc,ostate;
+  double *lne,*lni,lnpar,lnsib,lndblr,ep,lnsat,ec;
+  int thin,tc,ostate,stopflag;
   
   /*Initialize various things*/
   n=(long int)*pn;
@@ -250,26 +250,45 @@ void bn_mcmc_R(int *g, double *pn, double *pdraws, double *pburn, int *pthin, do
   GetRNGstate();
   parents=(long int *)R_alloc(n*n,sizeof(long int));
   odeg=(long int *)R_alloc(n,sizeof(long int));
-  lne=(double *)R_alloc(n*n,sizeof(double));
-  for(i=0;i<n;i++){
+  lne=(double *)R_alloc(n*n,sizeof(double));        /*Non-excitation event prob*/
+  lni=(double *)R_alloc(n*n,sizeof(double));        /*Non-inhibitory event prob*/
+  ec=0.0;                                           /*Edge count*/
+  for(i=0;i<n;i++){                                 /*Start w/empty graph*/
     odeg[i]=0;
     for(j=0;j<n;j++){
-      g[i*draws+j*n*draws]=0;
       parents[i+j*n]=0;
     }    
   }
   for(i=0;i<n;i++)                                    /*Consider refining...*/
-    for(j=0;j<n;j++)  
+    for(j=0;j<n;j++){  
       lne[i+j*n] = ((d[i+j*n]<1.0) ? log(1.0-d[i+j*n]) : -DBL_MAX); 
+      lni[i+j*n] = ((epsilon[i+j*n]<1.0) ? log(1.0-epsilon[i+j*n]) : -DBL_MAX); 
+    }
   lnpar = ((*pi<1.0) ? log(1.0-*pi) : -DBL_MAX);
   lnsib = ((*sigma<1.0) ? log(1.0-*sigma) : -DBL_MAX);
   lndblr = ((*rho<1.0) ? log(1.0-*rho) : -DBL_MAX);
   lnsat = ((*delta<1.0) ? log(1.0-*delta) : -DBL_MAX);
 
+  /*Add edges from the seed graph*/
+  for(j=0;j<n;j++){
+    for(i=0;i<n;i++){
+      if(g[i*draws+j*n*draws]){
+        ec++;                           /*Increment the edge count*/
+	odeg[i]++;
+        for(x=0;x<n;x++)
+          if((g[i*draws+x*n*draws])&&(i!=x)&&(x!=j)){
+            parents[j+x*n]++;
+            parents[x+j*n]++;
+          }
+      }
+    }
+  }
+
   /*Run the MCMC loop*/
   bc=0;
   tc=0;
-  for(i=0;i<draws;i++){
+  stopflag=0;              /*Early stopping flag*/
+  for(i=0;(i<draws)&&(!stopflag);i++){
     /*
     if(bc<burn)
       Rprintf("Burn-in Iteration %ld\n",bc);
@@ -289,8 +308,9 @@ void bn_mcmc_R(int *g, double *pn, double *pdraws, double *pburn, int *pthin, do
       ep=1.0-exp(lne[j+k*n]+g[i+k*draws+j*n*draws]*lnpar+(parents[j+k*n]>0)*lnsib+ g[i+k*draws+j*n*draws]*(parents[j+k*n]>0)*lndblr);
     else
       ep=1.0-exp(lne[j+k*n]+g[i+k*draws+j*n*draws]*lnpar+parents[j+k*n]*lnsib+ g[i+k*draws+j*n*draws]*parents[j+k*n]*lndblr);
-    ep*=exp(odeg[j]*lnsat);
+    ep*=exp(odeg[j]*lnsat+lni[j+k*n]);
     if(runif(0.0,1.0)<=ep){
+      ec+=1.0-g[i+j*draws+k*n*draws];  /*Increment the edge count*/
       g[i+j*draws+k*n*draws]=1;    /*Set the edge*/
       /*If something has changed update the parent count and outdegree count*/
       if(ostate==0){
@@ -307,6 +327,7 @@ void bn_mcmc_R(int *g, double *pn, double *pdraws, double *pburn, int *pthin, do
           }
       }
     }else{
+      ec-=g[i+j*draws+k*n*draws];  /*Decrement the edge count*/
       g[i+j*draws+k*n*draws]=0;   /*Unset the edge*/
       /*If something has changed update the parent and outdegree count*/
       if(ostate==1){
@@ -322,6 +343,11 @@ void bn_mcmc_R(int *g, double *pn, double *pdraws, double *pburn, int *pthin, do
             */
           }
       }
+    }
+    /*Check for early stopping condition*/
+    if(ec > *maxedge){     /*Stop if density guard is tripped*/
+      stopflag=1;       
+      *maxedge = -1.0;     /*Set to negative to show the trip state*/
     }
     /*Burn-in check*/
     if(bc<burn){

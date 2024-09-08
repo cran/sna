@@ -524,8 +524,9 @@ return head;
 
 element *pushCalloc(element *head, double val, void *dp)
 /*Adds element with value val to the stack, returning the head 
-pointer.  This function uses Calloc for memory allocation, and it must be
-manually deallocated with Free.  Do not use with stackdel et al!*/
+pointer.  This function uses R_alloc for memory allocation, so
+memory allocated is automatically freed by R at the end of the .C
+call.*/
 {
 element *newnode;
 

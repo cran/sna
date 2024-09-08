@@ -4,7 +4,7 @@
 # randomgraph.h
 #
 # copyright (c) 2004, Carter T. Butts <buttsc@uci.edu>
-# Last Modified 5/11/15
+# Last Modified 8/01/24
 # Licensed under the GNU General Public License version 2 (June, 1991)
 # or later.
 #
@@ -41,7 +41,7 @@
 
 void bn_cftp_R(int *g, int *pn, double *pi, double *sigma, double *rho, double *d, int *pmaxiter, int *sibdichot);
 
-void bn_mcmc_R(int *g, double *pn, double *pdraws, double *pburn, int *pthin, double *pi, double *sigma, double *rho, double *d, double *delta, int *sibdichot);
+void bn_mcmc_R(int *g, double *pn, double *pdraws, double *pburn, int *pthin, double *pi, double *sigma, double *rho, double *d, double *delta, double *epsilon, int *sibdichot, double *maxedge);
 
 SEXP rgbern_R(SEXP sn, SEXP stp, SEXP sdirected, SEXP sloops, SEXP spmode);
 

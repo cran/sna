@@ -4,7 +4,7 @@
 # paths.c
 #
 # copyright (c) 2007, Carter T. Butts <buttsc@uci.edu>
-# Last Modified 12/4/23
+# Last Modified 9/7/24
 # Licensed under the GNU General Public License version 2 (June, 1991)
 # or later.
 #
@@ -149,7 +149,7 @@ void edgewisePathRecurse(snaNet *g, int src, int dest, int curnode, int *availno
   if((availcount>0)&&(curlen<maxlen-2)){
     if(availcount>1){    /*Remove the current node from the available list*/
       /*Rprintf("\t\t\tRemoving %d from available node list (availcount=%d)\n", curnode,availcount);*/
-      if((newavail=(int *)malloc(sizeof(int)*(availcount-1)))==NULL){
+      if((newavail=(int *)R_Calloc((size_t)(availcount-1),int))==NULL){
         Rprintf("Unable to allocate %ld bytes for available node list in edgewisePathRecurse.  Trying to terminate recursion gracefully, but your path count is probably wrong.\n",(long int)(sizeof(int)*(availcount-1)));
         return;
       }
@@ -162,7 +162,7 @@ void edgewisePathRecurse(snaNet *g, int src, int dest, int curnode, int *availno
       newavail=NULL;                 /*Set to NULL if we're out of nodes*/
     newavailcount=availcount-1;      /*Decrement the available count*/
     if(byvertex||copaths||dyadpaths){  /*Add the current node to the used list*/
-      if((newused=(int *)malloc(sizeof(int)*(curlen+1)))==NULL){
+      if((newused=(int *)R_Calloc((size_t)(curlen+1), int))==NULL){
         Rprintf("Unable to allocate %ld bytes for used node list in edgewisePathRecurse.  Trying to terminate recursion gracefully, but your path count is probably wrong.\n",(long int)(sizeof(int)*(curlen+1)));
         return;
       }
@@ -189,11 +189,11 @@ void edgewisePathRecurse(snaNet *g, int src, int dest, int curnode, int *availno
     /*Rprintf("\t\t\tDone with available node recursion, freeing\n");*/
     if(newavail!=NULL){
       /*Rprintf("\t\t\t\tFreeing newavail; count=%d\n",newavailcount);*/
-      free((void *)newavail);
+      R_Free(newavail);
     }
     if(newused!=NULL){
       /*Rprintf("\t\t\t\tFreeing newused; count=%d\n",curlen);*/
-      free((void *)newused);
+      R_Free(newused);
     }
   }
 
@@ -240,7 +240,7 @@ void edgewiseCycleCensus(snaNet *g, int src, int dest, double *count, double *cc
     return;                 /*Failsafe for graphs of order 2*/
   
   /*Perform the recursive path count*/
-  if((availnodes=(int *)malloc(sizeof(int)*(n-2)))==NULL){
+  if((availnodes=(int *)R_Calloc((size_t)(n-2),int))==NULL){
     Rprintf("Unable to allocate %ld bytes for available node list in edgewiseCycleCensus.  Exiting.\n",(long int)(sizeof(int)*(n-2)));
     return;
   }
@@ -249,7 +249,7 @@ void edgewiseCycleCensus(snaNet *g, int src, int dest, double *count, double *cc
     if((i!=src)&&(i!=dest))
       availnodes[j++]=i;
   if(byvertex||cocycles){          /*Initialize the list of already used nodes*/
-    if((usednodes=(int *)malloc(sizeof(int)))==NULL){
+    if((usednodes=(int *)R_Calloc(1,int))==NULL){
       Rprintf("Unable to allocate %ld bytes for used node list in edgewiseCycleCensus.  Exiting.\n",(long int)(sizeof(int)));
       return;
     }
@@ -268,9 +268,9 @@ void edgewiseCycleCensus(snaNet *g, int src, int dest, double *count, double *cc
     }
   /*Rprintf("\t\tReturned from recursion; freeing memory\n");*/
   if(availnodes!=NULL)
-    free((void *)availnodes);  /*Free the available node list*/
+    R_Free(availnodes);  /*Free the available node list*/
   if(usednodes!=NULL)
-    free((void *)usednodes); /*Free the used node list, if needed*/
+    R_Free(usednodes); /*Free the used node list, if needed*/
 }
 
 
@@ -319,7 +319,7 @@ void dyadPathCensus(snaNet *g, int src, int dest, double *count, double *cpcount
   }
   
   /*Perform the recursive path count*/
-  if((availnodes=(int *)malloc(sizeof(int)*(n-2)))==NULL){
+  if((availnodes=(int *)R_Calloc((size_t)(n-2),int))==NULL){
     Rprintf("Unable to allocate %ld bytes for available node list in dyadPathCensus.  Exiting.\n",(long int)sizeof(int)*(n-2));
     return;
   }
@@ -328,7 +328,7 @@ void dyadPathCensus(snaNet *g, int src, int dest, double *count, double *cpcount
     if((i!=src)&&(i!=dest))
       availnodes[j++]=i;
   if(byvertex||copaths){          /*Initialize the list of already used nodes*/
-    if((usednodes=(int *)malloc(sizeof(int)))==NULL){
+    if((usednodes=(int *)R_Calloc(1,int))==NULL){
       Rprintf("Unable to allocate %ld bytes for used node list in edgewiseCycleCensus.  Exiting.\n",(long int)sizeof(int));
       return;
     }
@@ -344,9 +344,9 @@ void dyadPathCensus(snaNet *g, int src, int dest, double *count, double *cpcount
         edgewisePathRecurse(g,src,dest,availnodes[i],availnodes,n-2,usednodes,1,
           count,cpcount,dpcount,maxlen+1,directed,byvertex,copaths,dyadpaths);
     }
-  free((void *)availnodes);  /*Free the available node list*/
+  R_Free(availnodes);  /*Free the available node list*/
   if(usednodes!=NULL)
-    free((void *)usednodes); /*Free the used node list, if needed*/
+    R_Free(usednodes); /*Free the used node list, if needed*/
 }
 
 

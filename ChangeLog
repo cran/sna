@@ -1,4 +1,11 @@
 CHANGELOG:
+v2.8
+   New Features:
+     rgbn now supports exogenous inhibition events, and can start with
+       a user-specified seed graph; new "density guard" feature allows
+       early termination at a target density (useful for ABC applications)
+   Changes:
+     C-level changes made for CRAN compliance
 v2.7-2
    Bug Fixes:
      Corrected a formatting issue that was generating a compile warning.

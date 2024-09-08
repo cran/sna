@@ -3,7 +3,7 @@
 # randomgraph.R
 #
 # copyright (c) 2004, Carter T. Butts <buttsc@uci.edu>
-# Last Modified 11/26/20
+# Last Modified 02/28/24
 # Licensed under the GNU General Public License version 2 (June, 1991)
 # or later.
 #
@@ -69,9 +69,16 @@ rewire.ws<-function(g,p,return.as.edgelist=FALSE){
 
 
 #rgbn - Draw from a biased net model
-rgbn<-function(n,nv,param=list(pi=0,sigma=0,rho=0,d=0.5,delta=0),burn=nv*nv*5*1e2,thin=nv*nv*5,maxiter=1e7,method=c("mcmc","cftp"),dichotomize.sib.effects=FALSE,return.as.edgelist=FALSE){
-  #Allocate memory for the graphs
+rgbn<-function(n, nv, param=list(pi=0, sigma=0, rho=0, d=0.5, delta=0, epsilon=0), burn=nv*nv*5*1e2, thin=nv*nv*5, maxiter=1e7, method=c("mcmc","cftp"), dichotomize.sib.effects=FALSE, return.as.edgelist=FALSE, seed.graph=NULL, max.density=1){
+  #Allocate memory for the graphs (and initialize)
   g<-array(0,dim=c(n,nv,nv))
+  if(!is.null(seed.graph)){
+    seed.graph<-as.sociomatrix.sna(seed.graph)
+    if(length(dim(seed.graph))>2)
+      g[1,,]<-seed.graph[1,,]
+    else
+      g[1,,]<-seed.graph
+  }
   #Get the parameter vector
   p<-rep(0,4)
   if(!is.null(param$pi))
@@ -84,14 +91,25 @@ rgbn<-function(n,nv,param=list(pi=0,sigma=0,rho=0,d=0.5,delta=0),burn=nv*nv*5*1e
     p[4]<-param$delta[1]
   if((p[4]>0)&&(match.arg(method)=="cftp"))
     stop("Satiation parameter (delta) not supported with CFTP at present; use MCMC instead.\n")
-  if(!is.null(param$d)){
+  if(!is.null(param$d)){           #Base event rates (convert to nv x nv form)
     d<-matrix(param$d,nv,nv)
   }else
     d<-matrix(0,nv,nv)
+  if(!is.null(param$epsilon)){     #Inhibition events (in aggregate) - convert to nv x nv form
+    if(any(param$epsilon>0)&&(match.arg(method)=="cftp")){
+      stop("Inhibition events (epsilon) not supported with CFTP at present; use MCMC instead.\n")
+    }
+    e<-matrix(param$epsilon,nv,nv)
+  }else{                        #Not using, by default
+    e<-matrix(0,nv,nv)
+  }
   #Take the draws
-  if(match.arg(method)=="mcmc")
-    g<-array(.C("bn_mcmc_R",g=as.integer(g),as.double(nv),as.double(n), as.double(burn),as.integer(thin),as.double(p[1]),as.double(p[2]),as.double(p[3]),as.double(d), as.double(p[4]),as.integer(dichotomize.sib.effects),PACKAGE="sna")$g,dim=c(n,nv,nv))
-  else{
+  early.termination<-FALSE           #Flag for early termination
+  if(match.arg(method)=="mcmc"){
+    sim<-.C("bn_mcmc_R",g=as.integer(g),as.double(nv),as.double(n), as.double(burn),as.integer(thin),as.double(p[1]),as.double(p[2]),as.double(p[3]),as.double(d), as.double(p[4]),as.double(e),as.integer(dichotomize.sib.effects), dm=as.double(max.density*nv*(nv-1)),PACKAGE="sna")
+    g<-array(sim$g,dim=c(n,nv,nv))
+    early.termination<-sim$dm<0          #Make sure we didn't stop early
+  }else{
     if(any(d>0)){        #If d==0, just return empty graphs
       if(all(d==1)){     #If d==1, just return complete graphs (no delta support yet!)
         for(i in 1:n){
@@ -109,13 +127,16 @@ rgbn<-function(n,nv,param=list(pi=0,sigma=0,rho=0,d=0.5,delta=0),burn=nv*nv*5*1e
   }
   #Return the result
   if(return.as.edgelist)
-   as.edgelist.sna(g)
+    out<-as.edgelist.sna(g)
   else{
     if(dim(g)[1]==1)
-      g[1,,]
+      out<-g[1,,]
     else
-      g
+      out<-g
   }
+  if(early.termination)  #Mark the output as tainted if necessary
+    attr(out,"early.termination")<-TRUE
+  out
 }
 
 #r[i]=1-u^i

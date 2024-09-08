@@ -46,7 +46,7 @@ gplot(dat, g = 1, gmode = "digraph", diag = FALSE,
   \item{label.pad}{ amount to pad label boxes (if \code{boxed.labels==TRUE}), in character size units. }
   \item{displaylabels}{ boolean; should vertex labels be displayed? }
   \item{boxed.labels}{ boolean; place vertex labels within boxes? }
-  \item{label.pos}{ position at which labels should be placed, relative to vertices.  \code{0} results in labels which are placed away from the center of the plotting region; \code{1}, \code{2}, \code{3}, and \code{4} result in labels being placed below, to the left of, above, and to the right of vertices (respectively); and \code{label.pos>=5} results in labels which are plotted with no offset (i.e., at the vertex positions). }
+  \item{label.pos}{ position at which labels should be placed, relative to vertices.  \code{0} results in labels which are placed away from the center of the plotting region; \code{1}, \code{2}, \code{3}, and \code{4} result in labels being placed below, to the left of, above, and to the right of vertices (respectively); and \code{label.pos=5} results in labels which are plotted with no offset (i.e., at the vertex positions). }
   \item{label.bg}{ background color for label boxes (if \code{boxed.labels==TRUE}); may be a vector, if boxes are to be of different colors.}
   \item{vertex.enclose}{ boolean; should vertices be enclosed within circles?  (Can increase legibility for polygonal vertices.)}
   \item{vertex.sides}{ number of polygon sides for vertices; may be given as a vector, if vertices are to be of different types.  By default, 50 sides are used (or 50 and 4, for two-mode data).}

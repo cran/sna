@@ -1,6 +1,6 @@
 9ba5884ddab488cf320c3989f1c882ff *COPYING
-c90d4af19212c889018452d18d4b9cee *ChangeLog
-335706b03897b6f9a7e941d78821124c *DESCRIPTION
+0d35c8528d26b2f18d71e1f3ce62018b *ChangeLog
+8aefb977631d6948c033a187ac8c5ad4 *DESCRIPTION
 4afcba807dbe3ac044e626952117c0e2 *INDEX
 98acd659dc2a3896479842d132ce04b5 *NAMESPACE
 785b6a5b375a34a774ea41336c385df3 *R/connectivity.R
@@ -12,7 +12,7 @@ a1e64ce8edfe5767797883343c2db671 *R/gtest.R
 67969c3a1c637edd97b1ac7469616194 *R/models.R
 dc4bc76b0b9da4c9cd1b812194b00d9b *R/nli.R
 f7d3fabffa5c1155882bfde1769d45e9 *R/permutation.R
-04c2d61cc6d6e49754814a4404a782e2 *R/randomgraph.R
+e92d28f5cf2749e2254ff60eea02422c *R/randomgraph.R
 12836f351f89c71658b818ac77ac9ab4 *R/roles.R
 b6ffb59d4315fb3d1125e1ab2263affc *R/sna-operators.R
 c41262b9aa29c60627c12c4f59fa230f *R/visualization.R
@@ -62,7 +62,7 @@ f039565add28542f3453fd4a333f1d3f *man/gdist.plotdiff.Rd
 aba14f0e54500d4aaac0c619b9551ef1 *man/geodist.Rd
 cdd3c4e722fbb2d5575dec3851940e65 *man/gilschmidt.Rd
 71f64aab86ae2e5c5d190e1d58bcdc91 *man/gliop.Rd
-27879a02825dfc9a3a18eab48f7d5d09 *man/gplot.Rd
+6523459d0959b53ec658c50616a6fb55 *man/gplot.Rd
 63dfc674d1d76800880b154526762d2d *man/gplot.arrow.Rd
 00f70e95a56657384fe51e9147cb9eee *man/gplot.layout.Rd
 f18bb78f2e13f37b0498d07c0e159968 *man/gplot.loop.Rd
@@ -137,7 +137,7 @@ ca2b59aebcae210dc09c1c534f2128c6 *man/reachability.Rd
 9ba3a90b1bd2d9159dd9cb9899788613 *man/read.dot.Rd
 3ad551092bf9fcd8b5fd6023701e8ea2 *man/read.nos.Rd
 3896378a2b499b3dbe929838aaa4af3b *man/redist.Rd
-4f73fbac80189b31474c909e9fed7766 *man/rgbn.Rd
+6ccd92656dcc723b097c68e6350e911d *man/rgbn.Rd
 742436c8a1ef9a22f6338b14343de1f7 *man/rgnm.Rd
 6a6619b39555bcde8c99d2f9c05f394e *man/rgnmix.Rd
 a98f8f72e5743bda4747d7304fbf36c5 *man/rgraph.Rd
@@ -174,7 +174,7 @@ ca0638fe16e3793415c7d9cdcfd90828 *man/triad.census.Rd
 fd22582a85c0708915bae84a1f96ae9c *man/upper.tri.remove.Rd
 5ab4e8d4892ed9030c6a1a0555d59ac2 *man/write.dl.Rd
 afe8f0639d303448a276a9e9e2091887 *man/write.nos.Rd
-39c006e94dbdc88366c8ff64cd29d43e *src/Rinit.c
+218857de86c8d73002c9f66f71e5b735 *src/Rinit.c
 ec50ca6ccb490a62998881d4df02bca3 *src/cohesion.c
 0213ecd1bd63b8c926ccb2f2b8991613 *src/cohesion.h
 5aa178a1daf8f3610266db8682c41d16 *src/components.c
@@ -183,17 +183,17 @@ bead4264968e3255bb29d5d2c5406dd4 *src/geodist.c
 f6deb2e2597912685a6c62bacaebf286 *src/geodist.h
 d74ea885f10a760e37a18bab3dda9d57 *src/gli.c
 f080d84e34176c4d67efc21a2c42899c *src/gli.h
-c768619172e1bb0cba0a36f35051655e *src/layout.c
+f95247607f76a781f3cc49bde3141de5 *src/layout.c
 378d12e950d663b87a12c70782501471 *src/layout.h
 0734dac885a13966ac65089ae284c524 *src/likelihood.c
 d814e2e7e9f9dcfc20e64a54b4ba953d *src/likelihood.h
 3e5358c34066aa58ef7168b68cd99886 *src/nli.c
 9933b5d2ee1ab4788d922311815e6d04 *src/nli.h
-edd6a116af8018e2bd7d37e92d67cfa8 *src/paths.c
+48c1a5d72c9b1a68074ac71ab0ef304f *src/paths.c
 cbab6598ea2aed880f43c845c72205fb *src/paths.h
-857f0f52c21e259ad553c682cdda5d51 *src/randomgraph.c
-0b59eda014636d6fc60347d32c73d3db *src/randomgraph.h
+c53fb34cb6b766f764cf70536b3dc9f3 *src/randomgraph.c
+98e58851b8f745fb79db460c743382f3 *src/randomgraph.h
 5cf6fc518ef9c91a8f2c681814b0bc08 *src/triads.c
 bbebed11dd9f0fabc1bc0135874e699c *src/triads.h
-788f86775daf8a8db956bd2ebf124280 *src/utils.c
+6125fd08e26edd425fd67f0f17acfc88 *src/utils.c
 8bf40b968d70c8314052152f2b12194b *src/utils.h

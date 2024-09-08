@@ -478,10 +478,10 @@ void gplot_layout_target_R(int *d, double *pn, int *pniter, double *elen, double
       if(core[j]){
         /*Draw the candidate via an angular perturbation*/
         c=theta[j]+runif(-1.0,1.0)*temp/initemp*maxdelta;
-        while(c>=2.0*PI)   /*Map to [0,2pi) interval*/
-          c-=2.0*PI;
+        while(c>=2.0*M_PI)   /*Map to [0,2pi) interval*/
+          c-=2.0*M_PI;
         while(c<0.0)
-          c+=2.0*PI;
+          c+=2.0*M_PI;
         /*Calculate the potential difference for the new position*/
         dpot=0.0;
         for(k=0;k<n;k++)  
@@ -543,10 +543,10 @@ void gplot_layout_target_R(int *d, double *pn, int *pniter, double *elen, double
       if(core[j]){
         /*Draw the candidate via an angular perturbation*/
         c=theta[j]+runif(-1.0,1.0)*temp/initemp*maxdelta;
-        while(c>=2.0*PI)   /*Map to [0,2pi) interval*/
-          c-=2.0*PI;
+        while(c>=2.0*M_PI)   /*Map to [0,2pi) interval*/
+          c-=2.0*M_PI;
         while(c<0.0)
-          c+=2.0*PI;
+          c+=2.0*M_PI;
         /*Calculate the potential difference for the new position*/
         dpot=0.0;
         for(k=0;k<n;k++)  
@@ -592,10 +592,10 @@ void gplot_layout_target_R(int *d, double *pn, int *pniter, double *elen, double
       if(!core[j]){
         /*Draw the candidate via an angular perturbation*/
         c=theta[j]+runif(-1.0,1.0)*temp/initemp*maxdelta;
-        while(c>=2.0*PI)   /*Map to [0,2pi) interval*/
-          c-=2.0*PI;
+        while(c>=2.0*M_PI)   /*Map to [0,2pi) interval*/
+          c-=2.0*M_PI;
         while(c<0.0)
-          c+=2.0*PI;
+          c+=2.0*M_PI;
         /*Calculate the potential difference for the new position*/
         dpot=0.0;
         for(k=0;k<n;k++)  
